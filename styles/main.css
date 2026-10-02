@@ -3421,14 +3421,27 @@ body.rtl-mode .mobile-nav-drawer {
 /* 3. Phablets & Mobile Phones (<= 768px) */
 @media (max-width: 768px) {
   #authActionsContainer { display: none !important; }
-  .header-inner { padding: 0 1rem; height: 50px; }
+  #headerSearchBtn { display: none !important; }
+  .header-inner { padding: 0 1rem; height: 50px; gap: 0.5rem; }
   .search-btn-label { display: none !important; }
   .mobile-menu-btn { display: inline-flex !important; order: 10; }
+  .header-actions { gap: 0.35rem; flex-shrink: 1; }
   
   /* Hero section typography and actions on mobile */
   .hero-section { padding: 3rem 1rem 2.5rem; }
   .hero-title { font-size: clamp(1.85rem, 5.5vw, 2.3rem); line-height: 1.25; }
   .hero-subtext { font-size: 0.95rem; margin-bottom: 1.75rem; max-width: 100%; }
+  /* Portal page header on mobile */
+  .portal-page-title h2 { font-size: 1.35rem; }
+  .portal-page-title p { font-size: 0.82rem; }
+  .portal-page-header { margin-bottom: 1.25rem; }
+  /* KPI cards compact on mobile */
+  .coord-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem; }
+  .kpi-card { padding: 1rem 0.85rem; gap: 0.75rem; min-width: 0; overflow: hidden; }
+  .kpi-icon { width: 42px; height: 42px; flex-shrink: 0; }
+  .kpi-info { min-width: 0; overflow: hidden; }
+  .kpi-info h3 { font-size: 1.5rem; }
+  .kpi-info p { font-size: 0.78rem; white-space: normal; }
   .hero-actions {
     flex-direction: column;
     width: 100%;
