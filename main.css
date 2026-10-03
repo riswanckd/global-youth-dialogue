@@ -995,6 +995,8 @@ body.rtl-mode .session-lock-tag {
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.6;
+}
+
 /* ==========================================================================
    PUBLIC SECTION ARCHITECTURE & BAR SWITCHER
    ========================================================================== */
