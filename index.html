@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Global Youth Dialogue - A youth-led international community formed by debaters from ISDC7 Qatar. Connecting young debaters worldwide to explore global issues and develop ideas.">
-  <meta name="keywords" content="Global Youth Dialogue, Qatar ISDC7, debate, international youth, academic writings, global affairs, youth leadership">
+  <meta name="description" content="Global Youth Dialogue - An independent youth-led international community connecting young debaters worldwide to explore global issues, write academic papers, and develop ideas through weekly structured dialogue.">
+  <meta name="keywords" content="Global Youth Dialogue, debate, international youth, academic writings, global affairs, youth leadership, student dialogue">
   <title>Global Youth Dialogue | International Community of Youth Debaters</title>
 
   <!-- Google Fonts & Stylesheet -->
@@ -33,7 +33,7 @@
         <a href="#about" class="nav-link" data-i18n="navAbout">About</a>
         <a href="#topics" class="nav-link" data-i18n="navTopics">Topics</a>
         <a href="#sessions" class="nav-link" data-i18n="navSessions">Sessions</a>
-        <a href="#chapters" class="nav-link" data-i18n="navChapters">Chapters</a>
+        <a href="#impact" class="nav-link" data-i18n="navImpact">Our Impact</a>
       </nav>
 
       <!-- Header Action Controls -->
@@ -87,7 +87,7 @@
         <a href="#about" class="mobile-nav-link" data-i18n="navAbout">About</a>
         <a href="#topics" class="mobile-nav-link" data-i18n="navTopics">Topics</a>
         <a href="#sessions" class="mobile-nav-link" data-i18n="navSessions">Sessions</a>
-        <a href="#chapters" class="mobile-nav-link" data-i18n="navChapters">Chapters</a>
+        <a href="#impact" class="mobile-nav-link" data-i18n="navImpact">Our Impact</a>
       </nav>
       <div class="mobile-drawer-actions" id="mobileDrawerActions">
         <button class="btn btn-outline" id="mobileDrawerLoginBtn" style="width: 100%;" data-i18n="navLogin">Sign In</button>
@@ -100,265 +100,447 @@
        VIEW 1: PUBLIC LANDING PAGE
        ======================================================================= -->
   <main id="viewPublic" class="app-view">
-    <!-- Hero Section -->
-    <section class="hero-section" id="home">
-      <div class="container">
-        <div class="hero-badge-wrap">
-          <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></span>
-          <span data-i18n="badgeOrigin">Born from Qatar ISDC7 Championship</span>
+    <!-- =======================================================================
+         PUBLIC SECTION 1: HOME
+         ======================================================================= -->
+    <div class="public-section active" id="home">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="container">
+          <div class="hero-badge-wrap">
+            <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></span>
+            <span data-i18n="badgeOrigin">International Community of Youth Debaters</span>
+          </div>
+          <h1 class="hero-title serif-text" data-i18n="taglineLong">
+            Young minds. Different countries. One conversation.
+          </h1>
+          <p class="hero-subtext" data-i18n="heroSubtext">
+            A youth-led international community connecting young debaters to explore global issues, exchange perspectives and develop ideas through structured dialogue.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" id="heroExploreBtn" data-i18n="btnExplore">
+              Explore the Community
+            </button>
+            <button class="btn btn-outline btn-lg" id="heroSessionsBtn" data-i18n="btnUpcomingSessions">
+              Upcoming Sessions
+            </button>
+            <button class="btn btn-navy btn-lg" id="heroJoinBtn" data-i18n="btnJoinCommunity">
+              Apply for Membership
+            </button>
+          </div>
         </div>
-        <h1 class="hero-title serif-text" data-i18n="taglineLong">
-          Young minds. Different countries. One conversation.
-        </h1>
-        <p class="hero-subtext" data-i18n="heroSubtext">
-          A youth-led international community connecting young debaters to explore global issues, exchange perspectives and develop ideas through structured dialogue.
-        </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary btn-lg" id="heroExploreBtn" data-i18n="btnExplore">
-            Explore the Community
-          </button>
-          <button class="btn btn-outline btn-lg" id="heroSessionsBtn" data-i18n="btnUpcomingSessions">
-            Upcoming Sessions
-          </button>
-          <button class="btn btn-navy btn-lg" id="heroJoinBtn" data-i18n="btnJoinCommunity">
-            Apply for Membership
-          </button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Key Metrics Strip -->
-    <div class="metrics-strip">
-      <div class="container">
-        <div class="metrics-grid">
-          <div class="metric-item">
-            <div class="metric-number" data-i18n="statNationsNum">14+</div>
-            <div class="metric-label" data-i18n="statNations">Countries Represented</div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-number" data-i18n="statDebatersNum">60+</div>
-            <div class="metric-label" data-i18n="statDebaters">Youth Debaters</div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-number" data-i18n="statSessionsNum">Bi-weekly</div>
-            <div class="metric-label" data-i18n="statSessions">Structured Dialogues</div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-number" data-i18n="statWritingsNum">100%</div>
-            <div class="metric-label" data-i18n="statWritings">Youth-Led & Researched</div>
+      <!-- Key Metrics Strip -->
+      <div class="metrics-strip">
+        <div class="container">
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <div class="metric-number" data-i18n="statNationsNum">14+</div>
+              <div class="metric-label" data-i18n="statNations">Countries Represented</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-number" data-i18n="statDebatersNum">60+</div>
+              <div class="metric-label" data-i18n="statDebaters">Youth Debaters</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-number" data-i18n="statSessionsNum">Weekly</div>
+              <div class="metric-label" data-i18n="statSessions">Weekly Dialogue Sessions</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-number" data-i18n="statWritingsNum">100%</div>
+              <div class="metric-label" data-i18n="statWritings">Youth-Led & Researched</div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Quick Welcome Highlights (Home Section Cards) -->
+      <section class="home-highlights-section">
+        <div class="container">
+          <div class="home-highlights-grid">
+            <div class="highlight-feature-card" data-public-nav="about">
+              <div class="feature-icon-badge">🏛️</div>
+              <h3 class="serif-text" data-i18n="navAbout">About the Movement</h3>
+              <p data-i18n="aboutSubtitle">Founded by friends who met at an international debate championship to turn competitive debate into a permanent global academic network.</p>
+              <span class="feature-learn-more"><span data-i18n="btnLearnMore">Learn More</span> →</span>
+            </div>
+            <div class="highlight-feature-card" data-public-nav="topics">
+              <div class="feature-icon-badge">🌐</div>
+              <h3 class="serif-text" data-i18n="topicsTitle">10 Knowledge Spheres</h3>
+              <p data-i18n="topicsSubtitle">Explore multidisciplinary arenas from Geopolitics & AI Ethics to Climate, Governance, and Human Rights.</p>
+              <span class="feature-learn-more"><span data-i18n="navTopics">Explore Topics</span> →</span>
+            </div>
+            <div class="highlight-feature-card" data-public-nav="impact">
+              <div class="feature-icon-badge">🚀</div>
+              <h3 class="serif-text" data-i18n="impactTitle">Our Impact</h3>
+              <p data-i18n="impactSubtitle">Grow beyond the debate room: develop rigorous research, public speaking, academic writing, and international leadership.</p>
+              <span class="feature-learn-more"><span data-i18n="navImpact">Discover Impact</span> →</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- About Section -->
-    <section class="about-section" id="about">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag" data-i18n="navAbout">About The Movement</span>
-          <h2 class="section-title serif-text" data-i18n="aboutSectionTitle">About the Project</h2>
-          <p class="section-desc" data-i18n="aboutSubtitle">
-            From a temporary debate tournament in Doha to a lasting global youth intellectual network.
-          </p>
-        </div>
-
-        <!-- Our Story Hero Box -->
-        <div class="about-card-hero">
-          <div class="origin-badge">
-            <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span> <span data-i18n="badgeLegacy">Qatar ISDC7 Legacy</span>
-          </div>
-          <h3 class="serif-text" data-i18n="ourStoryTitle">Our Origin Story</h3>
-          <p data-i18n="ourStoryP1">
-            Young debaters from different countries met through the Qatar International Schools Debate Championship (ISDC7) in Doha.
-          </p>
-          <p data-i18n="ourStoryP2">
-            Although the tournament concluded, delegates realized the urgent value of continuing to debate together, critically examine global affairs, learn from divergent cultural perspectives, and create platforms for other young thinkers.
-          </p>
-          <p data-i18n="ourStoryP3">
-            Global Youth Dialogue was founded to turn that temporary international spark into a continuing, youth-led academic network.
-          </p>
-        </div>
-
-        <!-- Mission & Vision Cards -->
-        <div class="mission-vision-grid">
-          <div class="mv-card">
-            <div class="mv-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
-            <h4 class="serif-text" data-i18n="missionTitle">Our Mission</h4>
-            <p data-i18n="missionDesc">
-              To create an international space where young people can discuss global issues, challenge ideas, develop research and communication skills, and learn from peers across borders.
+    <!-- =======================================================================
+         PUBLIC SECTION 2: ABOUT
+         ======================================================================= -->
+    <div class="public-section" id="about">
+      <section class="about-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag" data-i18n="navAbout">About The Movement</span>
+            <h2 class="section-title serif-text" data-i18n="aboutSectionTitle">About the Project</h2>
+            <p class="section-desc" data-i18n="aboutSubtitle">
+              From an international debate championship meeting to a lasting global youth intellectual network.
             </p>
           </div>
-          <div class="mv-card">
-            <div class="mv-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
-            <h4 class="serif-text" data-i18n="visionTitle">Our Vision</h4>
-            <p data-i18n="visionDesc">
-              A connected generation of young people capable of engaging thoughtfully with global challenges and participating in meaningful international dialogue.
+
+          <!-- Our Story Hero Box -->
+          <div class="about-card-hero">
+            <div class="origin-badge">
+              <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span> <span data-i18n="badgeLegacy">Founding Story</span>
+            </div>
+            <h3 class="serif-text" data-i18n="ourStoryTitle">Our Origin Story</h3>
+            <p data-i18n="ourStoryP1">
+              Young debaters from different countries met at an international debate championship and discovered a shared passion for deep, substantive exchange.
+            </p>
+            <p data-i18n="ourStoryP2">
+              Although the tournament concluded, delegates realized the urgent value of continuing to debate together, critically examine global affairs, learn from divergent cultural perspectives, and create platforms for other young thinkers.
+            </p>
+            <p data-i18n="ourStoryP3">
+              Global Youth Dialogue was founded to turn that temporary international spark into a continuing, youth-led academic network.
             </p>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- 5-Step Programme Cycle -->
-    <section class="process-section" id="process">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag" data-i18n="processTag">The Dialogue Cycle</span>
-          <h2 class="section-title serif-text" data-i18n="processTitle">How the Programme Works</h2>
-          <p class="section-desc" data-i18n="processSubtitle">
-            A visual 5-step cycle converting spoken parliamentary debate into rigorous academic documentation.
-          </p>
-        </div>
-
-        <div class="process-grid">
-          <!-- Step 1 -->
-          <div class="process-card">
-            <div class="process-step-num" data-i18n="step1Num">01</div>
-            <h4 data-i18n="step1Title">01 — SELECT</h4>
-            <p data-i18n="step1Desc">A topic is selected and approved from community proposals across eight global categories.</p>
-          </div>
-          <!-- Step 2 -->
-          <div class="process-card">
-            <div class="process-step-num" data-i18n="step2Num">02</div>
-            <h4 data-i18n="step2Title">02 — PREPARE</h4>
-            <p data-i18n="step2Desc">Speakers research the issue, assemble empirical dossiers, and prepare presentations.</p>
-          </div>
-          <!-- Step 3 -->
-          <div class="process-card">
-            <div class="process-step-num" data-i18n="step3Num">03</div>
-            <h4 data-i18n="step3Title">03 — DISCUSS</h4>
-            <p data-i18n="step3Desc">The community meets online for a structured presentation, parliamentary debate, or dialogue.</p>
-          </div>
-          <!-- Step 4 -->
-          <div class="process-card">
-            <div class="process-step-num" data-i18n="step4Num">04</div>
-            <h4 data-i18n="step4Title">04 — REFLECT</h4>
-            <p data-i18n="step4Desc">Members submit qualitative feedback scrutinizing arguments, evidence gaps, and overlooked angles.</p>
-          </div>
-          <!-- Step 5 -->
-          <div class="process-card">
-            <div class="process-step-num" data-i18n="step5Num">05</div>
-            <h4 data-i18n="step5Title">05 — DOCUMENT</h4>
-            <p data-i18n="step5Desc">The session is recorded and converted into a written academic-style summary in our archive.</p>
+          <!-- Mission & Vision Cards -->
+          <div class="mission-vision-grid">
+            <div class="mv-card">
+              <div class="mv-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+              <h4 class="serif-text" data-i18n="missionTitle">Our Mission</h4>
+              <p data-i18n="missionDesc">
+                To create an international space where young people can discuss global issues, challenge ideas, develop research and communication skills, and learn from peers across borders.
+              </p>
+            </div>
+            <div class="mv-card">
+              <div class="mv-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
+              <h4 class="serif-text" data-i18n="visionTitle">Our Vision</h4>
+              <p data-i18n="visionDesc">
+                A connected generation of young people capable of engaging thoughtfully with global challenges and participating in meaningful international dialogue.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Topic Categories Grid -->
-    <section class="topics-section" id="topics">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag" data-i18n="topicsTag">Core Knowledge Spheres</span>
-          <h2 class="section-title serif-text" data-i18n="topicsTitle">Topic Categories</h2>
-          <p class="section-desc" data-i18n="topicsSubtitle">
-            Multidisciplinary arenas where youth debaters examine international relations, technologies, and human societies.
-          </p>
-        </div>
-
-        <div class="categories-grid" id="publicCategoriesContainer">
-          <!-- Dynamically populated from data.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Public Dialogue Sessions (Members-Only Privacy Notice) -->
-    <section class="sessions-public-section" id="sessions">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag" data-i18n="sessionsTag">Dialogue Archive</span>
-          <h2 class="section-title serif-text" data-i18n="sessionsTitle">Sessions & Academic Writings</h2>
-          <p class="section-desc" data-i18n="sessionsSubtitle">
-            All live session participation, private recordings, and academic writings are members-only.
-          </p>
-        </div>
-
-        <!-- Members Only Banner -->
-        <div class="members-banner">
-          <div class="members-banner-lock"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
-          <h3 class="serif-text" data-i18n="membersOnlyNotice">
-            Session Content & Archives are Members-Only
-          </h3>
-          <p data-i18n="signInToAccess">
-            To maintain a safe, intellectually focused environment for international debaters, live meeting links, private YouTube recordings, and full academic writings are accessible only through authenticated Member & Coordinator portals.
-          </p>
-          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <button class="btn btn-primary btn-lg" id="bannerLoginBtn" data-i18n="navLogin">Sign In to Access</button>
-            <button class="btn btn-outline btn-lg" id="bannerApplyBtn" style="color: #fff; border-color: rgba(255,255,255,0.4);" data-i18n="btnJoinCommunity">Apply for Membership</button>
+      <!-- Brand Triad Section -->
+      <section class="brand-triad-section">
+        <div class="container">
+          <div class="triad-grid">
+            <div class="triad-item">
+              <div class="triad-word serif-text" data-i18n="valConnect">Connect</div>
+              <p class="triad-desc" data-i18n="valConnectDesc">
+                Young people from different countries meeting across geographical and cultural divides.
+              </p>
+            </div>
+            <div class="triad-item">
+              <div class="triad-word serif-text" data-i18n="valChallenge">Challenge</div>
+              <p class="triad-desc" data-i18n="valChallengeDesc">
+                Question ideas, test assertions with evidence, and examine divergent international perspectives.
+              </p>
+            </div>
+            <div class="triad-item">
+              <div class="triad-word serif-text" data-i18n="valCreate">Create</div>
+              <p class="triad-desc" data-i18n="valCreateDesc">
+                Turn debates into academic knowledge, policy insights, and long-term youth collaboration.
+              </p>
+            </div>
           </div>
         </div>
+      </section>
 
-        <!-- Preview Cards -->
-        <div class="public-sessions-grid" id="publicSessionsPreview">
-          <!-- Populated from data.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Brand Triad Section -->
-    <section class="brand-triad-section">
-      <div class="container">
-        <div class="triad-grid">
-          <div class="triad-item">
-            <div class="triad-word serif-text" data-i18n="valConnect">Connect</div>
-            <p class="triad-desc" data-i18n="valConnectDesc">
-              Young people from different countries meeting across geographical and cultural divides.
+      <!-- 6-Step Programme Cycle -->
+      <section class="process-section" id="process">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag" data-i18n="processTag">The Dialogue Cycle</span>
+            <h2 class="section-title serif-text" data-i18n="processTitle">How the Programme Works</h2>
+            <p class="section-desc" data-i18n="processSubtitle">
+              A visual 6-stage cycle converting spoken dialogue and debate into rigorous research, academic papers, and documented knowledge.
             </p>
           </div>
-          <div class="triad-item">
-            <div class="triad-word serif-text" data-i18n="valChallenge">Challenge</div>
-            <p class="triad-desc" data-i18n="valChallengeDesc">
-              Question ideas, test assertions with evidence, and examine divergent international perspectives.
+
+          <div class="process-grid process-grid-6">
+            <!-- Step 1 -->
+            <div class="process-card">
+              <div class="process-step-num" data-i18n="step1Num">01</div>
+              <h4 data-i18n="step1Title">01 — SELECT</h4>
+              <p data-i18n="step1Desc">A topic is proposed by members and curated across key global themes.</p>
+            </div>
+            <!-- Step 2 -->
+            <div class="process-card">
+              <div class="process-step-num" data-i18n="step2Num">02</div>
+              <h4 data-i18n="step2Title">02 — PREPARE</h4>
+              <p data-i18n="step2Desc">Speakers conduct in-depth research, gather credible sources, and develop balanced presentation decks.</p>
+            </div>
+            <!-- Step 3 -->
+            <div class="process-card">
+              <div class="process-step-num" data-i18n="step3Num">03</div>
+              <h4 data-i18n="step3Title">03 — DISCUSS</h4>
+              <p data-i18n="step3Desc">The community convenes online for structured dialogue, speaker presentation, and open parliamentary floor debate.</p>
+            </div>
+            <!-- Step 4 -->
+            <div class="process-card">
+              <div class="process-step-num" data-i18n="step4Num">04</div>
+              <h4 data-i18n="step4Title">04 — REFLECT</h4>
+              <p data-i18n="step4Desc">Participants submit structured peer reflections, evaluating arguments, evidence strength, and multiple perspectives.</p>
+            </div>
+            <!-- Step 5 -->
+            <div class="process-card">
+              <div class="process-step-num" data-i18n="step5Num">05</div>
+              <h4 data-i18n="step5Title">05 — PUBLISH</h4>
+              <p data-i18n="step5Desc">Following the session, the presenter compiles their in-depth research, arguments, and visual presentation into a formal academic paper published in the community library.</p>
+            </div>
+            <!-- Step 6 -->
+            <div class="process-card">
+              <div class="process-step-num" data-i18n="step6Num">06</div>
+              <h4 data-i18n="step6Title">06 — DOCUMENT</h4>
+              <p data-i18n="step6Desc">A comprehensive analytical summary of the session is documented and archived, capturing key arguments, counterpoints, and takeaways for all members.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- =======================================================================
+         PUBLIC SECTION 3: TOPICS
+         ======================================================================= -->
+    <div class="public-section" id="topics">
+      <section class="topics-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag" data-i18n="topicsTag">Core Knowledge Spheres</span>
+            <h2 class="section-title serif-text" data-i18n="topicsTitle">Topic Categories</h2>
+            <p class="section-desc" data-i18n="topicsSubtitle">
+              Multidisciplinary arenas where youth debaters examine international relations, technologies, and human societies.
             </p>
           </div>
-          <div class="triad-item">
-            <div class="triad-word serif-text" data-i18n="valCreate">Create</div>
-            <p class="triad-desc" data-i18n="valCreateDesc">
-              Turn debates into academic knowledge, policy insights, and long-term youth collaboration.
-            </p>
+
+          <div class="categories-grid" id="publicCategoriesContainer">
+            <!-- Dynamically populated from data.js -->
           </div>
         </div>
-      </div>
-    <!-- Country Chapters Section -->
-    <section class="chapters-section" id="chapters" style="padding: 5rem 0; background: var(--bg-surface);">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag" data-i18n="chaptersTag">Global Network</span>
-          <h2 class="section-title serif-text" data-i18n="chaptersTitle">National Chapters & Representatives</h2>
-          <p class="section-desc" data-i18n="chaptersDesc">
-            Organized by ISDC7 tournament alumni across 14+ countries to recruit youth delegates and coordinate national debate cohorts.
-          </p>
-        </div>
+      </section>
+    </div>
 
-        <div class="reps-grid" id="publicRepsGrid">
-          <!-- Populated dynamically from countryReps -->
-        </div>
-      </div>
-    </section>
+    <!-- =======================================================================
+         PUBLIC SECTION 4: SESSIONS
+         ======================================================================= -->
+    <div class="public-section" id="sessions">
+      <section class="sessions-public-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag" data-i18n="sessionsTag">Dialogue Archive</span>
+            <h2 class="section-title serif-text" data-i18n="sessionsTitle">Sessions & Academic Writings</h2>
+            <p class="section-desc" data-i18n="sessionsSubtitle">
+              All live session participation, private recordings, and academic writings are members-only.
+            </p>
+          </div>
 
-    <!-- Footer -->
+          <!-- Members Only Banner -->
+          <div class="members-banner">
+            <div class="members-banner-lock"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+            <h3 class="serif-text" data-i18n="membersOnlyNotice">
+              Session Content & Archives are Members-Only
+            </h3>
+            <p data-i18n="signInToAccess">
+              To maintain a safe, intellectually focused environment for international debaters, live meeting links, private YouTube recordings, and full academic writings are accessible only through authenticated Member & Coordinator portals.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-lg" id="bannerLoginBtn" data-i18n="navLogin">Sign In to Access</button>
+              <button class="btn btn-outline btn-lg" id="bannerApplyBtn" style="color: #fff; border-color: rgba(255,255,255,0.4);" data-i18n="btnJoinCommunity">Apply for Membership</button>
+            </div>
+          </div>
+
+          <!-- Preview Cards -->
+          <div class="public-sessions-grid" id="publicSessionsPreview">
+            <!-- Populated from data.js -->
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- =======================================================================
+         PUBLIC SECTION 5: OUR IMPACT
+         ======================================================================= -->
+    <div class="public-section" id="impact">
+      <section class="impact-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-tag" data-i18n="impactTag">Grow Beyond the Debate Room</span>
+            <h2 class="section-title serif-text" data-i18n="impactTitle">Our Impact</h2>
+            <p class="section-desc" data-i18n="impactSubtitle">
+              Grow beyond the debate room.
+            </p>
+          </div>
+
+          <!-- Intro Box -->
+          <div class="impact-intro-card">
+            <p class="impact-lead-text" data-i18n="impactIntro">
+              Being part of our community is not only about attending discussions. It is an opportunity to continuously think, research, present, write, and connect with young people from different backgrounds.
+            </p>
+            <h3 class="impact-pillars-heading serif-text" data-i18n="impactPillarsHeader">
+              Through regular participation, members can develop:
+            </h3>
+          </div>
+
+          <!-- 8 Impact Development Pillars Grid -->
+          <div class="impact-pillars-grid">
+            <div class="impact-card">
+              <div class="impact-card-icon">🗣️</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP1Title">Become a Stronger Communicator</h4>
+              <p class="impact-card-desc" data-i18n="impactP1Desc">Build confidence in presenting ideas, speaking clearly, responding to questions, defending arguments, and communicating with different audiences.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">🧠</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP2Title">Think More Critically</h4>
+              <p class="impact-card-desc" data-i18n="impactP2Desc">Learn to question assumptions, examine different perspectives, identify weaknesses in arguments, distinguish facts from opinions, and approach complex issues with greater depth.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">🔎</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP3Title">Develop Research Skills</h4>
+              <p class="impact-card-desc" data-i18n="impactP3Desc">Explore global issues beyond headlines by researching reliable sources, examining evidence, comparing perspectives, and understanding the context behind major events and policies.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">🌍</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP4Title">Understand a Changing World</h4>
+              <p class="impact-card-desc" data-i18n="impactP4Desc">Engage with international affairs, technology, climate, education, economics, governance, culture, and emerging global issues — while hearing perspectives from young people living in different countries.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">✍️</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP5Title">Turn Discussions into Knowledge</h4>
+              <p class="impact-card-desc" data-i18n="impactP5Desc">Our sessions do not simply end when the meeting ends. Members and presenters transform discussions into academic writing, summaries, reflections, and documented knowledge, creating a growing intellectual archive.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">🎤</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP6Title">Gain Real Presentation & Leadership Experience</h4>
+              <p class="impact-card-desc" data-i18n="impactP6Desc">Members can gradually move from participating in discussions to proposing topics, presenting research, moderating sessions, leading conversations, and taking responsibility for community activities.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">🤝</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP7Title">Connect Across Borders</h4>
+              <p class="impact-card-desc" data-i18n="impactP7Desc">Build meaningful relationships with students from different countries, universities, schools, and cultural backgrounds — creating opportunities for collaboration, learning, and future initiatives.</p>
+            </div>
+
+            <div class="impact-card">
+              <div class="impact-card-icon">📚</div>
+              <h4 class="impact-card-title serif-text" data-i18n="impactP8Title">Build an Intellectual Portfolio</h4>
+              <p class="impact-card-desc" data-i18n="impactP8Desc">Through presentations, research, academic writing, discussions, and contributions to the community, members can gradually build a record of their intellectual interests and development.</p>
+            </div>
+          </div>
+
+          <!-- Growth Journey Box -->
+          <div class="impact-journey-card">
+            <h3 class="serif-text" data-i18n="impactJourneyTitle">🚀 Grow from Participant to Contributor</h3>
+            <p class="journey-subtitle" data-i18n="impactJourneyDesc">The community is designed to give members room to grow:</p>
+            <div class="journey-flow-wrapper">
+              <div class="journey-step"><span class="journey-step-num">1</span> <span data-i18n="impactJourneyStep1">Join</span></div>
+              <div class="journey-arrow">→</div>
+              <div class="journey-step"><span class="journey-step-num">2</span> <span data-i18n="impactJourneyStep2">Participate</span></div>
+              <div class="journey-arrow">→</div>
+              <div class="journey-step"><span class="journey-step-num">3</span> <span data-i18n="impactJourneyStep3">Research</span></div>
+              <div class="journey-arrow">→</div>
+              <div class="journey-step"><span class="journey-step-num">4</span> <span data-i18n="impactJourneyStep4">Present</span></div>
+              <div class="journey-arrow">→</div>
+              <div class="journey-step"><span class="journey-step-num">5</span> <span data-i18n="impactJourneyStep5">Lead</span></div>
+              <div class="journey-arrow">→</div>
+              <div class="journey-step"><span class="journey-step-num">6</span> <span data-i18n="impactJourneyStep6">Write</span></div>
+              <div class="journey-arrow">→</div>
+              <div class="journey-step journey-step-final"><span class="journey-step-num">7</span> <span data-i18n="impactJourneyStep7">Contribute</span></div>
+            </div>
+            <p class="journey-note" data-i18n="impactJourneyNote">
+              Over time, a member can become not only an audience participant, but also a presenter, researcher, moderator, writer, organizer, and contributor to an international youth network.
+            </p>
+          </div>
+
+          <!-- Takeaways & Creed Grid -->
+          <div class="impact-outcomes-grid">
+            <div class="takeaways-card">
+              <h3 class="serif-text" data-i18n="impactTakeawaysTitle">What We Hope You Take Away</h3>
+              <p class="takeaways-sub" data-i18n="impactTakeawaysSub">By being part of the community, we hope you become:</p>
+              <ul class="takeaways-list">
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT1">More confident in speaking.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT2">More rigorous in thinking.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT3">More curious about the world.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT4">More capable of researching.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT5">More effective at writing.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT6">More comfortable with different perspectives.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT7">More prepared to lead.</span></li>
+                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT8">More connected to the world around you.</span></li>
+              </ul>
+            </div>
+
+            <div class="creed-card">
+              <h3 class="serif-text" data-i18n="impactCreedTitle">From conversation to capability.</h3>
+              <div class="creed-items">
+                <div class="creed-item">
+                  <span class="creed-bullet">◆</span>
+                  <span data-i18n="impactCreed1">Every discussion is an opportunity to learn.</span>
+                </div>
+                <div class="creed-item">
+                  <span class="creed-bullet">◆</span>
+                  <span data-i18n="impactCreed2">Every question is an opportunity to think.</span>
+                </div>
+                <div class="creed-item">
+                  <span class="creed-bullet">◆</span>
+                  <span data-i18n="impactCreed3">Every presentation is an opportunity to improve.</span>
+                </div>
+                <div class="creed-item">
+                  <span class="creed-bullet">◆</span>
+                  <span data-i18n="impactCreed4">Every piece of writing is an opportunity to create knowledge.</span>
+                </div>
+              </div>
+              <div class="creed-motto-box">
+                <p class="creed-motto serif-text" data-i18n="impactMotto">
+                  Discuss deeply. Think critically. Write clearly. Connect globally.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- SITE FOOTER -->
     <footer class="site-footer">
       <div class="container">
         <div class="footer-top">
           <div class="footer-brand">
             <h4 class="serif-text">Global Youth Dialogue</h4>
             <p data-i18n="footerDesc">
-              Founded by the international debaters of the Qatar International Schools Debate Championship (ISDC7). Advancing structured youth discourse and academic collaboration across borders.
+              An independent youth-led international community connecting young debaters to explore global issues and develop ideas through structured weekly dialogue and academic research.
             </p>
           </div>
           <div class="footer-col">
             <h5 data-i18n="footerNavTitle">Navigation</h5>
             <ul class="footer-links">
               <li><a href="#about" data-i18n="footerAbout">About Origin</a></li>
-              <li><a href="#process" data-i18n="footerProcess">How It Works</a></li>
+              <li><a href="#about" data-i18n="footerProcess">How It Works</a></li>
               <li><a href="#topics" data-i18n="footerTopics">Topic Categories</a></li>
               <li><a href="#sessions" data-i18n="footerSessions">Sessions Overview</a></li>
+              <li><a href="#impact" data-i18n="footerImpact">Our Impact</a></li>
             </ul>
           </div>
           <div class="footer-col">
             <h5 data-i18n="footerPortalsTitle">Portals & Access</h5>
             <ul class="footer-links">
-              <li><a href="#" id="footerPublicPreviewLink" data-i18n="navHome">Home</a></li>
+              <li><a href="#home" id="footerPublicPreviewLink" data-i18n="navHome">Home</a></li>
               <li><a href="#" id="footerSignInLink" data-i18n="footerSignIn">Sign In Portal</a></li>
               <li><a href="#" id="footerApplyLink" data-i18n="btnJoinCommunity">Apply for Membership</a></li>
             </ul>
@@ -366,7 +548,7 @@
         </div>
         <div class="footer-bottom">
           <p>© 2024 <span data-i18n="brandName">Global Youth Dialogue</span>. <span data-i18n="rightsReserved">All rights reserved.</span></p>
-          <p style="color: var(--accent-gold);" data-i18n="footerNetwork">Qatar ISDC7 Network</p>
+          <p style="color: var(--accent-gold);" data-i18n="footerNetwork">International Youth Network</p>
         </div>
       </div>
     </footer>
@@ -1075,27 +1257,27 @@
     <nav class="mobile-tab-bar" id="memberMobileTabBar">
       <button class="mobile-tab-btn active" data-member-target="dashboard">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg></span>
-        <span data-i18n="navHome">Home</span>
+        <span data-i18n="tabHome">Home</span>
       </button>
       <button class="mobile-tab-btn" data-member-target="sessions">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
-        <span data-i18n="navSessions">Sessions</span>
+        <span data-i18n="tabSessions">Sessions</span>
       </button>
       <button class="mobile-tab-btn" data-member-target="writings">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
-        <span data-i18n="navWritings">Writings</span>
+        <span data-i18n="tabWritings">Writings</span>
       </button>
       <button class="mobile-tab-btn" data-member-target="feedback">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></span>
-        <span data-i18n="btnGiveFeedback">Feedback</span>
+        <span data-i18n="tabFeedback">Feedback</span>
       </button>
       <button class="mobile-tab-btn" data-member-target="topics">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5h6.18z"></path></svg></span>
-        <span data-i18n="btnSubmitProposal">Suggest</span>
+        <span data-i18n="tabTopics">Topics</span>
       </button>
       <button class="mobile-tab-btn" data-member-target="community">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
-        <span data-i18n="communityDirectory">Directory</span>
+        <span data-i18n="tabDirectory">Directory</span>
       </button>
     </nav>
   </div>
@@ -1591,23 +1773,23 @@
     <nav class="mobile-tab-bar" id="coordMobileTabBar">
       <button class="mobile-tab-btn active" data-coord-target="dashboard">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg></span>
-        <span data-i18n="coordDashboard">Workspace</span>
+        <span data-i18n="tabWorkspace">Workspace</span>
       </button>
       <button class="mobile-tab-btn" data-coord-target="applications">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg></span>
-        <span data-i18n="pendingApplications">Applications</span>
+        <span data-i18n="tabApplications">Applicants</span>
       </button>
       <button class="mobile-tab-btn" data-coord-target="topics">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
-        <span data-i18n="topicManagement">Topics</span>
+        <span data-i18n="tabTopics">Topics</span>
       </button>
       <button class="mobile-tab-btn" data-coord-target="sessions">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
-        <span data-i18n="sessionManagement">Sessions</span>
+        <span data-i18n="tabSessions">Sessions</span>
       </button>
       <button class="mobile-tab-btn" data-coord-target="summary-studio">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></span>
-        <span data-i18n="summaryEditor">Studio</span>
+        <span data-i18n="tabStudio">Studio</span>
       </button>
     </nav>
   </div>

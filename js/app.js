@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal(backdrop.id);
       }
     });
-
+  });
 
   // =========================================================================
   // MOBILE NAVIGATION DRAWER CONTROLLER
@@ -126,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     link.addEventListener('click', () => {
       closeMobileDrawer();
     });
-  });
   });
 
   // =========================================================================
@@ -457,17 +456,95 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     closeModal('applyModal');
-    showToast('Your membership application has been received and sent to ISDC7 coordinators for review!', 'success');
+    const toastMsg = i18n.isRTL() 
+      ? 'تم استلام طلب عضويتك بنجاح وإرساله للمنسقين للمراجعة!' 
+      : 'Your membership application has been received and sent to coordinators for review!';
+    showToast(toastMsg, 'success');
     e.target.reset();
+  });
+
+  // =========================================================================
+  // PUBLIC SECTION BAR SWITCHER & NAVIGATION
+  // =========================================================================
+  let currentPublicSection = 'home';
+
+  function switchPublicSection(sectionId) {
+    const rawId = (sectionId || 'home').replace(/^#/, '');
+    const validSections = ['home', 'about', 'topics', 'sessions', 'impact'];
+    const targetId = validSections.includes(rawId) ? rawId : 'home';
+    currentPublicSection = targetId;
+
+    // Toggle active classes and inline display on public section panels
+    const sections = document.querySelectorAll('#viewPublic .public-section');
+    sections.forEach(sec => {
+      if (sec.id === targetId) {
+        sec.classList.add('active');
+        sec.style.display = 'block';
+      } else {
+        sec.classList.remove('active');
+        sec.style.display = 'none';
+      }
+    });
+
+    // Update active nav link indicators
+    document.querySelectorAll('#publicNav .nav-link, #mobileNavDrawer .mobile-nav-link, .site-footer a[href^="#"]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href === `#${targetId}`) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+
+    // Close mobile drawer if open
+    closeMobileDrawer();
+
+    // Scroll window smoothly to top of the view
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Update URL hash cleanly
+    if (window.location.hash !== `#${targetId}`) {
+      try {
+        history.replaceState(null, '', `#${targetId}`);
+      } catch (e) {
+        window.location.hash = `#${targetId}`;
+      }
+    }
+  }
+
+  // Expose to window for global access
+  window.switchPublicSection = switchPublicSection;
+
+  // Delegated click listener on document for guaranteed event handling
+  document.addEventListener('click', (e) => {
+    const navLink = e.target.closest('#publicNav .nav-link, #mobileNavDrawer .mobile-nav-link, .site-footer a[href^="#"], [data-public-nav]');
+    if (!navLink) return;
+
+    const dataNav = navLink.getAttribute('data-public-nav');
+    if (dataNav) {
+      e.preventDefault();
+      switchPublicSection(dataNav);
+      return;
+    }
+
+    const href = navLink.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      const target = href.replace(/^#/, '');
+      const valid = ['home', 'about', 'topics', 'sessions', 'impact'];
+      if (valid.includes(target)) {
+        e.preventDefault();
+        switchPublicSection(target);
+      }
+    }
   });
 
   // Hero CTA Buttons
   document.getElementById('heroExploreBtn')?.addEventListener('click', () => {
-    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+    switchPublicSection('about');
   });
 
   document.getElementById('heroSessionsBtn')?.addEventListener('click', () => {
-    document.getElementById('sessions')?.scrollIntoView({ behavior: 'smooth' });
+    switchPublicSection('sessions');
   });
 
   // =========================================================================
@@ -476,7 +553,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderPublicPage() {
     renderPublicCategories();
     renderPublicSessionsPreview();
-    renderCountryChapters();
+
+    // Activate appropriate public section based on current hash
+    const hash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
+    const valid = ['home', 'about', 'topics', 'sessions', 'impact'];
+    if (valid.includes(hash)) {
+      switchPublicSection(hash);
+    } else {
+      switchPublicSection(currentPublicSection || 'home');
+    }
   }
 
   function getCountryLocalized(name) {
@@ -526,8 +611,15 @@ document.addEventListener('DOMContentLoaded', () => {
         : `${topicCount} Topics`;
       const catTitle = isAr ? (cat.nameAr || cat.name) : cat.name;
       const catDesc = isAr ? (cat.descriptionAr || cat.description) : cat.description;
-      const footerTag = isAr ? 'فئة مناظرات قطر' : 'ISDC7 Category';
+      const subTopicsList = isAr ? (cat.subTopicsAr || cat.subTopics || []) : (cat.subTopics || []);
+      const footerTag = isAr ? 'محور نقاش شبابي عالمي' : 'Global Youth Focus';
       const arrow = isAr ? '←' : '→';
+
+      const subtopicsHtml = subTopicsList.length ? `
+        <div class="category-subtopics">
+          ${subTopicsList.map(st => `<span class="subtopic-tag">${st}</span>`).join('')}
+        </div>
+      ` : '';
 
       return `
         <div class="category-card">
@@ -537,6 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <h4 class="serif-text">${catTitle}</h4>
           <p>${catDesc}</p>
+          ${subtopicsHtml}
           <div class="category-footer">
             <span>${footerTag}</span>
             <span>${arrow}</span>
@@ -2539,11 +2632,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle URL hash changes for direct navigation
   window.addEventListener('hashchange', () => {
-    const hash = window.location.hash;
-    if (hash === '#signin' || hash === '#login') {
+    const rawHash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
+    if (rawHash === 'signin' || rawHash === 'login') {
       navigateToPortal('signin');
-    } else if (hash === '#public' || hash === '#home') {
-      navigateToPortal('public');
+    } else if (rawHash === 'public' || rawHash === 'home') {
+      if (activePortal !== 'public') navigateToPortal('public');
+      switchPublicSection('home');
+    } else {
+      const valid = ['about', 'topics', 'sessions', 'impact'];
+      if (valid.includes(rawHash)) {
+        if (activePortal !== 'public') navigateToPortal('public');
+        switchPublicSection(rawHash);
+      }
     }
   });
 

@@ -93,67 +93,223 @@ const INITIAL_DATABASE = {
   categories: [
     {
       id: 'global-affairs',
-      name: 'Global Affairs',
-      nameAr: 'الشؤون الدولية',
+      name: 'Geopolitics & International Relations',
+      nameAr: 'الجيوسياسية والعلاقات الدولية',
       icon: 'globe',
-      description: 'International relations, diplomacy, conflicts, migration, international organisations, global governance.',
-      descriptionAr: 'العلاقات الدولية، العمل الدبلوماسي، فض النزاعات، الهجرة، المنظمات الدولية، والحوكمة العالمية.'
+      description: 'International diplomacy, multilateral treaties, territorial sovereignty, global governance, and regional security architectures.',
+      descriptionAr: 'الدبلوماسية الدولية، المعاهدات المتعددة، السيادة الإقليمية، الحوكمة العالمية، وبنى الأمن الإقليمي والدولي.',
+      subTopics: [
+        'Multilateral Diplomacy & UN Reform',
+        'Territorial Sovereignty & Statehood',
+        'Economic Sanctions & Financial Sovereignty',
+        'Climate Migration & International Border Law',
+        'Rise of Multipolar Global Orders'
+      ],
+      subTopicsAr: [
+        'الدبلوماسية المتعددة وإصلاح الأمم المتحدة',
+        'السيادة الإقليمية ومسائل الاعتراف بالدول',
+        'العقوبات الاقتصادية والسيادة المالية',
+        'الهجرة المناخية وقوانين الحدود الدولية',
+        'صعود النظام الدولي متعدد الأقطاب'
+      ]
     },
     {
       id: 'tech-ai',
-      name: 'Technology & AI',
+      name: 'Technology & AI Ethics',
       nameAr: 'التكنولوجيا والذكاء الاصطناعي',
       icon: 'cpu',
-      description: 'Artificial intelligence, automation, digital privacy, social media, misinformation, technology in education.',
-      descriptionAr: 'الذكاء الاصطناعي، الأتمتة، الخصوصية الرقمية، شبكات التواصل، مكافحة التضليل، والتقنية في التعليم.'
+      description: 'Generative algorithms, autonomous systems, digital privacy, algorithmic bias, surveillance capitalism, and tech governance.',
+      descriptionAr: 'النماذج التوليدية، النظم الذاتية، الخصوصية الرقمية، انحياز الخوارزميات، رأسمالية المراقبة، وحوكمة التكنولوجيا.',
+      subTopics: [
+        'Generative AI in Classrooms & Academia',
+        'Autonomous Weapons & Warfare Ethics',
+        'Algorithmic Bias & Platform Regulation',
+        'Surveillance Capitalism & Personal Privacy',
+        'Deepfakes & Disinformation Countermeasures'
+      ],
+      subTopicsAr: [
+        'الذكاء الاصطناعي في الفصول المدرسية والجامعات',
+        'الأسلحة الذاتية وأخلاقيات خوض الحروب',
+        'الانحياز الخوارزمي وتنظيم المنصات الكبرى',
+        'رأسمالية المراقبة وحماية البيانات الشخصية',
+        'التزييف العميق وحلول مكافحة التضليل'
+      ]
     },
     {
       id: 'education',
-      name: 'Education',
-      nameAr: 'التعليم',
+      name: 'Education & Future of Learning',
+      nameAr: 'التعليم ومستقبل التعلم',
       icon: 'book-open',
-      description: 'Education systems, higher education, vocational education, educational inequality, future skills.',
-      descriptionAr: 'النظم التعليمية، التعليم العالي والمهني، معالجة التفاوت التعليمي، وبناء مهارات المستقبل.'
+      description: 'Pedagogical reform, competency-based curricula, higher education access, the digital learning divide, and future workforce skills.',
+      descriptionAr: 'تطوير المناهج، النظم القائمة على الكفاءة، فرص التعليم العالي، معالجة الفجوة الرقمية، وبناء مهارات سوق العمل.',
+      subTopics: [
+        'Competency-Based vs Standardized Testing',
+        'The Digital Learning Divide in the Global South',
+        'Tuition-Free Public Higher Education',
+        'Critical Inquiry & Media Literacy in Schools',
+        'Vocational Excellence vs Academic Pathways'
+      ],
+      subTopicsAr: [
+        'التقييم القائم على المهارات مقابل الاختبارات الموحدة',
+        'الفجوة الرقمية في التعليم بالدول النامية',
+        'مجانية التعليم العالي والجامعي',
+        'التفكير النقدي والتربية الإعلامية في المدارس',
+        'التعليم المهني التخصصي مقابل المسارات الأكاديمية'
+      ]
     },
     {
       id: 'environment',
-      name: 'Environment',
-      nameAr: 'البيئة والاستدامة',
+      name: 'Climate, Environment & Energy',
+      nameAr: 'المناخ والبيئة والاستدامة',
       icon: 'leaf',
-      description: 'Climate change, sustainability, renewable energy, water security, climate migration.',
-      descriptionAr: 'التغير المناخي، الاستدامة، الطاقة المتجددة، الأمن المائي، وقضايا الهجرة البيئية.'
+      description: 'Loss and damage climate finance, energy transitions, global water security, biodiversity loss, and ecological accountability.',
+      descriptionAr: 'تمويل الخسائر والأضرار المناخية، التحول الطاقي، الأمن المائي العالمي، صون التنوع الحيوي، والمسؤولية البيئية.',
+      subTopics: [
+        'Loss & Damage Reparations for Vulnerable States',
+        'Nuclear Energy in Clean Grid Transitions',
+        'Phasing Out Fossil Fuel Subsidies Globally',
+        'Transboundary Rivers & Water Conflicts',
+        'Systemic Industrial Accountability vs Eco-Consumerism'
+      ],
+      subTopicsAr: [
+        'تعويضات الخسائر والأضرار للدول الأكثر تضرراً',
+        'دور الطاقة النووية في الانتقال نحو الطاقة النظيفة',
+        'إلغاء دعم الوقود الأحفوري على المستوى العالمي',
+        'نزاعات الأنهار العابرة للحدود والأمن المائي',
+        'المساءلة المؤسسية للمصانع مقابل الاستهلاك الفردي'
+      ]
     },
     {
       id: 'economy',
-      name: 'Economy',
-      nameAr: 'الاقتصاد والتنمية',
+      name: 'Economy, Labor & Future of Work',
+      nameAr: 'الاقتصاد ومستقبل الوظائف',
       icon: 'trending-up',
-      description: 'Youth unemployment, entrepreneurship, future of work, poverty, inequality, global trade.',
-      descriptionAr: 'بطالة الشباب، ريادة الأعمال، مستقبل الوظائف، مكافحة الفقر واللامساواة، والتجارة الدولية.'
+      description: 'Youth employment ecosystems, automation disruptions, gig economy rights, universal basic income, and global wealth distribution.',
+      descriptionAr: 'منظومات توظيف الشباب، اضطرابات الأتمتة، حقوق العاملين المستقلين، الدخل الأساسي، وعدالة توزيع الثروات.',
+      subTopics: [
+        'Universal Basic Income in Automated Economies',
+        'Youth Unemployment in Developing Nations',
+        'Gig Worker Protections & Labor Standard Treaties',
+        'Central Bank Digital Currencies & De-Dollarization',
+        'Progressive Wealth Taxation & Global Inequality'
+      ],
+      subTopicsAr: [
+        'الدخل الأساسي الشامل في ظل الاقتصاد المؤتمت',
+        'مواجهة بطالة الشباب في الاقتصادات النامية',
+        'حماية حقوق العمال المستقلين واقتصاد المنصات',
+        'العملات الرقمية للبنوك المركزية والتبادل التجاري',
+        'الضرائب التصاعدية على الثروات وتقليص التفاوت'
+      ]
     },
     {
       id: 'governance',
-      name: 'Governance & Society',
-      nameAr: 'الحوكمة والمجتمع',
+      name: 'Governance, Democracy & Public Trust',
+      nameAr: 'الحوكمة والديمقراطية والثقة المجتمعية',
       icon: 'shield',
-      description: 'Democracy, public participation, governance, political institutions, social policy.',
-      descriptionAr: 'الديمقراطية، المشاركة المجتمعية، الحوكمة الرشيدة، المؤسسات السياسية، والسياسات الاجتماعية.'
+      description: 'Democratic resilience, electoral integrity, public accountability, civic participation, anti-corruption, and youth policy influence.',
+      descriptionAr: 'مرونة الديمقراطية، نزاهة الانتخابات، المساءلة المجتمعية، المشاركة المدنية، مكافحة الفساد، وتأثير الشباب في السياسات.',
+      subTopics: [
+        'Lowering the Voting Age to 16 in Democracies',
+        'Institutional Resilience Against Populist Surges',
+        'Digital Voting Systems & Cybersecurity Safeguards',
+        'Anti-Corruption Mechanisms in Public Procurement',
+        'Youth Quotas in National Parliaments'
+      ],
+      subTopicsAr: [
+        'خفض سن الاقتراع إلى 16 عاماً في الدول الديمقراطية',
+        'حصانة المؤسسات الدستورية في مواجهة الشعبوية',
+        'التصويت الرقمي وضمانات الأمن السيبراني',
+        'آليات النزاهة ومكافحة الفساد في العقود الحكومية',
+        'تخصيص مقاعد للشباب (الكوتا) في البرلمانات'
+      ]
+    },
+    {
+      id: 'human-rights',
+      name: 'Human Rights & Social Justice',
+      nameAr: 'حقوق الإنسان والعدالة الاجتماعية',
+      icon: 'heart',
+      description: 'Universal civil liberties, refugee protections, gender equality, criminal justice reform, and combating systemic discrimination.',
+      descriptionAr: 'الحريات المدنية الشاملة، حماية اللاجئين، المساواة الجندرية، إصلاح منظومة العدالة، ومكافحة كافة أشكال التمييز.',
+      subTopics: [
+        'Refugee Protection & Non-Refoulement Law',
+        'Gender Pay Disparity & Leadership Representation',
+        'Restorative Justice vs Retributive Incarceration',
+        'Indigenous Land Rights & Cultural Sovereignty',
+        'Universal Freedom of Expression vs Online Hate Speech'
+      ],
+      subTopicsAr: [
+        'حماية اللاجئين وحظر الإعادة القسرية في القانون الدولي',
+        'فجوة الأجور الجندرية وتمثيل المرأة في القيادة',
+        'العدالة التصالحية كبديل للعقوبات الحبسية التقليدية',
+        'حقوق الشعوب الأصلية والسيادة على الأراضي',
+        'حرية التعبير الفكري في مواجهة خطاب الكراهية'
+      ]
+    },
+    {
+      id: 'global-health',
+      name: 'Global Health & Bioethics',
+      nameAr: 'الصحة العالمية والأخلاقيات الحيوية',
+      icon: 'activity',
+      description: 'Pandemic preparedness treaties, youth mental health crises, equitable healthcare access, genetic technologies, and bioethics.',
+      descriptionAr: 'معاهدات الجاهزية للأوبئة، أزمة الصحة النفسية لدى الشباب، عدالة الخدمات الصحية، التقنيات الجينية، والأخلاقيات الحيوية.',
+      subTopics: [
+        'Youth Mental Health Crises in Digital Societies',
+        'Patent Waivers for Essential Vaccines & Therapeutics',
+        'Gene Editing (CRISPR) & Human Enhancement Ethics',
+        'Healthcare as a Fundamental Human Right',
+        'Antimicrobial Resistance & Public Health Safeguards'
+      ],
+      subTopicsAr: [
+        'أزمة الصحة النفسية لدى اليافعين في المجتمعات الرقمية',
+        'إسقاط براءات الاختراع عن اللقاحات والأدوية المنقذة',
+        'التعديل الجيني وأخلاقيات تحسين الصفات الوراثية',
+        'الرعاية الصحية الشاملة كحق إنساني أصيل',
+        'مقاومة مضادات الميكروبات وحماية الصحة العامة'
+      ]
+    },
+    {
+      id: 'peace-security',
+      name: 'Peace, Security & Conflict Resolution',
+      nameAr: 'السلام والأمن وفض النزاعات',
+      icon: 'anchor',
+      description: 'Demilitarization, youth involvement in peace processes, humanitarian law during conflicts, post-war reconstruction, and cyber security.',
+      descriptionAr: 'نزع السلاح، إشراك الشباب في صناعة السلام، تطبيق القانون الإنساني أثناء النزاعات، وإعادة الإعمار.',
+      subTopics: [
+        'Youth, Peace & Security Framework (UNSCR 2250)',
+        'Nuclear Non-Proliferation & Disarmament Verification',
+        'Cyberwarfare & State-Sponsored Digital Attacks',
+        'Civilian Protection Mechanisms in Urban Warfare',
+        'Community Restorative Dialogue Post-Conflict'
+      ],
+      subTopicsAr: [
+        'أجندة الشباب والسلام والأمن (قرار مجلس الأمن 2250)',
+        'معاهدات الحد من الانتشار النووي وآليات التفتيش',
+        'الحروب السيبرانية والهجمات الرقمية بين الدول',
+        'آليات حماية المدنيين في مناطق النزاعات الحضرية',
+        'الحوار المجتمعي التصالحي وإعادة بناء النسيج الوطني'
+      ]
     },
     {
       id: 'culture',
-      name: 'Culture & Identity',
-      nameAr: 'الثقافة والهوية',
+      name: 'Culture, Media & Global Identity',
+      nameAr: 'الثقافة والإعلام والهوية',
       icon: 'users',
-      description: 'Globalisation, cultural preservation, language, identity, cultural exchange.',
-      descriptionAr: 'العولمة، صون التراث والهوية، حماية التعدد اللغوي، والتبادل الثقافي بين الشعوب.'
-    },
-    {
-      id: 'emerging',
-      name: 'Emerging Issues',
-      nameAr: 'قضايا ناشئة',
-      icon: 'zap',
-      description: 'New and rapidly developing global issues and future horizons.',
-      descriptionAr: 'القضايا العالمية المستجدة، التحولات الجيوسياسية المتسارعة، واستشراف الآفاق المستقبلية.'
+      description: 'Cultural preservation in a globalized world, language revitalization, media independence, cross-border youth dialogue, and heritage ethics.',
+      descriptionAr: 'صون التراث في عصر العولمة، حماية اللغات، استقلالية وسائل الإعلام، الحوار الشبابي العابر للحدود، وأخلاقيات التراث.',
+      subTopics: [
+        'Preservation of Endangered Indigenous Languages',
+        'Repatriation of Historical Artifacts in Global Museums',
+        'Cultural Exchange vs Commercial Appropriation',
+        'Media Monopolies & Independent Investigative Journalism',
+        'Youth Identity Construction in Multicultural Metropolises'
+      ],
+      subTopicsAr: [
+        'صون اللغات المهددة بالاندثار والتعدد اللغوي',
+        'استعادة القطع الأثرية التاريخية إلى مواطنها الأصلية',
+        'التبادل الثقافي الإيجابي مقابل الاستلاب التجاري',
+        'احتكار وسائل الإعلام وحماية الصحافة الاستقصائية',
+        'تشكل هوية الشباب في الحواضر متعددة الثقافات'
+      ]
     }
   ],
 
@@ -1293,8 +1449,8 @@ class DataService {
     // Search Sessions
     (this.db.sessions || []).forEach(s => {
       const match = (s.title && s.title.toLowerCase().includes(q)) ||
-                    (s.motion && s.motion.toLowerCase().includes(q)) ||
-                    (s.category && s.category.toLowerCase().includes(q));
+        (s.motion && s.motion.toLowerCase().includes(q)) ||
+        (s.category && s.category.toLowerCase().includes(q));
       if (match) {
         results.push({
           type: 'session',
@@ -1311,8 +1467,8 @@ class DataService {
     // Search Academic Writings
     (this.db.writings || []).forEach(w => {
       const match = (w.title && w.title.toLowerCase().includes(q)) ||
-                    (w.motion && w.motion.toLowerCase().includes(q)) ||
-                    (w.executiveSummary && w.executiveSummary.toLowerCase().includes(q));
+        (w.motion && w.motion.toLowerCase().includes(q)) ||
+        (w.executiveSummary && w.executiveSummary.toLowerCase().includes(q));
       if (match) {
         results.push({
           type: 'writing',
@@ -1329,7 +1485,7 @@ class DataService {
     // Search Topics
     (this.db.topics || []).forEach(t => {
       const match = (t.title && t.title.toLowerCase().includes(q)) ||
-                    (t.rationale && t.rationale.toLowerCase().includes(q));
+        (t.rationale && t.rationale.toLowerCase().includes(q));
       if (match) {
         results.push({
           type: 'topic',
@@ -1346,8 +1502,8 @@ class DataService {
     // Search Members
     (this.db.users || []).forEach(u => {
       const match = (u.name && u.name.toLowerCase().includes(q)) ||
-                    (u.country && u.country.toLowerCase().includes(q)) ||
-                    (u.bio && u.bio.toLowerCase().includes(q));
+        (u.country && u.country.toLowerCase().includes(q)) ||
+        (u.bio && u.bio.toLowerCase().includes(q));
       if (match) {
         results.push({
           type: 'member',
@@ -1370,7 +1526,7 @@ class DataService {
     const feedbackGiven = (this.db.feedback || []).filter(f => f.memberId === userId).length;
     const topicsProposed = (this.db.topics || []).filter(t => t.submittedBy === user.name).length;
     const writingsAuthored = (this.db.writings || []).filter(w => w.authorName === user.name).length;
-    
+
     // Calculate sessions attended / spoken
     const sessionsConducted = (this.db.sessions || []).filter(s => s.status === 'Completed').length;
     const attendedCount = Math.max(sessionsConducted, 2);
