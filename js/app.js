@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
       name,
       email,
       country,
-      flag: '🌐',
+      flag: 'INT',
       interests: interests.length ? interests : ['Global Affairs'],
       debateExperience: debateExp,
       motivation
@@ -544,13 +544,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('heroSessionsBtn')?.addEventListener('click', () => {
-    switchPublicSection('sessions');
+    const upcomingEl = document.querySelector('.home-upcoming-section');
+    if (upcomingEl) {
+      upcomingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      switchPublicSection('sessions');
+    }
   });
 
   // =========================================================================
   // VIEW: PUBLIC PAGE RENDERING
   // =========================================================================
   function renderPublicPage() {
+    renderHomeUpcomingSessions();
     renderPublicCategories();
     renderPublicSessionsPreview();
 
@@ -562,6 +568,190 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       switchPublicSection(currentPublicSection || 'home');
     }
+  }
+
+  function renderHomeUpcomingSessions() {
+    const container = document.getElementById('homeUpcomingSessionsContainer');
+    if (!container) return;
+
+    const allSessions = dataService.getSessions();
+    const upcomingSessions = allSessions.filter(s => s.status === 'Upcoming');
+    const mainSession = upcomingSessions[0] || allSessions[allSessions.length - 1];
+    if (!mainSession) return;
+
+    const isAr = i18n.isRTL();
+    const user = authService.getCurrentUser();
+    const isMember = !!user;
+
+    const sesNumText = isAr 
+      ? `الجلسة رقم ${mainSession.sessionNumber.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])}` 
+      : `Session ${mainSession.sessionNumber.toString().padStart(2, '0')}`;
+    const categoryName = isAr ? (mainSession.categoryNameAr || mainSession.categoryName) : mainSession.categoryName;
+    const titleText = isAr ? (mainSession.titleAr || mainSession.title) : mainSession.title;
+    const descText = isAr ? (mainSession.descriptionAr || mainSession.description) : mainSession.description;
+    const formatText = isAr ? (mainSession.formatAr || mainSession.format) : mainSession.format;
+    const durationText = isAr ? (mainSession.durationAr || mainSession.duration) : mainSession.duration;
+    
+    const statusText = isAr ? 'جلسة مباشرة مجدولة' : 'Upcoming Live Dialogue';
+
+    const speakers = mainSession.speakers || [];
+    const moderator = mainSession.moderator;
+
+    const moderatorLabel = isAr ? 'إدارة الجلسة:' : 'Session Moderator:';
+    const speakersLabel = isAr ? 'المتحدثون الرئيسيون:' : 'Lead Speakers:';
+    const accessNotice = isAr ? 'حضور الجلسة المباشرة والأوراق الأكاديمية مخصص لأعضاء المجتمع' : 'Live room access and session briefings are members-only';
+
+    const actionButtons = isMember ? `
+      <button class="btn btn-accent btn-md" id="homeSessionPortalBtn">
+        ${icons.video} ${isAr ? 'الدخول إلى بوابة الجلسات' : 'Go to Sessions Portal'} →
+      </button>
+      <button class="btn btn-outline btn-md" id="homeSessionViewAllBtn" data-public-nav="sessions" style="color: #fff; border-color: rgba(255,255,255,0.45);">
+        ${icons.calendar} ${isAr ? 'عرض جميع الجلسات' : 'View All Sessions'}
+      </button>
+    ` : `
+      <button class="btn btn-accent btn-md" id="homeSessionJoinBtn">
+        ${icons.lock} ${isAr ? 'تسجيل الدخول للانضمام للجلسة' : 'Sign In to Join Room'}
+      </button>
+      <button class="btn btn-outline btn-md" id="homeSessionApplyBtn" style="color: #fff; border-color: rgba(255,255,255,0.45);">
+        ${icons.user} ${isAr ? 'تقديم طلب عضوية' : 'Apply for Membership'}
+      </button>
+      <button class="btn btn-subtle btn-md" id="homeSessionViewAllBtn" data-public-nav="sessions" style="color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);">
+        ${icons.calendar} ${isAr ? 'أرشيف الجلسات' : 'Browse Archive'}
+      </button>
+    `;
+
+    // Secondary scheduled sessions (e.g. Session 4 if present)
+    const secondaryUpcoming = upcomingSessions.slice(1, 3);
+    const secondaryHtml = secondaryUpcoming.length ? `
+      <div class="home-secondary-sessions">
+        <h4 class="home-secondary-title serif-text">${isAr ? 'جلسات قادمة مجدولة لاحقاً:' : 'Following Scheduled Dialogue:'}</h4>
+        <div class="home-secondary-grid">
+          ${secondaryUpcoming.map(s => `
+            <div class="home-secondary-card">
+              <div class="home-secondary-badge">${icons.getFlag(s.speakers?.[0]?.country || s.countriesRepresented?.[0] || 'INT')} ${isAr ? `الجلسة رقم ${s.sessionNumber.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])}` : `Session ${s.sessionNumber.toString().padStart(2, '0')}`} • ${isAr ? (s.categoryNameAr || s.categoryName) : s.categoryName}</div>
+              <h5 class="serif-text">${isAr ? (s.titleAr || s.title) : s.title}</h5>
+              <div class="home-secondary-meta">
+                <span>${icons.calendar} ${s.date}</span>
+                <span>${icons.clock} ${isAr ? (s.durationAr || s.duration) : s.duration}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    container.innerHTML = `
+      <div class="home-session-spotlight">
+        <div class="home-session-glow-accent"></div>
+        <div class="home-session-card-inner">
+          <div class="home-session-top-bar">
+            <div class="home-session-sphere-badge">
+              <span class="home-session-live-pulse"></span>
+              <span class="home-session-badge-num">${sesNumText}</span>
+              <span class="home-session-badge-sep">•</span>
+              <span class="home-session-badge-cat">${categoryName}</span>
+            </div>
+            <div class="home-session-status-tag">
+              ${icons.video}
+              <span>${statusText}</span>
+            </div>
+          </div>
+
+          <h3 class="home-session-main-title serif-text">${titleText}</h3>
+          <p class="home-session-description">${descText}</p>
+
+          <div class="home-session-details-grid">
+            <div class="home-session-detail-item">
+              <div class="home-detail-icon">${icons.calendar}</div>
+              <div class="home-detail-content">
+                <span class="home-detail-label">${isAr ? 'التاريخ' : 'Date'}</span>
+                <span class="home-detail-val">${mainSession.date}</span>
+              </div>
+            </div>
+            <div class="home-session-detail-item">
+              <div class="home-detail-icon">${icons.clock}</div>
+              <div class="home-detail-content">
+                <span class="home-detail-label">${isAr ? 'التوقيت' : 'Time & Zone'}</span>
+                <span class="home-detail-val">${mainSession.time} ${mainSession.timezone}</span>
+              </div>
+            </div>
+            <div class="home-session-detail-item">
+              <div class="home-detail-icon">${icons.mic}</div>
+              <div class="home-detail-content">
+                <span class="home-detail-label">${isAr ? 'الشكل والمدة' : 'Format & Length'}</span>
+                <span class="home-detail-val">${formatText} (${durationText})</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Speakers and Moderator Row -->
+          <div class="home-session-participants-row">
+            ${moderator ? `
+              <div class="home-participant-col">
+                <span class="home-part-label">${moderatorLabel}</span>
+                <div class="home-part-chip">
+                  <span class="home-part-flag">${icons.getFlag(moderator.country, moderator.flag)}</span>
+                  <span class="home-part-name">${moderator.name}</span>
+                  <span class="home-part-country">(${getCountryLocalized(moderator.country)})</span>
+                </div>
+              </div>
+            ` : ''}
+
+            ${speakers.length ? `
+              <div class="home-participant-col">
+                <span class="home-part-label">${speakersLabel}</span>
+                <div class="home-speakers-chips">
+                  ${speakers.map(sp => `
+                    <div class="home-part-chip">
+                      <span class="home-part-flag">${icons.getFlag(sp.country, sp.flag)}</span>
+                      <span class="home-part-name">${sp.name}</span>
+                      <span class="home-part-country">(${getCountryLocalized(sp.country)})</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Delegations pill bar -->
+          <div class="home-session-delegations-strip">
+            <span class="home-del-label">${isAr ? 'الدول الممثلة في الجلسة:' : 'Delegations Represented:'}</span>
+            <div class="home-del-pills">
+              ${mainSession.countriesRepresented.map(c => `
+                <span class="country-pill">${icons.getFlag(c)} <span>${getCountryLocalized(c)}</span></span>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Actions Footer -->
+          <div class="home-session-actions-footer">
+            <div class="home-session-btn-group">
+              ${actionButtons}
+            </div>
+            <div class="home-session-access-hint">
+              ${icons.shield}
+              <span>${accessNotice}</span>
+            </div>
+          </div>
+        </div>
+
+        ${secondaryHtml}
+      </div>
+    `;
+
+    // Attach click listeners
+    document.getElementById('homeSessionJoinBtn')?.addEventListener('click', () => {
+      openModal('authModal');
+    });
+    document.getElementById('homeSessionApplyBtn')?.addEventListener('click', () => {
+      openModal('applyModal');
+    });
+    document.getElementById('homeSessionPortalBtn')?.addEventListener('click', () => {
+      navigateToPortal(user.role === 'Coordinator' ? 'coordinator' : 'member');
+    });
+    document.getElementById('homeSessionViewAllBtn')?.addEventListener('click', () => {
+      switchPublicSection('sessions');
+    });
   }
 
   function getCountryLocalized(name) {
@@ -687,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileCard = document.getElementById('memberSidebarProfile');
     if (profileCard) {
       profileCard.innerHTML = `
-        <div class="portal-user-avatar">${user.flag || '🌐'}</div>
+        <div class="portal-user-avatar">${icons.getFlag(user.country, user.flag)}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role">${user.role} • ${user.country}</span>
@@ -771,11 +961,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'writings': 'subviewMemberWritings',
       'feedback': 'subviewMemberFeedback',
       'topics': 'subviewMemberTopics',
-      'community': 'subviewMemberCommunity',
       'calendar': 'subviewMemberCalendar',
-      'chapters': 'subviewMemberChapters',
       'journey': 'subviewMemberJourney',
-      'chamber': 'subviewMemberChamber',
       'certificate': 'subviewMemberCertificate'
     };
 
@@ -790,11 +977,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'writings') renderMemberWritingsList();
     if (targetName === 'feedback') prepareMemberFeedbackForm();
     if (targetName === 'topics') renderMemberTopicsView();
-    if (targetName === 'community') renderMemberCommunityDirectory();
     if (targetName === 'calendar') renderMemberCalendarView();
-    if (targetName === 'chapters') renderCountryChapters();
     if (targetName === 'journey') renderMemberJourneyView();
-    if (targetName === 'chamber') initChamberTimer();
     if (targetName === 'certificate') renderMemberCertificate();
 
     window.scrollTo(0, 0);
@@ -816,13 +1000,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="spotlight-meta-list">
           <span class="spotlight-meta-item">${icons.calendar} ${nextSession.date}</span>
           <span class="spotlight-meta-item">${icons.clock} ${nextSession.time} ${nextSession.timezone}</span>
-          <span class="spotlight-meta-item">${icons.user} Moderator: ${nextSession.moderator.name} (${nextSession.moderator.country})</span>
+          <span class="spotlight-meta-item">${icons.user} Moderator: ${nextSession.moderator.name} (${icons.getFlag(nextSession.moderator.country, nextSession.moderator.flag)} ${nextSession.moderator.country})</span>
         </div>
         <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.6;">
           ${nextSession.description}
         </p>
         <div class="spotlight-actions">
-          <a href="${nextSession.meetingLink}" target="_blank" class="btn btn-primary btn-md" style="gap:6px;">
+          <a href="${nextSession.meetingLink}" target="_blank" class="btn btn-accent btn-md" style="gap:6px;">
             ${icons.video} Join Video Meeting (Live)
           </a>
           <button class="btn btn-outline btn-md" style="color: #fff; border-color: rgba(255,255,255,0.4); gap:6px;" onclick="window.viewSessionDetail('${nextSession.id}')">
@@ -1143,7 +1327,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const isActive = idx === currentStepIdx;
               return `
                 <div class="progress-step-item ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
-                  <span class="step-dot">${isDone ? '✓' : idx + 1}</span>
+                  <span class="step-dot">${isDone ? icons.check : idx + 1}</span>
                   <span>${step}</span>
                 </div>
               `;
@@ -1196,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     listEl.innerHTML = users.map(u => `
       <div class="member-card">
         <div class="m-card-top">
-          <div class="m-avatar">${u.flag || '🌐'}</div>
+          <div class="m-avatar">${icons.getFlag(u.country, u.flag)}</div>
           <div>
             <div class="m-name">${u.name}</div>
             <div class="m-country">${u.role} • ${u.country}</div>
@@ -1221,7 +1405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileCard = document.getElementById('coordSidebarProfile');
     if (profileCard) {
       profileCard.innerHTML = `
-        <div class="portal-user-avatar avatar-coord">${user.flag || '🇶🇦'}</div>
+        <div class="portal-user-avatar avatar-coord">${icons.getFlag(user.country, user.flag)}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role">Founding Coordinator (${user.country})</span>
@@ -1343,8 +1527,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="app-motivation">"${app.motivation}"</p>
           </div>
           <div class="app-actions">
-            <button class="btn btn-primary btn-sm" onclick="window.approveApp('${app.id}')">✓ Approve</button>
-            <button class="btn btn-outline btn-sm" onclick="window.rejectApp('${app.id}')">✕ Decline</button>
+            <button class="btn btn-primary btn-sm" onclick="window.approveApp('${app.id}')">${icons.check} Approve</button>
+            <button class="btn btn-outline btn-sm" onclick="window.rejectApp('${app.id}')">${icons.x} Decline</button>
           </div>
         </div>
       `).join('');
@@ -1497,7 +1681,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const format = document.getElementById('csFormat').value;
       const duration = document.getElementById('csDuration').value;
       const modName = modSelect.value;
-      const modUser = users.find(u => u.name === modName) || { name: modName, country: 'International', flag: '🌐' };
+      const modUser = users.find(u => u.name === modName) || { name: modName, country: 'International', flag: 'INT' };
       const speakersText = document.getElementById('csSpeakers').value;
       const countriesText = document.getElementById('csCountries').value;
       const desc = document.getElementById('csDesc').value;
@@ -1507,7 +1691,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const speakers = speakersText.split(',').map(sp => ({
         name: sp.trim(),
         country: 'International',
-        flag: '🌐',
+        flag: 'INT',
         stance: 'Speaker'
       }));
 
@@ -1646,8 +1830,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
           <div class="app-actions">
-            <button class="btn btn-primary btn-sm" onclick="window.approveApp('${app.id}')">✓ Approve Member</button>
-            <button class="btn btn-outline btn-sm" onclick="window.rejectApp('${app.id}')">✕ Decline</button>
+            <button class="btn btn-primary btn-sm" onclick="window.approveApp('${app.id}')">${icons.check} Approve Member</button>
+            <button class="btn btn-outline btn-sm" onclick="window.rejectApp('${app.id}')">${icons.x} Decline</button>
           </div>
         </div>
       `).join('');
@@ -1672,7 +1856,7 @@ document.addEventListener('DOMContentLoaded', () => {
     listEl.innerHTML = coords.map(c => `
       <div class="member-card">
         <div class="m-card-top">
-          <div class="m-avatar" style="background: var(--brand-navy); color: #fff;">${c.flag || '🇶🇦'}</div>
+          <div class="m-avatar" style="background: var(--brand-navy); color: #fff;">${icons.getFlag(c.country, c.flag)}</div>
           <div>
             <div class="m-name">${c.name}</div>
             <div class="m-country">${c.department || 'Founding Secretariat'} • ${c.country}</div>
@@ -2182,7 +2366,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="rep-card">
         <div>
           <div class="rep-header">
-            <div class="rep-flag-box">${r.flag}</div>
+            <div class="rep-flag-box">${icons.getFlag(r.country, r.flag)}</div>
             <div>
               <div class="rep-name">${repName}</div>
               <div class="rep-chapter-title">${country} • ${chapterName}</div>
@@ -2195,7 +2379,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <strong>${originLabel}</strong> ${isdcTeam}
           </div>
           <div class="rep-stats-row">
-            <span>👥 ${debatersCount}</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;">${icons.users} ${debatersCount}</span>
             <a href="mailto:${r.email}" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.74rem; text-decoration: none;">
               ${icons.mail} ${contactLabel}
             </a>
@@ -2276,7 +2460,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${icons[b.icon] || icons.award}
               </div>
               <span class="badge-status-pill ${b.unlocked ? 'status-approved' : 'status-review'}" style="font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px;">
-                ${b.unlocked ? '✓ UNLOCKED' : 'IN PROGRESS'}
+                ${b.unlocked ? `${icons.check} UNLOCKED` : 'IN PROGRESS'}
               </span>
             </div>
             <div class="badge-title">${b.title}</div>
@@ -2443,21 +2627,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chamberSecondsElapsed < 60) {
       // 0:00 - 1:00 Protected Time
       bannerEl.className = 'poi-banner protected';
-      bannerEl.textContent = '🔒 PROTECTED TIME (1ST MINUTE — NO POIs)';
+      bannerEl.innerHTML = `<span class="timer-banner-icon">${icons.lock}</span> PROTECTED TIME (1ST MINUTE — NO POIs)`;
     } else if (chamberSecondsElapsed >= 60 && chamberSecondsElapsed < (chamberTotalSeconds - 60)) {
       // 1:00 - (Total - 1:00) Open Floor for POIs
       bannerEl.className = 'poi-banner open';
-      bannerEl.textContent = '🔔 FLOOR OPEN FOR POIs (Points of Information Permitted)';
+      bannerEl.innerHTML = `<span class="timer-banner-icon">${icons.bell}</span> FLOOR OPEN FOR POIs (Points of Information Permitted)`;
     } else if (chamberSecondsElapsed >= (chamberTotalSeconds - 60) && chamberSecondsElapsed <= chamberTotalSeconds) {
       // Final Minute Protected Time
       bannerEl.className = 'poi-banner protected';
-      bannerEl.textContent = '🔒 PROTECTED TIME (FINAL MINUTE — NO POIs)';
+      bannerEl.innerHTML = `<span class="timer-banner-icon">${icons.lock}</span> PROTECTED TIME (FINAL MINUTE — NO POIs)`;
     } else {
       // Overtime
       bannerEl.className = 'poi-banner overtime';
-      bannerEl.textContent = chamberSecondsElapsed > chamberTotalSeconds + 15
-        ? '🛑 SPEECH OVERTIME — PLEASE CONCLUDE IMMEDIATELY'
-        : '⚠️ TIME EXPIRED (GRACE PERIOD: 15 SECONDS)';
+      bannerEl.innerHTML = chamberSecondsElapsed > chamberTotalSeconds + 15
+        ? `<span class="timer-banner-icon">${icons.stopCircle || icons.shield}</span> SPEECH OVERTIME — PLEASE CONCLUDE IMMEDIATELY`
+        : `<span class="timer-banner-icon">${icons.alertTriangle || icons.zap}</span> TIME EXPIRED (GRACE PERIOD: 15 SECONDS)`;
     }
   }
 
@@ -2487,7 +2671,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chamberTimerInterval = null;
         chamberIsRunning = false;
         chamberSecondsElapsed = 0;
-        if (startBtn) startBtn.textContent = '▶ Start Speech';
+        if (startBtn) startBtn.innerHTML = `${icons.play} Start Speech`;
         updateChamberTimerDisplay();
         showToast(`Format set to ${pill.getAttribute('data-format-name') || pill.textContent.trim()}`);
       };
@@ -2497,7 +2681,7 @@ document.addEventListener('DOMContentLoaded', () => {
       startBtn.onclick = () => {
         if (chamberIsRunning) return;
         chamberIsRunning = true;
-        startBtn.textContent = '▶ Running...';
+        startBtn.innerHTML = `${icons.play} Running...`;
 
         chamberTimerInterval = setInterval(() => {
           chamberSecondsElapsed++;

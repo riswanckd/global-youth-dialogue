@@ -8,7 +8,7 @@
   <title>Global Youth Dialogue | International Community of Youth Debaters</title>
 
   <!-- Google Fonts & Stylesheet -->
-  <link rel="stylesheet" href="main.css?v=2.2" onerror="this.href='styles/main.css?v=2.2'">
+  <link rel="stylesheet" href="main.css?v=2.5" onerror="this.href='styles/main.css?v=2.5'">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230E4D3C'/><text y='65' x='50' text-anchor='middle' fill='%23FFFFFF' font-size='42' font-family='sans-serif' font-weight='bold'>GYD</text></svg>">
 </head>
 <body>
@@ -155,24 +155,50 @@
         </div>
       </div>
 
+      <!-- Home Upcoming Session Spotlight Box -->
+      <section class="home-upcoming-section">
+        <div class="container">
+          <div class="home-upcoming-header">
+            <div class="home-upcoming-title-wrap">
+              <span class="section-tag" data-i18n="homeSessionsTag">Next Scheduled Dialogue</span>
+              <h2 class="serif-text home-upcoming-main-title" data-i18n="homeSessionsTitle">Upcoming Dialogue Session</h2>
+              <p class="home-upcoming-sub" data-i18n="homeSessionsSubtitle">Join our weekly structured international dialogue with debaters representing over 14 countries.</p>
+            </div>
+            <button class="btn btn-outline btn-sm home-upcoming-all-btn" id="homeViewAllSessionsBtn" data-public-nav="sessions">
+              <span data-i18n="homeSessionsViewAll">View All Sessions & Archives</span> <span class="arrow-sym">→</span>
+            </button>
+          </div>
+
+          <div id="homeUpcomingSessionsContainer" class="home-upcoming-container">
+            <!-- Dynamically populated from data.js via app.js -->
+          </div>
+        </div>
+      </section>
+
       <!-- Quick Welcome Highlights (Home Section Cards) -->
       <section class="home-highlights-section">
         <div class="container">
           <div class="home-highlights-grid">
             <div class="highlight-feature-card" data-public-nav="about">
-              <div class="feature-icon-badge">🏛️</div>
+              <div class="feature-icon-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="22" x2="22" y2="22"></line><line x1="12" y1="2" x2="2" y2="7"></line><line x1="12" y1="2" x2="22" y2="7"></line><line x1="2" y1="7" x2="22" y2="7"></line><line x1="4" y1="7" x2="4" y2="18"></line><line x1="8" y1="7" x2="8" y2="18"></line><line x1="12" y1="7" x2="12" y2="18"></line><line x1="16" y1="7" x2="16" y2="18"></line><line x1="20" y1="7" x2="20" y2="18"></line><line x1="2" y1="18" x2="22" y2="18"></line></svg>
+              </div>
               <h3 class="serif-text" data-i18n="navAbout">About the Movement</h3>
               <p data-i18n="aboutSubtitle">Founded by friends who met at an international debate championship to turn competitive debate into a permanent global academic network.</p>
               <span class="feature-learn-more"><span data-i18n="btnLearnMore">Learn More</span> →</span>
             </div>
             <div class="highlight-feature-card" data-public-nav="topics">
-              <div class="feature-icon-badge">🌐</div>
-              <h3 class="serif-text" data-i18n="topicsTitle">10 Knowledge Spheres</h3>
+              <div class="feature-icon-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              </div>
+              <h3 class="serif-text" data-i18n="topicsTitle">16 Core Knowledge Spheres</h3>
               <p data-i18n="topicsSubtitle">Explore multidisciplinary arenas from Geopolitics & AI Ethics to Climate, Governance, and Human Rights.</p>
               <span class="feature-learn-more"><span data-i18n="navTopics">Explore Topics</span> →</span>
             </div>
             <div class="highlight-feature-card" data-public-nav="impact">
-              <div class="feature-icon-badge">🚀</div>
+              <div class="feature-icon-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+              </div>
               <h3 class="serif-text" data-i18n="impactTitle">Our Impact</h3>
               <p data-i18n="impactSubtitle">Grow beyond the debate room: develop rigorous research, public speaking, academic writing, and international leadership.</p>
               <span class="feature-learn-more"><span data-i18n="navImpact">Discover Impact</span> →</span>
@@ -397,49 +423,65 @@
           <!-- 8 Impact Development Pillars Grid -->
           <div class="impact-pillars-grid">
             <div class="impact-card">
-              <div class="impact-card-icon">🗣️</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP1Title">Become a Stronger Communicator</h4>
               <p class="impact-card-desc" data-i18n="impactP1Desc">Build confidence in presenting ideas, speaking clearly, responding to questions, defending arguments, and communicating with different audiences.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">🧠</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"></path></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP2Title">Think More Critically</h4>
               <p class="impact-card-desc" data-i18n="impactP2Desc">Learn to question assumptions, examine different perspectives, identify weaknesses in arguments, distinguish facts from opinions, and approach complex issues with greater depth.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">🔎</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP3Title">Develop Research Skills</h4>
               <p class="impact-card-desc" data-i18n="impactP3Desc">Explore global issues beyond headlines by researching reliable sources, examining evidence, comparing perspectives, and understanding the context behind major events and policies.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">🌍</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP4Title">Understand a Changing World</h4>
               <p class="impact-card-desc" data-i18n="impactP4Desc">Engage with international affairs, technology, climate, education, economics, governance, culture, and emerging global issues — while hearing perspectives from young people living in different countries.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">✍️</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP5Title">Turn Discussions into Knowledge</h4>
               <p class="impact-card-desc" data-i18n="impactP5Desc">Our sessions do not simply end when the meeting ends. Members and presenters transform discussions into academic writing, summaries, reflections, and documented knowledge, creating a growing intellectual archive.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">🎤</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP6Title">Gain Real Presentation & Leadership Experience</h4>
               <p class="impact-card-desc" data-i18n="impactP6Desc">Members can gradually move from participating in discussions to proposing topics, presenting research, moderating sessions, leading conversations, and taking responsibility for community activities.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">🤝</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP7Title">Connect Across Borders</h4>
               <p class="impact-card-desc" data-i18n="impactP7Desc">Build meaningful relationships with students from different countries, universities, schools, and cultural backgrounds — creating opportunities for collaboration, learning, and future initiatives.</p>
             </div>
 
             <div class="impact-card">
-              <div class="impact-card-icon">📚</div>
+              <div class="impact-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              </div>
               <h4 class="impact-card-title serif-text" data-i18n="impactP8Title">Build an Intellectual Portfolio</h4>
               <p class="impact-card-desc" data-i18n="impactP8Desc">Through presentations, research, academic writing, discussions, and contributions to the community, members can gradually build a record of their intellectual interests and development.</p>
             </div>
@@ -447,7 +489,7 @@
 
           <!-- Growth Journey Box -->
           <div class="impact-journey-card">
-            <h3 class="serif-text" data-i18n="impactJourneyTitle">🚀 Grow from Participant to Contributor</h3>
+            <h3 class="serif-text journey-heading-wrap"><span class="journey-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg></span> <span data-i18n="impactJourneyTitle">Grow from Participant to Contributor</span></h3>
             <p class="journey-subtitle" data-i18n="impactJourneyDesc">The community is designed to give members room to grow:</p>
             <div class="journey-flow-wrapper">
               <div class="journey-step"><span class="journey-step-num">1</span> <span data-i18n="impactJourneyStep1">Join</span></div>
@@ -475,14 +517,14 @@
               <h3 class="serif-text" data-i18n="impactTakeawaysTitle">What We Hope You Take Away</h3>
               <p class="takeaways-sub" data-i18n="impactTakeawaysSub">By being part of the community, we hope you become:</p>
               <ul class="takeaways-list">
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT1">More confident in speaking.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT2">More rigorous in thinking.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT3">More curious about the world.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT4">More capable of researching.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT5">More effective at writing.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT6">More comfortable with different perspectives.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT7">More prepared to lead.</span></li>
-                <li><span class="takeaway-check">✓</span> <span data-i18n="impactT8">More connected to the world around you.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT1">More confident in speaking.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT2">More rigorous in thinking.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT3">More curious about the world.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT4">More capable of researching.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT5">More effective at writing.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT6">More comfortable with different perspectives.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT7">More prepared to lead.</span></li>
+                <li><span class="takeaway-check"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span> <span data-i18n="impactT8">More connected to the world around you.</span></li>
               </ul>
             </div>
 
@@ -490,19 +532,19 @@
               <h3 class="serif-text" data-i18n="impactCreedTitle">From conversation to capability.</h3>
               <div class="creed-items">
                 <div class="creed-item">
-                  <span class="creed-bullet">◆</span>
+                  <span class="creed-bullet"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg></span>
                   <span data-i18n="impactCreed1">Every discussion is an opportunity to learn.</span>
                 </div>
                 <div class="creed-item">
-                  <span class="creed-bullet">◆</span>
+                  <span class="creed-bullet"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg></span>
                   <span data-i18n="impactCreed2">Every question is an opportunity to think.</span>
                 </div>
                 <div class="creed-item">
-                  <span class="creed-bullet">◆</span>
+                  <span class="creed-bullet"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg></span>
                   <span data-i18n="impactCreed3">Every presentation is an opportunity to improve.</span>
                 </div>
                 <div class="creed-item">
-                  <span class="creed-bullet">◆</span>
+                  <span class="creed-bullet"><svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg></span>
                   <span data-i18n="impactCreed4">Every piece of writing is an opportunity to create knowledge.</span>
                 </div>
               </div>
@@ -572,13 +614,15 @@
 
         <!-- Quick 1-Click Role Testing -->
         <div class="auth-demo-box">
-          <div class="auth-demo-label" data-i18n="authDemoLabel">⚡ 1-Click Demo Profiles (Auto-Role Redirection)</div>
+          <div class="auth-demo-label"><span class="svg-icon" style="color:var(--accent-gold); display:inline-flex; align-items:center; vertical-align:middle; margin-inline-end:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span> <span data-i18n="authDemoLabel">1-Click Demo Profiles (Auto-Role Redirection)</span></div>
           <div class="auth-demo-grid">
-            <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRoleMemberBtn" style="border-inline-start: 3px solid var(--brand-green);" data-i18n="demoRoleMember">
-              🇬🇭 Kofi Mensah (Member / Delegate) → Opens Member Features
+            <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRoleMemberBtn" style="border-inline-start: 3px solid var(--brand-green);">
+              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Ghana"><path fill="#006b3f" d="M0 320h640v160H0z"/><path fill="#fcd116" d="M0 160h640v160H0z"/><path fill="#ce1126" d="M0 0h640v160H0z"/><polygon fill="#000" points="320,175 342,242 413,242 355,283 378,350 320,308 262,350 285,283 227,242 298,242"/></svg></span>
+              <span data-i18n="demoRoleMember">Kofi Mensah (Member / Delegate) → Opens Member Features</span>
             </button>
-            <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRoleAdminBtn" style="border-inline-start: 3px solid var(--brand-navy);" data-i18n="demoRoleAdmin">
-              🇶🇦 Tariq Al-Mansoor (Admin / Coordinator) → Opens Admin Features
+            <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRoleAdminBtn" style="border-inline-start: 3px solid var(--brand-navy);">
+              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6H0z"/></svg></span>
+              <span data-i18n="demoRoleAdmin">Tariq Al-Mansoor (Admin / Coordinator) → Opens Admin Features</span>
             </button>
           </div>
         </div>
@@ -657,33 +701,15 @@
             </button>
           </li>
           <li>
-            <button class="sidebar-item-btn" data-member-target="community">
-              <span class="sidebar-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
-              <span data-i18n="communityDirectory">Community</span>
-            </button>
-          </li>
-          <li>
             <button class="sidebar-item-btn" data-member-target="calendar">
               <span class="sidebar-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
               <span>Calendar & Schedule</span>
             </button>
           </li>
           <li>
-            <button class="sidebar-item-btn" data-member-target="chapters">
-              <span class="sidebar-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
-              <span>Country Chapters</span>
-            </button>
-          </li>
-          <li>
             <button class="sidebar-item-btn" data-member-target="journey">
               <span class="sidebar-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></span>
               <span>My Journey & Badges</span>
-            </button>
-          </li>
-          <li>
-            <button class="sidebar-item-btn" data-member-target="chamber">
-              <span class="sidebar-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
-              <span>Live Chamber & Timer</span>
             </button>
           </li>
           <li>
@@ -711,7 +737,7 @@
               <p>Welcome back to the international dialogue platform.</p>
             </div>
             <div class="portal-actions">
-              <button class="btn btn-primary btn-sm" id="dashSuggestTopicBtn">💡 Suggest a Topic</button>
+              <button class="btn btn-primary btn-sm" id="dashSuggestTopicBtn"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-inline-end:4px;"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5h6.18z"></path></svg> <span>Suggest a Topic</span></button>
             </div>
           </div>
 
@@ -749,13 +775,13 @@
                     <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5h6.18z"></path></svg></span>
                     <span class="qa-title">Suggest a Topic</span>
                   </div>
-                  <div class="qa-card" data-member-nav="community">
-                    <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
-                    <span class="qa-title">Community Directory</span>
+                  <div class="qa-card" data-member-nav="calendar">
+                    <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+                    <span class="qa-title">Schedule & Calendar</span>
                   </div>
-                  <div class="qa-card" data-member-nav="chamber">
-                    <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
-                    <span class="qa-title">Live Chamber & Timer</span>
+                  <div class="qa-card" data-member-nav="journey">
+                    <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></span>
+                    <span class="qa-title">My Journey & Badges</span>
                   </div>
                   <div class="qa-card" data-member-nav="certificate">
                     <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
@@ -831,7 +857,7 @@
 
           <div class="filter-bar">
             <div class="search-box">
-              <span class="search-icon-pos">🔍</span>
+              <span class="search-icon-pos"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
               <input type="text" class="search-input" id="memberWritingSearch" placeholder="Search research papers, arguments, or keywords...">
             </div>
             <select class="filter-select" id="memberWritingCategoryFilter">
@@ -865,9 +891,9 @@
               <div class="form-group">
                 <label class="form-label">Overall Evaluation</label>
                 <div class="rating-pills" id="feedbackRatingPills">
-                  <div class="rating-pill-option selected" data-rating="Excellent">🌟 Excellent</div>
-                  <div class="rating-pill-option" data-rating="Good">👍 Good</div>
-                  <div class="rating-pill-option" data-rating="Needs improvement">📈 Needs Improvement</div>
+                  <div class="rating-pill-option selected" data-rating="Excellent"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-inline-end:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> Excellent</div>
+                  <div class="rating-pill-option" data-rating="Good"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-inline-end:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Good</div>
+                  <div class="rating-pill-option" data-rating="Needs improvement"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-inline-end:4px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> Needs Improvement</div>
                 </div>
               </div>
 
@@ -977,20 +1003,6 @@
           </div>
         </div>
 
-        <!-- Subview: Community Directory -->
-        <div id="subviewMemberCommunity" class="portal-subview" style="display: none;">
-          <div class="portal-page-header">
-            <div class="portal-page-title">
-              <h2 class="serif-text" data-i18n="communityDirectory">International Community Directory</h2>
-              <p>Connect with debaters, moderators, and researchers representing nations across the world.</p>
-            </div>
-          </div>
-
-          <div class="community-grid" id="memberCommunityList">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
         <!-- Subview: Member Calendar & Timezone Converter -->
         <div id="subviewMemberCalendar" class="portal-subview" style="display: none;">
           <div class="portal-page-header">
@@ -1007,30 +1019,16 @@
               <span style="font-size: 0.78rem; color: var(--text-muted);" id="currentTzDesc">Showing times in Doha (AST GMT+3)</span>
             </div>
             <div class="tz-pills-wrap" id="tzSelectorPills">
-              <button class="tz-pill active" data-tz="AST" data-offset="3">🇶🇦 Doha (AST UTC+3)</button>
-              <button class="tz-pill" data-tz="UTC" data-offset="0">🇬🇧 London (UTC/BST)</button>
-              <button class="tz-pill" data-tz="SGT" data-offset="8">🇸🇬 Singapore (SGT UTC+8)</button>
-              <button class="tz-pill" data-tz="GMT" data-offset="0">🇬🇭 Accra (GMT UTC+0)</button>
-              <button class="tz-pill" data-tz="EDT" data-offset="-4">🇺🇸 New York (EDT UTC-4)</button>
+              <button class="tz-pill active" data-tz="AST" data-offset="3"><span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6H0z"/></svg></span> Doha (AST UTC+3)</button>
+              <button class="tz-pill" data-tz="UTC" data-offset="0"><span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United Kingdom"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#FFF" d="m75 0 245 180L565 0h75v60L440 240l200 150v90h-75L320 300 75 480H0v-60l200-150L0 60V0z"/><path fill="#C8102E" d="m424 288 216 162v30L384 300zm-208-96L0 30V0l256 180zM640 0v30L400 210h40L640 30zM0 450v30l240-180h-40z"/><path fill="#FFF" d="M240 0h160v480H240zM0 160h640v160H0z"/><path fill="#C8102E" d="M272 0h96v480h-96zM0 192h640v96H0z"/></svg></span> London (UTC/BST)</button>
+              <button class="tz-pill" data-tz="SGT" data-offset="8"><span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Singapore"><path fill="#ed2939" d="M0 0h640v240H0z"/><path fill="#fff" d="M0 240h640v240H0z"/><path fill="#fff" d="M172 120a64 64 0 1 0 0 .1 64 64 0 0 0 0-.1zm-14 0a52 52 0 1 1 52-52 52 52 0 0 1-52 52z"/><circle cx="178" cy="85" r="9" fill="#fff"/><circle cx="204" cy="103" r="9" fill="#fff"/><circle cx="194" cy="133" r="9" fill="#fff"/><circle cx="162" cy="133" r="9" fill="#fff"/><circle cx="152" cy="103" r="9" fill="#fff"/></svg></span> Singapore (SGT UTC+8)</button>
+              <button class="tz-pill" data-tz="GMT" data-offset="0"><span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Ghana"><path fill="#006b3f" d="M0 320h640v160H0z"/><path fill="#fcd116" d="M0 160h640v160H0z"/><path fill="#ce1126" d="M0 0h640v160H0z"/><polygon fill="#000" points="320,175 342,242 413,242 355,283 378,350 320,308 262,350 285,283 227,242 298,242"/></svg></span> Accra (GMT UTC+0)</button>
+              <button class="tz-pill" data-tz="EDT" data-offset="-4"><span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United States"><path fill="#b22234" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 37h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0z"/><path fill="#3c3b6e" d="M0 0h280v259H0z"/><circle cx="50" cy="40" r="7" fill="#fff"/><circle cx="100" cy="40" r="7" fill="#fff"/><circle cx="150" cy="40" r="7" fill="#fff"/><circle cx="200" cy="40" r="7" fill="#fff"/><circle cx="75" cy="80" r="7" fill="#fff"/><circle cx="125" cy="80" r="7" fill="#fff"/><circle cx="175" cy="80" r="7" fill="#fff"/><circle cx="50" cy="120" r="7" fill="#fff"/><circle cx="100" cy="120" r="7" fill="#fff"/><circle cx="150" cy="120" r="7" fill="#fff"/><circle cx="200" cy="120" r="7" fill="#fff"/><circle cx="75" cy="160" r="7" fill="#fff"/><circle cx="125" cy="160" r="7" fill="#fff"/><circle cx="175" cy="160" r="7" fill="#fff"/><circle cx="50" cy="200" r="7" fill="#fff"/><circle cx="100" cy="200" r="7" fill="#fff"/><circle cx="150" cy="200" r="7" fill="#fff"/><circle cx="200" cy="200" r="7" fill="#fff"/></svg></span> New York (EDT UTC-4)</button>
             </div>
           </div>
 
           <!-- Calendar Sessions List -->
           <div class="calendar-sessions-list" id="memberCalendarList">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Subview: Member Country Chapters -->
-        <div id="subviewMemberChapters" class="portal-subview" style="display: none;">
-          <div class="portal-page-header">
-            <div class="portal-page-title">
-              <h2 class="serif-text">National Chapters & Representatives</h2>
-              <p>Global coordination network founded by Qatar ISDC7 championship delegations.</p>
-            </div>
-          </div>
-
-          <div class="reps-grid" id="memberRepsGrid">
             <!-- Populated dynamically -->
           </div>
         </div>
@@ -1057,130 +1055,6 @@
             </div>
             <div class="badges-showcase-grid" id="memberBadgesGrid">
               <!-- Populated dynamically -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Subview: Live Debate Chamber & Speech Timer -->
-        <div id="subviewMemberChamber" class="portal-subview" style="display: none;">
-          <div class="portal-page-header">
-            <div class="portal-page-title">
-              <h2 class="serif-text">Live Debate Chamber & Speech Companion</h2>
-              <p>Official speech timing protocol, Point of Information (POI) window tracking, and floor queue.</p>
-            </div>
-          </div>
-
-          <!-- Active Motion Banner -->
-          <div class="card-panel" style="border-inline-start: 4px solid var(--brand-green); margin-bottom: 1.5rem;">
-            <span style="font-size: 0.75rem; font-weight: 700; color: var(--brand-green); text-transform: uppercase;">Current Motion on the Floor:</span>
-            <h3 class="serif-text" style="font-size: 1.25rem; margin: 0.25rem 0;" id="chamberMotionTitle">
-              "This House Would Abolish the Permanent Member Veto in the United Nations Security Council."
-            </h3>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Session #03 • Multilateral Diplomacy & Global Governance</span>
-          </div>
-
-          <div class="debate-chamber-grid">
-            <!-- Left Column: Digital Timer & POI Window Indicator -->
-            <div class="timer-box">
-              <!-- Format Selection Pills -->
-              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem;">
-                <button class="tz-pill active" data-timer-len="420" data-format-name="7-Min Constructive">7 Min (Constructive)</button>
-                <button class="tz-pill" data-timer-len="300" data-format-name="5-Min Schools">5 Min (Schools)</button>
-                <button class="tz-pill" data-timer-len="240" data-format-name="4-Min Summary">4 Min (Whip / Summary)</button>
-                <button class="tz-pill" data-timer-len="180" data-format-name="3-Min Reply">3 Min (Reply Speech)</button>
-              </div>
-
-              <!-- POI Window Status Banner -->
-              <div class="poi-banner protected" id="poiBanner">
-                🔒 PROTECTED TIME (1ST MINUTE — NO POIs)
-              </div>
-
-              <!-- Big Digits Display -->
-              <div class="timer-digits-display" id="timerDigits">00:00</div>
-
-              <!-- Timer Controls -->
-              <div class="timer-actions-row">
-                <button class="btn btn-primary" id="timerStartBtn" style="padding: 0.65rem 1.75rem; font-size: 1rem;">
-                  ▶ Start Speech
-                </button>
-                <button class="btn btn-outline" id="timerPauseBtn" style="padding: 0.65rem 1.25rem;">
-                  ⏸ Pause
-                </button>
-                <button class="btn btn-subtle" id="timerResetBtn" style="padding: 0.65rem 1.25rem;">
-                  ↺ Reset
-                </button>
-                <button class="btn btn-outline" id="timerBellBtn" title="Chime Bell (Test Chime)" style="padding: 0.65rem 1rem;">
-                  🔔 Chime
-                </button>
-              </div>
-            </div>
-
-            <!-- Right Column: Floor POI Hand-Raising Queue -->
-            <div class="poi-queue-card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h4 style="margin: 0;">Floor POI Queue</h4>
-                <button class="btn btn-primary btn-sm" id="raisePoiBtn">
-                  ✋ Offer POI
-                </button>
-              </div>
-              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
-                Debaters offering a Point of Information during open floor intervals:
-              </p>
-              <div id="poiQueueList">
-                <div class="poi-standing-item">
-                  <div>
-                    <strong>Elena Rostova (🇬🇧 UK)</strong>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">Offering POI on UNSC Article 27</div>
-                  </div>
-                  <button class="btn btn-subtle btn-sm" onclick="this.parentElement.remove()">Dismiss</button>
-                </div>
-                <div class="poi-standing-item">
-                  <div>
-                    <strong>Kofi Mensah (🇬🇭 Ghana)</strong>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">Offering POI on Global South Coalition</div>
-                  </div>
-                  <button class="btn btn-subtle btn-sm" onclick="this.parentElement.remove()">Dismiss</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Parliamentary Speaker Matrix -->
-          <div class="speakers-matrix-grid">
-            <div class="matrix-bench-card" style="border-inline-start: 4px solid var(--brand-green);">
-              <div class="bench-title" style="color: var(--brand-green);">
-                🏛️ Affirmative / Government Bench
-              </div>
-              <div class="bench-speaker-row">
-                <span>1. Prime Minister (Constructive)</span>
-                <strong>Tariq Al-Mansoor (🇶🇦 Qatar)</strong>
-              </div>
-              <div class="bench-speaker-row">
-                <span>2. Deputy Prime Minister</span>
-                <strong>Amara Chen (🇸🇬 Singapore)</strong>
-              </div>
-              <div class="bench-speaker-row">
-                <span>3. Government Whip</span>
-                <strong>Kofi Mensah (🇬🇭 Ghana)</strong>
-              </div>
-            </div>
-
-            <div class="matrix-bench-card" style="border-inline-start: 4px solid #B91C1C;">
-              <div class="bench-title" style="color: #B91C1C;">
-                ⚖️ Negative / Opposition Bench
-              </div>
-              <div class="bench-speaker-row">
-                <span>1. Leader of Opposition</span>
-                <strong>Elena Rostova (🇬🇧 UK)</strong>
-              </div>
-              <div class="bench-speaker-row">
-                <span>2. Deputy Leader of Opposition</span>
-                <strong>Zaid Al-Harbi (🇯🇴 Jordan)</strong>
-              </div>
-              <div class="bench-speaker-row">
-                <span>3. Opposition Whip</span>
-                <strong>Sofia Morales (🇲🇽 Mexico)</strong>
-              </div>
             </div>
           </div>
         </div>
@@ -1274,10 +1148,6 @@
       <button class="mobile-tab-btn" data-member-target="topics">
         <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5h6.18z"></path></svg></span>
         <span data-i18n="tabTopics">Topics</span>
-      </button>
-      <button class="mobile-tab-btn" data-member-target="community">
-        <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
-        <span data-i18n="tabDirectory">Directory</span>
       </button>
     </nav>
   </div>
@@ -1807,11 +1677,13 @@
       <div class="demo-role-switcher">
         <div class="demo-role-title" data-i18n="authDemoLabel">Instant Demo Switcher</div>
         <div class="demo-buttons-grid">
-          <button type="button" class="btn btn-navy btn-sm" id="demoCoordBtn" style="gap: 0.4rem;" data-i18n="demoRoleAdmin">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg> Coordinator Demo (Qatar)
+          <button type="button" class="btn btn-navy btn-sm" id="demoCoordBtn" style="gap: 0.4rem; display: inline-flex; align-items: center;">
+            <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.6H0z"/></svg></span>
+            <span data-i18n="demoRoleAdmin">Coordinator Demo (Qatar)</span>
           </button>
-          <button type="button" class="btn btn-primary btn-sm" id="demoMemberBtn" style="gap: 0.4rem;" data-i18n="demoRoleMember">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Member / Speaker (Ghana)
+          <button type="button" class="btn btn-primary btn-sm" id="demoMemberBtn" style="gap: 0.4rem; display: inline-flex; align-items: center;">
+            <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Ghana"><path fill="#006b3f" d="M0 320h640v160H0z"/><path fill="#fcd116" d="M0 160h640v160H0z"/><path fill="#ce1126" d="M0 0h640v160H0z"/><polygon fill="#000" points="320,175 342,242 413,242 355,283 378,350 320,308 262,350 285,283 227,242 298,242"/></svg></span>
+            <span data-i18n="demoRoleMember">Member / Speaker (Ghana)</span>
           </button>
         </div>
       </div>
@@ -1981,8 +1853,8 @@
             <input type="text" class="form-control" id="chapCountry" placeholder="e.g. Kenya" required>
           </div>
           <div class="form-group">
-            <label class="form-label" for="chapFlag">Country Flag Emoji / Symbol</label>
-            <input type="text" class="form-control" id="chapFlag" placeholder="e.g. 🇰🇪" required>
+            <label class="form-label" for="chapFlag">Country Flag Code (e.g. KE, QA, GH)</label>
+            <input type="text" class="form-control" id="chapFlag" placeholder="e.g. KE or Qatar" required>
           </div>
         </div>
 
@@ -2077,10 +1949,10 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Application Logic Scripts -->
-  <script src="icons.js?v=2.2" onerror="this.src='js/icons.js?v=2.2'"></script>
-  <script src="data.js?v=2.2" onerror="this.src='js/data.js?v=2.2'"></script>
-  <script src="i18n.js?v=2.2" onerror="this.src='js/i18n.js?v=2.2'"></script>
-  <script src="auth.js?v=2.2" onerror="this.src='js/auth.js?v=2.2'"></script>
-  <script src="app.js?v=2.2" onerror="this.src='js/app.js?v=2.2'"></script>
+  <script src="icons.js?v=2.6" onerror="this.src='js/icons.js?v=2.6'"></script>
+  <script src="data.js?v=2.6" onerror="this.src='js/data.js?v=2.6'"></script>
+  <script src="i18n.js?v=2.6" onerror="this.src='js/i18n.js?v=2.6'"></script>
+  <script src="auth.js?v=2.6" onerror="this.src='js/auth.js?v=2.6'"></script>
+  <script src="app.js?v=2.6" onerror="this.src='js/app.js?v=2.6'"></script>
 </body>
 </html>

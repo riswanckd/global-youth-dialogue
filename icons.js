@@ -74,7 +74,114 @@ const GYD_ICONS = {
 
   badgeCheck: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>`,
 
-  filter: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>`
+  filter: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>`,
+
+  landmark: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="22" x2="22" y2="22"></line><line x1="12" y1="2" x2="2" y2="7"></line><line x1="12" y1="2" x2="22" y2="7"></line><line x1="2" y1="7" x2="22" y2="7"></line><line x1="4" y1="7" x2="4" y2="18"></line><line x1="8" y1="7" x2="8" y2="18"></line><line x1="12" y1="7" x2="12" y2="18"></line><line x1="16" y1="7" x2="16" y2="18"></line><line x1="20" y1="7" x2="20" y2="18"></line><line x1="2" y1="18" x2="22" y2="18"></line></svg>`,
+
+  scale: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg>`,
+
+  brain: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"></path></svg>`,
+
+  rocket: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>`,
+
+  radio: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>`,
+
+  coins: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="M16.7 15.3l.6.6"></path></svg>`,
+
+  dna: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c6.667-6 13.333 0 20-6"></path><path d="M2 9c6.667 6 13.333 0 20 6"></path><path d="M12 4.5v15"></path><path d="M7.5 7.5v9"></path><path d="M16.5 7.5v9"></path></svg>`,
+
+  checkCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+
+  bulletDiamond: `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12l10 10 10-10L12 2z"></path></svg>`,
+
+  alertTriangle: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+
+  stopCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><rect x="9" y="9" width="6" height="6" rx="1"></rect></svg>`,
+
+  externalLink: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>`,
+
+  heart: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>`,
+
+  anchor: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"></circle><line x1="12" y1="22" x2="12" y2="8"></line><path d="M5 12H2a10 10 0 0 0 20 0h-3"></path></svg>`,
+
+  droplet: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>`,
+
+  home: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
+
+  crosshair: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>`,
+
+  smile: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>`,
+
+  wifi: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
+
+  feather: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>`
+};
+
+// Aliases for compatibility
+GYD_ICONS['book-open'] = GYD_ICONS.book;
+GYD_ICONS['trending-up'] = GYD_ICONS.trendingUp;
+
+// Vector SVG Flags (High-contrast, responsive, crisp across all OSs)
+GYD_ICONS.flags = {
+  QA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6H0z"/></svg>`,
+
+  GB: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United Kingdom"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#FFF" d="m75 0 245 180L565 0h75v60L440 240l200 150v90h-75L320 300 75 480H0v-60l200-150L0 60V0z"/><path fill="#C8102E" d="m424 288 216 162v30L384 300zm-208-96L0 30V0l256 180zM640 0v30L400 210h40L640 30zM0 450v30l240-180h-40z"/><path fill="#FFF" d="M240 0h160v480H240zM0 160h640v160H0z"/><path fill="#C8102E" d="M272 0h96v480h-96zM0 192h640v96H0z"/></svg>`,
+
+  SG: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Singapore"><path fill="#ed2939" d="M0 0h640v240H0z"/><path fill="#fff" d="M0 240h640v240H0z"/><path fill="#fff" d="M172 120a64 64 0 1 0 0 .1 64 64 0 0 0 0-.1zm-14 0a52 52 0 1 1 52-52 52 52 0 0 1-52 52z"/><circle cx="178" cy="85" r="9" fill="#fff"/><circle cx="204" cy="103" r="9" fill="#fff"/><circle cx="194" cy="133" r="9" fill="#fff"/><circle cx="162" cy="133" r="9" fill="#fff"/><circle cx="152" cy="103" r="9" fill="#fff"/></svg>`,
+
+  GH: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Ghana"><path fill="#006b3f" d="M0 320h640v160H0z"/><path fill="#fcd116" d="M0 160h640v160H0z"/><path fill="#ce1126" d="M0 0h640v160H0z"/><polygon fill="#000" points="320,175 342,242 413,242 355,283 378,350 320,308 262,350 285,283 227,242 298,242"/></svg>`,
+
+  MX: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Mexico"><path fill="#006847" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce1126" d="M426.7 0H640v480H426.7z"/><circle cx="320" cy="240" r="38" fill="#c3933c"/><circle cx="320" cy="240" r="28" fill="#6d5423"/><path d="M312 225l16 10-16 15z" fill="#fff"/></svg>`,
+
+  JO: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Jordan"><path fill="#007a3d" d="M0 320h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#000" d="M0 0h640v160H0z"/><polygon fill="#ce1126" points="0,0 320,240 0,480"/><polygon fill="#fff" points="107,222 112,233 124,230 118,240 126,248 114,249 112,260 104,251 93,254 98,244 91,235 102,236"/></svg>`,
+
+  ZA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="South Africa"><path fill="#002395" d="M0 320h640v160H0z"/><path fill="#de3831" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 144h640v192H0z"/><path fill="#007a3d" d="M0 168h640v144H0z"/><polygon fill="#ffb612" points="0,0 240,240 0,480"/><polygon fill="#000" points="0,32 208,240 0,448"/></svg>`,
+
+  PK: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Pakistan"><path fill="#01411c" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 0h160v480H0z"/><path fill="#fff" d="M430 178a90 90 0 1 0 0 124 90 90 0 0 1 0-124zm20 30l-10 32 30-18-34 4 22 26z"/></svg>`,
+
+  NL: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Netherlands"><path fill="#21468b" d="M0 320h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#ae1c28" d="M0 0h640v160H0z"/></svg>`,
+
+  KE: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Kenya"><path fill="#006600" d="M0 320h640v160H0z"/><path fill="#fff" d="M0 148h640v184H0z"/><path fill="#990000" d="M0 168h640v144H0z"/><path fill="#000" d="M0 0h640v148H0z"/><ellipse cx="320" cy="240" rx="36" ry="60" fill="#990000" stroke="#fff" stroke-width="4"/><circle cx="320" cy="240" r="10" fill="#fff"/></svg>`,
+
+  US: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United States"><path fill="#b22234" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 37h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0z"/><path fill="#3c3b6e" d="M0 0h280v259H0z"/><circle cx="50" cy="40" r="7" fill="#fff"/><circle cx="100" cy="40" r="7" fill="#fff"/><circle cx="150" cy="40" r="7" fill="#fff"/><circle cx="200" cy="40" r="7" fill="#fff"/><circle cx="75" cy="80" r="7" fill="#fff"/><circle cx="125" cy="80" r="7" fill="#fff"/><circle cx="175" cy="80" r="7" fill="#fff"/><circle cx="50" cy="120" r="7" fill="#fff"/><circle cx="100" cy="120" r="7" fill="#fff"/><circle cx="150" cy="120" r="7" fill="#fff"/><circle cx="200" cy="120" r="7" fill="#fff"/><circle cx="75" cy="160" r="7" fill="#fff"/><circle cx="125" cy="160" r="7" fill="#fff"/><circle cx="175" cy="160" r="7" fill="#fff"/><circle cx="50" cy="200" r="7" fill="#fff"/><circle cx="100" cy="200" r="7" fill="#fff"/><circle cx="150" cy="200" r="7" fill="#fff"/><circle cx="200" cy="200" r="7" fill="#fff"/></svg>`,
+
+  INT: `<svg class="flag-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#2E7D5A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="background: rgba(46,125,90,0.12);" aria-label="International"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`
+};
+
+// Resolver helper to return a crisp vector SVG flag
+GYD_ICONS.getFlag = function(countryOrCode, fallbackFlag) {
+  if (!countryOrCode && !fallbackFlag) return GYD_ICONS.flags.INT;
+  const c = String(countryOrCode || '').toLowerCase().trim();
+  
+  if (c === 'qa' || c.includes('qatar') || c.includes('قطر')) return GYD_ICONS.flags.QA;
+  if (c === 'gb' || c === 'uk' || c.includes('united kingdom') || c.includes('britain') || c.includes('بريطانيا') || c.includes('المملكة المتحدة')) return GYD_ICONS.flags.GB;
+  if (c === 'sg' || c.includes('singapore') || c.includes('سنغافورة')) return GYD_ICONS.flags.SG;
+  if (c === 'gh' || c.includes('ghana') || c.includes('غانا')) return GYD_ICONS.flags.GH;
+  if (c === 'mx' || c.includes('mexico') || c.includes('المكسيك')) return GYD_ICONS.flags.MX;
+  if (c === 'jo' || c.includes('jordan') || c.includes('الأردن')) return GYD_ICONS.flags.JO;
+  if (c === 'za' || c.includes('south africa') || c.includes('جنوب أفريقيا')) return GYD_ICONS.flags.ZA;
+  if (c === 'pk' || c.includes('pakistan') || c.includes('باكستان')) return GYD_ICONS.flags.PK;
+  if (c === 'nl' || c.includes('netherlands') || c.includes('holland') || c.includes('هولندا')) return GYD_ICONS.flags.NL;
+  if (c === 'ke' || c.includes('kenya') || c.includes('كينيا')) return GYD_ICONS.flags.KE;
+  if (c === 'us' || c.includes('united states') || c.includes('usa') || c.includes('أمريكا')) return GYD_ICONS.flags.US;
+
+  // Check fallback emoji string if present
+  const fb = String(fallbackFlag || '');
+  if (fb.includes('🇶') || fb.includes('🇦')) return GYD_ICONS.flags.QA;
+  if (fb.includes('🇬') && fb.includes('🇧')) return GYD_ICONS.flags.GB;
+  if (fb.includes('🇸') && fb.includes('🇬')) return GYD_ICONS.flags.SG;
+  if (fb.includes('🇬') && fb.includes('🇭')) return GYD_ICONS.flags.GH;
+  if (fb.includes('🇲') && fb.includes('🇽')) return GYD_ICONS.flags.MX;
+  if (fb.includes('🇯') && fb.includes('🇴')) return GYD_ICONS.flags.JO;
+  if (fb.includes('🇿') && fb.includes('🇦')) return GYD_ICONS.flags.ZA;
+  if (fb.includes('🇵') && fb.includes('🇰')) return GYD_ICONS.flags.PK;
+  if (fb.includes('🇳') && fb.includes('🇱')) return GYD_ICONS.flags.NL;
+  if (fb.includes('🇰') && fb.includes('🇪')) return GYD_ICONS.flags.KE;
+  if (fb.includes('🇺') && fb.includes('🇸')) return GYD_ICONS.flags.US;
+
+  return GYD_ICONS.flags.INT;
 };
 
 window.GYD_ICONS = GYD_ICONS;
+window.icons = GYD_ICONS;
+

@@ -16,7 +16,7 @@ const INITIAL_DATABASE = {
       role: 'Coordinator',
       department: 'Programme & Strategy',
       country: 'Qatar',
-      flag: '🇶🇦',
+      flag: 'QA',
       bio: 'ISDC7 Qatar Debater, Passionate about Middle Eastern diplomacy and youth debate training.',
       interests: ['Global Affairs', 'Governance & Society', 'Education'],
       status: 'active',
@@ -30,7 +30,7 @@ const INITIAL_DATABASE = {
       role: 'Coordinator',
       department: 'Research & Writings',
       country: 'Singapore',
-      flag: '🇸🇬',
+      flag: 'SG',
       bio: 'ISDC7 Finalist, studying Public Policy & AI ethics. Leads academic summaries and research.',
       interests: ['Technology & AI', 'Economy', 'Global Affairs'],
       status: 'active',
@@ -43,7 +43,7 @@ const INITIAL_DATABASE = {
       password: 'password123',
       role: 'Speaker',
       country: 'Ghana',
-      flag: '🇬🇭',
+      flag: 'GH',
       bio: 'National schools debate captain, climate policy advocate and student researcher.',
       interests: ['Environment', 'Economy', 'Governance & Society'],
       status: 'active',
@@ -56,7 +56,7 @@ const INITIAL_DATABASE = {
       password: 'password123',
       role: 'Moderator',
       country: 'United Kingdom',
-      flag: '🇬🇧',
+      flag: 'GB',
       bio: 'Competitive debater and youth parliament member with a focus on human rights law.',
       interests: ['Culture & Identity', 'Global Affairs', 'Governance & Society'],
       status: 'active',
@@ -69,7 +69,7 @@ const INITIAL_DATABASE = {
       password: 'password123',
       role: 'Research Contributor',
       country: 'Jordan',
-      flag: '🇯🇴',
+      flag: 'JO',
       bio: 'Youth researcher interested in educational reform and sustainable development in the Arab world.',
       interests: ['Education', 'Environment', 'Culture & Identity'],
       status: 'active',
@@ -82,7 +82,7 @@ const INITIAL_DATABASE = {
       password: 'password123',
       role: 'Member',
       country: 'Mexico',
-      flag: '🇲🇽',
+      flag: 'MX',
       bio: 'Student diplomat and debater specializing in Latin American trade and migration dynamics.',
       interests: ['Economy', 'Global Affairs', 'Emerging Issues'],
       status: 'active',
@@ -310,6 +310,314 @@ const INITIAL_DATABASE = {
         'احتكار وسائل الإعلام وحماية الصحافة الاستقصائية',
         'تشكل هوية الشباب في الحواضر متعددة الثقافات'
       ]
+    },
+    {
+      id: 'youth-civic',
+      name: 'Youth Leadership, Civic Space & Political Voice',
+      nameAr: 'القيادة الشبابية والمجال المدني والمشاركة السياسية',
+      icon: 'mic',
+      description: 'Institutional youth engagement, parliamentary age minimums, civic freedoms, digital activism, and democratic policy co-creation.',
+      descriptionAr: 'المشاركة الشبابية المؤسسية، خفض سن الترشح البرلماني، الحريات المدنية، النشاط الرقمي، وصناعة السياسات التشاركية.',
+      subTopics: [
+        'Institutional Barriers to Youth Political Candidacy',
+        'Civic Digital Mobilization vs State Regulation',
+        'Youth Representation in Climate & Trade Delegations',
+        'Protecting Student Activism & Academic Freedom',
+        'Bridging Intergenerational Gaps in Public Policy'
+      ],
+      subTopicsAr: [
+        'العوائق المؤسسية أمام ترشح الشباب للمناصب السياسية',
+        'الحراك المدني الرقمي في مواجهة التشريعات الرقابية',
+        'تمثيل الشباب في وفود مفاوضات المناخ والتجارة الدولية',
+        'حماية الحراك الطلابي الجامعي والحرية الأكاديمية',
+        'ردم الفجوة بين الأجيال في رسم السياسات العامة'
+      ]
+    },
+    {
+      id: 'international-law',
+      name: 'International Law, Sovereignty & War Crimes Accountability',
+      nameAr: 'القانون الدولي والسيادة والمساءلة عن جرائم الحرب',
+      icon: 'scale',
+      description: 'Enforcement of ICJ rulings, universal jurisdiction, state sovereignty vs humanitarian intervention, and maritime boundary disputes.',
+      descriptionAr: 'إنفاذ قرارات محكمة العدل الدولية، الولاية القضائية العالمية، السيادة مقابل التدخل الإنساني، ونزاعات الحدود البحرية.',
+      subTopics: [
+        'Enforceability of International Court of Justice (ICJ) Rulings',
+        'Universal Jurisdiction in Prosecuting Transnational War Crimes',
+        'Sovereignty vs Humanitarian Intervention (R2P Framework)',
+        'Legal Status of Non-State Actors in Modern Conflicts',
+        'Maritime Boundaries & Exclusive Economic Zone (EEZ) Disputes'
+      ],
+      subTopicsAr: [
+        'إلزامية قرارات وأحكام محكمة العدل الدولية وآليات الإنفاذ',
+        'الولاية القضائية العالمية في ملاحقة مرتكبي جرائم الحرب',
+        'السيادة الوطنية مقابل مبدأ التدخل الإنساني (مسؤولية الحماية)',
+        'الوضع القانوني للجهات الفاعلة من غير الدول في النزاعات المعاصرة',
+        'ترسيم الحدود البحرية ونزاعات المناطق الاقتصادية الخالصة'
+      ]
+    },
+    {
+      id: 'financial-systems',
+      name: 'Global Financial Architecture, Sovereign Debt & Currency Systems',
+      nameAr: 'الهندسة المالية العالمية والديون السيادية والأنظمة النقدية',
+      icon: 'coins',
+      description: 'Developing country debt restructuring, Bretton Woods reform, de-dollarization trends, illicit capital outflows, and food price stability.',
+      descriptionAr: 'إعادة هيكلة الديون السيادية، إصلاح مؤسسات بريتون وودز، اتجاهات التبادل التجاري البديل، والشفافية المالية الدولية.',
+      subTopics: [
+        'Sovereign Debt Restructuring for Developing Economies',
+        'Bretton Woods Institutions (IMF/World Bank) Reform',
+        'De-Dollarization Trends & Bilateral Trade Currencies',
+        'Tax Havens, Illicit Capital Outflows & Wealth Transparency',
+        'Financial Speculation & Food Commodity Price Volatility'
+      ],
+      subTopicsAr: [
+        'إعادة هيكلة الديون السيادية للدول النامية وتخفيف الأعباء',
+        'إصلاح مؤسسات بريتون وودز (صندوق النقد والبنك الدولي)',
+        'اتجاهات تقليص الاعتماد على الدولار في التبادلات الثنائية',
+        'الملاذات الضريبية وتهريب رؤوس الأموال والشفافية المالية',
+        'المضاربات المالية وتقلبات أسعار السلع الغذائية الأساسية'
+      ]
+    },
+    {
+      id: 'bioethics-future',
+      name: 'Genomics, Transhumanism & Scientific Bioethics',
+      nameAr: 'علم الجينوم وما بعد الإنسانية والأخلاقيات الحيوية',
+      icon: 'dna',
+      description: 'CRISPR germline modification, brain-computer interfaces, artificial reproductive tech, unequal longevity biotech, and dual-use oversight.',
+      descriptionAr: 'التعديل الجيني للنطاف والأجنة، واجهات الدماغ والحاسوب، تقنيات الأرحام الاصطناعية، وعدالة الوصول للتكنولوجيا الحيوية.',
+      subTopics: [
+        'Germline Gene Editing (CRISPR) & Designer Offspring Ethics',
+        'Brain-Computer Interfaces & Cognitive Privacy Rights',
+        'Artificial Womb Technology & Ethical Reproductive Horizons',
+        'Access Inequality to Life-Extension & Longevity Biotech',
+        'Biolabs Safety Standards & Dual-Use Research Oversight'
+      ],
+      subTopicsAr: [
+        'التعديل الجيني للنطاف والأجنة وأخلاقيات تحسين السلالة',
+        'واجهات الدماغ والحاسوب وحماية الخصوصية المعرفية للإنسان',
+        'تقنيات الأرحام الاصطناعية والآفاق الأخلاقية للتناسل',
+        'تفاوت الوصول إلى تقنيات إطالة العمر والتكنولوجيا الحيوية',
+        'معايير السلامة في المختبرات البيولوجية وأبحاث الاستخدام المزدوج'
+      ]
+    },
+    {
+      id: 'space-frontiers',
+      name: 'Space Frontiers, Lunar Treaties & Celestial Demilitarization',
+      nameAr: 'آفاق الفضاء ومعاهدات القمر ونزع السلاح المداري',
+      icon: 'rocket',
+      description: '1967 Outer Space Treaty modernization, asteroid mining property rights, space debris liability, and satellite orbit demilitarization.',
+      descriptionAr: 'تحديث معاهدة الفضاء الخارجي، حقوق التعدين القمري والكويكبات، معالجة الحطام الفضائي، ومنع عسكرة المدارات.',
+      subTopics: [
+        'Revising the 1967 Outer Space Treaty for Private Commerce',
+        'Property Rights & Mining Claims on Asteroids and the Moon',
+        'Orbital Debris Mitigation & Shared Atmospheric Responsibility',
+        'Preventing the Weaponization & Demilitarization of Earth Orbit',
+        'Equitable Global South Access to Satellite Communication Slots'
+      ],
+      subTopicsAr: [
+        'تحديث معاهدة الفضاء الخارجي لعام 1967 لاستيعاب الشركات الخاصة',
+        'حقوق الملكية وتعدين الموارد على القمر والكويكبات',
+        'معالجة مشكلة الحطام الفضائي والمسؤولية المدارية المشتركة',
+        'منع عسكرة الفضاء الخارجي والمدارات الأرضية',
+        'عدالة وصول دول الجنوب العالمي إلى مدارات الأقمار الاصطناعية'
+      ]
+    },
+    {
+      id: 'information-truth',
+      name: 'Information Warfare, Deepfakes & Freedom of the Press',
+      nameAr: 'حروب المعلومات والتزييف العميق وحرية الصحافة',
+      icon: 'radio',
+      description: 'State-sponsored disinformation, watermarking generative synthetic media, journalist protection, and online echo chamber regulation.',
+      descriptionAr: 'حملات التضليل الممنهجة، العلامات المائية للوسائط التوليدية، حماية الصحفيين، وتنظيم غرف الصدى الخوارزمية.',
+      subTopics: [
+        'State-Sponsored Disinformation in Democratic Elections',
+        'Watermarking Generative Synthetic Media & News Integrity',
+        'Protection of Investigative Journalists in Hostile Zones',
+        'Algorithmic Echo Chambers & Social Polarization Dynamics',
+        'National Security Censorship vs The Public\'s Right to Know'
+      ],
+      subTopicsAr: [
+        'حملات التضليل الممنهجة وتأثيرها على الانتخابات الديمقراطية',
+        'إلزامية العلامات المائية للوسائط الاصطناعية ونزاهة الأخبار',
+        'حماية الصحفيين الاستقصائيين في مناطق النزاعات والتوتر',
+        'غرف الصدى الخوارزمية وتعميق الاستقطاب المجتمعي',
+        'الرقابة بذريعة الأمن القومي مقابل حق الجمهور في المعرفة'
+      ]
+    },
+    {
+      id: 'migration-displacement',
+      name: 'Global Migration, Refugees & Statelessness',
+      nameAr: 'الهجرة العالمية واللاجئون وحالات انعدام الجنسية',
+      icon: 'compass',
+      description: 'Climate migration frameworks, safe transit corridors, asylum jurisprudence, stateless populations, and xenophobia deterrence.',
+      descriptionAr: 'أطر الهجرة المناخية، ممرات العبور الآمنة، فقه وقوانين اللجوء، مجتمعات البدون، ومكافحة الخطابات المعادية للأجانب.',
+      subTopics: [
+        'Climate-Induced Displacement & Legal Status of Climate Refugees',
+        'Asylum Backlogs & Third-Country Border Externalization Accords',
+        'Statelessness Eradication & Universal Right to Legal Identity',
+        'Socioeconomic Integration of Displaced Youth in Host Economies',
+        'Protection of Unaccompanied Minor Migrants in Transit Corridors'
+      ],
+      subTopicsAr: [
+        'النزوح القسري بفعل تغير المناخ والاعتراف القانوني باللاجئ المناخي',
+        'تراكم طلبات اللجوء وتصدير إدارة الحدود إلى دول ثالثة',
+        'إنهاء حالات انعدام الجنسية وحق كل إنسان في الهوية القانونية',
+        'الإدماج الاقتصادي والاجتماعي للشباب النازحين في المجتمعات المضيفة',
+        'حماية الأطفال واليافعين غير المصحوبين في ممرات اللجوء الإنساني'
+      ]
+    },
+    {
+      id: 'food-water-security',
+      name: 'Food Sovereignty, Water Justice & Agritech',
+      nameAr: 'السيادة الغذائية والعدالة المائية والتكنولوجيا الزراعية',
+      icon: 'droplet',
+      description: 'Transboundary river diplomacy, corporate seed monopolies vs indigenous cultivars, vertical agritech, and famine prevention.',
+      descriptionAr: 'دبلوماسية الأنهار والمياه العابرة للحدود، احتكارات البذور مقابل السيادة الزراعية، المزارع الرأسية، وحماية سلاسل الإمداد.',
+      subTopics: [
+        'Transboundary Aquifer & River Basin Riparian Accords',
+        'Corporate Seed Patenting vs Indigenous Farming Sovereignty',
+        'Climate-Resilient Agritech & Desalination Energy Costs',
+        'Conflict-Driven Famine & Humanitarian Food Corridors',
+        'Groundwater Depletion & Water as an Inalienable Public Good'
+      ],
+      subTopicsAr: [
+        'الاتفاقيات الدولية المشتركة لأحواض الأنهار والمياه الجوفية العابرة للحدود',
+        'براءات اختراع البذور للشركات الكبرى في مواجهة سيادة المزارعين التقليديين',
+        'التكنولوجيا الزراعية المقاومة للمناخ وتكاليف طاقة تحلية المياه',
+        'المجاعات الناجمة عن النزاعات المسلحة وحماية الممرات الإنسانية للإغاثة',
+        'استنزاف المياه الجوفية والاعتراف بالمياه كحق إنساني غير قابل للخصخصة'
+      ]
+    },
+    {
+      id: 'indigenous-decolonization',
+      name: 'Indigenous Rights, Decolonization & Epistemic Justice',
+      nameAr: 'حقوق الشعوب الأصلية وتفكيك الاستعمار والعدالة المعرفية',
+      icon: 'feather',
+      description: 'Free Prior and Informed Consent (FPIC), cultural artifact repatriation, language preservation, and indigenous ecological stewardship.',
+      descriptionAr: 'الموافقة المسبقة والواعية والحرة، استعادة الآثار المنهوبة، صون اللغات المهددة، والإدارة البيئية التقليدية للأراضي.',
+      subTopics: [
+        'Free, Prior, and Informed Consent (FPIC) in Extractive Megaprojects',
+        'Repatriation of Stolen Ancestral Antiquities in Western Museums',
+        'Decolonizing Higher Education Curricula & Epistemic Pluralism',
+        'Indigenous Land Back Movements & Biodiversity Preservation',
+        'Revitalizing Endangered Indigenous Dialects in Youth Education'
+      ],
+      subTopicsAr: [
+        'الموافقة الحرة والمسبقة والمستنيرة في المشاريع التعدينية الاستخراجية',
+        'استعادة الآثار والكنوز الحضارية المنهوبة من المتاحف الاستعمارية',
+        'تفكيك رواسب الاستعمار في المناهج الجامعية وإرساء التعددية المعرفية',
+        'حركات استرداد الأراضي للشعوب الأصلية ودورها في حماية التنوع البيولوجي',
+        'إحياء اللغات واللهجات الأصلية المهددة بالاندثار في التعليم الشبابي'
+      ]
+    },
+    {
+      id: 'gender-inclusion',
+      name: 'Gender Equality, Care Economy & Inclusive Policy',
+      nameAr: 'المساواة الجندرية واقتصاد الرعاية والسياسات الشاملة',
+      icon: 'heart',
+      description: 'Gender pay parity, political leadership quotas, recognizing unpaid care work, reproductive rights, and combating gendered violence.',
+      descriptionAr: 'تقليص فجوة الأجور، الكوتا النسائية في القيادة، تثمين أعمال الرعاية الأسرية، والرعاية الصحية، ومناهضة العنف.',
+      subTopics: [
+        'Closing the Transnational Gender Pay Gap in High-Skill Sectors',
+        'Institutional Quotas for Young Women in Parliaments & Cabinets',
+        'Formal Economic Valuation of Unpaid Domestic & Eldercare Work',
+        'Legal Accountability Frameworks for Digital Harassment & Gender Slander',
+        'Parental Leave Parity & Breaking Workplace Caregiver Penalties'
+      ],
+      subTopicsAr: [
+        'سد فجوة الأجور بين الجنسين في القطاعات التقنية والمهنية المتقدمة',
+        'نظام الكوتا المؤسسية لتمكين الشابات في المجالس النيابية والوزارية',
+        'التقدير الاقتصادي والمحاسبي لأعمال الرعاية المنزلية غير مدفوعة الأجر',
+        'الأطر القانونية الرادعة للمضايقات الرقمية والعنف الإلكتروني المستهدف',
+        'تكافؤ إجازات الوالدية وإنهاء التمييز الوظيفي ضد مقدمي الرعاية'
+      ]
+    },
+    {
+      id: 'disarmament-security',
+      name: 'Disarmament, Nuclear Non-Proliferation & Demilitarization',
+      nameAr: 'نزع السلاح وحظر الانتشار النووي وإنهاء العسكرة',
+      icon: 'crosshair',
+      description: 'Universalization of the TPNW, hypersonic missile treaties, illicit small-arms trafficking, and preventing weaponization of civil police.',
+      descriptionAr: 'تعميم معاهدة حظر الأسلحة النووية، تنظيم الأسلحة فرط الصوتية، مكافحة تهريب الأسلحة الخفيفة، ومنع عسكرة الأجهزة الأمنية.',
+      subTopics: [
+        'Treaty on the Prohibition of Nuclear Weapons (TPNW) Ratification',
+        'Hypersonic Delivery Systems & Strategic Deterrence Instability',
+        'Stemming Illicit Small Arms & Light Weapons in Regional Conflicts',
+        'Demilitarization of Metropolitan Law Enforcement Agencies',
+        'Strengthening Verification Protocols for the Biological Weapons Convention'
+      ],
+      subTopicsAr: [
+        'تصديق القوى النووية على معاهدة حظر الأسلحة النووية (TPNW)',
+        'منظومات الصواريخ فرط الصوتية وتزعزع استقرار الردع الاستراتيجي',
+        'تجفيف منابع تجارة وتهريب الأسلحة الصغيرة والخفيفة في بؤر النزاع',
+        'إنهاء عسكرة قوات الشرطة المدنية والحفاظ على حريات الفضاء العام',
+        'تشديد بروتوكولات التفتيش والتحقق الخاصة باتفاقية الأسلحة البيولوجية'
+      ]
+    },
+    {
+      id: 'mental-health-wellbeing',
+      name: 'Mental Health, Digital Wellbeing & Neurodiversity',
+      nameAr: 'الصحة النفسية والرفاه الرقمي والتنوع العصبي',
+      icon: 'smile',
+      description: 'Youth mental healthcare access, social media algorithmic addiction, workplace burnout, neurodiversity advocacy, and psychiatric parity.',
+      descriptionAr: 'إتاحة خدمات الصحة النفسية للشباب، إدمان خوارزميات المنصات، متلازمة الإرهاق الوظيفي، واستيعاب التنوع العصبي.',
+      subTopics: [
+        'Algorithmic Attention Engineering & Adolescent Anxiety Crises',
+        'Equal Parity for Mental Health in Universal Public Coverage',
+        'Implementing the 4-Day Workweek Against Modern Youth Burnout',
+        'Neuroinclusive Educational Pedagogy & Workplace Accommodations',
+        'Decriminalization of Mental Distress & Community Crisis Response'
+      ],
+      subTopicsAr: [
+        'هندسة الانتباه الخوارزمية وعلاقتها بارتفاع معدلات القلق لدى المراهقين',
+        'المساواة التامة بين العلاج النفسي والجسدي في التأمين الصحي الشامل',
+        'تطبيق نظام أسبوع العمل من 4 أيام لمواجهة الإرهاق والاحتراق المهني',
+        'تهيئة المناهج وبيئات العمل لاستيعاب الأفراد ذوي التنوع العصبي',
+        'إلغاء تجريم الأزمات النفسية وتأسيس فرق استجابة مجتمعية متخصصة'
+      ]
+    },
+    {
+      id: 'digital-sovereignty',
+      name: 'Digital Sovereignty, Cyber Resilience & Internet Freedom',
+      nameAr: 'السيادة الرقمية والمرونة السيبرانية وحرية الإنترنت',
+      icon: 'wifi',
+      description: 'National data autonomy, cloud infrastructure monopolies, cybersecurity of critical grids, quantum cryptography, and the open web.',
+      descriptionAr: 'السيادة الوطنية على البيانات، احتكارات السحابة الحاسوبية، أمن شبكات الطاقة والمياه، والتشفير المقاوم للحوسبة الكمومية.',
+      subTopics: [
+        'Data Localization Laws vs Transnational Open Cloud Infrastructure',
+        'Protecting Civil Energy Grids & Hospitals from State Cyber Sabotage',
+        'Ensuring Open-Source Public Digital Rails vs Big Tech Monopolies',
+        'Post-Quantum Cryptography Transition for Global Financial Rails',
+        'Universal Internet Access as an Enforceable Human Utility'
+      ],
+      subTopicsAr: [
+        'قوانين توطين البيانات في مواجهة البنى التحتية السحابية العالمية المفتوحة',
+        'تحصين شبكات الطاقة والمستشفيات من هجمات التخريب السيبراني الدولية',
+        'بناء منصات رقمية عامة ومفتوحة المصدر لكسر هيمنة كبرى شركات التقنية',
+        'التحول نحو خوارزميات التشفير ما بعد الكمي لحماية النظام المالي',
+        'اعتبار سرعات الإنترنت الفائقة خدمة عامة أساسية وحقاً غير قابل للحجب'
+      ]
+    },
+    {
+      id: 'urbanization-housing',
+      name: 'Urbanization, 15-Minute Cities & Affordable Housing',
+      nameAr: 'التحضر ومدن الـ 15 دقيقة والعدالة السكنية',
+      icon: 'home',
+      description: 'Youth housing affordability, pedestrianized 15-minute neighborhoods, transit justice, slum upgrading, and climate-resilient architecture.',
+      descriptionAr: 'أزمة الإسكان الميسر للشباب، أحياء الـ 15 دقيقة المخصصة للمشاة، عدالة النقل العام، وتطوير التجمعات السكنية لمقاومة المناخ.',
+      subTopics: [
+        'Institutional Speculation Bans & Affordable Housing Caps for Youth',
+        '15-Minute City Urban Planning & Pedestrianized Mobility Transit',
+        'Formalization & Climate Weatherproofing of Informal Settlements',
+        'Biophilic Urban Design, Heat-Island Mitigation & Green Canopy Quotas',
+        'Public Transportation Fare Abolition as an Ecological Equalizer'
+      ],
+      subTopicsAr: [
+        'حظر المضاربات العقارية ووضع سقوف سعرية لإسكان الشباب الميسر',
+        'تخطيط مدن الـ 15 دقيقة وتعزيز النقل النظيف وشبكات المشاة والدراجات',
+        'تثبيت الملكيات وتحصين التجمعات الحضرية العشوائية ضد الكوارث المناخية',
+        'التصميم العمراني البيئي والتشجير الكثيف لخفض الجزر الحرارية في المدن',
+        'مجانية النقل العام كوسيلة فعالة للعدالة الاجتماعية وخفض الانبعاثات'
+      ]
     }
   ],
 
@@ -415,6 +723,40 @@ const INITIAL_DATABASE = {
       assignedSpeaker: 'Unassigned',
       assignedModerator: 'Unassigned',
       createdAt: '2024-09-02'
+    },
+    {
+      id: 'top_07',
+      title: 'Legal Protections and Refugee Status for Climate-Displaced Populations',
+      category: 'migration-displacement',
+      categoryName: 'Global Migration & Refugees',
+      description: 'Evaluating whether the 1951 Refugee Convention must be amended to recognize climate-induced displacement and existential sea-level rise.',
+      motion: 'This House would grant formal refugee status under international law to individuals displaced by catastrophic climate change.',
+      status: 'Proposed',
+      proposedBy: 'Kofi Mensah',
+      proposedById: 'usr_mem_1',
+      countryPerspective: 'Pacific Small Island Developing States (SIDS) existential peril vs Global North border containment doctrines.',
+      sources: 'UNHCR Climate Change and Disaster Displacement Framework, IPCC AR6 Working Group II.',
+      researchNotes: 'Explore legal definitions of habitual residence loss and non-refoulement extensions.',
+      assignedSpeaker: 'Unassigned',
+      assignedModerator: 'Unassigned',
+      createdAt: '2024-09-18'
+    },
+    {
+      id: 'top_08',
+      title: 'Universal Ban on Private Corporate Monopolies over Freshwater Basins',
+      category: 'food-water-security',
+      categoryName: 'Food Sovereignty & Water Justice',
+      description: 'Addressing the escalating geopolitical flashpoints surrounding privatized water extraction and damming of transboundary river systems.',
+      motion: 'This House would declare all transboundary freshwater basins inalienable public commons and prohibit commercial privatized bottling and speculative trading.',
+      status: 'Approved',
+      proposedBy: 'Tariq Al-Mansoor',
+      proposedById: 'usr_coord_1',
+      countryPerspective: 'Middle Eastern arid water security treaties vs multinational agribusiness concessions in Latin America.',
+      sources: 'UN World Water Development Report 2024, Stockholm International Water Institute (SIWI).',
+      researchNotes: 'Focus on Nile and Indus basin precedents and municipal public utility remunicipalization.',
+      assignedSpeaker: 'Unassigned',
+      assignedModerator: 'Unassigned',
+      createdAt: '2024-09-25'
     }
   ],
 
@@ -440,19 +782,19 @@ const INITIAL_DATABASE = {
       moderator: {
         name: 'Elena Rostova',
         country: 'United Kingdom',
-        flag: '🇬🇧'
+        flag: 'GB'
       },
       speakers: [
         {
           name: 'Amara Chen',
           country: 'Singapore',
-          flag: '🇸🇬',
+          flag: 'SG',
           stance: 'Affirmative: AI literacy is foundational cognitive literacy.'
         },
         {
           name: 'Kofi Mensah',
           country: 'Ghana',
-          flag: '🇬🇭',
+          flag: 'GH',
           stance: 'Negative: Infrastructure divides will deepen educational inequality.'
         }
       ],
@@ -497,19 +839,19 @@ const INITIAL_DATABASE = {
       moderator: {
         name: 'Tariq Al-Mansoor',
         country: 'Qatar',
-        flag: '🇶🇦'
+        flag: 'QA'
       },
       speakers: [
         {
           name: 'Kofi Mensah',
           country: 'Ghana',
-          flag: '🇬🇭',
+          flag: 'GH',
           stance: 'Lead Presenter: Historical liability and loss-and-damage restitution.'
         },
         {
           name: 'Sofia Morales',
           country: 'Mexico',
-          flag: '🇲🇽',
+          flag: 'MX',
           stance: 'Discussant: Fiscal capacity of transition states and sovereign debt traps.'
         }
       ],
@@ -554,19 +896,19 @@ const INITIAL_DATABASE = {
       moderator: {
         name: 'Sofia Morales',
         country: 'Mexico',
-        flag: '🇲🇽'
+        flag: 'MX'
       },
       speakers: [
         {
           name: 'Tariq Al-Mansoor',
           country: 'Qatar',
-          flag: '🇶🇦',
+          flag: 'QA',
           stance: 'Affirmative: Abolishing or circumscribing the permanent veto is mandatory.'
         },
         {
           name: 'Elena Rostova',
           country: 'United Kingdom',
-          flag: '🇬🇧',
+          flag: 'GB',
           stance: 'Negative: Realpolitik dictates great-power veto keeps major powers at the table.'
         }
       ],
@@ -585,6 +927,63 @@ const INITIAL_DATABASE = {
       ],
       meetingLink: 'https://meet.google.com/gyd-oct-unsc-live',
       poster: 'diplomacy_unsc_poster',
+      recordingUrl: '',
+      isRecordingPrivate: true,
+      hasSummary: false,
+      summaryId: null
+    },
+    {
+      id: 'ses_04',
+      sessionNumber: 4,
+      title: 'Autonomous Weapons & Algorithmic Warfare: Regulating AI on the Modern Battlefield',
+      titleAr: 'الأسلحة الذاتية وحروب الخوارزميات: تنظيم الذكاء الاصطناعي في ساحات القتال المعاصرة',
+      topicId: 'top_01',
+      category: 'tech-ai',
+      categoryName: 'Technology & AI Ethics',
+      categoryNameAr: 'التكنولوجيا والذكاء الاصطناعي',
+      formatAr: 'مناظرة برلمانية رسمية + نقاش مفتوح',
+      durationAr: '٩٠ دقيقة',
+      descriptionAr: 'حوار دولي يبحث المساءلة القانونية والأخلاقية للنظم العسكرية المستقلة (LAWS) ويفحص مدى كفاية اتفاقيات جنيف أمام القرارات العسكرية المؤتمتة.',
+      date: '2024-11-01',
+      time: '18:00',
+      timezone: 'GMT+3 (Qatar Standard Time)',
+      format: 'Formal Debate + Roundtable',
+      duration: '90 mins',
+      status: 'Upcoming',
+      moderator: {
+        name: 'Kofi Mensah',
+        country: 'Ghana',
+        flag: 'GH'
+      },
+      speakers: [
+        {
+          name: 'Amara Chen',
+          country: 'Singapore',
+          flag: 'SG',
+          stance: 'Affirmative: Mandatory Human-in-the-Loop treaties under Geneva Conventions.'
+        },
+        {
+          name: 'Zaid Al-Harbi',
+          country: 'Jordan',
+          flag: 'JO',
+          stance: 'Negative: Realities of asymmetric electronic warfare prevent unilateral bans.'
+        }
+      ],
+      countriesRepresented: ['Singapore', 'Ghana', 'Jordan', 'Qatar', 'United Kingdom', 'Mexico', 'Pakistan'],
+      description: 'An international dialogue evaluating draft multilateral treaties on lethal autonomous weapons systems (LAWS) and the threshold of machine accountability.',
+      structure: [
+        { phase: '01', title: 'Context & Geneva Conventions Baseline', duration: '10 min', lead: 'Moderator' },
+        { phase: '02', title: 'Proposition: Mandatory Human Control', duration: '15 min', lead: 'Amara Chen' },
+        { phase: '03', title: 'Opposition: Asymmetric Deterrence Realities', duration: '15 min', lead: 'Zaid Al-Harbi' },
+        { phase: '04', title: 'Cross-Examination & Delegate Interventions', duration: '35 min', lead: 'Floor' },
+        { phase: '05', title: 'Synthesis & Closing Reflections', duration: '15 min', lead: 'Panel' }
+      ],
+      prepMaterials: [
+        { title: 'UN CCW Group of Governmental Experts on LAWS Report', url: '#' },
+        { title: 'International Committee of the Red Cross Position Paper', url: '#' }
+      ],
+      meetingLink: 'https://meet.google.com/gyd-nov-ai-warfare',
+      poster: 'ai_warfare_poster',
       recordingUrl: '',
       isRecordingPrivate: true,
       hasSummary: false,
@@ -698,7 +1097,7 @@ const INITIAL_DATABASE = {
       name: 'Farhan Nadeem',
       email: 'farhan.n@outlook.com',
       country: 'Pakistan',
-      flag: '🇵🇰',
+      flag: 'PK',
       interests: ['Global Affairs', 'Governance & Society'],
       debateExperience: 'Debater at National Schools Championship Pakistan, 3 years parliamentary format.',
       motivation: 'I want to build cross-border intellectual ties with fellow youth who care about sustainable governance and international diplomacy.',
@@ -710,7 +1109,7 @@ const INITIAL_DATABASE = {
       name: 'Sarah Van Dijk',
       email: 'sarah.vandijk@edu.nl',
       country: 'Netherlands',
-      flag: '🇳🇱',
+      flag: 'NL',
       interests: ['Environment', 'Economy'],
       debateExperience: 'European Youth Parliament delegate, university debate society treasurer.',
       motivation: 'passionate about ecological economics and learning how Global South debaters view loss-and-damage policy.',
@@ -798,7 +1197,7 @@ const INITIAL_DATABASE = {
       id: 'rep_qa',
       country: 'Qatar',
       countryAr: 'قطر',
-      flag: '🇶🇦',
+      flag: 'QA',
       chapterName: 'Doha Youth Chapter',
       chapterNameAr: 'فرع الدوحة الشبابي',
       repName: 'Tariq Al-Mansoor',
@@ -816,7 +1215,7 @@ const INITIAL_DATABASE = {
       id: 'rep_sg',
       country: 'Singapore',
       countryAr: 'سنغافورة',
-      flag: '🇸🇬',
+      flag: 'SG',
       chapterName: 'Singapore & ASEAN Chapter',
       chapterNameAr: 'فرع سنغافورة ورابطة آسيان',
       repName: 'Amara Chen',
@@ -834,7 +1233,7 @@ const INITIAL_DATABASE = {
       id: 'rep_gh',
       country: 'Ghana',
       countryAr: 'غانا',
-      flag: '🇬🇭',
+      flag: 'GH',
       chapterName: 'West Africa Youth Chapter',
       chapterNameAr: 'فرع غرب أفريقيا الشبابي',
       repName: 'Kofi Mensah',
@@ -852,7 +1251,7 @@ const INITIAL_DATABASE = {
       id: 'rep_gb',
       country: 'United Kingdom',
       countryAr: 'المملكة المتحدة',
-      flag: '🇬🇧',
+      flag: 'GB',
       chapterName: 'UK & European Chapter',
       chapterNameAr: 'فرع المملكة المتحدة وأوروبا',
       repName: 'Elena Rostova',
@@ -870,7 +1269,7 @@ const INITIAL_DATABASE = {
       id: 'rep_jo',
       country: 'Jordan',
       countryAr: 'الأردن',
-      flag: '🇯🇴',
+      flag: 'JO',
       chapterName: 'Levant Youth Chapter',
       chapterNameAr: 'فرع بلاد الشام الشبابي',
       repName: 'Zaid Al-Harbi',
@@ -888,7 +1287,7 @@ const INITIAL_DATABASE = {
       id: 'rep_mx',
       country: 'Mexico',
       countryAr: 'المكسيك',
-      flag: '🇲🇽',
+      flag: 'MX',
       chapterName: 'Latin America Chapter',
       chapterNameAr: 'فرع أمريكا اللاتينية الشبابي',
       repName: 'Sofia Morales',
@@ -906,7 +1305,7 @@ const INITIAL_DATABASE = {
       id: 'rep_pk',
       country: 'Pakistan',
       countryAr: 'باكستان',
-      flag: '🇵🇰',
+      flag: 'PK',
       chapterName: 'South Asia Chapter',
       chapterNameAr: 'فرع جنوب آسيا الشبابي',
       repName: 'Farhan Nadeem',
@@ -924,7 +1323,7 @@ const INITIAL_DATABASE = {
       id: 'rep_za',
       country: 'South Africa',
       countryAr: 'جنوب أفريقيا',
-      flag: '🇿🇦',
+      flag: 'ZA',
       chapterName: 'Southern Africa Chapter',
       chapterNameAr: 'فرع جنوب القارة الأفريقية',
       repName: 'Thabo Ndlovu',
@@ -947,21 +1346,21 @@ const INITIAL_DATABASE = {
       type: 'instagram_caption',
       category: 'Session Promo',
       headline: 'Should the UN Security Council Abolish the Permanent Member Veto?',
-      copyText: `🌍 Can a 1945 multilateral architecture solve 2026 global security crises?
+      copyText: ` Can a 1945 multilateral architecture solve 2026 global security crises?
 
 In Session #03 of Global Youth Dialogue, debaters from 14+ countries go head-to-head on the future of the UN Security Council.
 
-🏛️ MOTION:
+ MOTION:
 "This House Would Abolish the Permanent Member Veto in the United Nations Security Council."
 
 Key Debater Clash Points:
-1️⃣ Sovereignty vs. Realpolitik: Does the veto prevent World War III or guarantee paralysis?
-2️⃣ Global South Representation: Why does Africa have 0 permanent veto seats?
-3️⃣ Regional Coalitions: The G4 and Uniting for Consensus models.
+1. Sovereignty vs. Realpolitik: Does the veto prevent World War III or guarantee paralysis?
+2. Global South Representation: Why does Africa have 0 permanent veto seats?
+3. Regional Coalitions: The G4 and Uniting for Consensus models.
 
-📅 Date: Saturday, 18 October 2024
-📍 Live on Google Meet | Members Portal Open
-🔗 Register & read the briefing pack at: globalyouthdialogue.org
+ Date: Saturday, 18 October 2024
+ Live on Google Meet | Members Portal Open
+ Register & read the briefing pack at: globalyouthdialogue.org
 
 #GlobalYouthDialogue #ISDC7 #YouthDebate #UNSC #QatarDebate #InternationalAffairs #DebateSociety`,
       tags: ['Instagram', 'Debate Promotion', 'UNSC']
@@ -975,7 +1374,7 @@ Key Debater Clash Points:
       authorName: 'Kofi Mensah',
       authorRole: 'Affirmative Speaker (Ghana)',
       authorCountry: 'Ghana',
-      authorFlag: '🇬🇭',
+      authorFlag: 'GH',
       quoteText: '"International climate governance cannot demand equal mitigation pledges from unequal historical polluters without structural restitution."',
       copyText: `"International climate governance cannot demand equal mitigation pledges from unequal historical polluters without structural restitution."
 — Kofi Mensah (Ghana) in GYD Session #02 on Climate Restitution
@@ -1015,19 +1414,19 @@ Media Contact: secretariat@gyd.org`,
       type: 'chat_broadcast',
       category: 'Community Broadcast',
       headline: 'Weekly Debate Reminder for National WhatsApp Groups',
-      copyText: `👋 Salam & Hello Debaters!
+      copyText: ` Salam & Hello Debaters!
 
 Reminder for our next Global Youth Dialogue session:
 
-📌 Topic: Multilateral Diplomacy & UNSC Reform
-🗓️ Date: Saturday, 18 Oct 2024
-⏰ Time: 16:00 Doha AST | 13:00 London UTC | 21:00 Singapore SGT
-💻 Google Meet: Link active 15 mins before start in portal
+ Topic: Multilateral Diplomacy & UNSC Reform
+ Date: Saturday, 18 Oct 2024
+ Time: 16:00 Doha AST | 13:00 London UTC | 21:00 Singapore SGT
+ Google Meet: Link active 15 mins before start in portal
 
-📄 Briefing dossier has been uploaded. If you wish to join the floor debate or submit qualitative feedback, please log in to your Member Portal:
+ Briefing dossier has been uploaded. If you wish to join the floor debate or submit qualitative feedback, please log in to your Member Portal:
 https://global-youth-dialogue.vercel.app
 
-Connect. Challenge. Create. 🌐✨`,
+Connect. Challenge. Create. INT`,
       tags: ['WhatsApp', 'Broadcast', 'Internal Network']
     }
   ]
@@ -1054,23 +1453,54 @@ class DataService {
         if (!parsed.mediaKits || parsed.mediaKits.length === 0) {
           parsed.mediaKits = INITIAL_DATABASE.mediaKits;
         }
-        // Auto-merge latest Arabic translations into existing cached databases
+        // Sync all categories from INITIAL_DATABASE to ensure all 16 exist with subtopics
         if (parsed.categories) {
-          parsed.categories.forEach(c => {
-            const initC = INITIAL_DATABASE.categories.find(ic => ic.id === c.id);
-            if (initC && initC.descriptionAr && !c.descriptionAr) c.descriptionAr = initC.descriptionAr;
-            if (initC && initC.nameAr && !c.nameAr) c.nameAr = initC.nameAr;
+          INITIAL_DATABASE.categories.forEach(initC => {
+            const existing = parsed.categories.find(c => c.id === initC.id);
+            if (!existing) {
+              parsed.categories.push(initC);
+            } else {
+              existing.name = initC.name;
+              existing.nameAr = initC.nameAr;
+              existing.icon = initC.icon;
+              existing.description = initC.description;
+              existing.descriptionAr = initC.descriptionAr;
+              existing.subTopics = initC.subTopics;
+              existing.subTopicsAr = initC.subTopicsAr;
+            }
           });
+        } else {
+          parsed.categories = INITIAL_DATABASE.categories;
         }
-        if (parsed.sessions) {
-          parsed.sessions.forEach(s => {
-            const initS = INITIAL_DATABASE.sessions.find(is => is.id === s.id);
-            if (initS && initS.titleAr && !s.titleAr) s.titleAr = initS.titleAr;
-            if (initS && initS.formatAr && !s.formatAr) s.formatAr = initS.formatAr;
-            if (initS && initS.durationAr && !s.durationAr) s.durationAr = initS.durationAr;
-            if (initS && initS.categoryNameAr && !s.categoryNameAr) s.categoryNameAr = initS.categoryNameAr;
-            if (initS && initS.descriptionAr && !s.descriptionAr) s.descriptionAr = initS.descriptionAr;
+
+        // Sync all topics from INITIAL_DATABASE
+        if (parsed.topics) {
+          INITIAL_DATABASE.topics.forEach(initT => {
+            const existing = parsed.topics.find(t => t.id === initT.id);
+            if (!existing) parsed.topics.push(initT);
           });
+        } else {
+          parsed.topics = INITIAL_DATABASE.topics;
+        }
+
+        // Sync all sessions from INITIAL_DATABASE to ensure upcoming sessions exist
+        if (parsed.sessions) {
+          INITIAL_DATABASE.sessions.forEach(initS => {
+            const existing = parsed.sessions.find(s => s.id === initS.id);
+            if (!existing) {
+              parsed.sessions.push(initS);
+            } else {
+              if (initS.titleAr && !existing.titleAr) existing.titleAr = initS.titleAr;
+              if (initS.formatAr && !existing.formatAr) existing.formatAr = initS.formatAr;
+              if (initS.durationAr && !existing.durationAr) existing.durationAr = initS.durationAr;
+              if (initS.categoryNameAr && !existing.categoryNameAr) existing.categoryNameAr = initS.categoryNameAr;
+              if (initS.descriptionAr && !existing.descriptionAr) existing.descriptionAr = initS.descriptionAr;
+              if (initS.speakers && !existing.speakers) existing.speakers = initS.speakers;
+              if (initS.moderator && !existing.moderator) existing.moderator = initS.moderator;
+            }
+          });
+        } else {
+          parsed.sessions = INITIAL_DATABASE.sessions;
         }
         if (parsed.countryReps) {
           parsed.countryReps.forEach(r => {
@@ -1169,7 +1599,7 @@ class DataService {
       format: sessionData.format || 'Global Dialogue',
       duration: sessionData.duration || '90 mins',
       status: 'Upcoming',
-      moderator: sessionData.moderator || { name: 'TBD', country: 'TBD', flag: '🌐' },
+      moderator: sessionData.moderator || { name: 'TBD', country: 'TBD', flag: 'INT' },
       speakers: sessionData.speakers || [],
       countriesRepresented: sessionData.countriesRepresented || ['Qatar'],
       description: sessionData.description || '',
@@ -1277,7 +1707,7 @@ class DataService {
       name: appData.name,
       email: appData.email,
       country: appData.country,
-      flag: appData.flag || '🌐',
+      flag: appData.flag || 'INT',
       interests: appData.interests || [],
       debateExperience: appData.debateExperience || '',
       motivation: appData.motivation || '',
@@ -1404,7 +1834,7 @@ class DataService {
       id: 'rep_' + Date.now().toString(36),
       country: repData.country,
       countryAr: repData.countryAr || repData.country,
-      flag: repData.flag || '🌐',
+      flag: repData.flag || 'INT',
       chapterName: repData.chapterName || (repData.country + ' Chapter'),
       repName: repData.repName,
       email: repData.email,
@@ -1508,7 +1938,7 @@ class DataService {
         results.push({
           type: 'member',
           typeLabel: 'Member',
-          title: `${u.flag || '🌐'} ${u.name}`,
+          title: `${u.flag || 'INT'} ${u.name}`,
           subtitle: `${u.role} from ${u.country}`,
           date: u.joinedDate,
           targetView: 'community',
@@ -1620,7 +2050,7 @@ class DataService {
     return {
       recipientName: user.name,
       country: user.country,
-      flag: user.flag || '🌐',
+      flag: user.flag || 'INT',
       role: user.role,
       issueDate: 'October 2024',
       certificateNumber: 'GYD-ISDC7-' + (user.id || 'MEM').replace('usr_', '').toUpperCase(),
