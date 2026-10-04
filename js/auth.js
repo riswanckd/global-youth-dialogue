@@ -49,6 +49,10 @@ class AuthService {
     return this.currentUser && (this.currentUser.role === 'Member' || this.currentUser.role === 'Speaker' || this.currentUser.role === 'Moderator' || this.currentUser.role === 'Research Contributor' || this.currentUser.role === 'Coordinator');
   }
 
+  isPresenter() {
+    return this.currentUser && (this.currentUser.role === 'Presenter' || this.currentUser.role === 'Speaker');
+  }
+
   isCoordinator() {
     return this.currentUser && this.currentUser.role === 'Coordinator';
   }
@@ -80,8 +84,10 @@ class AuthService {
 
     if (roleType === 'Coordinator') {
       targetUser = users.find(u => u.role === 'Coordinator') || users[0];
+    } else if (roleType === 'Presenter') {
+      targetUser = users.find(u => u.role === 'Presenter' || u.email === 'presenter@gyd.org' || u.role === 'Speaker') || users[1];
     } else {
-      targetUser = users.find(u => u.role === 'Speaker' || u.role === 'Member') || users[2];
+      targetUser = users.find(u => (u.role === 'Member' || u.email === 'member@gyd.org') && u.role !== 'Coordinator' && u.role !== 'Presenter') || users[2];
     }
 
     if (targetUser) {

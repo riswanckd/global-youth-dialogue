@@ -35,19 +35,31 @@ const INITIAL_DATABASE = {
       interests: ['Technology & AI', 'Economy', 'Global Affairs'],
       status: 'active',
       joinedDate: '2024-05-12'
+    {
+      id: 'usr_pres_1',
+      name: 'Kofi Mensah',
+      email: 'presenter@gyd.org',
+      password: 'password123',
+      role: 'Presenter',
+      country: 'Ghana',
+      flag: 'GH',
+      bio: 'Academic Fellow & Keynote Presenter. Specializes in global economic justice, climate reparations, and technology ethics.',
+      interests: ['Environment', 'Economy', 'Global Affairs'],
+      status: 'active',
+      joinedDate: '2024-06-01'
     },
     {
       id: 'usr_mem_1',
-      name: 'Kofi Mensah',
+      name: 'Lucas Silva',
       email: 'member@gyd.org',
       password: 'password123',
-      role: 'Speaker',
-      country: 'Ghana',
-      flag: 'GH',
-      bio: 'National schools debate captain, climate policy advocate and student researcher.',
-      interests: ['Environment', 'Economy', 'Governance & Society'],
+      role: 'Member',
+      country: 'Brazil',
+      flag: 'BR',
+      bio: 'Youth delegate & international debater, active participant in multilateral dialogue sessions and community ballots.',
+      interests: ['Governance & Society', 'Education', 'Environment'],
       status: 'active',
-      joinedDate: '2024-06-01'
+      joinedDate: '2024-06-10'
     },
     {
       id: 'usr_mem_2',
@@ -1919,6 +1931,63 @@ https://global-youth-dialogue.vercel.app
 Connect. Challenge. Create. INT`,
       tags: ['WhatsApp', 'Broadcast', 'Internal Network']
     }
+  ],
+
+  presentations: [
+    {
+      id: 'pres_01',
+      title: 'The Geopolitics of Critical Rare Earth Minerals & Green Transition',
+      topicId: 'tb_econ_03',
+      category: 'economy',
+      categoryName: 'Economic Justice & Global Finance',
+      subtopic: 'Resource Nationalism & Bilateral Supply Chain Monopolies',
+      abstract: 'An empirical examination of rare earth mineral supply chains and sovereign processing facilities in the Global South, investigating the geopolitical tensions between decarbonization deadlines and raw material sovereignty.',
+      presenterName: 'Kofi Mensah',
+      presenterId: 'usr_pres_1',
+      presenterCountry: 'Ghana',
+      presenterFlag: 'GH',
+      targetSessionId: 'ses_02',
+      targetSessionTitle: 'Session 02: Sovereign Debt & South-South Finance',
+      format: 'Topic Presentation & Research Briefing',
+      duration: '20 mins presentation + 25 mins Q&A',
+      status: 'Scheduled',
+      slidesUrl: 'https://docs.google.com/presentation/d/demo-green-transition',
+      handoutUrl: 'https://gyd.org/briefings/rare-earth-geopolitics.pdf',
+      keyArguments: [
+        'Over 70% of rare earth refining remains geographically concentrated, creating strategic vulnerabilities.',
+        'Global South producers are actively enacting export restrictions to mandate domestic value addition.',
+        'Multilateral trade rules under the WTO conflict with national critical-mineral industrial strategies.'
+      ],
+      presentationDate: '2024-07-06',
+      createdAt: '2024-06-18'
+    },
+    {
+      id: 'pres_02',
+      title: 'Generative AI Pedagogies: Bridging or Widening the Digital Learning Divide?',
+      topicId: 'tb_edu_01',
+      category: 'education',
+      categoryName: 'Education & Future of Learning',
+      subtopic: 'Alternative Micro-Credentials & Digital Academies vs Traditional Degrees',
+      abstract: 'Analyzing classroom deployment of generative AI across African and Southeast Asian educational institutions, assessing cognitive independence versus accelerated research output.',
+      presenterName: 'Kofi Mensah',
+      presenterId: 'usr_pres_1',
+      presenterCountry: 'Ghana',
+      presenterFlag: 'GH',
+      targetSessionId: 'ses_01',
+      targetSessionTitle: 'Session 01: AI in Global Education Curricula',
+      format: 'Academic Workshop & Thesis Presentation',
+      duration: '15 mins keynote + 30 mins discussion',
+      status: 'Delivered',
+      slidesUrl: 'https://docs.google.com/presentation/d/demo-ai-education',
+      handoutUrl: 'https://gyd.org/briefings/ai-learning-divide.pdf',
+      keyArguments: [
+        'Access to advanced compute models is becoming a private wealth differentiator.',
+        'Syllabi must shift from rote information retention to epistemological critique.',
+        'Offline-first and open-source models are essential for educational sovereignty.'
+      ],
+      presentationDate: '2024-06-22',
+      createdAt: '2024-06-02'
+    }
   ]
 };
 
@@ -2004,6 +2073,13 @@ class DataService {
         if (!parsed.topicBank || !parsed.topicBank.length) {
           parsed.topicBank = JSON.parse(JSON.stringify(INITIAL_DATABASE.topicBank || []));
         }
+        if (!parsed.presentations || !parsed.presentations.length) {
+          parsed.presentations = JSON.parse(JSON.stringify(INITIAL_DATABASE.presentations || []));
+        }
+        if (parsed.users && !parsed.users.some(u => u.email === 'presenter@gyd.org')) {
+          const presUser = INITIAL_DATABASE.users.find(u => u.email === 'presenter@gyd.org');
+          if (presUser) parsed.users.unshift(presUser);
+        }
         return parsed;
       }
     } catch (e) {
@@ -2042,6 +2118,56 @@ class DataService {
   }
   getTopicBankItem(id) {
     return this.getTopicBank().find(t => t.id === id);
+  }
+  getPresentations() {
+    if (!this.db.presentations || !this.db.presentations.length) {
+      this.db.presentations = JSON.parse(JSON.stringify(INITIAL_DATABASE.presentations || []));
+      this.saveDatabase();
+    }
+    return this.db.presentations;
+  }
+  getPresentation(id) {
+    return this.getPresentations().find(p => p.id === id);
+  }
+  addPresentation(presData) {
+    if (!this.db.presentations) {
+      this.db.presentations = [];
+    }
+    const newPres = {
+      id: 'pres_' + Date.now().toString(36),
+      title: presData.title,
+      topicId: presData.topicId || '',
+      category: presData.category || 'global-affairs',
+      categoryName: presData.categoryName || this.getCategoryName(presData.category || 'global-affairs'),
+      subtopic: presData.subtopic || 'General Overview',
+      abstract: presData.abstract || '',
+      presenterName: presData.presenterName || 'Academic Presenter',
+      presenterId: presData.presenterId || 'usr_pres_1',
+      presenterCountry: presData.presenterCountry || 'Ghana',
+      presenterFlag: presData.presenterFlag || 'GH',
+      targetSessionId: presData.targetSessionId || '',
+      targetSessionTitle: presData.targetSessionTitle || 'Upcoming Dialogue Session',
+      format: presData.format || 'Topic Presentation & Research Briefing',
+      duration: presData.duration || '20 mins presentation + 20 mins Q&A',
+      status: presData.status || 'Proposed', // Proposed, Under Review, Approved, Scheduled, Delivered
+      slidesUrl: presData.slidesUrl || '',
+      handoutUrl: presData.handoutUrl || '',
+      keyArguments: Array.isArray(presData.keyArguments) ? presData.keyArguments : (presData.keyArguments ? presData.keyArguments.split('\n').filter(Boolean) : []),
+      presentationDate: presData.presentationDate || 'TBD',
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    this.db.presentations.unshift(newPres);
+    this.saveDatabase();
+    return newPres;
+  }
+  updatePresentationStatus(presId, status) {
+    const p = this.getPresentation(presId);
+    if (p) {
+      p.status = status;
+      this.saveDatabase();
+      return p;
+    }
+    return null;
   }
   getSessions() { return this.db.sessions; }
   getWritings() { return this.db.writings; }

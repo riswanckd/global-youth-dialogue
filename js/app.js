@@ -157,7 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const isCoord = user.role === 'Coordinator';
       const isOnPublic = activePortal === 'public';
       const homeText = isAr ? 'الرئيسية' : 'Home';
-      const portalText = isCoord ? (isAr ? 'بوابة المنسقين' : 'Coordinator Portal') : (isAr ? 'بوابة الأعضاء' : 'Member Portal');
+      const isPres = user && (user.role === 'Presenter' || user.role === 'Speaker');
+      const portalTarget = isCoord ? 'coordinator' : (isPres ? 'presenter' : 'member');
+      const portalText = isCoord 
+        ? (isAr ? 'بوابة المنسقين' : 'Coordinator Portal') 
+        : (isPres ? (isAr ? 'بوابة المتحدثين' : 'Presenter Portal') : (isAr ? 'بوابة الأعضاء' : 'Member Portal'));
       const logoutText = isAr ? 'تسجيل الخروج' : 'Sign Out';
 
       container.innerHTML = `
@@ -180,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       document.getElementById('headerPortalSwitchBtn')?.addEventListener('click', () => {
-        navigateToPortal(user.role === 'Coordinator' ? 'coordinator' : 'member');
+        navigateToPortal(portalTarget);
       });
 
       document.getElementById('headerLogoutBtn')?.addEventListener('click', () => {
@@ -212,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.getElementById('drawerPortalBtn')?.addEventListener('click', () => {
           closeMobileDrawer();
-          navigateToPortal(user.role === 'Coordinator' ? 'coordinator' : 'member');
+          navigateToPortal(portalTarget);
         });
         document.getElementById('drawerLogoutBtn')?.addEventListener('click', () => {
           closeMobileDrawer();
@@ -270,9 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewCoordinator = document.getElementById('viewCoordinator');
     const viewSignIn = document.getElementById('viewSignIn');
 
+    const viewPresenter = document.getElementById('viewPresenter');
+
     // Hide all
     if (viewPublic) viewPublic.style.display = 'none';
     if (viewMember) viewMember.style.display = 'none';
+    if (viewPresenter) viewPresenter.style.display = 'none';
     if (viewCoordinator) viewCoordinator.style.display = 'none';
     if (viewSignIn) viewSignIn.style.display = 'none';
 
@@ -286,6 +293,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (viewCoordinator) viewCoordinator.style.display = 'block';
       renderCoordinatorPortal();
+      window.scrollTo(0, 0);
+    } else if (portalName === 'presenter') {
+      if (!authService.isLoggedIn()) {
+        showToast('Presenter access required. Please sign in.', 'error');
+        navigateToPortal('signin');
+        return;
+      }
+      if (viewPresenter) viewPresenter.style.display = 'block';
+      renderPresenterPortal();
       window.scrollTo(0, 0);
     } else if (portalName === 'member') {
       if (!authService.isLoggedIn()) {
@@ -301,6 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (user) {
         if (user.role === 'Coordinator') {
           navigateToPortal('coordinator');
+        } else if (user.role === 'Presenter' || user.role === 'Speaker') {
+          navigateToPortal('presenter');
         } else {
           navigateToPortal('member');
         }
@@ -357,9 +375,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (result.user.role === 'Coordinator') {
         navigateToPortal('coordinator');
         showToast(`Identified as Admin / Coordinator. Welcome, ${result.user.name}!`, 'success');
+      } else if (result.user.role === 'Presenter' || result.user.role === 'Speaker') {
+        navigateToPortal('presenter');
+        showToast(`Identified as Presenter / Keynote Fellow. Welcome, ${result.user.name}!`, 'success');
       } else {
         navigateToPortal('member');
-        showToast(`Identified as Member / Delegate. Welcome, ${result.user.name}!`, 'success');
+        showToast(`Identified as Member / Participant. Welcome, ${result.user.name}!`, 'success');
       }
     } else {
       showToast(result.message, 'error');
@@ -371,7 +392,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const res = authService.login('member@gyd.org', 'password123');
     if (res.success) {
       navigateToPortal('member');
-      showToast('Identified as Member (Kofi Mensah) → Opened Member Features!', 'success');
+      showToast('Identified as Member (Lucas Silva) → Can Participate in Sessions!', 'success');
+    }
+  });
+
+  document.getElementById('demoRolePresenterBtn')?.addEventListener('click', () => {
+    const res = authService.login('presenter@gyd.org', 'password123');
+    if (res.success) {
+      navigateToPortal('presenter');
+      showToast('Identified as Presenter (Kofi Mensah) → Opened Presenter Portal (Can Present a Topic)!', 'success');
     }
   });
 
@@ -1681,6 +1710,801 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `).join('');
+  }
+
+
+  // =========================================================================
+  // GLOBAL MODAL HELPERS: Topic Bank Modal
+  // =========================================================================
+  window.openCoordAddTopicBankModal = function() {
+    const modal = document.getElementById('modalCoordAddTopicBank');
+    const catSelect = document.getElementById('tbNewCategory');
+    if (catSelect && catSelect.options.length === 0) {
+      dataService.getCategories().forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        catSelect.appendChild(opt);
+      });
+    }
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.offsetHeight; // reflow
+      modal.classList.add('active');
+    }
+  };
+
+  window.closeCoordAddTopicBankModal = function() {
+    const modal = document.getElementById('modalCoordAddTopicBank');
+    const form = document.getElementById('coordAddTopicBankForm');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 200);
+    }
+    if (form) form.reset();
+  };
+
+  window.handleCoordAddTopicBankSubmit = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const title = document.getElementById('tbNewTitle').value.trim();
+    const titleAr = document.getElementById('tbNewTitleAr').value.trim();
+    const category = document.getElementById('tbNewCategory').value;
+    const format = document.getElementById('tbNewFormat').value;
+    const description = document.getElementById('tbNewDescription').value.trim();
+    const rawSubtopics = document.getElementById('tbNewSubtopics').value.trim();
+
+    if (!title) {
+      showToast('Please provide a topic title.', 'warning');
+      return;
+    }
+
+    const subtopics = rawSubtopics
+      .split(/[\n,]+/)
+      .map(s => s.replace(/^Subtopic\s*\d*:\s*/i, '').trim())
+      .filter(s => s.length > 0);
+
+    const newEntry = dataService.addTopicToBank({
+      title,
+      titleAr,
+      category,
+      recommendedFormats: [format],
+      description,
+      subtopics,
+      isCustom: true,
+      addedBy: 'Secretariat Direct Add'
+    });
+
+    showToast(`New topic "${newEntry.title}" saved to the Topic Bank!`, 'success');
+    window.closeCoordAddTopicBankModal();
+    if (typeof renderCoordTopicBank === 'function') renderCoordTopicBank();
+    if (typeof renderMemberTopicBank === 'function') renderMemberTopicBank();
+    if (typeof renderPresenterTopicBank === 'function') renderPresenterTopicBank();
+    if (typeof populateTopicBankDropdown === 'function') populateTopicBankDropdown();
+  };
+
+
+  // =========================================================================
+  // VIEW: PRESENTER PORTAL RENDERING
+  // =========================================================================
+  let currentPresenterSubview = 'dashboard';
+
+  function renderPresenterPortal() {
+    const user = authService.getCurrentUser();
+    if (!user) return;
+
+    // Sidebar Profile
+    const profileCard = document.getElementById('presenterSidebarProfile');
+    if (profileCard) {
+      profileCard.innerHTML = `
+        <div class="portal-user-avatar avatar-presenter">${icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-info">
+          <span class="portal-user-name">${user.name}</span>
+          <span class="portal-user-role" style="color: var(--accent-gold); font-weight: 600;">⭐ Academic Presenter (${user.country})</span>
+        </div>
+      `;
+    }
+
+    bindPresenterNavigation();
+    switchPresenterSubview(currentPresenterSubview);
+  }
+
+  function bindPresenterNavigation() {
+    // Desktop sidebar
+    document.querySelectorAll('#viewPresenter .sidebar-item-btn').forEach(btn => {
+      btn.onclick = () => {
+        const target = btn.getAttribute('data-presenter-target');
+        if (target) switchPresenterSubview(target);
+      };
+    });
+
+    // Mobile tabs
+    document.querySelectorAll('#presenterMobileTabBar .mobile-tab-btn, #viewPresenter .mobile-tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        const target = btn.getAttribute('data-presenter-target');
+        if (target) switchPresenterSubview(target);
+      };
+    });
+
+    // Quick action buttons
+    const dashNewTopicBtn = document.getElementById('presDashNewTopicBtn');
+    if (dashNewTopicBtn) {
+      dashNewTopicBtn.onclick = () => switchPresenterSubview('present');
+    }
+
+    const presLogout = document.getElementById('presenterLogoutBtn');
+    if (presLogout) {
+      presLogout.onclick = () => {
+        authService.logout();
+        navigateToPortal('public');
+        showToast('Signed out from Presenter Workspace.');
+      };
+    }
+  }
+
+  function switchPresenterSubview(targetName) {
+    currentPresenterSubview = targetName;
+
+    // Active classes
+    document.querySelectorAll('#viewPresenter .sidebar-item-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-presenter-target') === targetName);
+    });
+
+    document.querySelectorAll('#presenterMobileTabBar .mobile-tab-btn, #viewPresenter .mobile-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-presenter-target') === targetName);
+    });
+
+    // Hide all
+    document.querySelectorAll('#presenterContentArea .portal-subview').forEach(view => {
+      view.style.display = 'none';
+    });
+
+    const targetMap = {
+      'dashboard': 'subviewPresenterDashboard',
+      'present': 'subviewPresenterPresent',
+      'decks': 'subviewPresenterDecks',
+      'topic-bank': 'subviewPresenterTopicBank',
+      'sessions': 'subviewPresenterSessions',
+      'profile': 'subviewPresenterProfile'
+    };
+
+    const targetEl = document.getElementById(targetMap[targetName]);
+    if (targetEl) targetEl.style.display = 'block';
+
+    if (targetName === 'dashboard') renderPresenterDashboardContent();
+    if (targetName === 'present') renderPresenterPresentView();
+    if (targetName === 'decks') renderPresenterDecksView();
+    if (targetName === 'topic-bank') renderPresenterTopicBank();
+    if (targetName === 'sessions') renderPresenterSessionsList();
+    if (targetName === 'profile') renderPresenterProfile();
+
+    window.scrollTo(0, 0);
+  }
+
+  // Subview: Presenter Dashboard
+  function renderPresenterDashboardContent() {
+    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', country: 'Ghana' };
+    const presentations = dataService.getPresentations();
+    const myPresentations = presentations.filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
+    const sessions = dataService.getSessions();
+    const upcomingSessions = sessions.filter(s => s.status === 'Upcoming');
+
+    // Update KPI numbers
+    const presDelivered = myPresentations.filter(p => p.status === 'Delivered').length;
+    const presScheduled = myPresentations.filter(p => p.status === 'Scheduled' || p.status === 'Approved').length;
+    
+    const countDeliveredEl = document.getElementById('kpiPresPresentedCount');
+    const countScheduledEl = document.getElementById('kpiPresScheduledCount');
+    const countDecksEl = document.getElementById('kpiPresDecksCount');
+
+    if (countDeliveredEl) countDeliveredEl.textContent = presDelivered;
+    if (countScheduledEl) countScheduledEl.textContent = presScheduled;
+    if (countDecksEl) countDecksEl.textContent = myPresentations.length;
+
+    // Upcoming Speaking Engagements
+    const engagementsList = document.getElementById('presenterUpcomingEngagementsList');
+    if (engagementsList) {
+      if (upcomingSessions.length === 0) {
+        engagementsList.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 1rem 0;">No upcoming sessions scheduled at the moment.</div>`;
+      } else {
+        engagementsList.innerHTML = upcomingSessions.map(s => `
+          <div class="session-brief-card" style="margin-bottom: 0.85rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1rem; background: var(--bg-card);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <span class="badge badge-category" style="margin-bottom: 0.25rem;">${s.categoryName || s.category}</span>
+                <h4 style="margin: 0.25rem 0; font-size: 1.05rem; color: var(--brand-navy);">${s.title}</h4>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">
+                  📅 ${s.date} • ⏰ ${s.time} (${s.timezone || 'QST'}) • ⏱️ ${s.duration}
+                </div>
+              </div>
+              <span class="badge badge-scheduled">Confirmed Speaker Slot</span>
+            </div>
+            <div style="font-size: 0.84rem; color: var(--text-body); margin-bottom: 0.75rem; background: rgba(9,29,44,0.03); padding: 0.6rem 0.75rem; border-radius: var(--radius-sm);">
+              <strong>Moderator:</strong> ${s.moderator?.name || 'TBD'} • <strong>Format:</strong> ${s.format}
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+              <button class="btn btn-outline btn-sm" onclick="switchPresenterSubview('present')">
+                📑 Prepare Presentation Deck
+              </button>
+              <a href="${s.meetingLink || 'https://meet.google.com/gyd-dialogue'}" target="_blank" class="btn btn-primary btn-sm">
+                🎙️ Enter Speaker Stage Link
+              </a>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Recent Briefings List
+    const recentList = document.getElementById('presenterRecentBriefingsList');
+    if (recentList) {
+      if (myPresentations.length === 0) {
+        recentList.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 0.5rem 0;">No presentations submitted yet.</div>`;
+      } else {
+        recentList.innerHTML = myPresentations.slice(0, 3).map(p => `
+          <div style="padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 0.65rem; background: var(--bg-card);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <span class="badge-bank-cat" style="font-size: 0.7rem;">${p.categoryName || p.category}</span>
+              <span class="badge badge-${p.status.toLowerCase().replace(' ', '')}" style="font-size: 0.7rem;">${p.status}</span>
+            </div>
+            <div style="font-weight: 600; color: var(--brand-navy); font-size: 0.9rem; margin-bottom: 0.25rem;">${p.title}</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">${p.format} • ${p.createdAt}</div>
+          </div>
+        `).join('');
+      }
+    }
+  }
+
+  // Subview: Present a Topic (The Core Presentation Studio)
+  function renderPresenterPresentView(preselectedBankId = null) {
+    const bankSelect = document.getElementById('presTopicBankSelect');
+    const subSelect = document.getElementById('presSubtopicSelect');
+    const subGroup = document.getElementById('presSubtopicGroup');
+    const customFields = document.getElementById('presCustomFields');
+    const catSelect = document.getElementById('presCustomCategory');
+    const targetSessionSelect = document.getElementById('presTargetSession');
+    const form = document.getElementById('presenterTopicForm');
+
+    // Populate Topic Bank Select
+    if (bankSelect) {
+      bankSelect.innerHTML = '';
+      const defOpt = document.createElement('option');
+      defOpt.value = '';
+      defOpt.textContent = '-- 📚 Select a Topic from Academic Topic Bank to Present --';
+      bankSelect.appendChild(defOpt);
+
+      const bank = dataService.getTopicBank();
+      const categories = dataService.getCategories();
+      const grouped = {};
+
+      categories.forEach(c => grouped[c.id] = { name: c.name, topics: [] });
+      bank.forEach(t => {
+        const catKey = t.categoryId || t.category;
+        if (!grouped[catKey]) grouped[catKey] = { name: t.categoryName || catKey, topics: [] };
+        grouped[catKey].topics.push(t);
+      });
+
+      Object.keys(grouped).forEach(catId => {
+        const grp = grouped[catId];
+        if (grp.topics.length > 0) {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = grp.name;
+          grp.topics.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = `${t.title}${(t.isCustom || t.isCustomAdded) ? ' ⭐ (Community Approved)' : ''}`;
+            optgroup.appendChild(opt);
+          });
+          bankSelect.appendChild(optgroup);
+        }
+      });
+
+      const otherOpt = document.createElement('option');
+      otherOpt.value = 'others';
+      otherOpt.textContent = '✨ Others (Present a Custom Academic Topic)';
+      bankSelect.appendChild(otherOpt);
+
+      if (preselectedBankId) {
+        bankSelect.value = preselectedBankId;
+      }
+    }
+
+    // Populate Category select for custom
+    if (catSelect && catSelect.options.length === 0) {
+      dataService.getCategories().forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        catSelect.appendChild(opt);
+      });
+    }
+
+    // Populate Target Sessions
+    if (targetSessionSelect) {
+      targetSessionSelect.innerHTML = '';
+      const nextOpt = document.createElement('option');
+      nextOpt.value = 'next';
+      nextOpt.textContent = 'Next Available Scheduled Dialogue Session';
+      targetSessionSelect.appendChild(nextOpt);
+
+      dataService.getSessions().forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `Session ${s.sessionNumber.toString().padStart(2, '0')}: ${s.title} (${s.date})`;
+        targetSessionSelect.appendChild(opt);
+      });
+    }
+
+    // Handle Bank selection change
+    function handlePresBankSelectChange() {
+      const val = bankSelect.value;
+      const titleInput = document.getElementById('presPresentationTitle');
+      const abstractInput = document.getElementById('presAbstract');
+
+      if (val === 'others') {
+        if (customFields) customFields.style.display = 'block';
+        if (subGroup) subGroup.style.display = 'none';
+      } else if (val) {
+        if (customFields) customFields.style.display = 'none';
+        if (subGroup) subGroup.style.display = 'block';
+
+        const item = dataService.getTopicBankItem(val);
+        if (item) {
+          if (titleInput && (!titleInput.value || titleInput.getAttribute('data-prefilled') === 'true')) {
+            titleInput.value = `Topic Presentation: ${item.title}`;
+            titleInput.setAttribute('data-prefilled', 'true');
+          }
+          if (abstractInput && (!abstractInput.value || abstractInput.getAttribute('data-prefilled') === 'true')) {
+            abstractInput.value = item.description;
+            abstractInput.setAttribute('data-prefilled', 'true');
+          }
+
+          if (subSelect) {
+            subSelect.innerHTML = '';
+            const allOpt = document.createElement('option');
+            allOpt.value = 'Comprehensive Theoretical Overview';
+            allOpt.textContent = '🌐 Comprehensive Overview of this Academic Theme';
+            subSelect.appendChild(allOpt);
+
+            const subList = item.subtopics || item.subTopics || [];
+            subList.forEach(st => {
+              const opt = document.createElement('option');
+              opt.value = st;
+              opt.textContent = `🎯 Subtopic Angle: ${st}`;
+              subSelect.appendChild(opt);
+            });
+          }
+        }
+      } else {
+        if (customFields) customFields.style.display = 'none';
+        if (subGroup) subGroup.style.display = 'none';
+      }
+    }
+
+    if (bankSelect) {
+      bankSelect.onchange = handlePresBankSelectChange;
+      handlePresBankSelectChange();
+    }
+
+    // Render Presenter Lifecycle Pipeline
+    renderPresenterPipelineTracker();
+
+    // Form submission
+    if (form) {
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', country: 'Ghana', flag: 'GH' };
+        const bankVal = bankSelect.value;
+
+        if (!bankVal) {
+          showToast('Please select a topic from the Topic Bank or choose "Others" to present a custom topic.', 'warning');
+          return;
+        }
+
+        let topicTitle = '';
+        let catId = '';
+        let subtopic = '';
+
+        if (bankVal === 'others') {
+          topicTitle = document.getElementById('presCustomTitle').value.trim();
+          catId = document.getElementById('presCustomCategory').value;
+          subtopic = document.getElementById('presCustomSubtopics').value.trim() || 'Custom Angle';
+          if (!topicTitle) {
+            showToast('Please specify the custom topic title.', 'warning');
+            return;
+          }
+        } else {
+          const item = dataService.getTopicBankItem(bankVal);
+          topicTitle = item ? item.title : '';
+          catId = item ? (item.categoryId || item.category) : 'global-affairs';
+          subtopic = subSelect?.value || 'General Overview';
+        }
+
+        const presTitle = document.getElementById('presPresentationTitle').value.trim();
+        const abstract = document.getElementById('presAbstract').value.trim();
+        const keyArgsRaw = document.getElementById('presKeyArguments').value.trim();
+        const format = document.getElementById('presFormat').value;
+        const duration = document.getElementById('presDuration').value;
+        const slidesUrl = document.getElementById('presSlidesUrl').value.trim();
+        const targetSessionVal = document.getElementById('presTargetSession').value;
+
+        const keyArguments = keyArgsRaw.split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean);
+
+        const newPres = dataService.addPresentation({
+          title: presTitle,
+          topicId: bankVal !== 'others' ? bankVal : null,
+          category: catId,
+          subtopic,
+          abstract,
+          keyArguments,
+          format,
+          duration,
+          slidesUrl,
+          targetSessionId: targetSessionVal !== 'next' ? targetSessionVal : null,
+          presenterName: user.name,
+          presenterId: user.id,
+          presenterCountry: user.country || 'Ghana',
+          presenterFlag: user.flag || 'GH',
+          status: 'Proposed'
+        });
+
+        // Also ensure it is registered in topic proposals for secretariat review
+        dataService.addTopic({
+          title: `${presTitle} [Presenter: ${user.name}]`,
+          category: catId,
+          motion: `This House resolves to adopt the recommendations of: ${presTitle}`,
+          description: abstract,
+          format,
+          subtopic,
+          isCustom: bankVal === 'others',
+          proposedBy: `${user.name} (Presenter Proposal)`,
+          status: 'Proposed'
+        });
+
+        showToast('🎯 Presentation proposal submitted! Secretariat coordinators will review and schedule your session speaking slot.', 'success');
+        form.reset();
+        renderPresenterPresentView();
+      };
+    }
+  }
+
+  function renderPresenterPipelineTracker() {
+    const listEl = document.getElementById('presenterPipelineList');
+    if (!listEl) return;
+
+    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1' };
+    const presentations = dataService.getPresentations();
+    const myPres = presentations.filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
+
+    const pipelineSteps = ['Proposed', 'Under Review', 'Approved', 'Scheduled', 'Delivered'];
+
+    if (myPres.length === 0) {
+      listEl.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 1rem 0;">No active presentations in the review pipeline. Submit one on the left!</div>`;
+      return;
+    }
+
+    listEl.innerHTML = myPres.map(p => {
+      const currentStepIdx = pipelineSteps.indexOf(p.status) >= 0 ? pipelineSteps.indexOf(p.status) : 0;
+
+      return `
+        <div class="topic-row-card" style="margin-bottom: 1rem;">
+          <div class="t-row-top">
+            <div>
+              <span class="badge badge-category" style="margin-bottom: 0.35rem;">${p.categoryName || p.category}</span>
+              <h4 style="margin: 0.25rem 0;">${p.title}</h4>
+              <div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 500;">🎯 Focus: ${p.subtopic}</div>
+            </div>
+            <span class="badge badge-${p.status.toLowerCase().replace(' ', '')}">${p.status}</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.5rem 0;">${p.abstract}</p>
+
+          <!-- Visual 5-Stage Tracker -->
+          <div class="topic-progress-steps">
+            ${pipelineSteps.map((step, idx) => {
+              const isDone = idx < currentStepIdx;
+              const isActive = idx === currentStepIdx;
+              return `
+                <div class="progress-step-item ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
+                  <span class="step-dot">${isDone ? icons.check : idx + 1}</span>
+                  <span>${step}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div style="font-size: 0.76rem; color: var(--text-subtle); display: flex; justify-content: space-between; margin-top: 0.5rem;">
+            <span>Format: ${p.format}</span>
+            <span>Created: ${p.createdAt}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Subview: My Presentations & Slide Decks
+  function renderPresenterDecksView() {
+    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1' };
+    const searchInput = document.getElementById('presenterDecksSearch');
+    const statusFilter = document.getElementById('presenterDecksStatusFilter');
+    const listEl = document.getElementById('presenterDecksList');
+    if (!listEl) return;
+
+    function filterDecks() {
+      const q = (searchInput?.value || '').toLowerCase().trim();
+      const status = statusFilter?.value || 'all';
+
+      let items = dataService.getPresentations().filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
+
+      if (status !== 'all') {
+        items = items.filter(p => p.status === status);
+      }
+
+      if (q) {
+        items = items.filter(p => {
+          const inTitle = (p.title || '').toLowerCase().includes(q);
+          const inAbstract = (p.abstract || '').toLowerCase().includes(q);
+          const inSubtopic = (p.subtopic || '').toLowerCase().includes(q);
+          return inTitle || inAbstract || inSubtopic;
+        });
+      }
+
+      if (items.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-light);">
+            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📊</div>
+            <h4 style="margin-bottom: 0.5rem; color: var(--brand-navy);">No presentation decks found</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 1.25rem;">
+              You haven't prepared any presentation briefings for this filter. Start by proposing an academic keynote!
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="switchPresenterSubview('present')">Present a Topic Now</button>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = items.map(p => `
+        <div class="topic-bank-card">
+          <div>
+            <div class="topic-bank-top-meta">
+              <div class="topic-bank-badges">
+                <span class="badge-bank-cat">${p.categoryName || p.category}</span>
+                <span class="badge badge-${p.status.toLowerCase().replace(' ', '')}">${p.status}</span>
+                <span class="badge-bank-format">${p.format}</span>
+              </div>
+              <span class="topic-bank-author-tag">📅 ${p.presentationDate || p.createdAt}</span>
+            </div>
+
+            <h3 class="topic-bank-card-title">${p.title}</h3>
+            <div style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 0.6rem;">
+              🎯 Focus Subtopic: ${p.subtopic}
+            </div>
+            <p class="topic-bank-card-desc">${p.abstract}</p>
+
+            ${p.keyArguments && p.keyArguments.length ? `
+              <div class="topic-bank-subtopics-box" style="margin-bottom: 1rem;">
+                <div class="topic-bank-subtopics-heading">
+                  <span>Core Theoretical Arguments (${p.keyArguments.length})</span>
+                </div>
+                <ul class="topic-bank-subtopics-list">
+                  ${p.keyArguments.map(arg => `<li><span class="subtopic-bullet">›</span> <span>${arg}</span></li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="topic-bank-card-footer" style="flex-wrap: wrap; gap: 0.5rem;">
+            ${p.slidesUrl ? `
+              <a href="${p.slidesUrl}" target="_blank" class="btn btn-outline btn-sm">
+                📂 Open Slides Deck
+              </a>
+            ` : `
+              <button class="btn btn-outline btn-sm" onclick="switchPresenterSubview('present')">
+                ✏️ Attach Slides
+              </button>
+            `}
+            <a href="https://meet.google.com/gyd-dialogue" target="_blank" class="btn btn-primary btn-sm">
+              🎙️ Join Stage Room
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (searchInput) searchInput.oninput = filterDecks;
+    if (statusFilter) statusFilter.onchange = filterDecks;
+    filterDecks();
+  }
+
+  // Subview: Topic Bank for Presenters
+  function renderPresenterTopicBank() {
+    const searchInput = document.getElementById('presTopicBankSearch');
+    const catFilter = document.getElementById('presTopicBankCategoryFilter');
+    const countPill = document.getElementById('presTopicBankCount');
+    const listEl = document.getElementById('presenterTopicBankList');
+    if (!listEl) return;
+
+    if (catFilter && catFilter.options.length <= 1) {
+      catFilter.innerHTML = '<option value="all">All Categories</option>';
+      dataService.getCategories().forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        catFilter.appendChild(opt);
+      });
+    }
+
+    function filterAndRender() {
+      const q = (searchInput?.value || '').toLowerCase().trim();
+      const selectedCat = catFilter?.value || 'all';
+      let bank = dataService.getTopicBank();
+
+      if (selectedCat !== 'all') {
+        bank = bank.filter(t => (t.categoryId || t.category) === selectedCat);
+      }
+
+      if (q) {
+        bank = bank.filter(t => {
+          const inTitle = (t.title || '').toLowerCase().includes(q);
+          const inTitleAr = (t.titleAr || '').toLowerCase().includes(q);
+          const inDesc = (t.description || '').toLowerCase().includes(q);
+          const subList = t.subtopics || t.subTopics || [];
+          return inTitle || inTitleAr || inDesc || subList.some(st => st.toLowerCase().includes(q));
+        });
+      }
+
+      if (countPill) countPill.textContent = `${bank.length} Topics Available to Present`;
+
+      if (bank.length === 0) {
+        listEl.innerHTML = `<div class="empty-state" style="grid-column: 1/-1; padding: 2rem; text-align: center;">No topics match your query.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = bank.map(t => {
+        const subList = t.subtopics || t.subTopics || [];
+        const isCustom = t.isCustom || t.isCustomAdded;
+        const formats = t.recommendedFormats || (t.recommendedFormat ? [t.recommendedFormat] : []);
+        const catName = t.categoryName || dataService.getCategoryName(t.categoryId || t.category);
+
+        return `
+          <div class="topic-bank-card">
+            <div>
+              <div class="topic-bank-top-meta">
+                <div class="topic-bank-badges">
+                  <span class="badge-bank-cat">${catName}</span>
+                  ${isCustom ? `<span class="badge-bank-custom">⭐ Community Approved</span>` : ''}
+                  ${formats.length ? `<span class="badge-bank-format">${formats[0]}</span>` : ''}
+                </div>
+                ${t.dateAdded ? `<span class="topic-bank-author-tag">${t.dateAdded}</span>` : ''}
+              </div>
+
+              <h3 class="topic-bank-card-title">${t.title}</h3>
+              ${t.titleAr ? `<div class="topic-bank-card-title-ar">${t.titleAr}</div>` : ''}
+              <p class="topic-bank-card-desc">${t.description}</p>
+
+              <div class="topic-bank-subtopics-box">
+                <div class="topic-bank-subtopics-heading">
+                  <span>Academic Research Angles (${subList.length})</span>
+                </div>
+                <ul class="topic-bank-subtopics-list">
+                  ${subList.map(st => `<li><span class="subtopic-bullet">›</span> <span>${st}</span></li>`).join('')}
+                </ul>
+              </div>
+            </div>
+
+            <div class="topic-bank-card-footer">
+              <span class="topic-bank-author-tag">By: ${t.addedBy || 'Academic Board'}</span>
+              <button class="btn btn-primary btn-sm" onclick="window.presentTopicFromBank('${t.id}')">
+                🎤 Present This Topic
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (searchInput) searchInput.oninput = filterAndRender;
+    if (catFilter) catFilter.onchange = filterAndRender;
+    filterAndRender();
+  }
+
+  window.presentTopicFromBank = function(topicId) {
+    switchPresenterSubview('present');
+    setTimeout(() => {
+      renderPresenterPresentView(topicId);
+      const form = document.getElementById('presenterTopicForm');
+      if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const item = dataService.getTopicBankItem(topicId);
+      if (item) {
+        showToast(`Pre-filled "${item.title}". Configure your keynote thesis and submit!`, 'normal');
+      }
+    }, 60);
+  };
+
+  // Subview: Assigned Speaking Sessions
+  function renderPresenterSessionsList() {
+    const listEl = document.getElementById('presenterAssignedSessionsList');
+    if (!listEl) return;
+    const sessions = dataService.getSessions();
+
+    listEl.innerHTML = sessions.map(s => `
+      <div class="card-panel" style="margin-bottom: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <span class="badge badge-category">${s.categoryName || s.category}</span>
+            <h3 style="margin: 0.35rem 0 0.2rem 0; color: var(--brand-navy);">${s.title}</h3>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Session ${s.sessionNumber.toString().padStart(2, '0')} • 📅 ${s.date} • ⏰ ${s.time} (${s.timezone || 'QST'})
+            </div>
+          </div>
+          <span class="badge badge-${s.status.toLowerCase()}">${s.status}</span>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-body); margin-bottom: 1rem;">${s.description || 'International structured youth dialogue with academic keynote presentation and floor delegate debate.'}</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; background: var(--bg-body); padding: 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 1rem;">
+          <div><strong>Moderator:</strong> ${s.moderator?.name || 'TBD'} (${s.moderator?.country || 'INT'})</div>
+          <div><strong>Confirmed Speakers:</strong> ${(s.speakers || []).map(sp => sp.name).join(', ') || 'Kofi Mensah'}</div>
+          <div><strong>Duration:</strong> ${s.duration}</div>
+          <div><strong>Format:</strong> ${s.format}</div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+          <button class="btn btn-outline btn-sm" onclick="switchPresenterSubview('present')">
+            📑 Prepare Topic Presentation
+          </button>
+          <a href="${s.meetingLink || 'https://meet.google.com/gyd-dialogue'}" target="_blank" class="btn btn-primary btn-sm">
+            🎙️ Launch Presenter Stage Link
+          </a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Subview: Presenter Profile
+  function renderPresenterProfile() {
+    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', country: 'Ghana', flag: 'GH', email: 'presenter@gyd.org' };
+    const profileCard = document.getElementById('presenterProfileCard');
+    if (!profileCard || !user) return;
+
+    profileCard.innerHTML = `
+      <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <div class="portal-user-avatar avatar-presenter" style="width: 72px; height: 72px; font-size: 2rem;">
+          ${icons.getFlag(user.country, user.flag)}
+        </div>
+        <div>
+          <h3 style="margin: 0; color: var(--brand-navy); font-size: 1.4rem;">${user.name}</h3>
+          <div style="color: var(--accent-gold); font-weight: 700; font-size: 0.9rem; margin-top: 0.2rem;">
+            ⭐ Academic Presenter & Keynote Fellow • ${user.country}
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">
+            Email: ${user.email} • Member since ${user.joinedDate || '2024-06-01'}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.35rem; color: var(--brand-navy);">Speaker Bio & Academic Focus</h4>
+        <p style="font-size: 0.9rem; color: var(--text-body); line-height: 1.6;">
+          ${user.bio || 'Academic fellow and international keynote presenter specializing in sovereign finance, technology ethics, and equitable educational access in the Global South.'}
+        </p>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--brand-navy);">Academic Research Areas</h4>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          ${(user.interests || ['Economic Justice', 'Technology & AI', 'Global Affairs', 'Environment']).map(i => `
+            <span class="badge-bank-cat" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">${i}</span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-light); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <span style="font-size: 0.82rem; color: var(--text-muted);">Verified Presenter Credentials Active for 2024-2025</span>
+        <button class="btn btn-outline btn-sm" onclick="navigateToPortal('member')">
+          View Member Participation Portal →
+        </button>
+      </div>
+    `;
   }
 
   // =========================================================================

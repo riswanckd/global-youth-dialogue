@@ -34,6 +34,14 @@ const TRANSLATIONS = {
     topicSelectPlaceholder: '-- Select from Academic Topic Bank --',
     topicSelectOther: '✨ Others (Suggest New Custom Topic)',
     topicCustomAlert: '💡 Custom topics are reviewed by the Secretariat. Upon approval, your topic and subtopics will be permanently added to the Global Youth Dialogue Topic Bank!',
+    navPresenterPortal: 'Presenter Portal',
+    portalPresenterTitle: 'Presenter & Speaker Workspace',
+    portalPresenterSubtitle: 'Curate research briefings, prepare academic slide decks, and deliver topic presentations for international dialogue sessions.',
+    presenterRoleBadge: 'Academic Presenter & Keynote Fellow',
+    btnPresentTopic: 'Present a Topic',
+    btnMyDecks: 'My Presentations & Slides',
+    btnAssignedSessions: 'Speaking Sessions',
+    demoRolePresenter: 'Kofi Mensah (Presenter) → Can Present a Topic',
 
     // Mobile Bottom Tab Bar (Compact Navigation)
     tabHome: 'Home',
@@ -295,6 +303,14 @@ const TRANSLATIONS = {
     topicSelectPlaceholder: '-- اختر موضوعاً من بنك المواضيع الأكاديمية --',
     topicSelectOther: '✨ أخرى (اقترح موضوعاً ومحاور مخصصة جديدة)',
     topicCustomAlert: '💡 تخضع المواضيع الجديدة لمراجعة الأمانة الأكاديمية، وفور اعتمادها تضاف تلقائياً وبشكل دائم إلى بنك المواضيع الدولي!',
+    navPresenterPortal: 'بوابة المتحدثين ومقدمي الأوراق',
+    portalPresenterTitle: 'مساحة عمل المتحدثين ومقدمي العروض الأكاديمية',
+    portalPresenterSubtitle: 'إعداد الملخصات البحثية وتجهيز العروض التقديمية وتقديم الأوراق البحثية لجلسات الحوار الدولية.',
+    presenterRoleBadge: 'مقدم عروض وأوراق أكاديمية',
+    btnPresentTopic: 'تقديم موضوع بحثي',
+    btnMyDecks: 'عروضي التقديمية ومحاوري',
+    btnAssignedSessions: 'جلسات الإلقاء والمشاركة',
+    demoRolePresenter: 'كوفي مينساه (مقدم عروض) ← تقديم موضوع للجلسات',
 
     // Mobile Bottom Tab Bar (Compact Navigation)
     tabHome: 'الرئيسية',
