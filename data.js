@@ -35,6 +35,7 @@ const INITIAL_DATABASE = {
       interests: ['Technology & AI', 'Economy', 'Global Affairs'],
       status: 'active',
       joinedDate: '2024-05-12'
+    },
     {
       id: 'usr_pres_1',
       name: 'Kofi Mensah',
