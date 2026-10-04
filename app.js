@@ -620,26 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </button>
     `;
 
-    // Secondary scheduled sessions (e.g. Session 4 if present)
-    const secondaryUpcoming = upcomingSessions.slice(1, 3);
-    const secondaryHtml = secondaryUpcoming.length ? `
-      <div class="home-secondary-sessions">
-        <h4 class="home-secondary-title serif-text">${isAr ? 'جلسات قادمة مجدولة لاحقاً:' : 'Following Scheduled Dialogue:'}</h4>
-        <div class="home-secondary-grid">
-          ${secondaryUpcoming.map(s => `
-            <div class="home-secondary-card">
-              <div class="home-secondary-badge">${icons.getFlag(s.speakers?.[0]?.country || s.countriesRepresented?.[0] || 'INT')} ${isAr ? `الجلسة رقم ${s.sessionNumber.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])}` : `Session ${s.sessionNumber.toString().padStart(2, '0')}`} • ${isAr ? (s.categoryNameAr || s.categoryName) : s.categoryName}</div>
-              <h5 class="serif-text">${isAr ? (s.titleAr || s.title) : s.title}</h5>
-              <div class="home-secondary-meta">
-                <span>${icons.calendar} ${s.date}</span>
-                <span>${icons.clock} ${isAr ? (s.durationAr || s.duration) : s.duration}</span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    ` : '';
-
     container.innerHTML = `
       <div class="home-session-spotlight">
         <div class="home-session-glow-accent"></div>
@@ -713,16 +693,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ` : ''}
           </div>
 
-          <!-- Delegations pill bar -->
-          <div class="home-session-delegations-strip">
-            <span class="home-del-label">${isAr ? 'الدول الممثلة في الجلسة:' : 'Delegations Represented:'}</span>
-            <div class="home-del-pills">
-              ${mainSession.countriesRepresented.map(c => `
-                <span class="country-pill">${icons.getFlag(c)} <span>${getCountryLocalized(c)}</span></span>
-              `).join('')}
-            </div>
-          </div>
-
           <!-- Actions Footer -->
           <div class="home-session-actions-footer">
             <div class="home-session-btn-group">
@@ -734,8 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
         </div>
-
-        ${secondaryHtml}
       </div>
     `;
 
@@ -934,6 +902,14 @@ document.addEventListener('DOMContentLoaded', () => {
         switchMemberSubview('topics');
       };
     }
+
+    // Topic Bank suggest button
+    const bankSuggest = document.getElementById('bankSuggestTopicBtn');
+    if (bankSuggest) {
+      bankSuggest.onclick = () => {
+        switchMemberSubview('topics');
+      };
+    }
   }
 
   function switchMemberSubview(targetName) {
@@ -960,6 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'sessions': 'subviewMemberSessions',
       'writings': 'subviewMemberWritings',
       'feedback': 'subviewMemberFeedback',
+      'topic-bank': 'subviewMemberTopicBank',
       'topics': 'subviewMemberTopics',
       'calendar': 'subviewMemberCalendar',
       'journey': 'subviewMemberJourney',
@@ -976,6 +953,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'sessions') renderMemberSessionsList();
     if (targetName === 'writings') renderMemberWritingsList();
     if (targetName === 'feedback') prepareMemberFeedbackForm();
+    if (targetName === 'topic-bank') renderMemberTopicBank();
     if (targetName === 'topics') renderMemberTopicsView();
     if (targetName === 'calendar') renderMemberCalendarView();
     if (targetName === 'journey') renderMemberJourneyView();
@@ -1278,6 +1256,269 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // --- Subview: Member Topic Bank ---
+  function renderMemberTopicBank() {
+    const searchInput = document.getElementById('memberTopicBankSearch');
+    const catFilter = document.getElementById('memberTopicBankCategoryFilter');
+    const countPill = document.getElementById('memberTopicBankCount');
+    const listEl = document.getElementById('memberTopicBankList');
+
+    if (!listEl) return;
+
+    // Populate category filter options once
+    if (catFilter && catFilter.options.length <= 1) {
+      catFilter.innerHTML = '<option value="all">All Categories</option>';
+      dataService.getCategories().forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        catFilter.appendChild(opt);
+      });
+    }
+
+    function filterAndRender() {
+      const q = (searchInput?.value || '').toLowerCase().trim();
+      const selectedCat = catFilter?.value || 'all';
+      let bank = dataService.getTopicBank();
+
+      if (selectedCat !== 'all') {
+        bank = bank.filter(t => (t.categoryId || t.category) === selectedCat);
+      }
+
+      if (q) {
+        bank = bank.filter(t => {
+          const inTitle = (t.title || '').toLowerCase().includes(q);
+          const inTitleAr = (t.titleAr || '').toLowerCase().includes(q);
+          const inDesc = (t.description || '').toLowerCase().includes(q);
+          const subList = t.subtopics || t.subTopics || [];
+          const inSubtopics = subList.some(st => st.toLowerCase().includes(q));
+          return inTitle || inTitleAr || inDesc || inSubtopics;
+        });
+      }
+
+      if (countPill) {
+        countPill.textContent = `${bank.length} Topic${bank.length === 1 ? '' : 's'} Available`;
+      }
+
+      if (bank.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-light);">
+            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📚</div>
+            <h4 style="margin-bottom: 0.5rem; color: var(--brand-navy);">No matching topics found</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 1.25rem;">
+              Cannot find what you are looking for? Propose your own custom academic topic using the "Others" option in the proposal form.
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="switchMemberSubview('topics')">Suggest a New Custom Topic</button>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = bank.map(t => {
+        const subList = t.subtopics || t.subTopics || [];
+        const isCustom = t.isCustom || t.isCustomAdded;
+        const formats = t.recommendedFormats || (t.recommendedFormat ? [t.recommendedFormat] : []);
+        const catName = t.categoryName || dataService.getCategoryName(t.categoryId || t.category);
+
+        return `
+          <div class="topic-bank-card">
+            <div>
+              <div class="topic-bank-top-meta">
+                <div class="topic-bank-badges">
+                  <span class="badge-bank-cat">${catName}</span>
+                  ${isCustom ? `<span class="badge-bank-custom">⭐ Community Approved</span>` : ''}
+                  ${formats.length ? `<span class="badge-bank-format">${formats[0]}</span>` : ''}
+                </div>
+                ${t.dateAdded ? `<span class="topic-bank-author-tag">${t.dateAdded}</span>` : ''}
+              </div>
+
+              <h3 class="topic-bank-card-title">${t.title}</h3>
+              ${t.titleAr ? `<div class="topic-bank-card-title-ar">${t.titleAr}</div>` : ''}
+              <p class="topic-bank-card-desc">${t.description}</p>
+
+              <div class="topic-bank-subtopics-box">
+                <div class="topic-bank-subtopics-heading">
+                  <span>Academic Research Angles & Subtopics (${subList.length})</span>
+                </div>
+                <ul class="topic-bank-subtopics-list">
+                  ${subList.map(st => `
+                    <li><span class="subtopic-bullet">›</span> <span>${st}</span></li>
+                  `).join('')}
+                </ul>
+              </div>
+            </div>
+
+            <div class="topic-bank-card-footer">
+              <span class="topic-bank-author-tag">By: ${t.addedBy || 'Academic Board'}</span>
+              <button class="btn btn-primary btn-sm" onclick="window.useTopicFromBank('${t.id}')">
+                <span>Use This Topic</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; vertical-align:middle; margin-inline-start:4px;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (searchInput) searchInput.oninput = filterAndRender;
+    if (catFilter) catFilter.onchange = filterAndRender;
+
+    filterAndRender();
+  }
+
+  // --- Topic Bank Selection Helpers for Proposal Form ---
+  function populateTopicBankDropdown(selectedBankId = null) {
+    const bankSelect = document.getElementById('propTopicBankSelect');
+    if (!bankSelect) return;
+
+    bankSelect.innerHTML = '';
+
+    // Placeholder
+    const defOpt = document.createElement('option');
+    defOpt.value = '';
+    defOpt.textContent = '-- 📚 Select a Topic from Academic Topic Bank --';
+    bankSelect.appendChild(defOpt);
+
+    const bank = dataService.getTopicBank();
+    const categories = dataService.getCategories();
+    const grouped = {};
+
+    categories.forEach(c => {
+      grouped[c.id] = { name: c.name, topics: [] };
+    });
+
+    bank.forEach(t => {
+      const catKey = t.categoryId || t.category;
+      if (!grouped[catKey]) {
+        grouped[catKey] = { name: t.categoryName || catKey, topics: [] };
+      }
+      grouped[catKey].topics.push(t);
+    });
+
+    Object.keys(grouped).forEach(catId => {
+      const grp = grouped[catId];
+      if (grp.topics.length > 0) {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = grp.name;
+        grp.topics.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = `${t.title}${(t.isCustom || t.isCustomAdded) ? ' ⭐ (Community Approved)' : ''}`;
+          optgroup.appendChild(opt);
+        });
+        bankSelect.appendChild(optgroup);
+      }
+    });
+
+    // Special option "Others"
+    const otherOpt = document.createElement('option');
+    otherOpt.value = 'others';
+    otherOpt.textContent = '✨ Others (Suggest New Custom Topic)';
+    bankSelect.appendChild(otherOpt);
+
+    if (selectedBankId) {
+      bankSelect.value = selectedBankId;
+    }
+
+    handleTopicBankSelectionChange();
+  }
+
+  function handleTopicBankSelectionChange() {
+    const bankSelect = document.getElementById('propTopicBankSelect');
+    if (!bankSelect) return;
+    const val = bankSelect.value;
+
+    const customFields = document.getElementById('propCustomTopicFields');
+    const subtopicGroup = document.getElementById('propSubtopicGroup');
+    const subSelect = document.getElementById('propSubtopicSelect');
+    const titleInput = document.getElementById('propTitle');
+    const catSelect = document.getElementById('propCategory');
+    const reasonInput = document.getElementById('propReason');
+    const formatSelect = document.getElementById('propFormat');
+
+    if (val === 'others') {
+      // User selected "Others" -> reveal custom topic fields
+      if (customFields) customFields.style.display = 'block';
+      if (subtopicGroup) subtopicGroup.style.display = 'none';
+      if (titleInput) {
+        titleInput.required = true;
+        titleInput.value = '';
+      }
+    } else if (val) {
+      // User selected a topic from the Topic Bank
+      if (customFields) customFields.style.display = 'none';
+      if (subtopicGroup) subtopicGroup.style.display = 'block';
+      if (titleInput) {
+        titleInput.required = false;
+      }
+
+      const item = dataService.getTopicBankItem(val);
+      if (item) {
+        // Pre-fill hidden/bound fields
+        if (titleInput) titleInput.value = item.title;
+        if (catSelect) catSelect.value = item.categoryId || item.category;
+
+        // Populate subtopics dropdown
+        if (subSelect) {
+          subSelect.innerHTML = '';
+          const allOpt = document.createElement('option');
+          allOpt.value = 'General Comprehensive Overview';
+          allOpt.textContent = '🌐 Comprehensive / All Angles in this Theme';
+          subSelect.appendChild(allOpt);
+
+          const subList = item.subtopics || item.subTopics || [];
+          subList.forEach(st => {
+            const opt = document.createElement('option');
+            opt.value = st;
+            opt.textContent = `🎯 Focus: ${st}`;
+            subSelect.appendChild(opt);
+          });
+        }
+
+        // Pre-fill academic rationale if reason is empty or was previously prefilled
+        if (reasonInput && (!reasonInput.value || reasonInput.getAttribute('data-prefilled') === 'true')) {
+          reasonInput.value = item.description;
+          reasonInput.setAttribute('data-prefilled', 'true');
+        }
+
+        // Set matching format if available
+        if (formatSelect) {
+          const fmts = item.recommendedFormats || (item.recommendedFormat ? [item.recommendedFormat] : []);
+          const fmtStr = fmts.join(' ');
+          if (fmtStr.includes('Debate')) {
+            formatSelect.value = 'Formal Debate';
+          } else if (fmtStr.includes('Presentation')) {
+            formatSelect.value = 'Topic Presentation';
+          } else if (fmtStr.includes('Workshop')) {
+            formatSelect.value = 'Academic Workshop';
+          } else {
+            formatSelect.value = 'Roundtable Discussion';
+          }
+        }
+      }
+    } else {
+      // Nothing selected
+      if (customFields) customFields.style.display = 'none';
+      if (subtopicGroup) subtopicGroup.style.display = 'none';
+      if (titleInput) titleInput.required = false;
+    }
+  }
+
+  window.useTopicFromBank = function(topicId) {
+    switchMemberSubview('topics');
+    setTimeout(() => {
+      populateTopicBankDropdown(topicId);
+      const formEl = document.getElementById('memberTopicForm');
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const item = dataService.getTopicBankItem(topicId);
+      if (item) {
+        showToast(`Selected "${item.title}". Choose your subtopic focus and submit your dialogue proposal!`, 'normal');
+      }
+    }, 60);
+  };
+
   // --- Subview: Member Topic Suggestion & Tracker ---
   function renderMemberTopicsView() {
     const catSelect = document.getElementById('propCategory');
@@ -1288,6 +1529,14 @@ document.addEventListener('DOMContentLoaded', () => {
         opt.textContent = cat.name;
         catSelect.appendChild(opt);
       });
+    }
+
+    // Populate the Topic Bank selection dropdown
+    populateTopicBankDropdown();
+
+    const bankSelect = document.getElementById('propTopicBankSelect');
+    if (bankSelect) {
+      bankSelect.onchange = handleTopicBankSelectionChange;
     }
 
     // Render topics tracking pipeline
@@ -1304,7 +1553,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="t-row-top">
             <div>
               <span class="badge badge-category" style="margin-bottom: 0.35rem;">${t.categoryName}</span>
+              ${t.isCustom ? `<span class="badge-bank-custom" style="margin-left: 0.35rem; font-size: 0.72rem; padding: 2px 7px;">Custom Proposal</span>` : ''}
               <h4>${t.title}</h4>
+              ${t.subtopic && t.subtopic !== 'General Comprehensive Overview' ? `<div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 500; margin-top: 2px;">🎯 Focus: ${t.subtopic}</div>` : ''}
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <button class="topic-upvote-btn" onclick="window.voteTopic('${t.id}')" title="Upvote in community ballot">
@@ -1347,9 +1598,37 @@ document.addEventListener('DOMContentLoaded', () => {
     form.onsubmit = (e) => {
       e.preventDefault();
       const user = authService.getCurrentUser();
-      const title = document.getElementById('propTitle').value.trim();
-      const catId = document.getElementById('propCategory').value;
+      const bankVal = document.getElementById('propTopicBankSelect').value;
+
+      if (!bankVal) {
+        showToast('Please select a topic from the Academic Topic Bank or choose "Others" to propose a new custom topic.', 'warning');
+        return;
+      }
+
+      let title = '';
+      let catId = '';
+      let subtopic = '';
+      let isCustom = false;
+      let customSubtopics = '';
+
+      if (bankVal === 'others') {
+        isCustom = true;
+        title = document.getElementById('propTitle').value.trim();
+        if (!title) {
+          showToast('Please enter your custom topic title.', 'warning');
+          return;
+        }
+        catId = document.getElementById('propCategory').value;
+        customSubtopics = (document.getElementById('propCustomSubtopics')?.value || '').trim();
+      } else {
+        const item = dataService.getTopicBankItem(bankVal);
+        title = item ? item.title : document.getElementById('propTitle').value.trim();
+        catId = item ? (item.categoryId || item.category) : document.getElementById('propCategory').value;
+        subtopic = document.getElementById('propSubtopicSelect')?.value || '';
+      }
+
       const motion = document.getElementById('propMotion').value.trim();
+      const format = document.getElementById('propFormat').value;
       const reason = document.getElementById('propReason').value.trim();
       const countryPerspective = document.getElementById('propCountry').value.trim();
       const sources = document.getElementById('propSources').value.trim();
@@ -1358,6 +1637,11 @@ document.addEventListener('DOMContentLoaded', () => {
         title,
         category: catId,
         motion,
+        format,
+        subtopic,
+        isCustom,
+        customSubtopics,
+        bankId: bankVal !== 'others' ? bankVal : null,
         description: reason,
         proposedBy: user ? user.name : 'Community Member',
         proposedById: user ? user.id : null,
@@ -1366,8 +1650,13 @@ document.addEventListener('DOMContentLoaded', () => {
         status: 'Proposed'
       });
 
-      showToast('Topic proposal submitted! It is now in the review pipeline.', 'success');
+      if (isCustom) {
+        showToast('✨ Custom topic submitted! When coordinators review and approve this topic, it will automatically join the official Topic Bank.', 'success');
+      } else {
+        showToast('Topic proposal submitted! It is now in the review pipeline.', 'success');
+      }
       form.reset();
+      populateTopicBankDropdown();
       renderMemberTopicsView();
     };
   }
@@ -1475,6 +1764,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const targetMap = {
       'dashboard': 'subviewCoordDashboard',
+      'topic-bank': 'subviewCoordTopicBank',
       'topics': 'subviewCoordTopics',
       'sessions': 'subviewCoordSessions',
       'writings': 'subviewCoordWritings',
@@ -1489,6 +1779,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetEl) targetEl.style.display = 'block';
 
     if (targetName === 'dashboard') renderCoordDashboardContent();
+    if (targetName === 'topic-bank') renderCoordTopicBank();
     if (targetName === 'topics') renderCoordTopicsList();
     if (targetName === 'sessions') prepareCoordSessionForm();
     if (targetName === 'writings') prepareCoordWritingStudio();
@@ -1645,6 +1936,220 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCoordTopicsList();
     };
   }
+
+  // --- Subview: Coordinator Academic Topic Bank Repository ---
+  function renderCoordTopicBank() {
+    const bank = dataService.getTopicBank();
+    const categories = dataService.getCategories();
+
+    // KPIs
+    const totalCountEl = document.getElementById('kpiBankTotalCount');
+    const catCountEl = document.getElementById('kpiBankCategoriesCount');
+    const customCountEl = document.getElementById('kpiBankCustomCount');
+
+    if (totalCountEl) totalCountEl.textContent = bank.length;
+    if (catCountEl) {
+      const distinctCats = new Set(bank.map(t => t.categoryId || t.category));
+      catCountEl.textContent = distinctCats.size;
+    }
+    if (customCountEl) {
+      const customCount = bank.filter(t => t.isCustom || t.isCustomAdded || t.addedBy !== 'Academic Advisory Board').length;
+      customCountEl.textContent = customCount;
+    }
+
+    // Category filter setup
+    const catFilter = document.getElementById('coordTopicBankCategoryFilter');
+    if (catFilter && catFilter.options.length <= 1) {
+      catFilter.innerHTML = '<option value="all">All Categories</option>';
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        catFilter.appendChild(opt);
+      });
+    }
+
+    const searchInput = document.getElementById('coordTopicBankSearch');
+    const listEl = document.getElementById('coordTopicBankList');
+
+    function filterAndRenderCoordBank() {
+      if (!listEl) return;
+      const q = (searchInput?.value || '').toLowerCase().trim();
+      const selectedCat = catFilter?.value || 'all';
+
+      let items = dataService.getTopicBank();
+      if (selectedCat !== 'all') {
+        items = items.filter(t => (t.categoryId || t.category) === selectedCat);
+      }
+      if (q) {
+        items = items.filter(t => {
+          const inTitle = (t.title || '').toLowerCase().includes(q);
+          const inTitleAr = (t.titleAr || '').toLowerCase().includes(q);
+          const inDesc = (t.description || '').toLowerCase().includes(q);
+          const subList = t.subtopics || t.subTopics || [];
+          const inSubtopics = subList.some(st => st.toLowerCase().includes(q));
+          return inTitle || inTitleAr || inDesc || inSubtopics;
+        });
+      }
+
+      if (items.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-light);">
+            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📚</div>
+            <h4 style="margin-bottom: 0.5rem; color: var(--brand-navy);">No topics found</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 1.25rem;">
+              No topics in the bank match your search criteria. Add a new topic directly to the bank.
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('coordAddBankTopicBtn').click()">+ Add Topic to Bank</button>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = items.map(t => {
+        const subList = t.subtopics || t.subTopics || [];
+        const isCustom = t.isCustom || t.isCustomAdded;
+        const formats = t.recommendedFormats || (t.recommendedFormat ? [t.recommendedFormat] : []);
+        const catName = t.categoryName || dataService.getCategoryName(t.categoryId || t.category);
+
+        return `
+          <div class="topic-bank-card">
+            <div>
+              <div class="topic-bank-top-meta">
+                <div class="topic-bank-badges">
+                  <span class="badge-bank-cat">${catName}</span>
+                  ${isCustom ? `<span class="badge-bank-custom">⭐ Community Approved</span>` : ''}
+                  ${formats.length ? `<span class="badge-bank-format">${formats[0]}</span>` : ''}
+                </div>
+                ${t.dateAdded ? `<span class="topic-bank-author-tag">${t.dateAdded}</span>` : ''}
+              </div>
+
+              <h3 class="topic-bank-card-title">${t.title}</h3>
+              ${t.titleAr ? `<div class="topic-bank-card-title-ar">${t.titleAr}</div>` : ''}
+              <p class="topic-bank-card-desc">${t.description}</p>
+
+              <div class="topic-bank-subtopics-box">
+                <div class="topic-bank-subtopics-heading">
+                  <span>Academic Research Angles & Subtopics (${subList.length})</span>
+                </div>
+                <ul class="topic-bank-subtopics-list">
+                  ${subList.map(st => `
+                    <li><span class="subtopic-bullet">›</span> <span>${st}</span></li>
+                  `).join('')}
+                </ul>
+              </div>
+            </div>
+
+            <div class="topic-bank-card-footer">
+              <span class="topic-bank-author-tag">By: ${t.addedBy || 'Academic Board'}</span>
+              <button class="btn btn-navy btn-sm" onclick="window.scheduleTopicFromBank('${t.id}')">
+                📅 Schedule Session
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (searchInput) searchInput.oninput = filterAndRenderCoordBank;
+    if (catFilter) catFilter.onchange = filterAndRenderCoordBank;
+
+    filterAndRenderCoordBank();
+    bindCoordAddTopicBankModal();
+  }
+
+  function bindCoordAddTopicBankModal() {
+    const addBtn = document.getElementById('coordAddBankTopicBtn');
+    const modal = document.getElementById('modalCoordAddTopicBank');
+    const closeBtn = document.getElementById('closeModalCoordAddTopicBank');
+    const cancelBtn = document.getElementById('cancelCoordAddTopicBank');
+    const catSelect = document.getElementById('tbNewCategory');
+    const form = document.getElementById('coordAddTopicBankForm');
+
+    if (addBtn && modal) {
+      addBtn.onclick = () => {
+        if (catSelect && catSelect.options.length === 0) {
+          dataService.getCategories().forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.name;
+            catSelect.appendChild(opt);
+          });
+        }
+        modal.style.display = 'flex';
+      };
+    }
+
+    const closeModal = () => {
+      if (modal) modal.style.display = 'none';
+      if (form) form.reset();
+    };
+
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+
+    if (form) {
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const title = document.getElementById('tbNewTitle').value.trim();
+        const titleAr = document.getElementById('tbNewTitleAr').value.trim();
+        const category = document.getElementById('tbNewCategory').value;
+        const format = document.getElementById('tbNewFormat').value;
+        const description = document.getElementById('tbNewDescription').value.trim();
+        const rawSubtopics = document.getElementById('tbNewSubtopics').value.trim();
+
+        const subtopics = rawSubtopics
+          .split(/[\n,]+/)
+          .map(s => s.replace(/^Subtopic\s*\d*:\s*/i, '').trim())
+          .filter(s => s.length > 0);
+
+        const newEntry = dataService.addTopicToBank({
+          title,
+          titleAr,
+          category,
+          recommendedFormats: [format],
+          description,
+          subtopics,
+          isCustom: true,
+          addedBy: 'Secretariat Direct Add'
+        });
+
+        showToast(`New topic "${newEntry.title}" saved to the Topic Bank!`, 'success');
+        closeModal();
+        renderCoordTopicBank();
+      };
+    }
+  }
+
+  window.scheduleTopicFromBank = function(bankId) {
+    const item = dataService.getTopicBankItem(bankId);
+    if (!item) return;
+
+    let existing = dataService.getTopics().find(tp => tp.title.toLowerCase().trim() === item.title.toLowerCase().trim());
+    if (!existing) {
+      existing = dataService.addTopic({
+        title: item.title,
+        category: item.categoryId || item.category,
+        motion: item.title,
+        description: item.description,
+        status: 'Approved',
+        proposedBy: 'Secretariat Bank Direct Schedule'
+      });
+    }
+
+    switchCoordSubview('sessions');
+    setTimeout(() => {
+      const topicSelect = document.getElementById('csTopicSelect');
+      if (topicSelect) {
+        topicSelect.value = existing.id;
+      }
+      const titleInput = document.getElementById('csTitle');
+      if (titleInput) {
+        titleInput.value = `Dialogue: ${item.title}`;
+      }
+      showToast(`Selected "${item.title}" for session scheduling.`, 'normal');
+    }, 60);
+  };
 
   // --- Subview: Coordinator Session Creation ---
   function prepareCoordSessionForm() {
@@ -2058,8 +2563,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.updateTopicStatus = function(topicId, newStatus) {
-    dataService.updateTopicStatus(topicId, newStatus);
-    showToast(`Topic updated to status: "${newStatus}"`, 'success');
+    const updated = dataService.updateTopicStatus(topicId, newStatus);
+    if (newStatus === 'Approved') {
+      showToast(`Topic approved and automatically added to the Academic Topic Bank!`, 'success');
+    } else {
+      showToast(`Topic updated to status: "${newStatus}"`, 'success');
+    }
+    if (typeof renderCoordTopicsList === 'function') renderCoordTopicsList();
+    if (typeof renderCoordTopicBank === 'function') renderCoordTopicBank();
   };
 
   window.approveApp = function(appId) {

@@ -27,6 +27,13 @@ const TRANSLATIONS = {
     navMemberPortal: 'Member Portal',
     navCoordinatorPortal: 'Coordinator Portal',
     navLogout: 'Sign Out',
+    navTopicBank: 'Topic Bank',
+    topicBankTitle: 'Academic Topic Bank',
+    topicBankSubtitle: 'Curated international research themes and subtopics ready for structured dialogue, presentations, and debates.',
+    topicBankUseTopic: 'Suggest as Dialogue Session',
+    topicSelectPlaceholder: '-- Select from Academic Topic Bank --',
+    topicSelectOther: '✨ Others (Suggest New Custom Topic)',
+    topicCustomAlert: '💡 Custom topics are reviewed by the Secretariat. Upon approval, your topic and subtopics will be permanently added to the Global Youth Dialogue Topic Bank!',
 
     // Mobile Bottom Tab Bar (Compact Navigation)
     tabHome: 'Home',
@@ -281,6 +288,13 @@ const TRANSLATIONS = {
     navMemberPortal: 'بوابة الأعضاء',
     navCoordinatorPortal: 'بوابة المنسقين',
     navLogout: 'تسجيل الخروج',
+    navTopicBank: 'بنك المواضيع',
+    topicBankTitle: 'بنك المواضيع الأكاديمية',
+    topicBankSubtitle: 'مكتبة رصينة للموضوعات الأكاديمية ومحاور البحث المقترحة للجلسات والحوارات والمناظرات.',
+    topicBankUseTopic: 'اقتراح هذا الموضوع لجلسة',
+    topicSelectPlaceholder: '-- اختر موضوعاً من بنك المواضيع الأكاديمية --',
+    topicSelectOther: '✨ أخرى (اقترح موضوعاً ومحاور مخصصة جديدة)',
+    topicCustomAlert: '💡 تخضع المواضيع الجديدة لمراجعة الأمانة الأكاديمية، وفور اعتمادها تضاف تلقائياً وبشكل دائم إلى بنك المواضيع الدولي!',
 
     // Mobile Bottom Tab Bar (Compact Navigation)
     tabHome: 'الرئيسية',
