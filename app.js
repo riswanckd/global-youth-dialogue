@@ -1380,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="topic-bank-card-footer">
               <span class="topic-bank-author-tag">By: ${t.addedBy || 'Academic Board'}</span>
               <button class="btn btn-primary btn-sm" onclick="window.useTopicFromBank('${t.id}')">
-                <span>Use This Topic</span>
+                <span>Suggest This Topic</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; vertical-align:middle; margin-inline-start:4px;"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </button>
             </div>
