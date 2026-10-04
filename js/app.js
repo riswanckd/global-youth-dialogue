@@ -266,6 +266,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (publicNav) publicNav.style.display = 'flex';
       }
     }
+
+    // In-App Notification Bell visibility:
+    // Only available in authenticated Member, Presenter, and Admin dashboards; hidden from public view
+    const notifBtn = document.getElementById('headerNotifBtn');
+    if (notifBtn) {
+      if (user && activePortal !== 'public' && activePortal !== 'signin') {
+        notifBtn.style.display = 'inline-flex';
+      } else {
+        notifBtn.style.display = 'none';
+      }
+    }
   }
 
   function navigateToPortal(portalName) {
@@ -387,30 +398,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 1-Click Role Testing on Unified Sign In Portal
-  document.getElementById('demoRoleMemberBtn')?.addEventListener('click', () => {
-    const res = authService.login('member@gyd.org', 'password123');
-    if (res.success) {
-      navigateToPortal('member');
-      showToast('Identified as Member (Lucas Silva) → Can Participate in Sessions!', 'success');
+  // 1-Click Role Testing & Global Demo Login Helpers
+  window.signInDemoCoordinator = function() {
+    let res = authService.login('coordinator@gyd.org', 'password123');
+    if (!res || !res.success) {
+      res = authService.loginAsDemo('Coordinator');
     }
-  });
-
-  document.getElementById('demoRolePresenterBtn')?.addEventListener('click', () => {
-    const res = authService.login('presenter@gyd.org', 'password123');
-    if (res.success) {
-      navigateToPortal('presenter');
-      showToast('Identified as Presenter (Kofi Mensah) → Opened Presenter Portal (Can Present a Topic)!', 'success');
-    }
-  });
-
-  document.getElementById('demoRoleAdminBtn')?.addEventListener('click', () => {
-    const res = authService.login('coordinator@gyd.org', 'password123');
-    if (res.success) {
+    if (res && res.success && res.user) {
+      closeModal('authModal');
       navigateToPortal('coordinator');
-      showToast('Identified as Admin / Coordinator (Tariq Al-Mansoor) → Opened Admin Workspace!', 'success');
+      showToast(`Signed in as Admin / Coordinator: ${res.user.name} (${res.user.country}) → Opened Admin Workspace!`, 'success');
+    } else {
+      showToast('Could not sign in as Coordinator demo. Please try again.', 'error');
     }
-  });
+  };
+
+  window.signInDemoPresenter = function() {
+    let res = authService.login('presenter@gyd.org', 'password123');
+    if (!res || !res.success) {
+      res = authService.loginAsDemo('Presenter');
+    }
+    if (res && res.success && res.user) {
+      closeModal('authModal');
+      navigateToPortal('presenter');
+      showToast(`Signed in as Presenter: ${res.user.name} (${res.user.country}) → Opened Presenter Portal (Can Present a Topic)!`, 'success');
+    } else {
+      showToast('Could not sign in as Presenter demo. Please try again.', 'error');
+    }
+  };
+
+  window.signInDemoMember = function() {
+    let res = authService.login('member@gyd.org', 'password123');
+    if (!res || !res.success) {
+      res = authService.loginAsDemo('Member');
+    }
+    if (res && res.success && res.user) {
+      closeModal('authModal');
+      navigateToPortal('member');
+      showToast(`Signed in as Member: ${res.user.name} (${res.user.country}) → Can Participate in Sessions!`, 'success');
+    } else {
+      showToast('Could not sign in as Member demo. Please try again.', 'error');
+    }
+  };
+
+  // Event listeners for page demo buttons
+  document.getElementById('demoRoleMemberBtn')?.addEventListener('click', () => window.signInDemoMember());
+  document.getElementById('demoRolePresenterBtn')?.addEventListener('click', () => window.signInDemoPresenter());
+  document.getElementById('demoRoleAdminBtn')?.addEventListener('click', () => window.signInDemoCoordinator());
+
+  // Event listeners for modal demo buttons
+  document.getElementById('demoCoordBtn')?.addEventListener('click', () => window.signInDemoCoordinator());
+  document.getElementById('demoPresenterBtn')?.addEventListener('click', () => window.signInDemoPresenter());
+  document.getElementById('demoMemberBtn')?.addEventListener('click', () => window.signInDemoMember());
 
   // Navigation Links on Unified Sign In Portal
   document.getElementById('authToPublicLink')?.addEventListener('click', (e) => {
@@ -421,25 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('authToApplyLink')?.addEventListener('click', (e) => {
     e.preventDefault();
     openModal('applyModal');
-  });
-
-  // Fallback modal demo buttons
-  document.getElementById('demoCoordBtn')?.addEventListener('click', () => {
-    const res = authService.loginAsDemo('Coordinator');
-    if (res.success) {
-      closeModal('authModal');
-      navigateToPortal('coordinator');
-      showToast(`Signed in as Founding Coordinator: ${res.user.name} (${res.user.country})`, 'success');
-    }
-  });
-
-  document.getElementById('demoMemberBtn')?.addEventListener('click', () => {
-    const res = authService.loginAsDemo('Member');
-    if (res.success) {
-      closeModal('authModal');
-      navigateToPortal('member');
-      showToast(`Signed in as Verified Debater: ${res.user.name} (${res.user.country})`, 'success');
-    }
   });
 
   // Real Login Form Handler
@@ -3530,6 +3550,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (totalBadge) {
         totalBadge.textContent = `${unreadCount} Unread`;
       }
+      document.querySelectorAll('.portal-notif-count').forEach(el => {
+        el.textContent = unreadCount;
+        el.style.display = unreadCount > 0 ? 'inline-flex' : 'none';
+      });
     }
 
     function renderNotificationList() {
@@ -3585,6 +3609,13 @@ document.addEventListener('DOMContentLoaded', () => {
     notifBtn?.addEventListener('click', () => {
       openModal('notificationsModal');
       renderNotificationList();
+    });
+
+    document.querySelectorAll('.portal-notif-trigger-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openModal('notificationsModal');
+        renderNotificationList();
+      });
     });
 
     notifModalClose?.addEventListener('click', () => closeModal('notificationsModal'));

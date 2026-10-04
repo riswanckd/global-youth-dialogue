@@ -4769,3 +4769,35 @@ body.rtl-mode .topic-bank-card-title-ar {
   pointer-events: auto !important;
 }
 
+/* Dashboard In-Portal Notification Trigger */
+.portal-notif-trigger-btn {
+  position: relative;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.portal-notif-trigger-btn:hover {
+  background: var(--bg-subtle);
+  border-color: var(--accent-gold);
+  color: var(--brand-navy);
+}
+
+.portal-notif-count {
+  background: #e02424;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+

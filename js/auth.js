@@ -58,8 +58,29 @@ class AuthService {
   }
 
   login(email, password) {
-    const users = window.GYD_DATA.getUsers();
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    let users = [];
+    if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
+      users = window.GYD_DATA.getUsers() || [];
+    }
+    if ((!users || users.length === 0) && typeof INITIAL_DATABASE !== 'undefined') {
+      users = INITIAL_DATABASE.users || [];
+    }
+
+    let user = users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+
+    // Auto-inject missing seed user if needed
+    if (!user && typeof INITIAL_DATABASE !== 'undefined' && INITIAL_DATABASE.users) {
+      const seedMatch = INITIAL_DATABASE.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+      if (seedMatch) {
+        user = seedMatch;
+        if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
+          window.GYD_DATA.db.users.push(seedMatch);
+          if (typeof window.GYD_DATA.saveDatabase === 'function') {
+            window.GYD_DATA.saveDatabase();
+          }
+        }
+      }
+    }
 
     if (!user) {
       return { success: false, message: 'No account found with this email address.' };
@@ -79,15 +100,35 @@ class AuthService {
   }
 
   loginAsDemo(roleType) {
-    const users = window.GYD_DATA.getUsers();
+    let users = [];
+    if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
+      users = window.GYD_DATA.getUsers() || [];
+    }
+    if ((!users || users.length === 0) && typeof INITIAL_DATABASE !== 'undefined') {
+      users = INITIAL_DATABASE.users || [];
+    }
+
     let targetUser = null;
 
     if (roleType === 'Coordinator') {
-      targetUser = users.find(u => u.role === 'Coordinator') || users[0];
+      targetUser = users.find(u => u.role === 'Coordinator' || u.email === 'coordinator@gyd.org');
+      if (!targetUser && typeof INITIAL_DATABASE !== 'undefined') {
+        targetUser = INITIAL_DATABASE.users.find(u => u.role === 'Coordinator');
+      }
     } else if (roleType === 'Presenter') {
-      targetUser = users.find(u => u.role === 'Presenter' || u.email === 'presenter@gyd.org' || u.role === 'Speaker') || users[1];
+      targetUser = users.find(u => u.role === 'Presenter' || u.email === 'presenter@gyd.org' || u.role === 'Speaker');
+      if (!targetUser && typeof INITIAL_DATABASE !== 'undefined') {
+        targetUser = INITIAL_DATABASE.users.find(u => u.role === 'Presenter' || u.email === 'presenter@gyd.org');
+      }
     } else {
-      targetUser = users.find(u => (u.role === 'Member' || u.email === 'member@gyd.org') && u.role !== 'Coordinator' && u.role !== 'Presenter') || users[2];
+      targetUser = users.find(u => (u.role === 'Member' || u.email === 'member@gyd.org') && u.role !== 'Coordinator' && u.role !== 'Presenter');
+      if (!targetUser && typeof INITIAL_DATABASE !== 'undefined') {
+        targetUser = INITIAL_DATABASE.users.find(u => u.role === 'Member' || u.email === 'member@gyd.org');
+      }
+    }
+
+    if (!targetUser && users.length > 0) {
+      targetUser = users[0];
     }
 
     if (targetUser) {
