@@ -143,7 +143,7 @@ const TRANSLATIONS = {
     // Public Sessions Notice
     sessionsTag: 'Dialogue Archive',
     sessionsTitle: 'Dialogue Sessions & Archive',
-    sessionsSubtitle: 'All live session participation, private recordings, and academic writings are members-only.',
+    sessionsSubtitle: 'Explore our international youth dialogue sessions, upcoming debate agendas, panel discussions, and archived proceedings open for everyone.',
     membersOnlyNotice: 'Session Content & Archives are Members-Only',
     signInToAccess: 'To maintain a safe, intellectually focused environment for international debaters, live meeting links, private YouTube recordings, and full academic writings are accessible only through authenticated Member & Coordinator portals.',
     sessionMembersOnly: 'Members Only',
@@ -412,7 +412,7 @@ const TRANSLATIONS = {
     // Public Sessions Notice
     sessionsTag: 'أرشيف الجلسات والحوارات',
     sessionsTitle: 'الجلسات والأرشيف المعرفي',
-    sessionsSubtitle: 'حضور الجلسات المباشرة والتسجيلات والأوراق الأكاديمية مخصص لأعضاء المجتمع.',
+    sessionsSubtitle: 'استكشف جلسات الحوار الشبابي الدولي، وجداول المناظرات القادمة، وحلقات النقاش وأرشيف الجلسات المتاح للجميع.',
     membersOnlyNotice: 'محتوى الجلسات والأرشيف مخصص لأعضاء المجتمع',
     signInToAccess: 'للحفاظ على بيئة آمنة وفكرية جادة للمناظرين الدوليين، تقتصر روابط الاجتماعات والتسجيلات والأوراق البحثية على الأعضاء وفريق التنسيق.',
     sessionMembersOnly: 'محتوى خاص بالأعضاء',

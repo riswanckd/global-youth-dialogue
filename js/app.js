@@ -1129,15 +1129,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
+  let currentPublicSessionFilter = 'all';
+
   function renderPublicSessionsPreview() {
     const container = document.getElementById('publicSessionsPreview');
     if (!container) return;
 
-    const sessions = dataService.getSessions().slice(0, 3);
+    let sessions = dataService.getSessions();
     const isAr = i18n.isRTL();
+    const query = (document.getElementById('publicSessionSearch')?.value || '').toLowerCase().trim();
+
+    if (currentPublicSessionFilter && currentPublicSessionFilter !== 'all') {
+      sessions = sessions.filter(s => s.status === currentPublicSessionFilter);
+    }
+
+    if (query) {
+      sessions = sessions.filter(s =>
+        (s.title && s.title.toLowerCase().includes(query)) ||
+        (s.titleAr && s.titleAr.toLowerCase().includes(query)) ||
+        (s.categoryName && s.categoryName.toLowerCase().includes(query)) ||
+        (s.presenter && s.presenter.name && s.presenter.name.toLowerCase().includes(query)) ||
+        (s.moderator && s.moderator.name && s.moderator.name.toLowerCase().includes(query))
+      );
+    }
+
+    if (sessions.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+          <h4 style="margin: 0 0 0.35rem; color: var(--brand-navy);">No sessions found</h4>
+          <p style="margin: 0; font-size: 0.88rem;">Try clearing your search query or selecting a different status filter.</p>
+        </div>
+      `;
+      return;
+    }
 
     container.innerHTML = sessions.map(ses => {
-      const lockText = isAr ? 'محتوى خاص بالأعضاء' : 'Members Only';
+      const isUpcoming = ses.status === 'Upcoming';
+      const statusBadge = isUpcoming
+        ? `<span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); font-weight: 700;">🟢 ${isAr ? 'جلسة قادمة' : 'Upcoming Live Dialogue'}</span>`
+        : `<span class="badge" style="background: rgba(15, 43, 72, 0.08); color: var(--brand-navy); border: 1px solid var(--border-color); font-weight: 700;">📜 ${isAr ? 'أرشيف منجز' : 'Completed Archive'}</span>`;
+
       const sesNumText = isAr 
         ? `الجلسة ${ses.sessionNumber.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])} • ${ses.categoryNameAr || ses.categoryName}` 
         : `Session ${ses.sessionNumber.toString().padStart(2, '0')} • ${ses.categoryName}`;
@@ -1147,24 +1179,43 @@ document.addEventListener('DOMContentLoaded', () => {
       const formatVal = isAr ? (ses.formatAr || ses.format) : ses.format;
 
       return `
-        <div class="session-card-preview">
-          <span class="session-lock-tag">${icons.lock} ${lockText}</span>
-          <div class="session-num-badge">${sesNumText}</div>
-          <h4 class="serif-text">${titleText}</h4>
-          <div class="session-meta-row">
-            <span style="display:inline-flex; align-items:center; gap:4px;">${icons.calendar} ${ses.date}</span>
-            <span style="display:inline-flex; align-items:center; gap:4px;">${icons.clock} ${durationText}</span>
+        <div class="session-card-preview" style="display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.35rem; background: var(--bg-surface); transition: all 0.2s ease;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
+              <span class="session-num-badge" style="margin:0;">${sesNumText}</span>
+              ${statusBadge}
+            </div>
+            <h4 class="serif-text" style="font-size: 1.25rem; color: var(--brand-navy); margin: 0.4rem 0 0.65rem 0; line-height: 1.35;">${titleText}</h4>
+            <div class="session-meta-row" style="margin-bottom: 0.65rem; color: var(--text-muted); font-size: 0.85rem;">
+              <span style="display:inline-flex; align-items:center; gap:4px;">${icons.calendar} ${ses.date}</span>
+              <span style="display:inline-flex; align-items:center; gap:4px;">${icons.clock} ${durationText}</span>
+            </div>
+            <div style="font-size: 0.84rem; color: var(--text-body); margin-bottom: 0.75rem;">
+              <strong>${formatLabel}</strong> ${formatVal}
+              ${ses.presenter ? ` • <em>Presenter: ${ses.presenter.name} (${ses.presenter.country})</em>` : ''}
+            </div>
+            <div class="session-countries-pills" style="margin-bottom: 1rem;">
+              ${ses.countriesRepresented.map(c => `<span class="country-pill">${getCountryLocalized(c)}</span>`).join('')}
+            </div>
           </div>
-          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-            <strong>${formatLabel}</strong> ${formatVal}
-          </div>
-          <div class="session-countries-pills">
-            ${ses.countriesRepresented.map(c => `<span class="country-pill">${getCountryLocalized(c)}</span>`).join('')}
-          </div>
+          <button class="btn btn-navy btn-sm" onclick="window.viewSessionDetail('${ses.id}')" style="width: 100%; justify-content: center; gap: 6px; margin-top: 0.5rem;">
+            ${icons.book || '📖'} Inspect Session Agenda & Brief →
+          </button>
         </div>
       `;
     }).join('');
   }
+
+  window.filterPublicSessions = function(status) {
+    if (status !== undefined) {
+      currentPublicSessionFilter = status;
+      document.querySelectorAll('#publicSessionStatusFilters button').forEach(b => {
+        const isSelected = b.getAttribute('data-status') === status;
+        b.className = isSelected ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline';
+      });
+    }
+    renderPublicSessionsPreview();
+  };
 
   // =========================================================================
   // VIEW: MEMBER PORTAL RENDERING
@@ -1177,7 +1228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileCard = document.getElementById('memberSidebarProfile');
     if (profileCard) {
       profileCard.innerHTML = `
-        <div class="portal-user-avatar">${icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-avatar">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : icons.getFlag(user.country, user.flag)}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role">${user.role} • ${user.country}</span>
@@ -1513,7 +1564,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'topics': 'subviewMemberTopics',
       'calendar': 'subviewMemberCalendar',
       'journey': 'subviewMemberJourney',
-      'certificate': 'subviewMemberCertificate'
+      'certificate': 'subviewMemberCertificate',
+      'profile': 'subviewMemberProfile'
     };
 
     const targetEl = document.getElementById(targetMap[targetName]);
@@ -1531,6 +1583,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'calendar') renderMemberCalendarView();
     if (targetName === 'journey') renderMemberJourneyView();
     if (targetName === 'certificate') renderMemberCertificate();
+    if (targetName === 'profile') renderProfileView('member');
 
     window.scrollTo(0, 0);
   }
@@ -2428,7 +2481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileCard = document.getElementById('presenterSidebarProfile');
     if (profileCard) {
       profileCard.innerHTML = `
-        <div class="portal-user-avatar avatar-presenter">${icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-avatar avatar-presenter">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : icons.getFlag(user.country, user.flag)}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role" style="color: var(--accent-gold); font-weight: 600;">⭐ Academic Presenter (${user.country})</span>
@@ -2509,7 +2562,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'topic-bank') renderPresenterTopicBank();
     if (targetName === 'sessions') renderPresenterSessionsList();
     if (targetName === 'writings') renderPresenterWritingsView();
-    if (targetName === 'profile') renderPresenterProfile();
+    if (targetName === 'profile') renderProfileView('presenter');
 
     window.scrollTo(0, 0);
   }
@@ -3094,51 +3147,317 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Subview: Presenter Profile
-  function renderPresenterProfile() {
-    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', country: 'Ghana', flag: 'GH', email: 'presenter@gyd.org' };
-    const profileCard = document.getElementById('presenterProfileCard');
-    if (!profileCard || !user) return;
+  // =========================================================================
+  // UNIVERSAL DASHBOARD USER PROFILE & CREDENTIALS STUDIO
+  // =========================================================================
+  let pendingAvatarData = {};
 
-    profileCard.innerHTML = `
-      <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <div class="portal-user-avatar avatar-presenter" style="width: 72px; height: 72px; font-size: 2rem;">
-          ${icons.getFlag(user.country, user.flag)}
-        </div>
-        <div>
-          <h3 style="margin: 0; color: var(--brand-navy); font-size: 1.4rem;">${user.name}</h3>
-          <div style="color: var(--accent-gold); font-weight: 700; font-size: 0.9rem; margin-top: 0.2rem;">
-            ⭐ Academic Presenter & Keynote Fellow • ${user.country}
+  function renderProfileView(portalType) {
+    const user = authService.getCurrentUser() || (
+      portalType === 'coordinator' 
+        ? { name: 'Tariq Al-Mansoor', email: 'coordinator@gyd.org', role: 'Coordinator', country: 'Qatar', flag: 'QA' }
+        : portalType === 'presenter'
+          ? { name: 'Kofi Mensah', email: 'presenter@gyd.org', role: 'Presenter', country: 'Ghana', flag: 'GH' }
+          : { name: 'Lucas Silva', email: 'member@gyd.org', role: 'Member', country: 'Brazil', flag: 'BR' }
+    );
+
+    const containerId = portalType === 'coordinator'
+      ? 'coordProfileFormCard'
+      : portalType === 'presenter'
+        ? 'presenterProfileCard'
+        : 'memberProfileFormCard';
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const parts = (user.name || '').trim().split(' ');
+    const firstName = user.firstName || parts[0] || '';
+    const lastName = user.lastName || parts.slice(1).join(' ') || '';
+
+    const roleTitle = portalType === 'coordinator'
+      ? 'Lead Coordinator & Secretariat Administrator'
+      : portalType === 'presenter'
+        ? 'Accredited Academic Presenter & Keynote Fellow'
+        : 'Active Community Member & Youth Delegate';
+
+    container.innerHTML = `
+      <form onsubmit="window.handleProfileSave(event, '${portalType}')" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Header with Avatar & Basic Info -->
+        <div class="profile-card-header">
+          <div class="profile-avatar-wrap">
+            <img id="${portalType}AvatarPreview" class="profile-avatar-img" src="${user.avatar || ''}" style="${user.avatar ? 'display:block;' : 'display:none;'}" alt="${user.name}">
+            <span id="${portalType}AvatarFlag" class="profile-avatar-flag" style="${user.avatar ? 'display:none;' : 'display:block;'}">
+              ${icons.getFlag(user.country, user.flag)}
+            </span>
           </div>
-          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem;">
-            Email: ${user.email} • Member since ${user.joinedDate || '2024-06-01'}
+
+          <div style="flex: 1; min-width: 240px;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+              <h3 style="margin: 0; color: var(--brand-navy); font-size: 1.35rem;">${user.name}</h3>
+              <span class="badge badge-category" style="margin: 0;">${user.role || 'Member'}</span>
+            </div>
+            <div style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+              ${roleTitle} • <em>${user.country || 'Global'}</em>
+            </div>
+
+            <!-- Profile Picture Controls -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+              <label class="btn btn-outline btn-sm" style="cursor: pointer; margin: 0; gap: 5px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Change Profile Picture
+                <input type="file" id="${portalType}PhotoUploadInput" accept="image/*" style="display: none;" onchange="window.handleAvatarFileChange(event, '${portalType}')">
+              </label>
+              <button type="button" class="btn btn-subtle btn-sm" onclick="window.promptAvatarUrl('${portalType}')" style="font-size: 0.8rem;">
+                Enter Photo URL
+              </button>
+              ${user.avatar ? `
+                <button type="button" class="btn btn-subtle btn-sm" onclick="window.removeAvatar('${portalType}')" style="color: #dc2626; font-size: 0.8rem;">
+                  Remove Photo
+                </button>
+              ` : ''}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div style="margin-bottom: 1.25rem;">
-        <h4 style="font-size: 0.95rem; margin-bottom: 0.35rem; color: var(--brand-navy);">Speaker Bio & Academic Focus</h4>
-        <p style="font-size: 0.9rem; color: var(--text-body); line-height: 1.6;">
-          ${user.bio || 'Academic fellow and international keynote presenter specializing in sovereign finance, technology ethics, and equitable educational access in the Global South.'}
-        </p>
-      </div>
+        <!-- Section 1: Personal Details -->
+        <div class="profile-section-box">
+          <div class="profile-section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Personal Information</span>
+          </div>
 
-      <div style="margin-bottom: 1.5rem;">
-        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--brand-navy);">Academic Research Areas</h4>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          ${(user.interests || ['Economic Justice', 'Technology & AI', 'Global Affairs', 'Environment']).map(i => `
-            <span class="badge-bank-cat" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">${i}</span>
-          `).join('')}
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="${portalType}FirstName">First Name</label>
+              <input type="text" class="form-control" id="${portalType}FirstName" value="${firstName}" placeholder="First Name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="${portalType}LastName">Last Name</label>
+              <input type="text" class="form-control" id="${portalType}LastName" value="${lastName}" placeholder="Last Name" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" value="${user.email}" readonly style="background: var(--bg-subtle, #f1f5f9); cursor: not-allowed;">
+              <span style="font-size: 0.74rem; color: var(--text-muted); margin-top: 0.2rem; display: block;">Primary registered login email (read-only)</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="${portalType}Country">Country of Residence / Chapter</label>
+              <input type="text" class="form-control" id="${portalType}Country" value="${user.country || ''}" placeholder="e.g. Qatar, Brazil, Ghana">
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div style="border-top: 1px solid var(--border-light); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-        <span style="font-size: 0.82rem; color: var(--text-muted);">Verified Presenter Credentials Active for 2024-2025</span>
-        <button class="btn btn-outline btn-sm" onclick="navigateToPortal('member')">
-          View Member Participation Portal →
-        </button>
-      </div>
+        <!-- Section 2: Password Change -->
+        <div class="profile-section-box" style="border-inline-start: 4px solid var(--accent-gold);">
+          <div class="profile-section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Security &amp; Change Password</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1.25rem 0;">
+            Leave these fields empty if you do not wish to change your password.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" for="${portalType}CurrentPass">Current Password</label>
+            <input type="password" class="form-control" id="${portalType}CurrentPass" placeholder="Enter current password" autocomplete="current-password">
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="${portalType}NewPass">New Password</label>
+              <input type="password" class="form-control" id="${portalType}NewPass" placeholder="Min. 6 characters" minlength="6" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="${portalType}ConfirmPass">Confirm New Password</label>
+              <input type="password" class="form-control" id="${portalType}ConfirmPass" placeholder="Re-enter new password" minlength="6" autocomplete="new-password">
+            </div>
+          </div>
+        </div>
+
+        <div id="${portalType}ProfileErrorAlert" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.88rem; line-height: 1.45;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="submit" class="btn btn-primary btn-lg" style="min-width: 220px;">
+            Save Profile Changes
+          </button>
+        </div>
+      </form>
     `;
   }
+
+  window.renderProfileView = renderProfileView;
+
+  window.handleAvatarFileChange = function(event, portalType) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2.5 * 1024 * 1024) {
+      showToast('Image size exceeds 2.5MB limit. Please choose a smaller photo.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      pendingAvatarData[portalType] = dataUrl;
+      const preview = document.getElementById(`${portalType}AvatarPreview`);
+      const flag = document.getElementById(`${portalType}AvatarFlag`);
+      if (preview) {
+        preview.src = dataUrl;
+        preview.style.display = 'block';
+      }
+      if (flag) flag.style.display = 'none';
+      showToast('Photo selected! Click "Save Profile Changes" to apply.', 'normal');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.promptAvatarUrl = function(portalType) {
+    const url = prompt('Enter a direct image URL for your profile photo (e.g. https://...):');
+    if (url && url.trim()) {
+      pendingAvatarData[portalType] = url.trim();
+      const preview = document.getElementById(`${portalType}AvatarPreview`);
+      const flag = document.getElementById(`${portalType}AvatarFlag`);
+      if (preview) {
+        preview.src = url.trim();
+        preview.style.display = 'block';
+      }
+      if (flag) flag.style.display = 'none';
+      showToast('Photo URL set! Click "Save Profile Changes" to apply.', 'normal');
+    }
+  };
+
+  window.removeAvatar = function(portalType) {
+    pendingAvatarData[portalType] = '';
+    const preview = document.getElementById(`${portalType}AvatarPreview`);
+    const flag = document.getElementById(`${portalType}AvatarFlag`);
+    if (preview) {
+      preview.src = '';
+      preview.style.display = 'none';
+    }
+    if (flag) flag.style.display = 'block';
+    showToast('Photo removed! Click "Save Profile Changes" to apply.', 'normal');
+  };
+
+  window.handleProfileSave = function(event, portalType) {
+    event.preventDefault();
+    const user = authService.getCurrentUser();
+    if (!user) {
+      showToast('User session not found.', 'error');
+      return;
+    }
+
+    const firstName = document.getElementById(`${portalType}FirstName`)?.value.trim();
+    const lastName = document.getElementById(`${portalType}LastName`)?.value.trim();
+    const country = document.getElementById(`${portalType}Country`)?.value.trim() || user.country;
+    const currentPass = document.getElementById(`${portalType}CurrentPass`)?.value;
+    const newPass = document.getElementById(`${portalType}NewPass`)?.value;
+    const confirmPass = document.getElementById(`${portalType}ConfirmPass`)?.value;
+    const errAlert = document.getElementById(`${portalType}ProfileErrorAlert`);
+
+    if (errAlert) errAlert.style.display = 'none';
+
+    if (!firstName || !lastName) {
+      const msg = 'First name and last name are required.';
+      if (errAlert) { errAlert.textContent = msg; errAlert.style.display = 'block'; }
+      showToast(msg, 'error');
+      return;
+    }
+
+    // Password validation if any password field touched
+    if (currentPass || newPass || confirmPass) {
+      if (!currentPass) {
+        const msg = 'Please enter your current password to authorize a password change.';
+        if (errAlert) { errAlert.textContent = msg; errAlert.style.display = 'block'; }
+        showToast(msg, 'error');
+        return;
+      }
+      const existingPass = user.password || 'password123';
+      if (currentPass !== existingPass) {
+        const msg = 'Current password is incorrect.';
+        if (errAlert) { errAlert.textContent = msg; errAlert.style.display = 'block'; }
+        showToast(msg, 'error');
+        return;
+      }
+      if (!newPass || newPass.length < 6) {
+        const msg = 'New password must be at least 6 characters long.';
+        if (errAlert) { errAlert.textContent = msg; errAlert.style.display = 'block'; }
+        showToast(msg, 'error');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        const msg = 'New password and Confirm password do not match.';
+        if (errAlert) { errAlert.textContent = msg; errAlert.style.display = 'block'; }
+        showToast(msg, 'error');
+        return;
+      }
+      user.password = newPass;
+    }
+
+    // Update names & metadata
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.name = `${firstName} ${lastName}`;
+    user.country = country;
+
+    // Update avatar if pending change exists
+    if (pendingAvatarData[portalType] !== undefined) {
+      user.avatar = pendingAvatarData[portalType];
+    }
+
+    // Persist in dataService.db.users
+    if (dataService.db && Array.isArray(dataService.db.users)) {
+      const dbUser = dataService.db.users.find(u => u.id === user.id || (u.email && u.email.toLowerCase() === user.email.toLowerCase()));
+      if (dbUser) {
+        dbUser.name = user.name;
+        dbUser.firstName = user.firstName;
+        dbUser.lastName = user.lastName;
+        dbUser.country = user.country;
+        if (user.avatar !== undefined) dbUser.avatar = user.avatar;
+        if (user.password) dbUser.password = user.password;
+        dataService.saveDatabase();
+      }
+    }
+
+    // Also persist in INITIAL_DATABASE if present
+    if (typeof INITIAL_DATABASE !== 'undefined' && Array.isArray(INITIAL_DATABASE.users)) {
+      const seedUser = INITIAL_DATABASE.users.find(u => u.id === user.id || (u.email && u.email.toLowerCase() === user.email.toLowerCase()));
+      if (seedUser) {
+        seedUser.name = user.name;
+        seedUser.country = user.country;
+        if (user.avatar !== undefined) seedUser.avatar = user.avatar;
+        if (user.password) seedUser.password = user.password;
+      }
+    }
+
+    authService.saveSession(user);
+
+    // Refresh sidebars immediately
+    if (typeof renderMemberPortal === 'function' && document.getElementById('viewMember')?.style.display !== 'none') {
+      renderMemberPortal();
+    }
+    if (typeof renderPresenterPortal === 'function' && document.getElementById('viewPresenter')?.style.display !== 'none') {
+      renderPresenterPortal();
+    }
+    if (typeof renderCoordinatorPortal === 'function' && document.getElementById('viewCoordinator')?.style.display !== 'none') {
+      renderCoordinatorPortal();
+    }
+
+    // Clear password inputs
+    const cPass = document.getElementById(`${portalType}CurrentPass`);
+    const nPass = document.getElementById(`${portalType}NewPass`);
+    const cfPass = document.getElementById(`${portalType}ConfirmPass`);
+    if (cPass) cPass.value = '';
+    if (nPass) nPass.value = '';
+    if (cfPass) cfPass.value = '';
+
+    renderProfileView(portalType);
+    showToast('Profile and security credentials updated successfully!', 'success');
+  };
 
   // Presenter Category Change Handler for "Other" category
   window.handlePresCategoryChange = function(selectEl) {
@@ -3306,7 +3625,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileCard = document.getElementById('coordSidebarProfile');
     if (profileCard) {
       profileCard.innerHTML = `
-        <div class="portal-user-avatar avatar-coord">${icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-avatar avatar-coord">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : icons.getFlag(user.country, user.flag)}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role">Founding Coordinator (${user.country})</span>
@@ -3392,7 +3711,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'applications': 'subviewCoordApplications',
       'team': 'subviewCoordTeam',
       'countries': 'subviewCoordCountries',
-      'media': 'subviewCoordMedia'
+      'media': 'subviewCoordMedia',
+      'profile': 'subviewCoordProfile'
     };
 
     const targetEl = document.getElementById(targetMap[targetName]);
@@ -3408,6 +3728,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'team') renderCoordTeamList();
     if (targetName === 'countries') renderCountryChapters();
     if (targetName === 'media') renderMediaKits();
+    if (targetName === 'profile') renderProfileView('coordinator');
 
     window.scrollTo(0, 0);
   }
