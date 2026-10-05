@@ -2528,6 +2528,42 @@ class DataService {
     return newWriting;
   }
 
+  approveWriting(writingId) {
+    if (!this.db.writings) this.db.writings = [];
+    const writing = this.db.writings.find(w => w.id === writingId);
+    if (!writing) return null;
+
+    writing.status = 'Published';
+    writing.publicationDate = new Date().toISOString().split('T')[0];
+
+    // Add notification for community
+    if (this.db.notifications) {
+      this.db.notifications.unshift({
+        id: 'notif_' + Date.now().toString(36),
+        title: '📚 New Academic Paper Published',
+        message: `"${writing.title}" by ${writing.author} (${writing.categoryName}) is now live in the Academic Library.`,
+        type: 'topic',
+        read: false,
+        time: 'Just now',
+        targetView: 'writings',
+        targetId: writing.id
+      });
+    }
+
+    this.saveDatabase();
+    return writing;
+  }
+
+  rejectWriting(writingId) {
+    if (!this.db.writings) this.db.writings = [];
+    const writing = this.db.writings.find(w => w.id === writingId);
+    if (!writing) return null;
+
+    writing.status = 'Rejected';
+    this.saveDatabase();
+    return writing;
+  }
+
   // Applications Operations
   submitApplication(appData) {
     const newApp = {

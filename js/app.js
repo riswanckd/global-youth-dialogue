@@ -1777,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyWritingsFilter() {
-      let writings = dataService.getWritings();
+      let writings = dataService.getWritings().filter(w => !w.status || w.status === 'Published');
       const query = (searchInput?.value || '').toLowerCase();
       const cat = catSelect?.value;
 
@@ -2493,6 +2493,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'decks': 'subviewPresenterDecks',
       'topic-bank': 'subviewPresenterTopicBank',
       'sessions': 'subviewPresenterSessions',
+      'writings': 'subviewPresenterWritings',
       'profile': 'subviewPresenterProfile'
     };
 
@@ -2504,6 +2505,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'decks') renderPresenterDecksView();
     if (targetName === 'topic-bank') renderPresenterTopicBank();
     if (targetName === 'sessions') renderPresenterSessionsList();
+    if (targetName === 'writings') renderPresenterWritingsView();
     if (targetName === 'profile') renderPresenterProfile();
 
     window.scrollTo(0, 0);
@@ -3135,6 +3137,147 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  // Subview: Presenter Academic Writings Studio
+  function renderPresenterWritingsView() {
+    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', email: 'presenter@gyd.org' };
+    const listEl = document.getElementById('presenterMyWritingsList');
+    const badgeEl = document.getElementById('presMyWritingsBadge');
+    const authorRoleInput = document.getElementById('presNewAuthorRole');
+
+    if (authorRoleInput && !authorRoleInput.value) {
+      authorRoleInput.value = 'Accredited Presenter & Research Fellow';
+    }
+
+    const allWritings = dataService.getWritings() || [];
+    const myWritings = allWritings.filter(w =>
+      (w.authorId && w.authorId === user.id) ||
+      (w.authorEmail && user.email && w.authorEmail.toLowerCase() === user.email.toLowerCase()) ||
+      (w.author && user.name && w.author.toLowerCase().includes(user.name.toLowerCase()))
+    );
+
+    if (badgeEl) {
+      badgeEl.textContent = `${myWritings.length} Paper${myWritings.length === 1 ? '' : 's'}`;
+    }
+
+    if (!listEl) return;
+
+    if (myWritings.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); background: var(--bg-body); border-radius: var(--radius-md);">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
+          <h4 style="margin: 0 0 0.4rem 0; color: var(--brand-navy);">No Academic Papers Submitted Yet</h4>
+          <p style="font-size: 0.88rem; max-width: 480px; margin: 0 auto 1.25rem auto;">
+            As an accredited Presenter, you can author in-depth research papers, policy syntheses, and debate dossiers.
+          </p>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('presenterWritingFormCard')?.scrollIntoView({ behavior: 'smooth' })">
+            Open Authoring Studio Below ↓
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = myWritings.map(w => {
+      const isUnderReview = w.status === 'Under Review' || w.status === 'Pending' || w.status === 'Draft';
+      const statusBadge = isUnderReview
+        ? `<span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #b45309; border: 1px solid rgba(234, 179, 8, 0.4); font-weight: 700;">⏳ Under Review by Secretariat</span>`
+        : `<span class="badge" style="background: rgba(5, 150, 105, 0.15); color: #059669; border: 1px solid rgba(5, 150, 105, 0.4); font-weight: 700;">✓ Approved & Live in Member Dashboard</span>`;
+
+      return `
+        <div class="writing-card" style="margin-bottom: 1.25rem; padding: 1.5rem; border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              ${statusBadge}
+              <span class="badge badge-category">${w.categoryName || w.category}</span>
+            </div>
+            <span style="font-size: 0.82rem; color: var(--text-muted);">${w.publicationDate || 'Submitted recently'}</span>
+          </div>
+
+          <h3 class="serif-text" style="font-size: 1.3rem; margin: 0 0 0.5rem 0; color: var(--brand-navy);">${w.title}</h3>
+          <p style="font-size: 0.88rem; color: var(--text-body); line-height: 1.55; margin: 0 0 1rem 0;">${w.intro}</p>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-light); padding-top: 0.75rem;">
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
+              <strong>Author:</strong> ${w.author} • <em>${w.authorRole || 'Presenter'}</em>
+            </div>
+            <button class="btn btn-navy btn-sm" onclick="window.openFullAcademicPaper('${w.id}')">
+              ${icons.book || '📖'} Read Full Dossier
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.renderPresenterWritingsView = renderPresenterWritingsView;
+
+  // Handle Presenter Writing Submission
+  window.handlePresenterWritingSubmit = function(event) {
+    event.preventDefault();
+    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', email: 'presenter@gyd.org' };
+
+    const title = document.getElementById('presNewTitle')?.value.trim();
+    const category = document.getElementById('presNewCategory')?.value;
+    const authorRole = document.getElementById('presNewAuthorRole')?.value.trim() || 'Accredited Presenter';
+    const intro = document.getElementById('presNewIntro')?.value.trim();
+    const background = document.getElementById('presNewBackground')?.value.trim();
+    const keyArgsRaw = document.getElementById('presNewKeyArgs')?.value.trim();
+    const counterArgsRaw = document.getElementById('presNewCounterArgs')?.value.trim();
+    const evidence = document.getElementById('presNewEvidence')?.value.trim();
+    const insights = document.getElementById('presNewInsights')?.value.trim();
+    const conclusion = document.getElementById('presNewConclusion')?.value.trim();
+    const furtherQuestionsRaw = document.getElementById('presNewFurtherQuestions')?.value.trim();
+    const sources = document.getElementById('presNewSources')?.value.trim() || 'Global Youth Dialogue Research Archives';
+
+    if (!title || !intro || !keyArgsRaw) {
+      showToast('Please complete all required fields.', 'error');
+      return;
+    }
+
+    const keyArguments = keyArgsRaw.split('\n').map(s => s.trim()).filter(Boolean);
+    const counterarguments = counterArgsRaw ? counterArgsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Contrasting empirical challenges.'];
+    const furtherQuestions = furtherQuestionsRaw ? furtherQuestionsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['How can multilateral policy adapt to these emerging dynamics?'];
+
+    const newWriting = dataService.createWriting({
+      title,
+      category,
+      author: user.name,
+      authorRole,
+      authorId: user.id,
+      authorEmail: user.email,
+      status: 'Under Review', // Requires admin approval!
+      intro,
+      background,
+      keyArguments,
+      counterarguments,
+      evidence,
+      insights,
+      conclusion,
+      furtherQuestions,
+      sources
+    });
+
+    // Also dispatch notification to Coordinator
+    if (dataService.db && dataService.db.notifications) {
+      dataService.db.notifications.unshift({
+        id: 'notif_' + Date.now().toString(36),
+        title: '📝 New Academic Paper Pending Review',
+        message: `${user.name} submitted "${title}" for coordinator review and approval.`,
+        type: 'topic',
+        read: false,
+        time: 'Just now',
+        targetView: 'writings',
+        targetId: newWriting.id
+      });
+      dataService.saveDatabase();
+    }
+
+    event.target.reset();
+    showToast(`Academic paper "${title}" submitted! It is now in the Secretariat review queue.`, 'success');
+    renderPresenterWritingsView();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // =========================================================================
   // VIEW: COORDINATOR PORTAL RENDERING
   // =========================================================================
@@ -3227,6 +3370,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'topics': 'subviewCoordTopics',
       'sessions': 'subviewCoordSessions',
       'writings': 'subviewCoordWritings',
+      'summary-studio': 'subviewCoordWritings',
       'feedback': 'subviewCoordFeedback',
       'applications': 'subviewCoordApplications',
       'team': 'subviewCoordTeam',
@@ -3241,7 +3385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'topic-bank') renderCoordTopicBank();
     if (targetName === 'topics') renderCoordTopicsList();
     if (targetName === 'sessions') prepareCoordSessionForm();
-    if (targetName === 'writings') prepareCoordWritingStudio();
+    if (targetName === 'writings' || targetName === 'summary-studio') prepareCoordWritingStudio();
     if (targetName === 'feedback') renderCoordFeedbackList();
     if (targetName === 'applications') renderCoordApplicationsList();
     if (targetName === 'team') renderCoordTeamList();
@@ -3963,6 +4107,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `).join('');
     }
 
+    // Render pending presenter paper approvals queue
+    renderCoordPendingWritingsQueue();
+
     const form = document.getElementById('coordSummaryForm');
     form.onsubmit = (e) => {
       e.preventDefault();
@@ -4005,6 +4152,73 @@ document.addEventListener('DOMContentLoaded', () => {
       switchCoordSubview('dashboard');
     };
   }
+
+  function renderCoordPendingWritingsQueue() {
+    const listEl = document.getElementById('coordPendingWritingsList');
+    const badgeEl = document.getElementById('coordPendingWritingsBadge');
+    const allWritings = dataService.getWritings() || [];
+    const pendingWritings = allWritings.filter(w => w.status === 'Under Review' || w.status === 'Pending');
+
+    if (badgeEl) {
+      badgeEl.textContent = `${pendingWritings.length} Pending`;
+    }
+
+    if (!listEl) return;
+
+    if (pendingWritings.length === 0) {
+      listEl.innerHTML = `<div style="color: var(--text-muted); padding: 0.8rem 0; font-size: 0.9rem;">No presenter papers pending review at this time.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = pendingWritings.map(w => `
+      <div style="background: var(--bg-body); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+          <div>
+            <span class="badge badge-category" style="margin-bottom: 0.35rem;">${w.categoryName || w.category}</span>
+            <h4 style="margin: 0; color: var(--brand-navy); font-size: 1.15rem;">${w.title}</h4>
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">
+              <strong>Author:</strong> ${w.author} (${w.authorRole || 'Presenter'}) • Submitted: ${w.publicationDate || 'Recently'}
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-body); line-height: 1.5; margin: 0.5rem 0 1rem 0;">
+          ${w.intro}
+        </p>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="window.openFullAcademicPaper('${w.id}')">
+            ${icons.book || '📖'} Inspect Full Paper
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="window.approveWriting('${w.id}')" style="background: #059669; border-color: #059669; gap: 0.4rem;">
+            ${icons.check || '✓'} Approve & Publish to Member Dashboard
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="window.rejectWriting('${w.id}')">
+            ${icons.x || '✕'} Decline
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.renderCoordPendingWritingsQueue = renderCoordPendingWritingsQueue;
+
+  window.approveWriting = function(writingId) {
+    const w = dataService.approveWriting(writingId);
+    if (w) {
+      showToast(`Approved & Published "${w.title}"! It is now live in all Member Dashboards.`, 'success');
+      if (typeof renderCoordPendingWritingsQueue === 'function') renderCoordPendingWritingsQueue();
+      if (typeof renderMemberWritingsList === 'function') renderMemberWritingsList();
+      if (typeof renderPresenterWritingsView === 'function') renderPresenterWritingsView();
+    }
+  };
+
+  window.rejectWriting = function(writingId) {
+    const w = dataService.rejectWriting(writingId);
+    if (w) {
+      showToast(`Paper "${w.title}" declined.`, 'normal');
+      if (typeof renderCoordPendingWritingsQueue === 'function') renderCoordPendingWritingsQueue();
+      if (typeof renderPresenterWritingsView === 'function') renderPresenterWritingsView();
+    }
+  };
 
   // --- Subview: Coordinator Feedback Review ---
   function renderCoordFeedbackList() {
