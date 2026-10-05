@@ -2499,20 +2499,23 @@ class DataService {
       sessionNumber: writingData.sessionNumber || null,
       title: writingData.title,
       category: writingData.category,
-      categoryName: this.getCategoryName(writingData.category),
+      categoryName: writingData.categoryName || this.getCategoryName(writingData.category),
       author: writingData.author || 'GYD Research Working Group',
       authorRole: writingData.authorRole || 'Coordinating Researcher',
+      authorId: writingData.authorId || null,
+      authorEmail: writingData.authorEmail || null,
       publicationDate: new Date().toISOString().split('T')[0],
       status: writingData.status || 'Published', // Draft, Under Review, Published
       intro: writingData.intro,
-      background: writingData.background,
-      keyArguments: Array.isArray(writingData.keyArguments) ? writingData.keyArguments : [writingData.keyArguments],
-      counterarguments: Array.isArray(writingData.counterarguments) ? writingData.counterarguments : [writingData.counterarguments],
-      evidence: writingData.evidence,
-      insights: writingData.insights,
-      conclusion: writingData.conclusion,
-      furtherQuestions: Array.isArray(writingData.furtherQuestions) ? writingData.furtherQuestions : [writingData.furtherQuestions],
-      sources: writingData.sources
+      totalContent: writingData.totalContent || null,
+      background: writingData.background || writingData.intro,
+      keyArguments: Array.isArray(writingData.keyArguments) ? writingData.keyArguments : (writingData.keyArguments ? [writingData.keyArguments] : []),
+      counterarguments: Array.isArray(writingData.counterarguments) ? writingData.counterarguments : (writingData.counterarguments ? [writingData.counterarguments] : []),
+      evidence: writingData.evidence || '',
+      insights: writingData.insights || '',
+      conclusion: writingData.conclusion || '',
+      furtherQuestions: Array.isArray(writingData.furtherQuestions) ? writingData.furtherQuestions : (writingData.furtherQuestions ? [writingData.furtherQuestions] : []),
+      sources: writingData.sources || ''
     };
 
     if (writingData.sessionId) {

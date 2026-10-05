@@ -3137,15 +3137,38 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
+  // Presenter Category Change Handler for "Other" category
+  window.handlePresCategoryChange = function(selectEl) {
+    const wrap = document.getElementById('presCustomCategoryWrap');
+    const customInput = document.getElementById('presCustomCategory');
+    if (!wrap) return;
+    if (selectEl.value === 'Other') {
+      wrap.style.display = 'block';
+      if (customInput) {
+        customInput.required = true;
+        customInput.focus();
+      }
+    } else {
+      wrap.style.display = 'none';
+      if (customInput) {
+        customInput.required = false;
+      }
+    }
+  };
+
   // Subview: Presenter Academic Writings Studio
   function renderPresenterWritingsView() {
     const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', email: 'presenter@gyd.org' };
     const listEl = document.getElementById('presenterMyWritingsList');
     const badgeEl = document.getElementById('presMyWritingsBadge');
     const authorRoleInput = document.getElementById('presNewAuthorRole');
+    const authorNameInput = document.getElementById('presNewAuthorName');
 
     if (authorRoleInput && !authorRoleInput.value) {
       authorRoleInput.value = 'Accredited Presenter & Research Fellow';
+    }
+    if (authorNameInput && !authorNameInput.value) {
+      authorNameInput.value = user.name || '';
     }
 
     const allWritings = dataService.getWritings() || [];
@@ -3217,43 +3240,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', email: 'presenter@gyd.org' };
 
     const title = document.getElementById('presNewTitle')?.value.trim();
-    const category = document.getElementById('presNewCategory')?.value;
+    const categorySelect = document.getElementById('presNewCategory')?.value;
+    const customCategory = document.getElementById('presCustomCategory')?.value.trim();
+    const finalCategory = (categorySelect === 'Other' && customCategory) ? customCategory : (categorySelect || 'General Academic');
     const authorRole = document.getElementById('presNewAuthorRole')?.value.trim() || 'Accredited Presenter';
-    const intro = document.getElementById('presNewIntro')?.value.trim();
-    const background = document.getElementById('presNewBackground')?.value.trim();
-    const keyArgsRaw = document.getElementById('presNewKeyArgs')?.value.trim();
-    const counterArgsRaw = document.getElementById('presNewCounterArgs')?.value.trim();
-    const evidence = document.getElementById('presNewEvidence')?.value.trim();
-    const insights = document.getElementById('presNewInsights')?.value.trim();
-    const conclusion = document.getElementById('presNewConclusion')?.value.trim();
-    const furtherQuestionsRaw = document.getElementById('presNewFurtherQuestions')?.value.trim();
+    const authorName = document.getElementById('presNewAuthorName')?.value.trim() || user.name || 'Accredited Presenter';
+    const excerpt = document.getElementById('presNewExcerpt')?.value.trim();
+    const totalContent = document.getElementById('presNewTotalContent')?.value.trim();
     const sources = document.getElementById('presNewSources')?.value.trim() || 'Global Youth Dialogue Research Archives';
 
-    if (!title || !intro || !keyArgsRaw) {
+    if (!title || !finalCategory || !authorName || !excerpt || !totalContent) {
       showToast('Please complete all required fields.', 'error');
       return;
     }
 
-    const keyArguments = keyArgsRaw.split('\n').map(s => s.trim()).filter(Boolean);
-    const counterarguments = counterArgsRaw ? counterArgsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Contrasting empirical challenges.'];
-    const furtherQuestions = furtherQuestionsRaw ? furtherQuestionsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['How can multilateral policy adapt to these emerging dynamics?'];
-
     const newWriting = dataService.createWriting({
       title,
-      category,
-      author: user.name,
+      category: finalCategory,
+      categoryName: finalCategory,
+      author: authorName,
       authorRole,
       authorId: user.id,
       authorEmail: user.email,
       status: 'Under Review', // Requires admin approval!
-      intro,
-      background,
-      keyArguments,
-      counterarguments,
-      evidence,
-      insights,
-      conclusion,
-      furtherQuestions,
+      intro: excerpt,
+      totalContent,
       sources
     });
 
@@ -3262,7 +3273,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dataService.db.notifications.unshift({
         id: 'notif_' + Date.now().toString(36),
         title: '📝 New Academic Paper Pending Review',
-        message: `${user.name} submitted "${title}" for coordinator review and approval.`,
+        message: `${authorName} submitted "${title}" for coordinator review and approval.`,
         type: 'topic',
         read: false,
         time: 'Just now',
@@ -3273,6 +3284,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     event.target.reset();
+    const customWrap = document.getElementById('presCustomCategoryWrap');
+    if (customWrap) customWrap.style.display = 'none';
+
     showToast(`Academic paper "${title}" submitted! It is now in the Secretariat review queue.`, 'success');
     renderPresenterWritingsView();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4557,6 +4571,77 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!writing) return;
 
     const modalContent = document.getElementById('writingReaderContent');
+
+    let bodyHtml = '';
+    if (writing.totalContent) {
+      const paragraphs = writing.totalContent
+        .split(/\n\s*\n/)
+        .map(p => p.trim())
+        .filter(Boolean)
+        .map(p => `<p style="margin-bottom: 1.15rem; text-align: justify; line-height: 1.8;">${p.replace(/\n/g, '<br>')}</p>`)
+        .join('');
+
+      bodyHtml = `
+        <div style="line-height: 1.75; font-size: 1rem; color: var(--text-body);">
+          <div style="background: rgba(14, 116, 144, 0.06); border-left: 4px solid var(--accent-gold); padding: 1.25rem; border-radius: 4px; margin-bottom: 1.75rem;">
+            <h5 style="color: var(--brand-navy); margin: 0 0 0.35rem; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">Abstract / Excerpt</h5>
+            <p style="margin: 0; font-size: 0.95rem; font-style: italic; color: var(--brand-navy); line-height: 1.6;">${writing.intro}</p>
+          </div>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.5rem 0 1rem; font-size: 1.35rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem;">Academic Article Content</h4>
+          <div style="font-size: 1rem; color: var(--text-body);">
+            ${paragraphs || `<p style="line-height: 1.8;">${writing.totalContent}</p>`}
+          </div>
+
+          ${writing.sources ? `
+            <div style="background: var(--bg-body); padding: 1.25rem; border-radius: var(--radius-md); margin-top: 2rem; font-size: 0.88rem; color: var(--text-muted); border: 1px solid var(--border-light);">
+              <strong style="color: var(--brand-navy); display: block; margin-bottom: 0.4rem;">09. Citations, Treaties & Academic Bibliography:</strong>
+              ${writing.sources}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    } else {
+      bodyHtml = `
+        <div style="line-height: 1.75; font-size: 1rem; color: var(--text-body);">
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">01. Introduction</h4>
+          <p style="margin-bottom: 1rem;">${writing.intro || ''}</p>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">02. Historical & Diplomatic Background</h4>
+          <p style="margin-bottom: 1rem;">${writing.background || ''}</p>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">03. Core Affirmative Arguments</h4>
+          <ul style="margin: 0 0 1rem 1.5rem;">
+            ${(writing.keyArguments || []).map(arg => `<li style="margin-bottom: 0.4rem;">${arg}</li>`).join('')}
+          </ul>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">04. Counterarguments & Sovereign Concerns</h4>
+          <ul style="margin: 0 0 1rem 1.5rem;">
+            ${(writing.counterarguments || []).map(arg => `<li style="margin-bottom: 0.4rem;">${arg}</li>`).join('')}
+          </ul>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">05. Evidence & Case Studies</h4>
+          <p style="margin-bottom: 1rem;">${writing.evidence || ''}</p>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">06. Discussion Insights</h4>
+          <p style="margin-bottom: 1rem;">${writing.insights || ''}</p>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">07. Scholarly Conclusion</h4>
+          <p style="margin-bottom: 1rem;">${writing.conclusion || ''}</p>
+
+          <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">08. Further Research Questions</h4>
+          <ul style="margin: 0 0 1rem 1.5rem;">
+            ${(writing.furtherQuestions || []).map(q => `<li style="margin-bottom: 0.4rem;">${q}</li>`).join('')}
+          </ul>
+
+          <div style="background: var(--bg-body); padding: 1rem; border-radius: var(--radius-md); margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+            <strong>09. Citations, Treaties & Academic Bibliography:</strong><br>
+            ${writing.sources || 'Global Youth Dialogue Research Archives'}
+          </div>
+        </div>
+      `;
+    }
+
     modalContent.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <span class="badge badge-published">Academic Youth Publication Library</span>
@@ -4568,48 +4653,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <h2 class="serif-text" style="font-size: 2.15rem; color: var(--brand-navy); line-height: 1.25; margin-bottom: 0.85rem;">
           ${writing.title}
         </h2>
-        <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--text-muted); padding-bottom: 1rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1.5rem;">
-          <span><strong>Author:</strong> ${writing.author}</span>
-          <span><strong>Category:</strong> ${writing.categoryName}</span>
-          <span><strong>Date:</strong> ${writing.publicationDate}</span>
+        <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--text-muted); padding-bottom: 1rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <span><strong>Author:</strong> ${writing.author} (${writing.authorRole || 'Presenter'})</span>
+          <span><strong>Category:</strong> ${writing.categoryName || writing.category}</span>
+          <span><strong>Date:</strong> ${writing.publicationDate || 'Recent'}</span>
           <span><strong>Legacy:</strong> Qatar ISDC7 Network</span>
         </div>
 
-      <div style="line-height: 1.75; font-size: 1rem; color: var(--text-body);">
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">01. Introduction</h4>
-        <p style="margin-bottom: 1rem;">${writing.intro}</p>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">02. Historical & Diplomatic Background</h4>
-        <p style="margin-bottom: 1rem;">${writing.background}</p>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">03. Core Affirmative Arguments</h4>
-        <ul style="margin: 0 0 1rem 1.5rem;">
-          ${writing.keyArguments.map(arg => `<li style="margin-bottom: 0.4rem;">${arg}</li>`).join('')}
-        </ul>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">04. Counterarguments & Sovereign Concerns</h4>
-        <ul style="margin: 0 0 1rem 1.5rem;">
-          ${writing.counterarguments.map(arg => `<li style="margin-bottom: 0.4rem;">${arg}</li>`).join('')}
-        </ul>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">05. Evidence & Case Studies</h4>
-        <p style="margin-bottom: 1rem;">${writing.evidence}</p>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">06. Discussion Insights</h4>
-        <p style="margin-bottom: 1rem;">${writing.insights}</p>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">07. Scholarly Conclusion</h4>
-        <p style="margin-bottom: 1rem;">${writing.conclusion}</p>
-
-        <h4 class="serif-text" style="color: var(--brand-navy); margin: 1.25rem 0 0.5rem;">08. Further Research Questions</h4>
-        <ul style="margin: 0 0 1rem 1.5rem;">
-          ${writing.furtherQuestions.map(q => `<li style="margin-bottom: 0.4rem;">${q}</li>`).join('')}
-        </ul>
-
-        <div style="background: var(--bg-body); padding: 1rem; border-radius: var(--radius-md); margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
-          <strong>Citations & Sources:</strong><br>
-          ${writing.sources}
-        </div>
+        ${bodyHtml}
       </div>
     `;
 

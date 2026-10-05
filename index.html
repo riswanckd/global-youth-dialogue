@@ -2554,69 +2554,54 @@
             </div>
 
             <form id="presenterNewWritingForm" onsubmit="window.handlePresenterWritingSubmit(event)">
+              <!-- Academic Title -->
               <div class="form-group">
-                <label class="form-label" for="presNewTitle">Academic Title & Thesis Statement</label>
-                <input type="text" class="form-control" id="presNewTitle" placeholder="e.g. Sovereign AI Infrastructure: National Security Dilemmas and Global Norms" required>
+                <label class="form-label" for="presNewTitle">Academic Title</label>
+                <input type="text" class="form-control" id="presNewTitle" placeholder="e.g. Sovereign Green Hydrogen Infrastructure in West Africa" required>
               </div>
 
+              <!-- Academic Sphere / Category -->
+              <div class="form-group">
+                <label class="form-label" for="presNewCategory">Academic Sphere / Category</label>
+                <select class="form-control" id="presNewCategory" onchange="window.handlePresCategoryChange(this)" required>
+                  <option value="Technology & AI">Technology & AI</option>
+                  <option value="Global Affairs & Geopolitics">Global Affairs & Geopolitics</option>
+                  <option value="Economics & Trade">Economics & Trade</option>
+                  <option value="Environment & Climate Policy">Environment & Climate Policy</option>
+                  <option value="Governance & Human Rights">Governance & Human Rights</option>
+                  <option value="Education & Youth Development">Education & Youth Development</option>
+                  <option value="Other">+ Other (Add New Category)</option>
+                </select>
+                <div id="presCustomCategoryWrap" style="display: none; margin-top: 0.5rem;">
+                  <input type="text" class="form-control" id="presCustomCategory" placeholder="Enter custom category name (e.g. Space Diplomacy, Bioethics...)">
+                </div>
+              </div>
+
+              <!-- Author Attribution & Author Name -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label" for="presNewCategory">Academic Sphere / Category</label>
-                  <select class="form-control" id="presNewCategory" required>
-                    <option value="tech-ai">Technology & AI</option>
-                    <option value="geopolitics">Global Affairs & Geopolitics</option>
-                    <option value="economy">Economics & Trade</option>
-                    <option value="environment">Environment & Climate Policy</option>
-                    <option value="governance">Governance & Human Rights</option>
-                    <option value="education">Education & Youth Development</option>
-                  </select>
+                  <label class="form-label" for="presNewAuthorRole">Author Attribution</label>
+                  <input type="text" class="form-control" id="presNewAuthorRole" placeholder="e.g. Accredited Presenter & Research Fellow" value="Accredited Presenter" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="presNewAuthorRole">Author Attribution</label>
-                  <input type="text" class="form-control" id="presNewAuthorRole" placeholder="Accredited Presenter & Research Fellow" value="Accredited Presenter" required>
+                  <label class="form-label" for="presNewAuthorName">Author Name</label>
+                  <input type="text" class="form-control" id="presNewAuthorName" placeholder="Full Author Name" required>
                 </div>
               </div>
 
+              <!-- Excerpt of article -->
               <div class="form-group">
-                <label class="form-label" for="presNewIntro">01. Abstract & Core Issue Statement</label>
-                <textarea class="form-control" id="presNewIntro" rows="3" placeholder="Contextualize the core international dispute, stakes, and the thesis you defend..." required></textarea>
+                <label class="form-label" for="presNewExcerpt">Excerpt of Article</label>
+                <textarea class="form-control" id="presNewExcerpt" rows="3" placeholder="Brief abstract or excerpt summarizing the article's core thesis..." required></textarea>
               </div>
 
+              <!-- Total content of article -->
               <div class="form-group">
-                <label class="form-label" for="presNewBackground">02. Historical & Diplomatic Background</label>
-                <textarea class="form-control" id="presNewBackground" rows="3" placeholder="Historical context, institutional precedents, treaties, or geopolitical background..." required></textarea>
+                <label class="form-label" for="presNewTotalContent">Total Content of Article</label>
+                <textarea class="form-control" id="presNewTotalContent" rows="10" placeholder="Full text and total content of your academic article, comprehensive arguments, and analysis..." required style="min-height: 200px; font-family: inherit; line-height: 1.65;"></textarea>
               </div>
 
-              <div class="form-group">
-                <label class="form-label" for="presNewKeyArgs">03. Key Affirmative Arguments (One per line)</label>
-                <textarea class="form-control" id="presNewKeyArgs" rows="3" placeholder="Argument 1&#10;Argument 2&#10;Argument 3" required></textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="presNewCounterArgs">04. Counterarguments & Critical Constraints (One per line)</label>
-                <textarea class="form-control" id="presNewCounterArgs" rows="3" placeholder="Counterargument 1&#10;Counterargument 2" required></textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="presNewEvidence">05. Empirical Evidence & Case Studies Cited</label>
-                <textarea class="form-control" id="presNewEvidence" rows="2" placeholder="Empirical data, national statutes, economic statistics, and treaty precedents..." required></textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="presNewInsights">06. Discussion Insights & Policy Recommendations</label>
-                <textarea class="form-control" id="presNewInsights" rows="2" placeholder="Actionable policy takeaways for youth delegates and global institutions..." required></textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="presNewConclusion">07. Scholarly Conclusion</label>
-                <textarea class="form-control" id="presNewConclusion" rows="2" placeholder="Synthesize findings and final outlook..." required></textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="presNewFurtherQuestions">08. Unresolved Questions for Future Working Groups</label>
-                <textarea class="form-control" id="presNewFurtherQuestions" rows="2" placeholder="Questions remaining for subsequent youth assemblies..."></textarea>
-              </div>
-
+              <!-- 09. Citations, Treaties & Academic Bibliography -->
               <div class="form-group">
                 <label class="form-label" for="presNewSources">09. Citations, Treaties & Academic Bibliography</label>
                 <input type="text" class="form-control" id="presNewSources" placeholder="e.g. UN Charter Art. 51, OECD (2024), World Bank Development Report...">
