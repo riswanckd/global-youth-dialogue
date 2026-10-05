@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('authModalClose')?.addEventListener('click', () => closeModal('authModal'));
+  document.getElementById('signupModalClose')?.addEventListener('click', () => closeModal('signupModal'));
   document.getElementById('applyModalClose')?.addEventListener('click', () => closeModal('applyModal'));
   document.getElementById('sessionDetailClose')?.addEventListener('click', () => closeModal('sessionDetailModal'));
   document.getElementById('writingReaderClose')?.addEventListener('click', () => closeModal('writingReaderModal'));
@@ -472,24 +473,219 @@ document.addEventListener('DOMContentLoaded', () => {
     openModal('applyModal');
   });
 
-  // Real Login Form Handler
+  // -------------------------------------------------------------------------
+  // 3-OPTION ROLE SELECTOR (Member, Presenter, Admin)
+  // -------------------------------------------------------------------------
+  document.querySelectorAll('input[name="authPortalRole"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      document.querySelectorAll('.role-select-card').forEach(card => {
+        card.classList.remove('active');
+        card.style.border = '1.5px solid var(--border-color)';
+        card.style.background = 'var(--bg-surface)';
+      });
+      const selectedVal = e.target.value;
+      const card = e.target.closest('.role-select-card');
+      if (card) {
+        card.classList.add('active');
+        if (selectedVal === 'member') {
+          card.style.border = '2px solid var(--brand-green)';
+          card.style.background = 'rgba(5, 150, 105, 0.08)';
+        } else if (selectedVal === 'presenter') {
+          card.style.border = '2px solid var(--accent-gold)';
+          card.style.background = 'rgba(184, 142, 62, 0.08)';
+        } else if (selectedVal === 'admin') {
+          card.style.border = '2px solid var(--brand-navy)';
+          card.style.background = 'rgba(15, 43, 72, 0.08)';
+        }
+      }
+      const errAlert = document.getElementById('authErrorAlert');
+      if (errAlert) errAlert.style.display = 'none';
+    });
+  });
+
+  // Real Login Form Handler with Strict Role & Portal Gatekeeping
   document.getElementById('loginForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
+    const selectedPortal = document.querySelector('input[name="authPortalRole"]:checked')?.value || 'member';
+    const errAlert = document.getElementById('authErrorAlert');
 
-    const result = authService.login(email, password);
+    if (errAlert) errAlert.style.display = 'none';
+
+    const result = authService.loginWithRole(email, password, selectedPortal);
     if (result.success) {
       closeModal('authModal');
-      if (result.user.role === 'Coordinator') {
+      if (selectedPortal === 'admin') {
         navigateToPortal('coordinator');
+        showToast(`Welcome back, ${result.user.name}! Opened Admin Workspace.`, 'success');
+      } else if (selectedPortal === 'presenter') {
+        navigateToPortal('presenter');
+        showToast(`Welcome back, ${result.user.name}! Opened Presenter Portal.`, 'success');
       } else {
         navigateToPortal('member');
+        showToast(`Welcome back, ${result.user.name}! Opened Member Dashboard.`, 'success');
       }
-      showToast(`Welcome back, ${result.user.name}!`, 'success');
     } else {
+      if (errAlert) {
+        errAlert.textContent = result.message;
+        errAlert.style.display = 'block';
+      }
       showToast(result.message, 'error');
     }
+  });
+
+  // -------------------------------------------------------------------------
+  // SIGN UP & OTP REGISTRATION FLOW (AFTER ADMIN APPROVAL)
+  // -------------------------------------------------------------------------
+  let currentSignupData = null;
+
+  function openSignupModal(pending) {
+    const fNameInput = document.getElementById('signupFirstName');
+    const lNameInput = document.getElementById('signupLastName');
+    const countryInput = document.getElementById('signupCountry');
+    const emailInput = document.getElementById('signupEmail');
+    const passInput = document.getElementById('signupPassword');
+    const confirmInput = document.getElementById('signupConfirmPassword');
+    const errorAlert = document.getElementById('signupErrorAlert');
+
+    if (fNameInput) fNameInput.value = pending.firstName || (pending.name ? pending.name.split(' ')[0] : '');
+    if (lNameInput) lNameInput.value = pending.lastName || (pending.name ? pending.name.split(' ').slice(1).join(' ') : '');
+    if (countryInput) countryInput.value = pending.country || '';
+    if (emailInput) emailInput.value = pending.email || '';
+    if (passInput) passInput.value = '';
+    if (confirmInput) confirmInput.value = '';
+    if (errorAlert) errorAlert.style.display = 'none';
+
+    const step1 = document.getElementById('signupDetailsForm');
+    const step2 = document.getElementById('signupOtpStep');
+    if (step1) step1.style.display = 'block';
+    if (step2) step2.style.display = 'none';
+
+    openModal('signupModal');
+    showToast('Your membership application was approved! Please set your custom password.', 'success');
+  }
+
+  function checkApprovedVisitorRedirect() {
+    if (authService.isLoggedIn()) return;
+    const pending = authService.checkApprovedApplicant();
+    if (pending) {
+      setTimeout(() => {
+        openSignupModal(pending);
+      }, 500);
+    }
+  }
+
+  window.openSignupModal = openSignupModal;
+  window.checkApprovedVisitorRedirect = checkApprovedVisitorRedirect;
+
+  // Step 1: Submit Details & Custom Password
+  document.getElementById('signupDetailsForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const firstName = document.getElementById('signupFirstName').value.trim();
+    const lastName = document.getElementById('signupLastName').value.trim();
+    const country = document.getElementById('signupCountry').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirmPassword').value;
+    const errorAlert = document.getElementById('signupErrorAlert');
+
+    if (password.length < 6) {
+      if (errorAlert) {
+        errorAlert.textContent = 'Password must be at least 6 characters long.';
+        errorAlert.style.display = 'block';
+      }
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      if (errorAlert) {
+        errorAlert.textContent = 'Passwords do not match. Please re-enter.';
+        errorAlert.style.display = 'block';
+      }
+      return;
+    }
+
+    if (errorAlert) errorAlert.style.display = 'none';
+
+    currentSignupData = { firstName, lastName, country, email, password };
+
+    // Generate simulated OTP
+    const code = authService.generateOTP(email);
+    const recipientEl = document.getElementById('otpRecipientEmail');
+    const codeEl = document.getElementById('simulatedOtpDisplay');
+    const inputEl = document.getElementById('signupOtpInput');
+
+    if (recipientEl) recipientEl.textContent = email;
+    if (codeEl) codeEl.textContent = code;
+    if (inputEl) inputEl.value = '';
+
+    // Switch to Step 2
+    document.getElementById('signupDetailsForm').style.display = 'none';
+    document.getElementById('signupOtpStep').style.display = 'block';
+    if (inputEl) inputEl.focus();
+
+    showToast(`Verification code generated: ${code}`, 'normal');
+  });
+
+  // Back button to details step
+  document.getElementById('signupOtpBackBtn')?.addEventListener('click', () => {
+    document.getElementById('signupOtpStep').style.display = 'none';
+    document.getElementById('signupDetailsForm').style.display = 'block';
+  });
+
+  // Resend OTP button
+  document.getElementById('signupOtpResendBtn')?.addEventListener('click', () => {
+    if (!currentSignupData || !currentSignupData.email) return;
+    const code = authService.generateOTP(currentSignupData.email);
+    const codeEl = document.getElementById('simulatedOtpDisplay');
+    if (codeEl) codeEl.textContent = code;
+    showToast(`New verification code sent: ${code}`, 'success');
+  });
+
+  // Step 2: OTP Verification & Final Registration
+  document.getElementById('signupOtpForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!currentSignupData) return;
+
+    const enteredCode = document.getElementById('signupOtpInput').value.trim();
+    const otpErrAlert = document.getElementById('otpErrorAlert');
+    if (otpErrAlert) otpErrAlert.style.display = 'none';
+
+    const verifyRes = authService.verifyOTP(currentSignupData.email, enteredCode);
+    if (!verifyRes.valid) {
+      if (otpErrAlert) {
+        otpErrAlert.textContent = verifyRes.message || 'Invalid verification code.';
+        otpErrAlert.style.display = 'block';
+      }
+      showToast(verifyRes.message || 'Invalid verification code.', 'error');
+      return;
+    }
+
+    // Register active Member in dataService
+    const newUser = dataService.registerUserFromSignup(currentSignupData);
+    closeModal('signupModal');
+
+    showToast(`Membership activated for ${newUser.name}! Please sign in as Member with your email and password.`, 'success');
+
+    // Automatically open Sign In modal with Member pre-selected and email filled in
+    setTimeout(() => {
+      openModal('authModal');
+      const memberRadio = document.querySelector('input[name="authPortalRole"][value="member"]');
+      if (memberRadio) {
+        memberRadio.checked = true;
+        memberRadio.dispatchEvent(new Event('change'));
+      }
+      const emailInput = document.getElementById('loginEmail');
+      if (emailInput) {
+        emailInput.value = newUser.email;
+      }
+      const passInput = document.getElementById('loginPassword');
+      if (passInput) {
+        passInput.value = '';
+        passInput.focus();
+      }
+    }, 450);
   });
 
   // Membership Application Form Handler
@@ -4228,9 +4424,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.approveApp = function(appId) {
-    const newUser = dataService.approveApplication(appId);
-    if (newUser) {
-      showToast(`Approved ${newUser.name}! User account created with role "Member".`, 'success');
+    const app = dataService.approveApplication(appId);
+    if (app) {
+      showToast(`Approved ${app.name}! When they open the site, they will be automatically redirected to sign up and verify OTP.`, 'success');
       renderCoordinatorPortal();
     }
   };
@@ -4244,7 +4440,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.approvePresenterApp = function(appId) {
     const res = dataService.approvePresenterApplication(appId);
     if (res && res.app) {
-      showToast(`Accredited ${res.app.name} as Official Presenter! Presenter Portal access granted.`, 'success');
+      showToast(`Accredited ${res.app.name} as Official Presenter! They can now sign in to the Presenter Portal with their same email and password.`, 'success');
       if (typeof renderCoordinatorPortal === 'function') renderCoordinatorPortal();
       if (typeof updateMemberPresenterButtonState === 'function') updateMemberPresenterButtonState();
     }
@@ -5044,4 +5240,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderAll();
+
+  // Check if visitor has an approved application awaiting sign-up & OTP
+  checkApprovedVisitorRedirect();
 });

@@ -5017,5 +5017,23 @@ body.rtl-mode .topic-bank-card-title-ar {
   flex-shrink: 0;
 }
 
+/* Authentication Role Selector Cards */
+.role-select-card {
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
 
+.role-select-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
 
+.role-select-card input[type="radio"] {
+  cursor: pointer;
+}
+
+#signupOtpInput:focus {
+  border-color: var(--brand-green);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18);
+}

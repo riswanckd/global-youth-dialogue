@@ -2544,6 +2544,12 @@ class DataService {
     };
     this.db.applications.unshift(newApp);
     this.saveDatabase();
+
+    // Remember the applied email on this browser
+    try {
+      localStorage.setItem('gyd_applied_email', appData.email);
+    } catch (e) {}
+
     return newApp;
   }
 
@@ -2551,24 +2557,55 @@ class DataService {
     const app = this.db.applications.find(a => a.id === appId);
     if (!app) return null;
 
-    app.status = 'Approved';
+    app.status = 'Approved - Awaiting Registration';
 
-    // Create user account from application
+    // Store pending registration so when the applicant visits or opens the site, they get redirected to sign-up
+    if (window.GYD_AUTH && typeof window.GYD_AUTH.setPendingRegistration === 'function') {
+      window.GYD_AUTH.setPendingRegistration(app);
+    }
+
+    this.saveDatabase();
+    return app;
+  }
+
+  registerUserFromSignup(userData) {
+    const { firstName, lastName, country, email, password } = userData;
+    const fullName = `${(firstName || '').trim()} ${(lastName || '').trim()}`.trim();
+
+    // Check if user already exists
+    let existingIndex = this.db.users.findIndex(u => u.email && u.email.toLowerCase() === email.toLowerCase());
     const newUser = {
       id: 'usr_' + Date.now().toString(36),
-      name: app.name,
-      email: app.email,
-      password: 'password123',
+      name: fullName,
+      email: email.toLowerCase(),
+      password: password,
       role: 'Member',
-      country: app.country,
-      flag: app.flag,
-      bio: app.motivation.substring(0, 120),
-      interests: app.interests,
+      country: country || 'Global',
+      flag: 'INT',
+      bio: 'Verified Member of Global Youth Dialogue.',
+      interests: ['Global Affairs'],
       status: 'active',
       joinedDate: new Date().toISOString().split('T')[0]
     };
 
-    this.db.users.push(newUser);
+    if (existingIndex >= 0) {
+      this.db.users[existingIndex] = { ...this.db.users[existingIndex], ...newUser, id: this.db.users[existingIndex].id };
+    } else {
+      this.db.users.push(newUser);
+    }
+
+    // Update application status to 'Registered'
+    const app = this.db.applications.find(a => a.email && a.email.toLowerCase() === email.toLowerCase());
+    if (app) {
+      app.status = 'Registered';
+    }
+
+    // Clean up applied email & pending registration
+    try {
+      localStorage.removeItem('gyd_applied_email');
+      localStorage.removeItem('gyd_pending_registration');
+    } catch (e) {}
+
     this.saveDatabase();
     return newUser;
   }
