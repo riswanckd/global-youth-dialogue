@@ -822,12 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const footerTag = isAr ? 'محور نقاش شبابي عالمي' : 'Global Youth Focus';
       const arrow = isAr ? '←' : '→';
 
-      const subtopicsHtml = subTopicsList.length ? `
-        <div class="category-subtopics">
-          ${subTopicsList.map(st => `<span class="subtopic-tag">${st}</span>`).join('')}
-        </div>
-      ` : '';
-
       return `
         <div class="category-card">
           <div class="category-header">
@@ -836,7 +830,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <h4 class="serif-text">${catTitle}</h4>
           <p>${catDesc}</p>
-          ${subtopicsHtml}
           <div class="category-footer">
             <span>${footerTag}</span>
             <span>${arrow}</span>
@@ -902,12 +895,158 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    // Update Green "Be a Presenter" Menu Button State
+    updateMemberPresenterButtonState();
+
     // Bind Member Navigation
     bindMemberNavigation();
 
     // Render active member subview
     switchMemberSubview(currentMemberSubview);
   }
+
+  function updateMemberPresenterButtonState() {
+    const btn = document.getElementById('btnMemberBePresenter');
+    const textEl = document.getElementById('memberPresenterMenuText');
+    if (!btn || !textEl) return;
+
+    const user = authService.getCurrentUser();
+    if (!user) return;
+
+    if (user.role === 'Presenter' || user.role === 'Speaker') {
+      textEl.textContent = '🎤 Presenter Portal →';
+      btn.className = 'btn-be-presenter status-approved';
+      btn.title = 'You are an accredited Presenter. Click to open Presenter Portal.';
+      return;
+    }
+
+    const app = dataService.getMemberPresenterApplication(user.id, user.email);
+    if (app && app.status === 'Approved') {
+      textEl.textContent = '🎤 Presenter Portal →';
+      btn.className = 'btn-be-presenter status-approved';
+      btn.title = 'Presenter Accreditation Approved! Click to open Presenter Portal.';
+    } else if (app && app.status === 'Pending') {
+      textEl.textContent = '⏳ Presenter Pending';
+      btn.className = 'btn-be-presenter status-pending';
+      btn.title = 'Your application to become a Presenter is under review by coordinators.';
+    } else {
+      textEl.textContent = '🎤 Be a Presenter';
+      btn.className = 'btn-be-presenter';
+      btn.title = 'Apply to become an accredited official Presenter';
+    }
+  }
+
+  window.handlePresenterMenuClick = function() {
+    const user = authService.getCurrentUser();
+    if (!user) {
+      navigateToPortal('signin');
+      return;
+    }
+
+    if (user.role === 'Presenter' || user.role === 'Speaker') {
+      navigateToPortal('presenter');
+      return;
+    }
+
+    const app = dataService.getMemberPresenterApplication(user.id, user.email);
+    if (app && app.status === 'Approved') {
+      user.role = 'Presenter';
+      authService.saveSession(user);
+      navigateToPortal('presenter');
+      return;
+    }
+
+    if (app && app.status === 'Pending') {
+      showToast(`Your Presenter application ("${app.proposedTopic}") is currently pending review by the Academic Secretariat.`, 'normal');
+      return;
+    }
+
+    window.openPresenterApplicationModal();
+  };
+
+  window.openPresenterApplicationModal = function() {
+    const user = authService.getCurrentUser();
+    if (!user) {
+      showToast('Please sign in to apply.', 'error');
+      navigateToPortal('signin');
+      return;
+    }
+
+    const nameInput = document.getElementById('presAppName');
+    const emailInput = document.getElementById('presAppEmail');
+    const countryInput = document.getElementById('presAppCountry');
+    const sphereSelect = document.getElementById('presAppSphere');
+
+    if (nameInput) nameInput.value = user.name || '';
+    if (emailInput) emailInput.value = user.email || '';
+    if (countryInput) countryInput.value = `${user.country || 'Global'} Delegation`;
+
+    if (sphereSelect && sphereSelect.options.length === 0) {
+      dataService.getCategories().forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = `${cat.name}`;
+        sphereSelect.appendChild(opt);
+      });
+    }
+
+    const modal = document.getElementById('modalApplyPresenter');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  window.closePresenterApplicationModal = function() {
+    const modal = document.getElementById('modalApplyPresenter');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  };
+
+  window.handlePresenterApplicationSubmit = function(e) {
+    if (e) e.preventDefault();
+    const user = authService.getCurrentUser();
+    if (!user) return;
+
+    const country = document.getElementById('presAppCountry')?.value.trim() || user.country;
+    const sphere = document.getElementById('presAppSphere')?.value || 'global-affairs';
+    const topic = document.getElementById('presAppTopic')?.value.trim();
+    const experience = document.getElementById('presAppExperience')?.value.trim();
+    const dossierUrl = document.getElementById('presAppDossierUrl')?.value.trim() || '';
+    const format = document.getElementById('presAppFormat')?.value || '15-min Keynote Briefing';
+    const motivation = document.getElementById('presAppMotivation')?.value.trim();
+
+    if (!topic || !experience || !motivation) {
+      showToast('Please complete all required fields.', 'error');
+      return;
+    }
+
+    dataService.addPresenterApplication({
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      country: country,
+      flag: user.flag,
+      primarySpheres: [sphere],
+      proposedTopic: topic,
+      researchExperience: experience,
+      dossierUrl: dossierUrl,
+      preferredFormat: format,
+      statementOfIntent: motivation
+    });
+
+    window.closePresenterApplicationModal();
+    updateMemberPresenterButtonState();
+    showToast('🎉 Presenter Application submitted! The Academic Secretariat will review your accreditation.', 'success');
+
+    if (typeof renderCoordApplicationsList === 'function') {
+      renderCoordApplicationsList();
+    }
+  };
 
   function bindMemberNavigation() {
     // Desktop sidebar buttons
@@ -3159,14 +3298,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Subview: Coordinator Applications ---
   function renderCoordApplicationsList() {
+    const presListEl = document.getElementById('coordPresenterApplicationsList');
+    const presBadge = document.getElementById('coordPresenterAppsCount');
     const pendingListEl = document.getElementById('coordFullApplicationsList');
     const approvedListEl = document.getElementById('coordApprovedMembersList');
     const allApps = dataService.getApplications();
     const pendingApps = allApps.filter(a => a.status === 'Pending');
     const users = dataService.getUsers();
 
+    // 1. Presenter Applications Queue
+    const allPresApps = dataService.getPresenterApplications();
+    const pendingPresApps = allPresApps.filter(a => a.status === 'Pending');
+
+    if (presBadge) {
+      presBadge.textContent = `${pendingPresApps.length} Pending`;
+    }
+
+    if (presListEl) {
+      if (pendingPresApps.length === 0) {
+        presListEl.innerHTML = `<div style="color: var(--text-muted); padding: 0.8rem 0; font-size: 0.9rem;">No pending presenter accreditation requests in the queue.</div>`;
+      } else {
+        presListEl.innerHTML = pendingPresApps.map(app => `
+          <div class="application-item" style="border-inline-start: 4px solid #059669; background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1rem; border: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+            <div class="app-meta" style="flex: 1; min-width: 280px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                <span class="flag-icon-wrap">${icons.getFlag(app.country, app.flag)}</span>
+                <strong style="font-size: 1.05rem; color: var(--brand-navy);">${app.name}</strong>
+                <span style="color: var(--text-muted); font-size: 0.88rem;">(${app.country})</span>
+                <span class="badge" style="background: rgba(5, 150, 105, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(5, 150, 105, 0.3);">Presenter Applicant</span>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.6rem;">
+                <span>${app.email}</span> • <span>Applied: ${app.date}</span> • <span>Preferred Format: ${app.preferredFormat || '15-min Keynote'}</span>
+              </div>
+              <div style="background: var(--bg-subtle); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 0.6rem;">
+                <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Proposed Topic & Dilemma:</span>
+                <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">"${app.proposedTopic}"</div>
+              </div>
+              <p class="app-motivation" style="font-size: 0.88rem; margin: 0.4rem 0; color: var(--text-secondary); line-height: 1.5;">
+                <strong style="color: var(--text-primary);">Academic Intent:</strong> "${app.statementOfIntent}"
+              </p>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">
+                <strong style="color: var(--text-primary);">Speaking/Debate Experience:</strong> ${app.researchExperience}
+              </div>
+              ${app.dossierUrl ? `
+                <div style="margin-top: 0.6rem;">
+                  <a href="${app.dossierUrl}" target="_blank" class="btn btn-subtle btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; padding: 0.25rem 0.6rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Inspect Research Dossier / Slides</span>
+                  </a>
+                </div>
+              ` : ''}
+            </div>
+            <div class="app-actions" style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; min-width: 180px;">
+              <button class="btn btn-primary btn-sm" onclick="window.approvePresenterApp('${app.id}')" style="background: #059669; border-color: #059669; width: 100%; justify-content: center; gap: 0.4rem;">
+                ${icons.check} Approve Presenter
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="window.rejectPresenterApp('${app.id}')" style="width: 100%; justify-content: center; gap: 0.4rem;">
+                ${icons.x} Decline
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 2. Member Applications Queue
     if (pendingApps.length === 0) {
-      pendingListEl.innerHTML = `<div style="color: var(--text-muted); padding: 1rem 0;">No pending applications in the queue.</div>`;
+      pendingListEl.innerHTML = `<div style="color: var(--text-muted); padding: 1rem 0;">No pending member applications in the queue.</div>`;
     } else {
       pendingListEl.innerHTML = pendingApps.map(app => `
         <div class="application-item">
@@ -3192,7 +3390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div>
           <strong>${u.name}</strong> (${u.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${u.email}</span>
         </div>
-        <span class="badge badge-approved">${u.role}</span>
+        <span class="badge ${u.role === 'Presenter' ? 'badge-approved' : 'badge-approved'}" style="${u.role === 'Presenter' ? 'background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3);' : ''}">${u.role}</span>
       </div>
     `).join('');
   }
@@ -3429,6 +3627,24 @@ document.addEventListener('DOMContentLoaded', () => {
     dataService.rejectApplication(appId);
     showToast('Application declined.', 'normal');
     renderCoordinatorPortal();
+  };
+
+  window.approvePresenterApp = function(appId) {
+    const res = dataService.approvePresenterApplication(appId);
+    if (res && res.app) {
+      showToast(`Accredited ${res.app.name} as Official Presenter! Presenter Portal access granted.`, 'success');
+      if (typeof renderCoordinatorPortal === 'function') renderCoordinatorPortal();
+      if (typeof updateMemberPresenterButtonState === 'function') updateMemberPresenterButtonState();
+    }
+  };
+
+  window.rejectPresenterApp = function(appId) {
+    const res = dataService.rejectPresenterApplication(appId);
+    if (res) {
+      showToast('Presenter application declined.', 'normal');
+      if (typeof renderCoordinatorPortal === 'function') renderCoordinatorPortal();
+      if (typeof updateMemberPresenterButtonState === 'function') updateMemberPresenterButtonState();
+    }
   };
 
   // =========================================================================

@@ -1621,6 +1621,25 @@ const INITIAL_DATABASE = {
     }
   ],
 
+  presenterApplications: [
+    {
+      id: 'papp_01',
+      userId: 'usr_mem_3',
+      name: 'Zaid Al-Harbi',
+      email: 'zaid.harbi@gyd.org',
+      country: 'Jordan',
+      flag: 'JO',
+      primarySpheres: ['Education', 'Environment'],
+      proposedTopic: 'Decentralized Micro-Grids and Youth Solar Literacy in the Levant',
+      researchExperience: 'Presented youth white paper at Amman Regional Youth Climate Summit; 3 years debating in Arab Youth League.',
+      dossierUrl: 'https://gyd.org/dossiers/zaid-microgrids.pdf',
+      preferredFormat: '20-min Lead Lecture + Q&A',
+      statementOfIntent: 'I wish to deliver an evidence-based academic briefing and lead delegate deliberations on sovereign energy autonomy in the Arab world.',
+      status: 'Pending',
+      date: '2024-09-28'
+    }
+  ],
+
   announcements: [
     {
       id: 'ann_01',
@@ -2077,6 +2096,9 @@ class DataService {
         if (!parsed.presentations || !parsed.presentations.length) {
           parsed.presentations = JSON.parse(JSON.stringify(INITIAL_DATABASE.presentations || []));
         }
+        if (!parsed.presenterApplications || !parsed.presenterApplications.length) {
+          parsed.presenterApplications = JSON.parse(JSON.stringify(INITIAL_DATABASE.presenterApplications || []));
+        }
         if (parsed.users && !parsed.users.some(u => u.email === 'presenter@gyd.org')) {
           const presUser = INITIAL_DATABASE.users.find(u => u.email === 'presenter@gyd.org');
           if (presUser) parsed.users.unshift(presUser);
@@ -2441,6 +2463,108 @@ class DataService {
       return app;
     }
     return null;
+  }
+
+  // Presenter Application Operations
+  getPresenterApplications() {
+    if (!this.db.presenterApplications) this.db.presenterApplications = [];
+    return this.db.presenterApplications;
+  }
+
+  addPresenterApplication(appData) {
+    if (!this.db.presenterApplications) this.db.presenterApplications = [];
+    const newApp = {
+      id: 'papp_' + Date.now().toString(36),
+      userId: appData.userId || null,
+      name: appData.name,
+      email: appData.email,
+      country: appData.country || 'Global',
+      flag: appData.flag || 'INT',
+      primarySpheres: appData.primarySpheres || [],
+      proposedTopic: appData.proposedTopic || 'Academic Research Briefing',
+      researchExperience: appData.researchExperience || '',
+      dossierUrl: appData.dossierUrl || '',
+      preferredFormat: appData.preferredFormat || '15-min Keynote Briefing',
+      statementOfIntent: appData.statementOfIntent || '',
+      status: 'Pending',
+      date: new Date().toISOString().split('T')[0]
+    };
+    this.db.presenterApplications.unshift(newApp);
+
+    // Also add a notification for coordinators
+    if (this.db.notifications) {
+      this.db.notifications.unshift({
+        id: 'notif_' + Date.now().toString(36),
+        title: '🎤 New Presenter Application',
+        message: `${newApp.name} (${newApp.country}) has applied for Official Presenter accreditation: "${newApp.proposedTopic}".`,
+        type: 'topic',
+        read: false,
+        time: 'Just now',
+        targetView: 'applications',
+        targetId: newApp.id
+      });
+    }
+
+    this.saveDatabase();
+    return newApp;
+  }
+
+  approvePresenterApplication(appId) {
+    if (!this.db.presenterApplications) this.db.presenterApplications = [];
+    const app = this.db.presenterApplications.find(a => a.id === appId);
+    if (!app) return null;
+
+    app.status = 'Approved';
+
+    // Upgrade member's role to Presenter
+    let user = this.db.users.find(u => (app.userId && u.id === app.userId) || (app.email && u.email.toLowerCase() === app.email.toLowerCase()));
+    if (user) {
+      user.role = 'Presenter';
+    }
+
+    // Sync active session if currently logged in user is the applicant
+    if (window.GYD_AUTH && typeof window.GYD_AUTH.getCurrentUser === 'function') {
+      const activeUser = window.GYD_AUTH.getCurrentUser();
+      if (activeUser && (activeUser.id === app.userId || activeUser.email.toLowerCase() === app.email.toLowerCase())) {
+        activeUser.role = 'Presenter';
+        window.GYD_AUTH.saveSession(activeUser);
+      }
+    }
+
+    // Add celebration notification
+    if (this.db.notifications) {
+      this.db.notifications.unshift({
+        id: 'notif_' + Date.now().toString(36),
+        title: '🎉 Presenter Accreditation Approved',
+        message: `Congratulations ${app.name}! You are now an official accredited GYD Presenter with full access to the Presenter Portal.`,
+        type: 'topic',
+        read: false,
+        time: 'Just now',
+        targetView: 'present',
+        targetId: null
+      });
+    }
+
+    this.saveDatabase();
+    return { app, user };
+  }
+
+  rejectPresenterApplication(appId) {
+    if (!this.db.presenterApplications) this.db.presenterApplications = [];
+    const app = this.db.presenterApplications.find(a => a.id === appId);
+    if (app) {
+      app.status = 'Rejected';
+      this.saveDatabase();
+      return app;
+    }
+    return null;
+  }
+
+  getMemberPresenterApplication(userId, email) {
+    if (!this.db.presenterApplications) return null;
+    return this.db.presenterApplications.find(a => 
+      (userId && a.userId === userId) || (email && a.email && a.email.toLowerCase() === email.toLowerCase())
+    ) || null;
   }
 
   // Announcements
