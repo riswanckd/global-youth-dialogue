@@ -857,32 +857,27 @@
           Select your role, then enter your credentials. Each portal has strict access controls &mdash; only approved users may enter their designated workspace.
         </p>
 
-        <!-- Role Selector (3 radio cards) -->
-        <div id="roleSelector" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-bottom: 1.5rem;">
-          <label class="role-option-card" id="roleCardMember" for="roleRadioMember">
-            <input type="radio" name="signinRole" id="roleRadioMember" value="member" checked style="display:none;">
-            <span class="role-option-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            </span>
-            <span class="role-option-label">Member</span>
-            <span class="role-option-check" id="roleCheckMember">&#x2713;</span>
+        <!-- 3-Button Segmented Role Tab Switcher (Member | Presenter | Admin) -->
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <span>Sign In As:</span>
+            <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">Select Target Portal</span>
           </label>
-          <label class="role-option-card" id="roleCardPresenter" for="roleRadioPresenter">
-            <input type="radio" name="signinRole" id="roleRadioPresenter" value="presenter" style="display:none;">
-            <span class="role-option-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
-            </span>
-            <span class="role-option-label">Presenter</span>
-            <span class="role-option-check" id="roleCheckPresenter" style="opacity:0;">&#x2713;</span>
-          </label>
-          <label class="role-option-card" id="roleCardAdmin" for="roleRadioAdmin">
-            <input type="radio" name="signinRole" id="roleRadioAdmin" value="admin" style="display:none;">
-            <span class="role-option-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            </span>
-            <span class="role-option-label">Admin</span>
-            <span class="role-option-check" id="roleCheckAdmin" style="opacity:0;">&#x2713;</span>
-          </label>
+          <div class="role-segmented-switcher" id="pageRoleSegmentedSwitcher" role="tablist">
+            <button type="button" class="role-segmented-tab tab-member active" data-role="member" role="tab" aria-selected="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Member</span>
+            </button>
+            <button type="button" class="role-segmented-tab tab-presenter" data-role="presenter" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+              <span>Presenter</span>
+            </button>
+            <button type="button" class="role-segmented-tab tab-admin" data-role="admin" role="tab" aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>Admin</span>
+            </button>
+          </div>
+          <input type="hidden" name="signinRole" id="unifiedRoleInput" value="member">
         </div>
 
         <!-- Credentials Form -->
@@ -3561,29 +3556,27 @@
       <h3 class="modal-title serif-text" data-i18n="navLogin">Sign In</h3>
       <p class="modal-subtitle" data-i18n="authPageDesc">Select your target portal and enter your credentials.</p>
 
-      <!-- Role Selection Options (Member, Presenter, Admin) -->
+      <!-- 3-Button Segmented Role Tab Switcher (Member | Presenter | Admin) -->
       <div class="form-group" style="margin-bottom: 1.25rem;">
         <label class="form-label" style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
           <span>Sign In As:</span>
           <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">Select Target Portal</span>
         </label>
-        <div class="role-selector-group" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
-          <label class="role-select-card active" id="roleCardMember" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.4rem; border: 2px solid var(--brand-green); background: rgba(5, 150, 105, 0.08); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-            <input type="radio" name="authPortalRole" value="member" checked style="margin-bottom: 0.35rem; accent-color: var(--brand-green);">
-            <span style="font-size: 0.92rem; font-weight: 700; color: var(--brand-navy);">Member</span>
-            <span style="font-size: 0.74rem; color: var(--text-muted);">Dashboard</span>
-          </label>
-          <label class="role-select-card" id="roleCardPresenter" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.4rem; border: 1.5px solid var(--border-color); background: var(--bg-surface); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-            <input type="radio" name="authPortalRole" value="presenter" style="margin-bottom: 0.35rem; accent-color: var(--accent-gold);">
-            <span style="font-size: 0.92rem; font-weight: 700; color: var(--brand-navy);">Presenter</span>
-            <span style="font-size: 0.74rem; color: var(--text-muted);">Portal</span>
-          </label>
-          <label class="role-select-card" id="roleCardAdmin" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.4rem; border: 1.5px solid var(--border-color); background: var(--bg-surface); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-            <input type="radio" name="authPortalRole" value="admin" style="margin-bottom: 0.35rem; accent-color: var(--brand-navy);">
-            <span style="font-size: 0.92rem; font-weight: 700; color: var(--brand-navy);">Admin</span>
-            <span style="font-size: 0.74rem; color: var(--text-muted);">Workspace</span>
-          </label>
+        <div class="role-segmented-switcher" id="modalRoleSegmentedSwitcher" role="tablist">
+          <button type="button" class="role-segmented-tab tab-member active" data-role="member" role="tab" aria-selected="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Member</span>
+          </button>
+          <button type="button" class="role-segmented-tab tab-presenter" data-role="presenter" role="tab" aria-selected="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+            <span>Presenter</span>
+          </button>
+          <button type="button" class="role-segmented-tab tab-admin" data-role="admin" role="tab" aria-selected="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Admin</span>
+          </button>
         </div>
+        <input type="hidden" name="authPortalRole" id="modalPortalRoleInput" value="member">
       </div>
 
       <!-- Error Alert Message Box -->

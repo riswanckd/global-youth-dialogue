@@ -386,25 +386,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Unified Sign In Form Handler (Auto-detects Member vs Admin)
+  // Unified Sign In Form Handler with Strict Role & Portal Gatekeeping
   document.getElementById('unifiedLoginForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('unifiedEmail').value.trim();
     const password = document.getElementById('unifiedPassword').value.trim();
+    const selectedPortal = document.getElementById('unifiedRoleInput')?.value || 'member';
+    const errEl = document.getElementById('signinErrorMsg');
+    if (errEl) errEl.style.display = 'none';
 
-    const result = authService.login(email, password);
+    const result = authService.loginWithRole(email, password, selectedPortal);
     if (result.success) {
-      if (result.user.role === 'Coordinator') {
+      if (selectedPortal === 'admin') {
         navigateToPortal('coordinator');
-        showToast(`Identified as Admin / Coordinator. Welcome, ${result.user.name}!`, 'success');
-      } else if (result.user.role === 'Presenter' || result.user.role === 'Speaker') {
+        showToast(`Welcome back, ${result.user.name}! Opened Admin Workspace.`, 'success');
+      } else if (selectedPortal === 'presenter') {
         navigateToPortal('presenter');
-        showToast(`Identified as Presenter / Keynote Fellow. Welcome, ${result.user.name}!`, 'success');
+        showToast(`Welcome back, ${result.user.name}! Opened Presenter Portal.`, 'success');
       } else {
         navigateToPortal('member');
-        showToast(`Identified as Member / Participant. Welcome, ${result.user.name}!`, 'success');
+        showToast(`Welcome back, ${result.user.name}! Opened Member Dashboard.`, 'success');
       }
     } else {
+      if (errEl) {
+        errEl.textContent = result.message;
+        errEl.style.display = 'block';
+      }
       showToast(result.message, 'error');
     }
   });
@@ -474,41 +481,37 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 3-OPTION ROLE SELECTOR (Member, Presenter, Admin)
+  // 3-BUTTON SEGMENTED ROLE TAB SWITCHER (Member | Presenter | Admin)
   // -------------------------------------------------------------------------
-  document.querySelectorAll('input[name="authPortalRole"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      document.querySelectorAll('.role-select-card').forEach(card => {
-        card.classList.remove('active');
-        card.style.border = '1.5px solid var(--border-color)';
-        card.style.background = 'var(--bg-surface)';
+  document.querySelectorAll('.role-segmented-switcher').forEach(switcher => {
+    switcher.addEventListener('click', (e) => {
+      const btn = e.target.closest('.role-segmented-tab');
+      if (!btn) return;
+      switcher.querySelectorAll('.role-segmented-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
       });
-      const selectedVal = e.target.value;
-      const card = e.target.closest('.role-select-card');
-      if (card) {
-        card.classList.add('active');
-        if (selectedVal === 'member') {
-          card.style.border = '2px solid var(--brand-green)';
-          card.style.background = 'rgba(5, 150, 105, 0.08)';
-        } else if (selectedVal === 'presenter') {
-          card.style.border = '2px solid var(--accent-gold)';
-          card.style.background = 'rgba(184, 142, 62, 0.08)';
-        } else if (selectedVal === 'admin') {
-          card.style.border = '2px solid var(--brand-navy)';
-          card.style.background = 'rgba(15, 43, 72, 0.08)';
-        }
-      }
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const role = btn.getAttribute('data-role');
+      const hiddenInput = switcher.parentElement.querySelector('input[type="hidden"]');
+      if (hiddenInput) hiddenInput.value = role;
+
       const errAlert = document.getElementById('authErrorAlert');
       if (errAlert) errAlert.style.display = 'none';
+      const pageErr = document.getElementById('signinErrorMsg');
+      if (pageErr) pageErr.style.display = 'none';
     });
   });
 
-  // Real Login Form Handler with Strict Role & Portal Gatekeeping
+  // Modal Login Form Handler with Strict Role & Portal Gatekeeping
   document.getElementById('loginForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
-    const selectedPortal = document.querySelector('input[name="authPortalRole"]:checked')?.value || 'member';
+    const selectedPortal = document.getElementById('modalPortalRoleInput')?.value ||
+                           document.querySelector('input[name="authPortalRole"]:checked')?.value ||
+                           'member';
     const errAlert = document.getElementById('authErrorAlert');
 
     if (errAlert) errAlert.style.display = 'none';
