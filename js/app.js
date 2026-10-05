@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
+      modal.style.display = 'flex';
+      modal.offsetHeight; // force reflow
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
@@ -52,9 +54,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
+      setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+          modal.style.display = 'none';
+        }
+      }, 250);
       document.body.style.overflow = '';
     }
   }
+
+  window.openModal = openModal;
+  window.closeModal = closeModal;
 
   // Modal event listeners
   document.getElementById('headerLoginBtn')?.addEventListener('click', () => openModal('authModal'));
@@ -1169,6 +1179,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dashSuggest) {
       dashSuggest.onclick = () => {
         switchMemberSubview('topics');
+        setTimeout(() => {
+          const bankSelect = document.getElementById('propTopicBankSelect');
+          if (bankSelect) {
+            bankSelect.value = 'others';
+            if (typeof handleTopicBankSelectionChange === 'function') handleTopicBankSelectionChange();
+          }
+          const formEl = document.getElementById('memberTopicForm');
+          if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
       };
     }
 
@@ -1177,6 +1196,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bankSuggest) {
       bankSuggest.onclick = () => {
         switchMemberSubview('topics');
+        setTimeout(() => {
+          const bankSelect = document.getElementById('propTopicBankSelect');
+          if (bankSelect) {
+            bankSelect.value = 'others';
+            if (typeof handleTopicBankSelectionChange === 'function') handleTopicBankSelectionChange();
+          }
+          const formEl = document.getElementById('memberTopicForm');
+          if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
       };
     }
   }
@@ -1230,6 +1258,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.scrollTo(0, 0);
   }
+  window.switchMemberSubview = switchMemberSubview;
 
   // --- Subview: Member Dashboard Content ---
   function renderMemberDashboardContent() {
@@ -2013,7 +2042,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openCoordAddTopicBankModal = function() {
     const modal = document.getElementById('modalCoordAddTopicBank');
     const catSelect = document.getElementById('tbNewCategory');
-    if (catSelect && catSelect.options.length === 0) {
+    if (catSelect) {
+      catSelect.innerHTML = '';
       dataService.getCategories().forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat.id;
@@ -2025,6 +2055,11 @@ document.addEventListener('DOMContentLoaded', () => {
       modal.style.display = 'flex';
       modal.offsetHeight; // reflow
       modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        const titleInput = document.getElementById('tbNewTitle');
+        if (titleInput) titleInput.focus();
+      }, 50);
     }
   };
 
@@ -2034,30 +2069,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) {
       modal.classList.remove('active');
       setTimeout(() => {
-        modal.style.display = 'none';
-      }, 200);
+        if (!modal.classList.contains('active')) {
+          modal.style.display = 'none';
+        }
+      }, 250);
     }
+    document.body.style.overflow = '';
     if (form) form.reset();
   };
 
   window.handleCoordAddTopicBankSubmit = function(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const title = document.getElementById('tbNewTitle').value.trim();
-    const titleAr = document.getElementById('tbNewTitleAr').value.trim();
-    const category = document.getElementById('tbNewCategory').value;
-    const format = document.getElementById('tbNewFormat').value;
-    const description = document.getElementById('tbNewDescription').value.trim();
-    const rawSubtopics = document.getElementById('tbNewSubtopics').value.trim();
+    const title = document.getElementById('tbNewTitle')?.value.trim();
+    const titleAr = document.getElementById('tbNewTitleAr')?.value.trim() || '';
+    const category = document.getElementById('tbNewCategory')?.value;
+    const format = document.getElementById('tbNewFormat')?.value || 'Discussion & Debate';
+    const description = document.getElementById('tbNewDescription')?.value.trim();
+    const rawSubtopics = document.getElementById('tbNewSubtopics')?.value.trim() || '';
 
     if (!title) {
       showToast('Please provide a topic title.', 'warning');
       return;
     }
+    if (!description) {
+      showToast('Please provide an academic description for this topic.', 'warning');
+      return;
+    }
 
     const subtopics = rawSubtopics
-      .split(/[\n,]+/)
-      .map(s => s.replace(/^Subtopic\s*\d*:\s*/i, '').trim())
-      .filter(s => s.length > 0);
+      ? rawSubtopics
+        .split(/[\n,]+/)
+        .map(s => s.replace(/^Subtopic\s*\d*:\s*/i, '').trim())
+        .filter(s => s.length > 0)
+      : [];
 
     const newEntry = dataService.addTopicToBank({
       title,
@@ -2070,9 +2114,24 @@ document.addEventListener('DOMContentLoaded', () => {
       addedBy: 'Secretariat Direct Add'
     });
 
+    // Also register in topics pipeline
+    dataService.addTopic({
+      title,
+      category,
+      motion: `This House would prioritize action on: ${title}`,
+      format,
+      description,
+      subtopic: subtopics.length > 0 ? subtopics[0] : 'Academic Overview',
+      isCustom: true,
+      bankId: newEntry.id,
+      proposedBy: 'Secretariat Direct Add',
+      status: 'Approved'
+    });
+
     showToast(`New topic "${newEntry.title}" saved to the Topic Bank!`, 'success');
     window.closeCoordAddTopicBankModal();
     if (typeof renderCoordTopicBank === 'function') renderCoordTopicBank();
+    if (typeof renderCoordTopicsList === 'function') renderCoordTopicsList();
     if (typeof renderMemberTopicBank === 'function') renderMemberTopicBank();
     if (typeof renderPresenterTopicBank === 'function') renderPresenterTopicBank();
     if (typeof populateTopicBankDropdown === 'function') populateTopicBankDropdown();
@@ -2175,6 +2234,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.scrollTo(0, 0);
   }
+  window.switchPresenterSubview = switchPresenterSubview;
 
   // Subview: Presenter Dashboard
   function renderPresenterDashboardContent() {
@@ -2859,7 +2919,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (quickNewSession) quickNewSession.onclick = () => switchCoordSubview('sessions');
 
     const quickNewTopic = document.getElementById('coordQuickNewTopicBtn');
-    if (quickNewTopic) quickNewTopic.onclick = () => switchCoordSubview('topics');
+    if (quickNewTopic) {
+      quickNewTopic.onclick = () => {
+        switchCoordSubview('topic-bank');
+        setTimeout(() => {
+          window.openCoordAddTopicBankModal();
+        }, 80);
+      };
+    }
   }
 
   function switchCoordSubview(targetName) {
@@ -2909,6 +2976,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.scrollTo(0, 0);
   }
+  window.switchCoordSubview = switchCoordSubview;
 
   // --- Subview: Coordinator Dashboard ---
   function renderCoordDashboardContent() {
@@ -3038,21 +3106,12 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTopicFilters();
 
     // Add Topic Modal Button
-    document.getElementById('coordAddTopicModalBtn').onclick = () => {
-      const title = prompt('Enter Topic Title:');
-      if (!title) return;
-      const motion = prompt('Enter Parliamentary Motion (This House would...):') || '';
-
-      dataService.addTopic({
-        title,
-        motion,
-        category: 'global-affairs',
-        status: 'Approved',
-        proposedBy: 'Secretariat Direct Add'
-      });
-      showToast('New topic added to approved repository!', 'success');
-      renderCoordTopicsList();
-    };
+    const addTopicBtn = document.getElementById('coordAddTopicModalBtn');
+    if (addTopicBtn) {
+      addTopicBtn.onclick = () => {
+        window.openCoordAddTopicBankModal();
+      };
+    }
   }
 
   // --- Subview: Coordinator Academic Topic Bank Repository ---
@@ -3178,64 +3237,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function bindCoordAddTopicBankModal() {
     const addBtn = document.getElementById('coordAddBankTopicBtn');
-    const modal = document.getElementById('modalCoordAddTopicBank');
     const closeBtn = document.getElementById('closeModalCoordAddTopicBank');
     const cancelBtn = document.getElementById('cancelCoordAddTopicBank');
-    const catSelect = document.getElementById('tbNewCategory');
     const form = document.getElementById('coordAddTopicBankForm');
 
-    if (addBtn && modal) {
-      addBtn.onclick = () => {
-        if (catSelect && catSelect.options.length === 0) {
-          dataService.getCategories().forEach(cat => {
-            const opt = document.createElement('option');
-            opt.value = cat.id;
-            opt.textContent = cat.name;
-            catSelect.appendChild(opt);
-          });
-        }
-        modal.style.display = 'flex';
-      };
+    if (addBtn) {
+      addBtn.onclick = () => window.openCoordAddTopicBankModal();
     }
 
-    const closeModal = () => {
-      if (modal) modal.style.display = 'none';
-      if (form) form.reset();
-    };
-
-    if (closeBtn) closeBtn.onclick = closeModal;
-    if (cancelBtn) cancelBtn.onclick = closeModal;
+    if (closeBtn) closeBtn.onclick = () => window.closeCoordAddTopicBankModal();
+    if (cancelBtn) cancelBtn.onclick = () => window.closeCoordAddTopicBankModal();
 
     if (form) {
-      form.onsubmit = (e) => {
-        e.preventDefault();
-        const title = document.getElementById('tbNewTitle').value.trim();
-        const titleAr = document.getElementById('tbNewTitleAr').value.trim();
-        const category = document.getElementById('tbNewCategory').value;
-        const format = document.getElementById('tbNewFormat').value;
-        const description = document.getElementById('tbNewDescription').value.trim();
-        const rawSubtopics = document.getElementById('tbNewSubtopics').value.trim();
-
-        const subtopics = rawSubtopics
-          .split(/[\n,]+/)
-          .map(s => s.replace(/^Subtopic\s*\d*:\s*/i, '').trim())
-          .filter(s => s.length > 0);
-
-        const newEntry = dataService.addTopicToBank({
-          title,
-          titleAr,
-          category,
-          recommendedFormats: [format],
-          description,
-          subtopics,
-          isCustom: true,
-          addedBy: 'Secretariat Direct Add'
-        });
-
-        showToast(`New topic "${newEntry.title}" saved to the Topic Bank!`, 'success');
-        closeModal();
-        renderCoordTopicBank();
-      };
+      form.onsubmit = window.handleCoordAddTopicBankSubmit;
     }
   }
 
