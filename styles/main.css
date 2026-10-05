@@ -4820,6 +4820,13 @@ body.rtl-mode .topic-bank-card-title-ar {
   text-decoration: none;
 }
 
+.btn-be-presenter.btn-sm {
+  width: auto;
+  padding: 0.38rem 0.85rem;
+  font-size: 0.82rem;
+  border-radius: var(--radius-md);
+}
+
 .btn-be-presenter:hover {
   background: #047857;
   transform: translateY(-1px);

@@ -999,31 +999,108 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateMemberPresenterButtonState() {
     const btn = document.getElementById('btnMemberBePresenter');
     const textEl = document.getElementById('memberPresenterMenuText');
-    if (!btn || !textEl) return;
+    const headerBtn = document.getElementById('dashHeaderBePresenterBtn');
+    const headerText = document.getElementById('dashHeaderPresenterText');
+    const qaTitle = document.getElementById('qaPresenterTitle');
+    const mobileText = document.getElementById('mobileTabPresenterText');
+    const bannerEl = document.getElementById('memberPresenterAccreditationBanner');
 
     const user = authService.getCurrentUser();
     if (!user) return;
 
-    if (user.role === 'Presenter' || user.role === 'Speaker') {
-      textEl.textContent = '🎤 Presenter Portal →';
-      btn.className = 'btn-be-presenter status-approved';
-      btn.title = 'You are an accredited Presenter. Click to open Presenter Portal.';
-      return;
-    }
-
+    const isAccredited = user.role === 'Presenter' || user.role === 'Speaker';
     const app = dataService.getMemberPresenterApplication(user.id, user.email);
-    if (app && app.status === 'Approved') {
-      textEl.textContent = '🎤 Presenter Portal →';
-      btn.className = 'btn-be-presenter status-approved';
-      btn.title = 'Presenter Accreditation Approved! Click to open Presenter Portal.';
-    } else if (app && app.status === 'Pending') {
-      textEl.textContent = '⏳ Presenter Pending';
-      btn.className = 'btn-be-presenter status-pending';
-      btn.title = 'Your application to become a Presenter is under review by coordinators.';
+    const isApproved = isAccredited || (app && app.status === 'Approved');
+    const isPending = !isApproved && (app && app.status === 'Pending');
+
+    if (isApproved) {
+      if (textEl) textEl.textContent = '🎤 Presenter Portal →';
+      if (btn) {
+        btn.className = 'btn-be-presenter status-approved';
+        btn.title = 'You are an accredited Official Presenter. Click to open Presenter Portal.';
+      }
+      if (headerText) headerText.textContent = 'Presenter Portal →';
+      if (headerBtn) {
+        headerBtn.className = 'btn btn-sm btn-be-presenter status-approved';
+        headerBtn.title = 'Open Presenter Portal';
+      }
+      if (qaTitle) qaTitle.textContent = 'Presenter Portal →';
+      if (mobileText) mobileText.textContent = 'Presenter';
+      if (bannerEl) {
+        bannerEl.innerHTML = `
+          <div class="card-panel" style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(9, 29, 44, 0.04) 100%); border: 1px solid rgba(5, 150, 105, 0.35); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);">🎤</div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <strong style="color: #059669; font-size: 1rem;">Official Accredited Presenter</strong>
+                  <span class="badge" style="background: rgba(5, 150, 105, 0.2); color: #059669; font-size: 0.72rem; padding: 2px 7px;">Active Access</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">You have full presenter rights to propose session topics, attach keynote research decks, and take the stage.</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.handlePresenterMenuClick()">
+              Open Presenter Portal →
+            </button>
+          </div>
+        `;
+      }
+    } else if (isPending) {
+      if (textEl) textEl.textContent = '⏳ Request Pending';
+      if (btn) {
+        btn.className = 'btn-be-presenter status-pending';
+        btn.title = 'Your Presenter application is under review by coordinators.';
+      }
+      if (headerText) headerText.textContent = 'Request Pending';
+      if (headerBtn) {
+        headerBtn.className = 'btn btn-sm btn-be-presenter status-pending';
+        headerBtn.title = 'Presenter application pending review';
+      }
+      if (qaTitle) qaTitle.textContent = 'Request Pending';
+      if (mobileText) mobileText.textContent = 'Pending';
+      if (bannerEl) {
+        bannerEl.innerHTML = `
+          <div class="card-panel" style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.35); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #d97706; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);">⏳</div>
+              <div>
+                <strong style="color: #b45309; font-size: 1rem;">Presenter Request Under Review</strong>
+                <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">Your application for topic <em>"${app.proposedTopic || 'Academic Research Briefing'}"</em> is currently with the Academic Secretariat. You will receive Presenter Portal access upon coordinator approval.</p>
+              </div>
+            </div>
+            <span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 700; padding: 0.4rem 0.85rem; font-size: 0.82rem; border-radius: 999px;">Pending Admin Approval</span>
+          </div>
+        `;
+      }
     } else {
-      textEl.textContent = '🎤 Be a Presenter';
-      btn.className = 'btn-be-presenter';
-      btn.title = 'Apply to become an accredited official Presenter';
+      if (textEl) textEl.textContent = '🎤 Request to be Presenter';
+      if (btn) {
+        btn.className = 'btn-be-presenter';
+        btn.title = 'Apply to become an accredited official Presenter';
+      }
+      if (headerText) headerText.textContent = 'Request to be Presenter';
+      if (headerBtn) {
+        headerBtn.className = 'btn btn-sm btn-be-presenter';
+        headerBtn.title = 'Apply to become an accredited official Presenter';
+      }
+      if (qaTitle) qaTitle.textContent = 'Request to be Presenter';
+      if (mobileText) mobileText.textContent = 'Be Presenter';
+      if (bannerEl) {
+        bannerEl.innerHTML = `
+          <div class="card-panel" style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(9, 29, 44, 0.03) 100%); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">🎤</div>
+              <div>
+                <strong style="color: #059669; font-size: 1rem;">Ready to Lead Dialogue as an Official Presenter?</strong>
+                <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">Deliver 10–30 min research briefings, present keynote topics, and lead international debates. Submit your request for coordinator approval to unlock the Presenter Portal.</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.handlePresenterMenuClick()">
+              🎤 Request to be Presenter
+            </button>
+          </div>
+        `;
+      }
     }
   }
 
@@ -1262,6 +1339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Subview: Member Dashboard Content ---
   function renderMemberDashboardContent() {
+    updateMemberPresenterButtonState();
     const sessions = dataService.getSessions();
     const nextSession = sessions.find(s => s.status === 'Upcoming') || sessions[0];
     const spotlightEl = document.getElementById('memberNextSessionSpotlight');
@@ -2982,22 +3060,42 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderCoordDashboardContent() {
     const users = dataService.getUsers();
     const apps = dataService.getApplications().filter(a => a.status === 'Pending');
+    const presApps = (dataService.getPresenterApplications ? dataService.getPresenterApplications() : []).filter(a => a.status === 'Pending');
     const topics = dataService.getTopics();
     const writings = dataService.getWritings();
 
-    // Update counters
+    // Update counters (includes both member apps + presenter requests)
     document.getElementById('kpiMembersCount').textContent = users.length;
-    document.getElementById('kpiPendingAppsCount').textContent = apps.length;
+    document.getElementById('kpiPendingAppsCount').textContent = apps.length + presApps.length;
     document.getElementById('kpiTopicsCount').textContent = topics.length;
     document.getElementById('kpiWritingsCount').textContent = writings.length;
 
-    // Pending Apps list
+    // Pending Apps list (Presenter requests highlighted first, followed by member signups)
     const appsList = document.getElementById('coordDashboardAppsList');
-    if (apps.length === 0) {
-      appsList.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 0.5rem 0;">No pending member applications right now.</div>`;
-    } else {
-      appsList.innerHTML = apps.slice(0, 3).map(app => `
-        <div class="application-item">
+    let html = '';
+
+    if (presApps.length > 0) {
+      html += presApps.slice(0, 3).map(pApp => `
+        <div class="application-item" style="border-inline-start: 4px solid #059669; background: rgba(5, 150, 105, 0.05); margin-bottom: 0.65rem; border-radius: var(--radius-md); padding: 0.85rem; border: 1px solid rgba(5, 150, 105, 0.2);">
+          <div class="app-meta">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span class="badge" style="background: #059669; color: #fff; font-size: 0.72rem; padding: 2px 7px; font-weight: 700;">🎤 Presenter Request</span>
+              <strong style="color: var(--brand-navy); font-size: 0.92rem;">${pApp.name} (${pApp.country})</strong>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600;">Proposed: "${pApp.proposedTopic}"</div>
+            <p class="app-motivation" style="font-size: 0.8rem; margin: 0.25rem 0; color: var(--text-body);">"${pApp.statementOfIntent || pApp.researchExperience}"</p>
+          </div>
+          <div class="app-actions" style="margin-top: 0.4rem; display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.approvePresenterApp('${pApp.id}')">${icons.check} Approve Presenter</button>
+            <button class="btn btn-outline btn-sm" onclick="window.rejectPresenterApp('${pApp.id}')">${icons.x} Decline</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (apps.length > 0) {
+      html += apps.slice(0, 3).map(app => `
+        <div class="application-item" style="margin-bottom: 0.65rem;">
           <div class="app-meta">
             <span class="app-name">${app.name} (${app.country})</span>
             <span class="app-sub">${app.debateExperience}</span>
@@ -3010,6 +3108,11 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `).join('');
     }
+
+    if (!html) {
+      html = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 0.5rem 0;">No pending member or presenter applications right now.</div>`;
+    }
+    appsList.innerHTML = html;
 
     // Topics Under Review list
     const reviewTopics = topics.filter(t => t.status === 'Proposed' || t.status === 'Under Review');
