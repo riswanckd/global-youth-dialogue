@@ -645,6 +645,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const speakers = mainSession.speakers || [];
     const moderator = mainSession.moderator;
+    const sesCategory = mainSession.sessionCategory || 'Topic Presentation';
+
+    let catBadgeHtml = '';
+    let categoryFeatureHtml = '';
+
+    if (sesCategory === 'Guest Talk') {
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-guest">🌟 ${isAr ? 'حوار ضيف شرف' : 'Guest Talk'}</span>`;
+      if (mainSession.guestName) {
+        categoryFeatureHtml = `
+          <div class="home-guest-banner">
+            <img src="${mainSession.guestPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80'}" alt="${mainSession.guestName}" class="home-guest-photo">
+            <div class="home-guest-info">
+              <span class="home-guest-badge">🌟 ${isAr ? 'ضيف الشرف الدولي' : 'Distinguished Guest Speaker'}</span>
+              <h4 class="home-guest-name">${mainSession.guestName}</h4>
+              <p class="home-guest-bio">"${mainSession.guestBio || ''}"</p>
+            </div>
+          </div>
+        `;
+      }
+    } else if (sesCategory === 'Debate') {
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-deb">⚖️ ${isAr ? 'مناظرة رسمية' : 'Formal Debate'}</span>`;
+      if (mainSession.debateMotion || mainSession.propositionTeam) {
+        categoryFeatureHtml = `
+          <div class="home-debate-banner">
+            <div class="home-team-tag" style="color: #F8D37E; font-size: 0.78rem;">⚖️ ${isAr ? 'قضية المناظرة الرسمية' : 'Parliamentary Debate Motion'}</div>
+            <div style="font-size: 1.15rem; font-style: italic; color: #FFFFFF; margin: 0.25rem 0 0.75rem 0; font-family: var(--font-serif);">
+              "${mainSession.debateMotion || mainSession.title}"
+            </div>
+            <div class="home-debate-matchup">
+              <div class="home-debate-team-card">
+                <div class="home-team-tag prop">${isAr ? 'فريق الموالاة (الحكومة)' : 'Proposition / Affirmative'}</div>
+                <div class="home-team-names">${mainSession.propositionTeam || 'Delegation Speakers'}</div>
+              </div>
+              <div class="home-debate-team-card">
+                <div class="home-team-tag opp">${isAr ? 'فريق المعارضة' : 'Opposition / Negative'}</div>
+                <div class="home-team-names">${mainSession.oppositionTeam || 'Delegation Speakers'}</div>
+              </div>
+            </div>
+            ${mainSession.adjudicator ? `
+              <div style="margin-top: 0.75rem; font-size: 0.82rem; color: rgba(255,255,255,0.75);">
+                <strong>${isAr ? 'رئيس هيئة التحكيم:' : 'Presiding Adjudicator:'}</strong> ${mainSession.adjudicator.name} (${getCountryLocalized(mainSession.adjudicator.country)})
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+    } else if (sesCategory === 'Diplomatic Roundtable') {
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-round">🏛️ ${isAr ? 'طاولة مستديرة' : 'Diplomatic Roundtable'}</span>`;
+      categoryFeatureHtml = `
+        <div class="home-debate-banner" style="border-inline-start: 4px solid #d97706;">
+          <div class="home-team-tag" style="color: #f59e0b; font-size: 0.78rem;">🏛️ ${isAr ? 'مسودة القرار المطروحة للتفاوض' : 'Working Draft Resolution'}</div>
+          <div style="font-size: 1.15rem; font-style: italic; color: #FFFFFF; margin: 0.25rem 0 0.5rem 0; font-family: var(--font-serif);">
+            "${mainSession.workingDraftTitle || 'Draft Resolution on Multilateral Consensus'}"
+          </div>
+          ${mainSession.roundtableFocus ? `<div style="font-size: 0.88rem; color: rgba(255,255,255,0.85); line-height: 1.5; font-style: italic;">${mainSession.roundtableFocus}</div>` : ''}
+          ${mainSession.roundtableChair ? `
+            <div style="margin-top: 0.65rem; font-size: 0.82rem; color: rgba(255,255,255,0.75);">
+              <strong>${isAr ? 'رئاسة الجلسة المستديرة:' : 'Roundtable Chair:'}</strong> ${mainSession.roundtableChair.name} (${getCountryLocalized(mainSession.roundtableChair.country)})
+            </div>
+          ` : ''}
+        </div>
+      `;
+    } else if (sesCategory === 'Discussions') {
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-disc">💬 ${isAr ? 'حلقة نقاشية' : 'Discussions'}</span>`;
+      if (mainSession.discussionQuestions) {
+        categoryFeatureHtml = `
+          <div class="home-session-motion-box" style="border-inline-start-color: #2563eb;">
+            <div class="home-motion-tag" style="color: #60a5fa;">💬 ${isAr ? 'محاور ونقاط النقاش المفتوح' : 'Core Discussion Inquiries'}</div>
+            <div style="font-size: 0.95rem; color: #f8fafc; line-height: 1.6;">
+              ${mainSession.discussionQuestions}
+            </div>
+          </div>
+        `;
+      }
+    } else {
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-pres">🎤 ${isAr ? 'عرض بحثي' : 'Topic Presentation'}</span>`;
+    }
 
     const moderatorLabel = isAr ? 'إدارة الجلسة:' : 'Session Moderator:';
     const speakersLabel = isAr ? 'المتحدثون الرئيسيون:' : 'Lead Speakers:';
@@ -680,14 +757,18 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="home-session-badge-sep">•</span>
               <span class="home-session-badge-cat">${categoryName}</span>
             </div>
-            <div class="home-session-status-tag">
-              ${icons.video}
-              <span>${statusText}</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              ${catBadgeHtml}
+              <div class="home-session-status-tag">
+                ${icons.video}
+                <span>${statusText}</span>
+              </div>
             </div>
           </div>
 
           <h3 class="home-session-main-title serif-text">${titleText}</h3>
           <p class="home-session-description">${descText}</p>
+          ${categoryFeatureHtml}
 
           <div class="home-session-details-grid">
             <div class="home-session-detail-item">
@@ -1232,6 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderMemberSessionsList() {
     const listEl = document.getElementById('memberSessionsList');
     const catSelect = document.getElementById('memberSessionCategoryFilter');
+    const typeSelect = document.getElementById('memberSessionTypeFilter');
     const statusSelect = document.getElementById('memberSessionStatusFilter');
     const searchInput = document.getElementById('memberSessionSearch');
 
@@ -1249,12 +1331,14 @@ document.addEventListener('DOMContentLoaded', () => {
       let sessions = dataService.getSessions();
       const query = (searchInput?.value || '').toLowerCase();
       const cat = catSelect?.value;
+      const type = typeSelect?.value;
       const status = statusSelect?.value;
 
       if (query) {
         sessions = sessions.filter(s =>
           s.title.toLowerCase().includes(query) ||
           s.categoryName.toLowerCase().includes(query) ||
+          (s.guestName && s.guestName.toLowerCase().includes(query)) ||
           s.countriesRepresented.some(c => c.toLowerCase().includes(query)) ||
           s.moderator.name.toLowerCase().includes(query)
         );
@@ -1262,6 +1346,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (cat && cat !== 'all') {
         sessions = sessions.filter(s => s.category === cat);
+      }
+
+      if (type && type !== 'all') {
+        sessions = sessions.filter(s => s.sessionCategory === type);
       }
 
       if (status && status !== 'all') {
@@ -1275,13 +1363,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
       listEl.innerHTML = sessions.map(s => {
         const isUpcoming = s.status === 'Upcoming';
+        const sesCategory = s.sessionCategory || 'Topic Presentation';
+        
+        let catBadge = '';
+        if (sesCategory === 'Guest Talk') {
+          catBadge = `<span class="badge-session-cat badge-cat-guest">🌟 Guest Talk</span>`;
+        } else if (sesCategory === 'Debate') {
+          catBadge = `<span class="badge-session-cat badge-cat-deb">⚖️ Debate</span>`;
+        } else if (sesCategory === 'Discussions') {
+          catBadge = `<span class="badge-session-cat badge-cat-disc">💬 Discussions</span>`;
+        } else if (sesCategory === 'Diplomatic Roundtable') {
+          catBadge = `<span class="badge-session-cat badge-cat-round">🏛️ Roundtable</span>`;
+        } else {
+          catBadge = `<span class="badge-session-cat badge-cat-pres">🎤 Presentation</span>`;
+        }
+
         return `
           <div class="session-full-card">
             <div class="s-card-top">
-              <span class="badge ${isUpcoming ? 'badge-scheduled' : 'badge-completed'}">${s.status}</span>
+              <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                <span class="badge ${isUpcoming ? 'badge-scheduled' : 'badge-completed'}">${s.status}</span>
+                ${catBadge}
+              </div>
               <span class="badge badge-category">${s.categoryName}</span>
             </div>
-            <h4>Session ${s.sessionNumber.toString().padStart(2, '0')}: ${s.title}</h4>
+            <h4 style="margin: 0.6rem 0;">Session ${s.sessionNumber.toString().padStart(2, '0')}: ${s.title}</h4>
+            
+            ${s.sessionCategory === 'Guest Talk' && s.guestName ? `
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; padding: 0.6rem 0.85rem; background: rgba(147, 51, 234, 0.05); border: 1px solid rgba(147, 51, 234, 0.2); border-radius: var(--radius-sm);">
+                <img src="${s.guestPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80'}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent-gold); flex-shrink:0;">
+                <div>
+                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">${s.guestName}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.3;">${s.guestBio ? s.guestBio.substring(0, 75) + '...' : 'Distinguished Guest Speaker'}</div>
+                </div>
+              </div>
+            ` : ''}
+
+            ${s.sessionCategory === 'Debate' && s.debateMotion ? `
+              <div style="margin-bottom: 0.75rem; padding: 0.6rem 0.85rem; background: rgba(220, 38, 38, 0.04); border: 1px solid rgba(220, 38, 38, 0.15); border-radius: var(--radius-sm); font-size: 0.82rem;">
+                <div style="font-weight: 700; color: #dc2626; font-size: 0.72rem; text-transform: uppercase;">Motion:</div>
+                <div style="font-style: italic; color: var(--text-primary); font-weight: 600;">"${s.debateMotion}"</div>
+                <div style="margin-top: 0.35rem; color: var(--text-muted); font-size: 0.78rem;">
+                  <strong>Prop:</strong> ${s.propositionTeam || 'Affirmative'} • <strong>Opp:</strong> ${s.oppositionTeam || 'Negative'}
+                </div>
+              </div>
+            ` : ''}
+
+            ${s.sessionCategory === 'Diplomatic Roundtable' && s.workingDraftTitle ? `
+              <div style="margin-bottom: 0.75rem; padding: 0.6rem 0.85rem; background: rgba(217, 119, 6, 0.05); border: 1px solid rgba(217, 119, 6, 0.2); border-radius: var(--radius-sm); font-size: 0.82rem;">
+                <div style="font-weight: 700; color: #d97706; font-size: 0.72rem; text-transform: uppercase;">Working Resolution:</div>
+                <div style="font-style: italic; color: var(--brand-navy); font-weight: 600;">"${s.workingDraftTitle}"</div>
+              </div>
+            ` : ''}
+
             <div class="s-meta-list">
               <span style="display:inline-flex; align-items:center; gap:4px;">${icons.calendar} ${s.date}</span>
               <span style="display:inline-flex; align-items:center; gap:4px;">${icons.clock} ${s.time}</span>
@@ -1317,9 +1451,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }).join('');
     }
 
-    searchInput.oninput = applyFilters;
-    catSelect.onchange = applyFilters;
-    statusSelect.onchange = applyFilters;
+    if (searchInput) searchInput.oninput = applyFilters;
+    if (catSelect) catSelect.onchange = applyFilters;
+    if (typeSelect) typeSelect.onchange = applyFilters;
+    if (statusSelect) statusSelect.onchange = applyFilters;
     applyFilters();
   }
 
@@ -3135,9 +3270,216 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // --- Subview: Coordinator Session Creation ---
+  function renderCoordSessionDynamicFields(category) {
+    const container = document.getElementById('csDynamicCategoryFields');
+    const badge = document.getElementById('csCategoryBadge');
+    if (!container) return;
+
+    const users = dataService.getUsers();
+    const presenters = users.filter(u => u.role === 'Presenter' || u.role === 'Speaker');
+    const allUsersOptions = users.map(u => `<option value="${u.name}">${u.name} (${u.country}) - ${u.role}</option>`).join('');
+    const presenterOptions = (presenters.length > 0 ? presenters : users).map(u => `<option value="${u.name}">${u.name} (${u.country}) - Accredited Presenter</option>`).join('');
+
+    if (category === 'Topic Presentation') {
+      if (badge) {
+        badge.textContent = '🎤 Topic Presentation';
+        badge.style.background = 'rgba(5, 150, 105, 0.12)';
+        badge.style.color = '#059669';
+        badge.style.borderColor = 'rgba(5, 150, 105, 0.3)';
+      }
+      container.innerHTML = `
+        <div style="font-weight: 600; color: #059669; font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+          Topic Presentation Configuration (Presenter & Moderator)
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="csPresenterSelect">Accredited Presenter *</label>
+            <select class="form-control" id="csPresenterSelect" required>
+              ${presenterOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="csPresenterModerator">Session Moderator *</label>
+            <select class="form-control" id="csPresenterModerator" required>
+              ${allUsersOptions}
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="csPresentationPaperUrl">Slide Deck / Research Dossier Link (Optional)</label>
+          <input type="url" class="form-control" id="csPresentationPaperUrl" placeholder="https://docs.google.com/presentation/d/... or research link">
+        </div>
+      `;
+    } else if (category === 'Discussions') {
+      if (badge) {
+        badge.textContent = '💬 Discussions';
+        badge.style.background = 'rgba(37, 99, 235, 0.12)';
+        badge.style.color = '#2563eb';
+        badge.style.borderColor = 'rgba(37, 99, 235, 0.3)';
+      }
+      container.innerHTML = `
+        <div style="font-weight: 600; color: #2563eb; font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Discussions Configuration (Moderator & Key Speakers)
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="csDiscussionModerator">Session Moderator *</label>
+            <select class="form-control" id="csDiscussionModerator" required>
+              ${allUsersOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="csKeySpeakers">Key Speakers (If any, comma-separated)</label>
+            <input type="text" class="form-control" id="csKeySpeakers" placeholder="e.g. Amara Chen (Singapore), Kofi Mensah (Ghana)">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="csDiscussionQuestions">Discussion Prompts & Provocations</label>
+          <textarea class="form-control" id="csDiscussionQuestions" rows="2" placeholder="e.g. 1. What structural barriers hinder reform? 2. How can youth delegates bridge policy divides?"></textarea>
+        </div>
+      `;
+    } else if (category === 'Guest Talk') {
+      if (badge) {
+        badge.textContent = '🌟 Guest Talk';
+        badge.style.background = 'rgba(147, 51, 234, 0.12)';
+        badge.style.color = '#9333ea';
+        badge.style.borderColor = 'rgba(147, 51, 234, 0.3)';
+      }
+      container.innerHTML = `
+        <div style="font-weight: 600; color: #9333ea; font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Distinguished Guest Talk Configuration (Photo, Name & Bio)
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="csGuestName">Guest Speaker Full Name & Honorific *</label>
+            <input type="text" class="form-control" id="csGuestName" placeholder="e.g. Ambassador Dr. Tariq Karim" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="csGuestHost">Session Host / Introductory Moderator *</label>
+            <select class="form-control" id="csGuestHost" required>
+              ${allUsersOptions}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Upload Image of Guest (Portrait / Photo) *</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Instant preview supported</span>
+          </label>
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <div id="csGuestPhotoPreviewWrap" style="width: 72px; height: 72px; border-radius: 50%; overflow: hidden; background: #e2e8f0; border: 2.5px solid #9333ea; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+              <img id="csGuestPhotoPreview" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80" alt="Guest Preview" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 0.4rem;">
+              <input type="file" class="form-control" id="csGuestPhotoFile" accept="image/*" style="padding: 0.35rem; font-size: 0.85rem;">
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" class="form-control" id="csGuestPhotoUrl" placeholder="Or paste direct image URL (https://...)" value="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80" style="font-size: 0.82rem; padding: 0.35rem 0.6rem;">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="csGuestBio">Guest Personal Biography & Background *</label>
+          <textarea class="form-control" id="csGuestBio" rows="3" placeholder="Short personal bio, credentials, institutional affiliations, and notable publications..." required>Distinguished Diplomat in Residence, Former Permanent Representative to the UN and Senior Advisor on International Mediation.</textarea>
+        </div>
+      `;
+
+      // Bind file reader and preview
+      const fileInput = document.getElementById('csGuestPhotoFile');
+      const urlInput = document.getElementById('csGuestPhotoUrl');
+      const previewImg = document.getElementById('csGuestPhotoPreview');
+
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              if (previewImg) previewImg.src = evt.target.result;
+              if (urlInput) urlInput.value = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+      if (urlInput) {
+        urlInput.addEventListener('input', () => {
+          if (previewImg && urlInput.value.trim()) {
+            previewImg.src = urlInput.value.trim();
+          }
+        });
+      }
+    } else if (category === 'Diplomatic Roundtable') {
+      if (badge) {
+        badge.textContent = '🏛️ Diplomatic Roundtable';
+        badge.style.background = 'rgba(217, 119, 6, 0.12)';
+        badge.style.color = '#d97706';
+        badge.style.borderColor = 'rgba(217, 119, 6, 0.3)';
+      }
+      container.innerHTML = `
+        <div style="font-weight: 600; color: #d97706; font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Diplomatic Roundtable & Policy Simulation Configuration (Chair & Working Draft)
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="csRoundtableChair">Roundtable Chair / Presiding Officer *</label>
+            <select class="form-control" id="csRoundtableChair" required>
+              ${allUsersOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="csWorkingDraftTitle">Working Resolution / Policy Draft Title</label>
+            <input type="text" class="form-control" id="csWorkingDraftTitle" placeholder="e.g. Draft Resolution on Transboundary Water Sovereignty">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="csRoundtableFocus">Roundtable Diplomatic Simulation Focus</label>
+          <textarea class="form-control" id="csRoundtableFocus" rows="2" placeholder="Describe the simulation stakes, regional bloc dynamics, and consensus-building targets..."></textarea>
+        </div>
+      `;
+    } else if (category === 'Debate') {
+      if (badge) {
+        badge.textContent = '⚖️ Debate';
+        badge.style.background = 'rgba(220, 38, 38, 0.12)';
+        badge.style.color = '#dc2626';
+        badge.style.borderColor = 'rgba(220, 38, 38, 0.3)';
+      }
+      container.innerHTML = `
+        <div style="font-weight: 600; color: #dc2626; font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg>
+          Formal Debate Configuration (Proposition, Opposition & Adjudicator)
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="csDebateMotion">Formal Debate Motion / Resolution (This House...)</label>
+          <input type="text" class="form-control" id="csDebateMotion" placeholder="e.g. This House Would Ban All State-Sponsored Lethal Autonomous AI Weapons">
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="csPropositionTeam">Proposition / Affirmative Team (Speakers & Country) *</label>
+            <input type="text" class="form-control" id="csPropositionTeam" placeholder="e.g. Tariq Al-Mansoor (Qatar), Lucas Silva (Brazil)" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="csOppositionTeam">Opposition / Negative Team (Speakers & Country) *</label>
+            <input type="text" class="form-control" id="csOppositionTeam" placeholder="e.g. Elena Rostova (United Kingdom), Kofi Mensah (Ghana)" required>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="csAdjudicator">Presiding Adjudicator / Speaker of the House *</label>
+          <select class="form-control" id="csAdjudicator" required>
+            ${allUsersOptions}
+          </select>
+        </div>
+      `;
+    }
+  }
+
   function prepareCoordSessionForm() {
     const topicSelect = document.getElementById('csTopicSelect');
-    const modSelect = document.getElementById('csModerator');
+    const categorySelect = document.getElementById('csSessionCategory');
     const approvedTopics = dataService.getTopics().filter(t => t.status === 'Approved' || t.status === 'Proposed' || t.status === 'Scheduled');
     const users = dataService.getUsers();
 
@@ -3147,68 +3489,154 @@ document.addEventListener('DOMContentLoaded', () => {
       `).join('');
     }
 
-    if (modSelect) {
-      modSelect.innerHTML = users.map(u => `
-        <option value="${u.name}">${u.name} (${u.country})</option>
-      `).join('');
-    }
-
     // Set default date to 2 weeks from now
     const nextDate = new Date();
     nextDate.setDate(nextDate.getDate() + 14);
     const dateInput = document.getElementById('csDate');
     if (dateInput) dateInput.value = nextDate.toISOString().split('T')[0];
 
+    // Initial dynamic fields render
+    const initialCategory = categorySelect ? categorySelect.value : 'Topic Presentation';
+    renderCoordSessionDynamicFields(initialCategory);
+
+    if (categorySelect) {
+      categorySelect.onchange = () => {
+        renderCoordSessionDynamicFields(categorySelect.value);
+      };
+    }
+
     const form = document.getElementById('coordCreateSessionForm');
-    form.onsubmit = (e) => {
-      e.preventDefault();
-      const topicId = topicSelect.value;
-      const title = document.getElementById('csTitle').value.trim();
-      const date = document.getElementById('csDate').value;
-      const time = document.getElementById('csTime').value;
-      const format = document.getElementById('csFormat').value;
-      const duration = document.getElementById('csDuration').value;
-      const modName = modSelect.value;
-      const modUser = users.find(u => u.name === modName) || { name: modName, country: 'International', flag: 'INT' };
-      const speakersText = document.getElementById('csSpeakers').value;
-      const countriesText = document.getElementById('csCountries').value;
-      const desc = document.getElementById('csDesc').value;
-      const meetingLink = document.getElementById('csMeetingLink').value;
-      const recordingUrl = document.getElementById('csRecordingUrl').value;
+    if (form) {
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const sessionCategory = categorySelect ? categorySelect.value : 'Topic Presentation';
+        const topicId = topicSelect ? topicSelect.value : '';
+        const title = document.getElementById('csTitle')?.value.trim() || 'Untitled Dialogue Session';
+        const date = document.getElementById('csDate')?.value;
+        const time = document.getElementById('csTime')?.value || '18:00';
+        const duration = document.getElementById('csDuration')?.value || '90 mins';
+        const countriesText = document.getElementById('csCountries')?.value || 'International';
+        const desc = document.getElementById('csDesc')?.value || '';
+        const meetingLink = document.getElementById('csMeetingLink')?.value || 'https://meet.google.com/gyd-session-new';
+        const recordingUrl = document.getElementById('csRecordingUrl')?.value || '';
 
-      const speakers = speakersText.split(',').map(sp => ({
-        name: sp.trim(),
-        country: 'International',
-        flag: 'INT',
-        stance: 'Speaker'
-      }));
+        const countries = countriesText.split(',').map(c => c.trim()).filter(Boolean);
+        const selectedTopic = dataService.getTopics().find(t => t.id === topicId);
+        const categoryId = selectedTopic ? selectedTopic.category : 'global-affairs';
 
-      const countries = countriesText.split(',').map(c => c.trim()).filter(Boolean);
+        let moderator = { name: 'TBD', country: 'International', flag: 'INT' };
+        let speakers = [];
+        let presenter = null;
+        let guestName = '';
+        let guestPhoto = '';
+        let guestBio = '';
+        let keySpeakers = '';
+        let discussionQuestions = '';
+        let roundtableChair = null;
+        let workingDraftTitle = '';
+        let roundtableFocus = '';
+        let debateMotion = '';
+        let propositionTeam = '';
+        let oppositionTeam = '';
+        let adjudicator = null;
+        let presentationPaperUrl = '';
 
-      dataService.createSession({
-        title,
-        topicId,
-        category: 'global-affairs',
-        date,
-        time,
-        format,
-        duration,
-        moderator: {
-          name: modUser.name,
-          country: modUser.country,
-          flag: modUser.flag
-        },
-        speakers,
-        countriesRepresented: countries,
-        description: desc,
-        meetingLink,
-        recordingUrl
-      });
+        if (sessionCategory === 'Topic Presentation') {
+          const presName = document.getElementById('csPresenterSelect')?.value;
+          const modName = document.getElementById('csPresenterModerator')?.value;
+          presentationPaperUrl = document.getElementById('csPresentationPaperUrl')?.value || '';
+          
+          const presUser = users.find(u => u.name === presName) || { name: presName, country: 'International', flag: 'INT' };
+          const modUser = users.find(u => u.name === modName) || { name: modName, country: 'International', flag: 'INT' };
+          
+          presenter = presUser;
+          moderator = modUser;
+          speakers = [{ name: presUser.name, country: presUser.country, flag: presUser.flag, stance: 'Lead Presenter' }];
+        } else if (sessionCategory === 'Discussions') {
+          const modName = document.getElementById('csDiscussionModerator')?.value;
+          keySpeakers = document.getElementById('csKeySpeakers')?.value || '';
+          discussionQuestions = document.getElementById('csDiscussionQuestions')?.value || '';
 
-      showToast('Session scheduled and broadcasted to the Member Portal!', 'success');
-      form.reset();
-      switchCoordSubview('dashboard');
-    };
+          const modUser = users.find(u => u.name === modName) || { name: modName, country: 'International', flag: 'INT' };
+          moderator = modUser;
+          speakers = keySpeakers.split(',').filter(Boolean).map(sp => ({
+            name: sp.trim(),
+            country: 'International',
+            flag: 'INT',
+            stance: 'Key Discussant'
+          }));
+        } else if (sessionCategory === 'Guest Talk') {
+          guestName = document.getElementById('csGuestName')?.value.trim() || 'Distinguished Guest';
+          guestPhoto = document.getElementById('csGuestPhotoUrl')?.value || document.getElementById('csGuestPhotoPreview')?.src || '';
+          guestBio = document.getElementById('csGuestBio')?.value.trim() || '';
+          const modName = document.getElementById('csGuestHost')?.value;
+
+          const modUser = users.find(u => u.name === modName) || { name: modName, country: 'International', flag: 'INT' };
+          moderator = modUser;
+          speakers = [{ name: guestName, country: 'International Guest', flag: 'INT', stance: 'Distinguished Guest Speaker' }];
+        } else if (sessionCategory === 'Diplomatic Roundtable') {
+          const chairName = document.getElementById('csRoundtableChair')?.value;
+          workingDraftTitle = document.getElementById('csWorkingDraftTitle')?.value.trim() || '';
+          roundtableFocus = document.getElementById('csRoundtableFocus')?.value.trim() || '';
+
+          const chairUser = users.find(u => u.name === chairName) || { name: chairName, country: 'International', flag: 'INT' };
+          moderator = chairUser;
+          roundtableChair = chairUser;
+          speakers = [{ name: chairUser.name, country: chairUser.country, flag: chairUser.flag, stance: 'Roundtable Chair' }];
+        } else if (sessionCategory === 'Debate') {
+          debateMotion = document.getElementById('csDebateMotion')?.value.trim() || title;
+          propositionTeam = document.getElementById('csPropositionTeam')?.value.trim() || '';
+          oppositionTeam = document.getElementById('csOppositionTeam')?.value.trim() || '';
+          const adjName = document.getElementById('csAdjudicator')?.value;
+
+          const adjUser = users.find(u => u.name === adjName) || { name: adjName, country: 'International', flag: 'INT' };
+          moderator = adjUser;
+          adjudicator = adjUser;
+
+          propositionTeam.split(',').filter(Boolean).forEach(s => {
+            speakers.push({ name: s.trim(), country: 'International', flag: 'INT', stance: 'Proposition' });
+          });
+          oppositionTeam.split(',').filter(Boolean).forEach(s => {
+            speakers.push({ name: s.trim(), country: 'International', flag: 'INT', stance: 'Opposition' });
+          });
+        }
+
+        dataService.createSession({
+          title,
+          topicId,
+          category: categoryId,
+          sessionCategory,
+          date,
+          time,
+          format: sessionCategory,
+          duration,
+          moderator,
+          speakers,
+          presenter,
+          guestName,
+          guestPhoto,
+          guestBio,
+          keySpeakers,
+          discussionQuestions,
+          roundtableChair,
+          workingDraftTitle,
+          roundtableFocus,
+          debateMotion,
+          propositionTeam,
+          oppositionTeam,
+          adjudicator,
+          presentationPaperUrl,
+          countriesRepresented: countries,
+          description: desc,
+          meetingLink,
+          recordingUrl
+        });
+
+        showToast(`🎉 Scheduled "${title}" as a new ${sessionCategory} session!`, 'success');
+        form.reset();
+        switchCoordSubview('dashboard');
+      };
+    }
   }
 
   // --- Subview: Coordinator Writing Studio ---
@@ -3427,13 +3855,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const modalContent = document.getElementById('sessionDetailContent');
     modalContent.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <span class="badge badge-category">${session.categoryName}</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.4rem; align-items: center;">
+          <span class="badge badge-category">${session.categoryName}</span>
+          <span class="badge ${session.sessionCategory === 'Guest Talk' ? 'badge-cat-guest' : (session.sessionCategory === 'Debate' ? 'badge-cat-deb' : (session.sessionCategory === 'Discussions' ? 'badge-cat-disc' : (session.sessionCategory === 'Diplomatic Roundtable' ? 'badge-cat-round' : 'badge-cat-pres')))}">${session.sessionCategory || 'Topic Presentation'}</span>
+        </div>
         <span class="badge ${session.status === 'Upcoming' ? 'badge-scheduled' : 'badge-completed'}">${session.status}</span>
       </div>
       <h3 class="serif-text" style="font-size: 1.85rem; color: var(--brand-navy); margin-bottom: 0.85rem;">
         Session ${session.sessionNumber.toString().padStart(2, '0')}: ${session.title}
       </h3>
+
+      ${session.sessionCategory === 'Guest Talk' && session.guestName ? `
+        <div class="modal-guest-spotlight">
+          <img src="${session.guestPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80'}" alt="${session.guestName}" class="modal-guest-photo">
+          <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.05em;">Distinguished Guest Speaker</div>
+            <h4 style="margin: 0.15rem 0 0.35rem 0; font-family: var(--font-serif); color: var(--brand-navy); font-size: 1.25rem;">${session.guestName}</h4>
+            <p style="margin: 0; font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; font-style: italic;">"${session.guestBio || ''}"</p>
+          </div>
+        </div>
+      ` : ''}
+
+      ${session.sessionCategory === 'Debate' && (session.debateMotion || session.propositionTeam) ? `
+        <div style="background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #dc2626; text-transform: uppercase;">Formal Debate Motion</div>
+          <div style="font-size: 1.1rem; font-style: italic; font-weight: 600; color: var(--brand-navy); margin: 0.25rem 0 0.75rem 0;">"${session.debateMotion || session.title}"</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="background: #fff; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <strong style="color: #059669; font-size: 0.78rem; text-transform: uppercase;">Proposition / Affirmative:</strong>
+              <div style="font-size: 0.88rem; margin-top: 0.2rem;">${session.propositionTeam || 'Delegation Speakers'}</div>
+            </div>
+            <div style="background: #fff; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              <strong style="color: #dc2626; font-size: 0.78rem; text-transform: uppercase;">Opposition / Negative:</strong>
+              <div style="font-size: 0.88rem; margin-top: 0.2rem;">${session.oppositionTeam || 'Delegation Speakers'}</div>
+            </div>
+          </div>
+          ${session.adjudicator ? `
+            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
+              <strong>Presiding Adjudicator:</strong> ${session.adjudicator.name} (${session.adjudicator.country})
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+
+      ${session.sessionCategory === 'Topic Presentation' && session.presenter ? `
+        <div style="background: rgba(5, 150, 105, 0.06); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase;">Accredited Keynote Presenter</div>
+            <div style="font-size: 1.05rem; font-weight: 700; color: var(--brand-navy);">${session.presenter.name} (${session.presenter.country})</div>
+          </div>
+          ${session.presentationPaperUrl ? `
+            <a href="${session.presentationPaperUrl}" target="_blank" class="btn btn-outline btn-sm" style="gap: 5px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Slide Deck / Dossier
+            </a>
+          ` : ''}
+        </div>
+      ` : ''}
+
+      ${session.sessionCategory === 'Diplomatic Roundtable' && session.workingDraftTitle ? `
+        <div style="background: rgba(217, 119, 6, 0.06); border: 1px solid rgba(217, 119, 6, 0.25); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #d97706; text-transform: uppercase;">Diplomatic Simulation Working Resolution</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--brand-navy); margin: 0.25rem 0 0.5rem 0;">"${session.workingDraftTitle}"</div>
+          ${session.roundtableFocus ? `<div style="font-size: 0.86rem; color: var(--text-muted); font-style: italic; margin-bottom: 0.65rem;">${session.roundtableFocus}</div>` : ''}
+          ${session.roundtableChair ? `<div style="font-size: 0.85rem;"><strong>Presiding Chair:</strong> ${session.roundtableChair.name} (${session.roundtableChair.country})</div>` : ''}
+        </div>
+      ` : ''}
+
+      ${session.sessionCategory === 'Discussions' && session.discussionQuestions ? `
+        <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius-md); padding: 1.15rem 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">Guided Discussion Questions</div>
+          <div style="font-size: 0.92rem; color: var(--text-primary); line-height: 1.6; margin-top: 0.35rem;">${session.discussionQuestions}</div>
+        </div>
+      ` : ''}
       <div style="display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
         <span style="display:inline-flex; align-items:center; gap:4px;">${icons.calendar} <strong>Date:</strong> ${session.date}</span>
         <span style="display:inline-flex; align-items:center; gap:4px;">${icons.clock} <strong>Time:</strong> ${session.time} (${session.timezone})</span>

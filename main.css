@@ -4842,5 +4842,173 @@ body.rtl-mode .topic-bank-card-title-ar {
   background: #b45309;
 }
 
+/* =========================================================================
+   SESSION CATEGORIES STYLES (Presentation, Discussions, Guest Talk, Roundtable, Debate)
+   ========================================================================= */
+
+.badge-session-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-cat-pres {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+.badge-cat-disc {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.badge-cat-guest {
+  background: rgba(147, 51, 234, 0.12);
+  color: #9333ea;
+  border: 1px solid rgba(147, 51, 234, 0.3);
+}
+
+.badge-cat-round {
+  background: rgba(217, 119, 6, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.badge-cat-deb {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+/* Home Spotlight Guest Banner */
+.home-guest-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(230, 200, 117, 0.45);
+  border-radius: var(--radius-md);
+  padding: 1.35rem 1.6rem;
+  margin-bottom: 1.75rem;
+  backdrop-filter: blur(8px);
+}
+
+.home-guest-photo {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid var(--accent-gold);
+  box-shadow: 0 4px 16px rgba(230, 200, 117, 0.35);
+  flex-shrink: 0;
+}
+
+.home-guest-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.home-guest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #E6C875;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.home-guest-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  font-family: var(--font-serif);
+}
+
+.home-guest-bio {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Home Spotlight Debate Box */
+.home-debate-banner {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.home-debate-matchup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.85rem;
+}
+
+.home-debate-team-card {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.home-team-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.home-team-tag.prop {
+  color: #34D399;
+}
+
+.home-team-tag.opp {
+  color: #F87171;
+}
+
+.home-team-names {
+  font-size: 0.9rem;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* Guest Talk Modal Spotlight */
+.modal-guest-spotlight {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.06) 0%, rgba(184, 142, 62, 0.08) 100%);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-guest-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-gold);
+  flex-shrink: 0;
+}
+
 
 

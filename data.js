@@ -1273,15 +1273,24 @@ const INITIAL_DATABASE = {
       category: 'tech-ai',
       categoryName: 'Technology & AI',
       categoryNameAr: 'التكنولوجيا والذكاء الاصطناعي',
-      formatAr: 'مناظرة برلمانية رسمية + جلسة مستديرة',
+      sessionCategory: 'Debate',
+      formatAr: 'مناظرة برلمانية رسمية',
       durationAr: '٩٠ دقيقة',
       descriptionAr: 'جمعت جلستنا الافتتاحية نخبة من المناظرين عقب بطولة قطر الدولية (ISDC7) في الدوحة لبحث مدى جدوى دمج نماذج الذكاء الاصطناعي التوليدي في فصول المدارس الثانوية.',
       date: '2024-07-06',
       time: '17:00',
       timezone: 'GMT+3 (Qatar Standard Time)',
-      format: 'Formal Debate + Roundtable',
+      format: 'Formal Debate',
       duration: '90 mins',
       status: 'Completed', // Upcoming, Completed
+      debateMotion: 'This House Would Mandate Generative AI Integration Across Primary & Secondary Educational Curricula',
+      propositionTeam: 'Amara Chen (Singapore), Lucas Silva (Brazil)',
+      oppositionTeam: 'Kofi Mensah (Ghana), Elena Rostova (United Kingdom)',
+      adjudicator: {
+        name: 'Elena Rostova',
+        country: 'United Kingdom',
+        flag: 'GB'
+      },
       moderator: {
         name: 'Elena Rostova',
         country: 'United Kingdom',
@@ -1330,15 +1339,22 @@ const INITIAL_DATABASE = {
       category: 'environment',
       categoryName: 'Environment',
       categoryNameAr: 'البيئة والاستدامة',
-      formatAr: 'حوار سياساتي ونقاش تشاركي',
+      sessionCategory: 'Topic Presentation',
+      formatAr: 'عرض أوراق بحثية ونقاش',
       durationAr: '٩٠ دقيقة',
       descriptionAr: 'حوار سياساتي معمق يناقش المسؤولية التاريخية عن انبعاثات الغازات الدفيئة ويبحث آليات ملموسة لنقل تمويل الخسائر والأضرار دون إثقال كاهل الدول النامية بالديون.',
       date: '2024-07-27',
       time: '18:00',
       timezone: 'GMT+3 (Qatar Standard Time)',
-      format: 'Policy Discussion & Dialogue',
+      format: 'Topic Presentation',
       duration: '90 mins',
       status: 'Completed',
+      presenter: {
+        name: 'Kofi Mensah',
+        country: 'Ghana',
+        flag: 'GH',
+        topic: 'Direct Climate Reparations & Debt Restructuring'
+      },
       moderator: {
         name: 'Tariq Al-Mansoor',
         country: 'Qatar',
@@ -1387,15 +1403,19 @@ const INITIAL_DATABASE = {
       category: 'global-affairs',
       categoryName: 'Global Affairs',
       categoryNameAr: 'الشؤون الدولية',
-      formatAr: 'مناظرة برلمانية رسمية',
+      sessionCategory: 'Guest Talk',
+      formatAr: 'حوار خاص مع ضيف شرف دولي',
       durationAr: '٩٠ دقيقة',
-      descriptionAr: 'مناظرة دولية تقيّم مدى قدرة الهيكل المؤسسي الحالي لمجلس الأمن على الاستمرار دون إصلاح إجرائي شامل، مع بحث نماذج وساطة بديلة رائدة من منطقة الخليج العربي.',
+      descriptionAr: 'حوار دولي تقيّم فيه قيادات شابة مع ضيف شرف دبلوماسي رفيع مدى قدرة الهيكل المؤسسي الحالي لمجلس الأمن على الاستمرار، مع بحث نماذج وساطة بديلة رائدة.',
       date: '2024-10-18',
       time: '17:30',
       timezone: 'GMT+3 (Qatar Standard Time)',
-      format: 'Formal Debate',
+      format: 'Guest Talk',
       duration: '90 mins',
       status: 'Upcoming',
+      guestName: 'Ambassador Dr. Tariq Karim',
+      guestPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+      guestBio: 'Distinguished Diplomat in Residence, Former Permanent Representative to the United Nations and Senior Fellow on Multilateral Security Architecture.',
       moderator: {
         name: 'Sofia Morales',
         country: 'Mexico',
@@ -1444,15 +1464,18 @@ const INITIAL_DATABASE = {
       category: 'tech-ai',
       categoryName: 'Technology & AI Ethics',
       categoryNameAr: 'التكنولوجيا والذكاء الاصطناعي',
-      formatAr: 'مناظرة برلمانية رسمية + نقاش مفتوح',
+      sessionCategory: 'Discussions',
+      formatAr: 'حلقات نقاشية مفتوحة وتفكير نقدي',
       durationAr: '٩٠ دقيقة',
       descriptionAr: 'حوار دولي يبحث المساءلة القانونية والأخلاقية للنظم العسكرية المستقلة (LAWS) ويفحص مدى كفاية اتفاقيات جنيف أمام القرارات العسكرية المؤتمتة.',
       date: '2024-11-01',
       time: '18:00',
       timezone: 'GMT+3 (Qatar Standard Time)',
-      format: 'Formal Debate + Roundtable',
+      format: 'Discussions',
       duration: '90 mins',
       status: 'Upcoming',
+      keySpeakers: 'Amara Chen (Singapore), Zaid Al-Harbi (Jordan)',
+      discussionQuestions: '1. Can autonomous targeting algorithms ever satisfy the principle of distinction under Geneva Conventions? 2. How can middle powers prevent an asymmetric AI arms race?',
       moderator: {
         name: 'Kofi Mensah',
         country: 'Ghana',
@@ -1487,6 +1510,71 @@ const INITIAL_DATABASE = {
       ],
       meetingLink: 'https://meet.google.com/gyd-nov-ai-warfare',
       poster: 'ai_warfare_poster',
+      recordingUrl: '',
+      isRecordingPrivate: true,
+      hasSummary: false,
+      summaryId: null
+    },
+    {
+      id: 'ses_05',
+      sessionNumber: 5,
+      title: 'Transboundary River Treaties & Water Justice in the Global South',
+      titleAr: 'معاهدات الأنهار العابرة للحدود والعدالة المائية في الجنوب العالمي',
+      topicId: 'top_02',
+      category: 'environment',
+      categoryName: 'Environment & Climate',
+      categoryNameAr: 'البيئة والاستدامة',
+      sessionCategory: 'Diplomatic Roundtable',
+      formatAr: 'طاولة دبلوماسية مستديرة ومحاكاة سياسات',
+      durationAr: '٩٠ دقيقة',
+      descriptionAr: 'محاكاة تفاوضية وزارية رفيعة المستوى لتقاسم حقوق التدفق المائي والوساطة في النزاعات البيئية العابرة للحدود.',
+      date: '2024-11-20',
+      time: '18:30',
+      timezone: 'GMT+3 (Qatar Standard Time)',
+      format: 'Diplomatic Roundtable',
+      duration: '90 mins',
+      status: 'Upcoming',
+      roundtableChair: {
+        name: 'Lucas Silva',
+        country: 'Brazil',
+        flag: 'BR'
+      },
+      moderator: {
+        name: 'Lucas Silva',
+        country: 'Brazil',
+        flag: 'BR'
+      },
+      workingDraftTitle: 'Draft Resolution on Shared Basin Sovereign Stewardship & Dispute Mediation',
+      roundtableFocus: 'Simulating ministerial negotiations between upstream riparian nations and downstream agricultural communities on equitably partitioned flow rights.',
+      speakers: [
+        {
+          name: 'Lucas Silva',
+          country: 'Brazil',
+          flag: 'BR',
+          stance: 'Roundtable Chair: Transboundary basin cooperative protocols'
+        },
+        {
+          name: 'Amara Chen',
+          country: 'Singapore',
+          flag: 'SG',
+          stance: 'Working Group Rapporteur: Desalination tech transfers and regional water banks'
+        }
+      ],
+      countriesRepresented: ['Brazil', 'Singapore', 'Qatar', 'Egypt', 'Ethiopia', 'Jordan'],
+      description: 'A diplomatic policy simulation modeling multilateral mediation between riparian nations to construct binding legal frameworks for transboundary river management.',
+      structure: [
+        { phase: '01', title: 'Roundtable Opening by Presiding Chair', duration: '10 min', lead: 'Lucas Silva' },
+        { phase: '02', title: 'Presentation of Working Draft Resolution', duration: '15 min', lead: 'Working Group' },
+        { phase: '03', title: 'Delegation Caucus & Amendments', duration: '35 min', lead: 'Delegates' },
+        { phase: '04', title: 'Voting & Consensus Protocol', duration: '20 min', lead: 'Chair' },
+        { phase: '05', title: 'Synthesis & Press Communique', duration: '10 min', lead: 'Secretariat' }
+      ],
+      prepMaterials: [
+        { title: 'UN Watercourses Convention (1997) Reference', url: '#' },
+        { title: 'ISDC7 Policy Negotiation Guidelines', url: '#' }
+      ],
+      meetingLink: 'https://meet.google.com/gyd-roundtable-water-live',
+      poster: 'water_diplomacy_poster',
       recordingUrl: '',
       isRecordingPrivate: true,
       hasSummary: false,
@@ -2076,6 +2164,20 @@ class DataService {
               if (initS.descriptionAr && !existing.descriptionAr) existing.descriptionAr = initS.descriptionAr;
               if (initS.speakers && !existing.speakers) existing.speakers = initS.speakers;
               if (initS.moderator && !existing.moderator) existing.moderator = initS.moderator;
+              if (initS.sessionCategory && !existing.sessionCategory) existing.sessionCategory = initS.sessionCategory;
+              if (initS.guestName && !existing.guestName) existing.guestName = initS.guestName;
+              if (initS.guestPhoto && !existing.guestPhoto) existing.guestPhoto = initS.guestPhoto;
+              if (initS.guestBio && !existing.guestBio) existing.guestBio = initS.guestBio;
+              if (initS.debateMotion && !existing.debateMotion) existing.debateMotion = initS.debateMotion;
+              if (initS.propositionTeam && !existing.propositionTeam) existing.propositionTeam = initS.propositionTeam;
+              if (initS.oppositionTeam && !existing.oppositionTeam) existing.oppositionTeam = initS.oppositionTeam;
+              if (initS.adjudicator && !existing.adjudicator) existing.adjudicator = initS.adjudicator;
+              if (initS.presenter && !existing.presenter) existing.presenter = initS.presenter;
+              if (initS.keySpeakers && !existing.keySpeakers) existing.keySpeakers = initS.keySpeakers;
+              if (initS.discussionQuestions && !existing.discussionQuestions) existing.discussionQuestions = initS.discussionQuestions;
+              if (initS.roundtableChair && !existing.roundtableChair) existing.roundtableChair = initS.roundtableChair;
+              if (initS.workingDraftTitle && !existing.workingDraftTitle) existing.workingDraftTitle = initS.workingDraftTitle;
+              if (initS.roundtableFocus && !existing.roundtableFocus) existing.roundtableFocus = initS.roundtableFocus;
             }
           });
         } else {
@@ -2301,16 +2403,32 @@ class DataService {
       sessionNumber: sessionNum,
       title: sessionData.title,
       topicId: sessionData.topicId || '',
-      category: sessionData.category,
-      categoryName: this.getCategoryName(sessionData.category),
+      category: sessionData.category || 'global-affairs',
+      categoryName: this.getCategoryName(sessionData.category || 'global-affairs'),
+      sessionCategory: sessionData.sessionCategory || 'Topic Presentation',
       date: sessionData.date,
       time: sessionData.time,
       timezone: sessionData.timezone || 'GMT+3 (Qatar Standard Time)',
-      format: sessionData.format || 'Global Dialogue',
+      format: sessionData.format || sessionData.sessionCategory || 'Topic Presentation',
       duration: sessionData.duration || '90 mins',
       status: 'Upcoming',
       moderator: sessionData.moderator || { name: 'TBD', country: 'TBD', flag: 'INT' },
       speakers: sessionData.speakers || [],
+      // Session Category Specialized Attributes
+      presenter: sessionData.presenter || null,
+      guestName: sessionData.guestName || '',
+      guestPhoto: sessionData.guestPhoto || '',
+      guestBio: sessionData.guestBio || '',
+      keySpeakers: sessionData.keySpeakers || '',
+      discussionQuestions: sessionData.discussionQuestions || '',
+      roundtableChair: sessionData.roundtableChair || null,
+      workingDraftTitle: sessionData.workingDraftTitle || '',
+      roundtableFocus: sessionData.roundtableFocus || '',
+      debateMotion: sessionData.debateMotion || '',
+      propositionTeam: sessionData.propositionTeam || '',
+      oppositionTeam: sessionData.oppositionTeam || '',
+      adjudicator: sessionData.adjudicator || null,
+      presentationPaperUrl: sessionData.presentationPaperUrl || '',
       countriesRepresented: sessionData.countriesRepresented || ['Qatar'],
       description: sessionData.description || '',
       structure: sessionData.structure || [
