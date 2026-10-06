@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('gyde_theme', theme);
     const icon = document.getElementById('themeToggleIcon');
     if (icon) {
-      icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
     }
   }
 
