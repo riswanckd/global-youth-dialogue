@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 
 <head>
@@ -199,7 +199,8 @@
             </div>
             <button class="btn btn-outline btn-sm home-upcoming-all-btn" id="homeViewAllSessionsBtn"
               data-public-nav="sessions">
-              <span data-i18n="homeSessionsViewAll">View All Sessions & Archives</span> <span class="arrow-sym">â†’</span>
+              <span data-i18n="homeSessionsViewAll">View All Sessions & Archives</span> <span
+                class="arrow-sym">â†’</span>
             </button>
           </div>
 
@@ -460,20 +461,28 @@
             <span class="section-tag" data-i18n="sessionsTag">Dialogue Archive</span>
             <h2 class="section-title serif-text" data-i18n="sessionsTitle">Sessions & Academic Writings</h2>
             <p class="section-desc" data-i18n="sessionsSubtitle">
-              Explore our international youth dialogue sessions, upcoming debate agendas, panel discussions, and archived proceedings open for everyone.
+              Explore our international youth dialogue sessions, upcoming debate agendas, panel discussions, and
+              archived proceedings open for everyone.
             </p>
           </div>
 
           <!-- Public Session Filter Controls -->
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;" id="publicSessionStatusFilters">
-              <button class="btn btn-sm btn-primary" data-status="all" onclick="window.filterPublicSessions('all')">All Dialogue Sessions</button>
-              <button class="btn btn-sm btn-outline" data-status="Upcoming" onclick="window.filterPublicSessions('Upcoming')">Upcoming Debates</button>
-              <button class="btn btn-sm btn-outline" data-status="Completed" onclick="window.filterPublicSessions('Completed')">Completed Archive</button>
+              <button class="btn btn-sm btn-primary" data-status="all" onclick="window.filterPublicSessions('all')">All
+                Dialogue Sessions</button>
+              <button class="btn btn-sm btn-outline" data-status="Upcoming"
+                onclick="window.filterPublicSessions('Upcoming')">Upcoming Debates</button>
+              <button class="btn btn-sm btn-outline" data-status="Completed"
+                onclick="window.filterPublicSessions('Completed')">Completed Archive</button>
             </div>
             <div style="position: relative; min-width: 260px;">
-              <input type="text" id="publicSessionSearch" class="form-control form-control-sm" placeholder="Search sessions, topics, presenters..." oninput="window.filterPublicSessions()" style="padding-inline-start: 2rem;">
-              <span style="position: absolute; inset-inline-start: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;">🔍</span>
+              <input type="text" id="publicSessionSearch" class="form-control form-control-sm"
+                placeholder="Search sessions, topics, presenters..." oninput="window.filterPublicSessions()"
+                style="padding-inline-start: 2rem;">
+              <span
+                style="position: absolute; inset-inline-start: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;">🔍</span>
             </div>
           </div>
 
@@ -818,13 +827,17 @@
       <div class="auth-page-card auth-card-member">
 
         <!-- Approved Applicant Banner (shown when auto-redirect fires) -->
-        <div id="approvedApplicantBanner" style="display:none; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+        <div id="approvedApplicantBanner"
+          style="display:none; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
           <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
             <span style="font-size: 1.5rem;">&#x1F389;</span>
             <div>
-              <div style="font-weight: 700; color: #065f46; font-size: 0.95rem;">Your application has been approved!</div>
-              <div style="font-size: 0.82rem; color: #047857; margin-top: 0.2rem;" id="approvedApplicantBannerMsg">Complete your registration to activate your account.</div>
-              <button type="button" id="goToSignUpBtn" class="btn btn-primary btn-sm" style="margin-top: 0.65rem; background: #059669; border-color: #059669;">
+              <div style="font-weight: 700; color: #065f46; font-size: 0.95rem;">Your application has been approved!
+              </div>
+              <div style="font-size: 0.82rem; color: #047857; margin-top: 0.2rem;" id="approvedApplicantBannerMsg">
+                Complete your registration to activate your account.</div>
+              <button type="button" id="goToSignUpBtn" class="btn btn-primary btn-sm"
+                style="margin-top: 0.65rem; background: #059669; border-color: #059669;">
                 &#x2728; Complete Sign Up
               </button>
             </div>
@@ -841,28 +854,49 @@
         </div>
 
         <h2 class="serif-text auth-page-title">Sign In to Your Account</h2>
-        <div class="auth-page-arabic">&#x062A;&#x0633;&#x062C;&#x064A;&#x0644; &#x0627;&#x0644;&#x062F;&#x062E;&#x0648;&#x0644; &mdash; &#x0627;&#x0644;&#x062D;&#x0648;&#x0627;&#x0631; &#x0627;&#x0644;&#x0634;&#x0628;&#x0627;&#x0628;&#x064A; &#x0627;&#x0644;&#x062F;&#x0648;&#x0644;&#x064A;</div>
+        <div class="auth-page-arabic">&#x062A;&#x0633;&#x062C;&#x064A;&#x0644;
+          &#x0627;&#x0644;&#x062F;&#x062E;&#x0648;&#x0644; &mdash; &#x0627;&#x0644;&#x062D;&#x0648;&#x0627;&#x0631;
+          &#x0627;&#x0644;&#x0634;&#x0628;&#x0627;&#x0628;&#x064A; &#x0627;&#x0644;&#x062F;&#x0648;&#x0644;&#x064A;
+        </div>
         <p class="auth-page-desc">
-          Select your role, then enter your credentials. Each portal has strict access controls &mdash; only approved users may enter their designated workspace.
+          Select your role, then enter your credentials. Each portal has strict access controls &mdash; only approved
+          users may enter their designated workspace.
         </p>
 
         <!-- 3-Button Segmented Role Tab Switcher (Member | Presenter | Admin) -->
         <div class="form-group" style="margin-bottom: 1.25rem;">
-          <label class="form-label" style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+          <label class="form-label"
+            style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
             <span>Sign In As:</span>
             <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">Select Target Portal</span>
           </label>
           <div class="role-segmented-switcher" id="pageRoleSegmentedSwitcher" role="tablist">
-            <button type="button" class="role-segmented-tab tab-member active" data-role="member" role="tab" aria-selected="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <button type="button" class="role-segmented-tab tab-member active" data-role="member" role="tab"
+              aria-selected="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
               <span>Member</span>
             </button>
-            <button type="button" class="role-segmented-tab tab-presenter" data-role="presenter" role="tab" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+            <button type="button" class="role-segmented-tab tab-presenter" data-role="presenter" role="tab"
+              aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" x2="12" y1="19" y2="22"></line>
+              </svg>
               <span>Presenter</span>
             </button>
-            <button type="button" class="role-segmented-tab tab-admin" data-role="admin" role="tab" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <button type="button" class="role-segmented-tab tab-admin" data-role="admin" role="tab"
+              aria-selected="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
               <span>Admin</span>
             </button>
           </div>
@@ -873,18 +907,26 @@
         <form id="unifiedLoginForm" autocomplete="on">
           <div class="form-group">
             <label class="form-label" for="unifiedEmail">Email Address</label>
-            <input type="email" class="form-control" id="unifiedEmail" placeholder="your.email@example.com" required autocomplete="email">
+            <input type="email" class="form-control" id="unifiedEmail" placeholder="your.email@example.com" required
+              autocomplete="email">
           </div>
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
               <label class="form-label" for="unifiedPassword" style="margin: 0;">Password</label>
-              <a href="#" class="auth-forgot-link" onclick="alert('Demo accounts use password: password123\n\nMember: member@gyd.org\nPresenter: presenter@gyd.org\nAdmin: coordinator@gyd.org'); return false;">Demo credentials &rarr;</a>
+              <a href="#" class="auth-forgot-link"
+                onclick="alert('Demo accounts use password: password123\n\nMember: member@gyd.org\nPresenter: presenter@gyd.org\nAdmin: coordinator@gyd.org'); return false;">Demo
+                credentials &rarr;</a>
             </div>
-            <input type="password" class="form-control" id="unifiedPassword" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" required autocomplete="current-password">
+            <input type="password" class="form-control" id="unifiedPassword"
+              placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" required
+              autocomplete="current-password">
           </div>
           <!-- Error message -->
-          <div id="signinErrorMsg" style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.75rem 1rem; font-size:0.85rem; margin-bottom:0.75rem;"></div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;" id="unifiedSubmitBtn">
+          <div id="signinErrorMsg"
+            style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.75rem 1rem; font-size:0.85rem; margin-bottom:0.75rem;">
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;"
+            id="unifiedSubmitBtn">
             Sign In &rarr;
           </button>
         </form>
@@ -895,17 +937,34 @@
           <div class="auth-demo-grid">
             <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRoleMemberBtn"
               onclick="window.signInDemoMember()" style="border-inline-start: 3px solid var(--brand-green);">
-              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Brazil"><path fill="#009c3b" d="M0 0h640v480H0z"/><path fill="#ffdf00" d="M320 40L60 240l260 200 260-200z"/><circle fill="#002776" cx="320" cy="240" r="100"/></svg></span>
+              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480"
+                  xmlns="http://www.w3.org/2000/svg" aria-label="Brazil">
+                  <path fill="#009c3b" d="M0 0h640v480H0z" />
+                  <path fill="#ffdf00" d="M320 40L60 240l260 200 260-200z" />
+                  <circle fill="#002776" cx="320" cy="240" r="100" />
+                </svg></span>
               <span>Lucas Silva (Member) &rarr; Participate</span>
             </button>
             <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRolePresenterBtn"
               onclick="window.signInDemoPresenter()" style="border-inline-start: 3px solid var(--accent-gold);">
-              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Ghana"><path fill="#006b3f" d="M0 320h640v160H0z"/><path fill="#fcd116" d="M0 160h640v160H0z"/><path fill="#ce1126" d="M0 0h640v160H0z"/><polygon fill="#000" points="320,175 342,242 413,242 355,283 378,350 320,308 262,350 285,283 227,242 298,242"/></svg></span>
+              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480"
+                  xmlns="http://www.w3.org/2000/svg" aria-label="Ghana">
+                  <path fill="#006b3f" d="M0 320h640v160H0z" />
+                  <path fill="#fcd116" d="M0 160h640v160H0z" />
+                  <path fill="#ce1126" d="M0 0h640v160H0z" />
+                  <polygon fill="#000"
+                    points="320,175 342,242 413,242 355,283 378,350 320,308 262,350 285,283 227,242 298,242" />
+                </svg></span>
               <span>Kofi Mensah (Presenter) &rarr; Present Topics</span>
             </button>
             <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoRoleAdminBtn"
               onclick="window.signInDemoCoordinator()" style="border-inline-start: 3px solid var(--brand-navy);">
-              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6H0z"/></svg></span>
+              <span class="flag-icon-wrap"><svg class="flag-svg" viewBox="0 0 640 480"
+                  xmlns="http://www.w3.org/2000/svg" aria-label="Qatar">
+                  <path fill="#8A1538" d="M0 0h640v480H0z" />
+                  <path fill="#ffffff"
+                    d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6H0z" />
+                </svg></span>
               <span>Tariq Al-Mansoor (Admin) &rarr; Workspace</span>
             </button>
           </div>
@@ -914,11 +973,15 @@
         <div class="auth-card-footer">
           <p>
             <span>Don't have an approved account yet?</span>
-            <a href="#" id="authToApplyLink" style="color: var(--brand-green); font-weight: 600; margin-inline-start: 0.25rem;">Apply for Membership</a>
+            <a href="#" id="authToApplyLink"
+              style="color: var(--brand-green); font-weight: 600; margin-inline-start: 0.25rem;">Apply for
+              Membership</a>
           </p>
           <p style="margin-top: 0.5rem;">
             <span>Approved applicant?</span>
-            <a href="#" id="authToSignUpLink" style="color: var(--accent-gold); font-weight: 600; margin-inline-start: 0.25rem;">Complete Registration &rarr;</a>
+            <a href="#" id="authToSignUpLink"
+              style="color: var(--accent-gold); font-weight: 600; margin-inline-start: 0.25rem;">Complete Registration
+              &rarr;</a>
           </p>
           <div class="auth-divider"><span>OR</span></div>
           <div class="auth-switch-links" style="justify-content: center;">
@@ -942,11 +1005,13 @@
         <h3 class="modal-title serif-text">Complete Your Registration</h3>
         <p class="modal-subtitle">You have been approved! Set up your credentials to access the Member Portal.</p>
 
-        <div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.65rem;">
+        <div
+          style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.65rem;">
           <span style="font-size: 1.25rem;">&#x2705;</span>
           <div>
             <div style="font-weight: 700; color: #065f46; font-size: 0.88rem;">Application Approved by Coordinator</div>
-            <div style="font-size: 0.8rem; color: #047857;" id="signUpApprovedEmail">Your email has been verified as an approved applicant.</div>
+            <div style="font-size: 0.8rem; color: #047857;" id="signUpApprovedEmail">Your email has been verified as an
+              approved applicant.</div>
           </div>
         </div>
 
@@ -963,27 +1028,34 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="signUpCountry">Country of Residence</label>
-            <input type="text" class="form-control" id="signUpCountry" placeholder="e.g. Qatar, India, Brazil&hellip;" required>
+            <input type="text" class="form-control" id="signUpCountry" placeholder="e.g. Qatar, India, Brazil&hellip;"
+              required>
           </div>
           <div class="form-group">
             <label class="form-label" for="signUpEmail">Email Address</label>
-            <input type="email" class="form-control" id="signUpEmail" placeholder="your.email@example.com" required readonly style="background: var(--bg-subtle); cursor: not-allowed;">
+            <input type="email" class="form-control" id="signUpEmail" placeholder="your.email@example.com" required
+              readonly style="background: var(--bg-subtle); cursor: not-allowed;">
             <span class="form-helper">This is the email from your approved application.</span>
           </div>
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label" for="signUpPassword">Choose Password</label>
-              <input type="password" class="form-control" id="signUpPassword" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+              <input type="password" class="form-control" id="signUpPassword" placeholder="Min. 8 characters" required
+                minlength="8" autocomplete="new-password">
             </div>
             <div class="form-group">
               <label class="form-label" for="signUpConfirmPassword">Confirm Password</label>
-              <input type="password" class="form-control" id="signUpConfirmPassword" placeholder="Re-enter password" required minlength="8" autocomplete="new-password">
+              <input type="password" class="form-control" id="signUpConfirmPassword" placeholder="Re-enter password"
+                required minlength="8" autocomplete="new-password">
             </div>
           </div>
-          <div id="signUpFormError" style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.65rem 1rem; font-size:0.83rem; margin-bottom:0.75rem;"></div>
+          <div id="signUpFormError"
+            style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.65rem 1rem; font-size:0.83rem; margin-bottom:0.75rem;">
+          </div>
           <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem;">
             <button type="button" class="btn btn-outline" onclick="window.closeModal('signUpModal')">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="signUpStep1Btn">Verify Email &amp; Send OTP &rarr;</button>
+            <button type="submit" class="btn btn-primary" id="signUpStep1Btn">Verify Email &amp; Send OTP
+              &rarr;</button>
           </div>
         </form>
       </div>
@@ -995,15 +1067,24 @@
         <p class="modal-subtitle" id="signUpOtpDesc">Enter the 6-digit verification code.</p>
 
         <!-- Simulated Email Preview -->
-        <div style="background: linear-gradient(135deg, #1e3a5f, #0f2440); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; text-align: left; border: 1px solid rgba(255,255,255,0.1);">
-          <div style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">&#x1F4E8; Simulated Email &mdash; Global Youth Dialogue</div>
-          <div style="color: #a7f3d0; font-size: 0.82rem; margin-bottom: 0.25rem;"><strong>To:</strong> <span id="signUpOtpEmailDisplay">user@example.com</span></div>
-          <div style="color: rgba(255,255,255,0.7); font-size: 0.82rem; margin-bottom: 1rem;"><strong>Subject:</strong> Your GYD Verification Code</div>
-          <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 0.75rem;">Dear Approved Applicant,<br>Your verification code is:</div>
+        <div
+          style="background: linear-gradient(135deg, #1e3a5f, #0f2440); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; text-align: left; border: 1px solid rgba(255,255,255,0.1);">
+          <div
+            style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">
+            &#x1F4E8; Simulated Email &mdash; Global Youth Dialogue</div>
+          <div style="color: #a7f3d0; font-size: 0.82rem; margin-bottom: 0.25rem;"><strong>To:</strong> <span
+              id="signUpOtpEmailDisplay">user@example.com</span></div>
+          <div style="color: rgba(255,255,255,0.7); font-size: 0.82rem; margin-bottom: 1rem;"><strong>Subject:</strong>
+            Your GYD Verification Code</div>
+          <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 0.75rem;">Dear Approved
+            Applicant,<br>Your verification code is:</div>
           <div style="text-align: center; margin: 0.75rem 0;">
-            <span id="signUpOtpDisplay" style="font-size: 2.5rem; font-weight: 800; letter-spacing: 0.3em; color: #fbbf24; font-family: monospace; background: rgba(255,255,255,0.08); padding: 0.5rem 1.5rem; border-radius: var(--radius-md);">&mdash; &mdash; &mdash; &mdash; &mdash; &mdash;</span>
+            <span id="signUpOtpDisplay"
+              style="font-size: 2.5rem; font-weight: 800; letter-spacing: 0.3em; color: #fbbf24; font-family: monospace; background: rgba(255,255,255,0.08); padding: 0.5rem 1.5rem; border-radius: var(--radius-md);">&mdash;
+              &mdash; &mdash; &mdash; &mdash; &mdash;</span>
           </div>
-          <div style="font-size: 0.78rem; color: rgba(255,255,255,0.5);">Expires in <span id="signUpOtpCountdown" style="color:#fbbf24; font-weight:700;">10:00</span>. Do not share it.</div>
+          <div style="font-size: 0.78rem; color: rgba(255,255,255,0.5);">Expires in <span id="signUpOtpCountdown"
+              style="color:#fbbf24; font-weight:700;">10:00</span>. Do not share it.</div>
         </div>
 
         <!-- 6 OTP input boxes -->
@@ -1016,16 +1097,20 @@
           <input type="text" maxlength="1" class="otp-box" id="otpBox5" inputmode="numeric" pattern="[0-9]">
         </div>
 
-        <div id="signUpOtpError" style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.65rem 1rem; font-size:0.83rem; margin-bottom:0.75rem; text-align:left;"></div>
+        <div id="signUpOtpError"
+          style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.65rem 1rem; font-size:0.83rem; margin-bottom:0.75rem; text-align:left;">
+        </div>
 
         <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
           <button type="button" class="btn btn-outline" id="signUpResendBtn">&#x21BA; Resend Code</button>
-          <button type="button" class="btn btn-primary" id="signUpVerifyBtn" style="background: #059669; border-color: #059669;">
+          <button type="button" class="btn btn-primary" id="signUpVerifyBtn"
+            style="background: #059669; border-color: #059669;">
             &#x2713; Verify &amp; Create Account
           </button>
         </div>
         <div style="margin-top: 1rem;">
-          <a href="#" id="signUpBackBtn" style="font-size: 0.82rem; color: var(--text-muted);">&larr; Back to details</a>
+          <a href="#" id="signUpBackBtn" style="font-size: 0.82rem; color: var(--text-muted);">&larr; Back to
+            details</a>
         </div>
       </div>
 
@@ -1225,7 +1310,8 @@
                     d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5h6.18z">
                   </path>
                 </svg> <span>Suggest a Topic</span></button>
-              <button class="btn btn-sm btn-be-presenter" id="dashHeaderBePresenterBtn" onclick="window.handlePresenterMenuClick()"
+              <button class="btn btn-sm btn-be-presenter" id="dashHeaderBePresenterBtn"
+                onclick="window.handlePresenterMenuClick()"
                 style="background: #059669; color: #fff; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);">
                 <span>ðŸŽ¤</span>
                 <span id="dashHeaderPresenterText">Request to be Presenter</span>
@@ -1250,13 +1336,17 @@
                   <h4 data-i18n="quickAccess">Quick Access</h4>
                 </div>
                 <div class="quick-access-grid">
-                  <div class="qa-card" id="qaPresenterCard" onclick="window.handlePresenterMenuClick()" style="border: 1px solid rgba(5, 150, 105, 0.3); background: rgba(5, 150, 105, 0.04);">
-                    <span class="qa-icon" style="background: rgba(5, 150, 105, 0.15); color: #059669;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <div class="qa-card" id="qaPresenterCard" onclick="window.handlePresenterMenuClick()"
+                    style="border: 1px solid rgba(5, 150, 105, 0.3); background: rgba(5, 150, 105, 0.04);">
+                    <span class="qa-icon" style="background: rgba(5, 150, 105, 0.15); color: #059669;"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                         <line x1="12" x2="12" y1="19" y2="22"></line>
                       </svg></span>
-                    <span class="qa-title" id="qaPresenterTitle" style="color: #059669; font-weight: 700;">Request to be Presenter</span>
+                    <span class="qa-title" id="qaPresenterTitle" style="color: #059669; font-weight: 700;">Request to be
+                      Presenter</span>
                   </div>
                   <div class="qa-card" data-member-nav="sessions">
                     <span class="qa-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -1626,7 +1716,8 @@
                 <div id="propCustomTopicFields" style="display: none;">
                   <div class="alert-box"
                     style="background: rgba(184, 142, 62, 0.1); border: 1px solid rgba(184, 142, 62, 0.35); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.86rem; color: var(--brand-navy);">
-                    <strong style="color: var(--accent-gold);">ðŸ’¡ Suggesting a New Custom Topic:</strong> Custom topics
+                    <strong style="color: var(--accent-gold);">ðŸ’¡ Suggesting a New Custom Topic:</strong> Custom
+                    topics
                     are vetted by the Coordinator Secretariat. When approved, this topic and its subtopics will
                     automatically be added to the Global Youth Dialogue Topic Bank!
                   </div>
@@ -1963,7 +2054,12 @@
         <span data-i18n="tabTopics">Topics</span>
       </button>
       <button class="mobile-tab-btn" id="mobileTabPresenterBtn" onclick="window.handlePresenterMenuClick()">
-        <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg></span>
+        <span class="mobile-tab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" x2="12" y1="19" y2="22"></line>
+          </svg></span>
         <span id="mobileTabPresenterText">Presenter</span>
       </button>
     </nav>
@@ -2296,7 +2392,8 @@
                 <div id="presCustomFields" style="display: none;">
                   <div class="alert-box"
                     style="background: rgba(184, 142, 62, 0.1); border: 1px solid rgba(184, 142, 62, 0.35); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.86rem; color: var(--brand-navy);">
-                    <strong style="color: var(--accent-gold);">ðŸ’¡ Presenting a Custom Topic:</strong> Custom topics are
+                    <strong style="color: var(--accent-gold);">ðŸ’¡ Presenting a Custom Topic:</strong> Custom topics
+                    are
                     reviewed by coordinators. When approved, this topic and its subtopics will also be added to the
                     Global Youth Dialogue Topic Bank!
                   </div>
@@ -2522,10 +2619,12 @@
           <div class="portal-page-header">
             <div class="portal-page-title">
               <h2 class="serif-text">Academic Writing & Research Dossiers</h2>
-              <p>Author peer-reviewed academic papers and policy syntheses. Upon Admin approval, your paper will be published to all international Member Dashboards.</p>
+              <p>Author peer-reviewed academic papers and policy syntheses. Upon Admin approval, your paper will be
+                published to all international Member Dashboards.</p>
             </div>
             <div class="portal-actions">
-              <button class="btn btn-primary btn-sm" id="presScrollToWritingFormBtn" type="button" onclick="document.getElementById('presenterWritingFormCard')?.scrollIntoView({ behavior: 'smooth' })">
+              <button class="btn btn-primary btn-sm" id="presScrollToWritingFormBtn" type="button"
+                onclick="document.getElementById('presenterWritingFormCard')?.scrollIntoView({ behavior: 'smooth' })">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
                   style="display:inline; vertical-align:middle; margin-right:4px;">
@@ -2542,7 +2641,9 @@
               <h3 class="serif-text" style="color: var(--brand-navy); margin: 0; font-size: 1.25rem;">
                 My Submitted Academic Papers
               </h3>
-              <span class="badge" id="presMyWritingsBadge" style="background: rgba(5, 150, 105, 0.12); color: var(--brand-green); font-weight: 700;">0 Papers</span>
+              <span class="badge" id="presMyWritingsBadge"
+                style="background: rgba(5, 150, 105, 0.12); color: var(--brand-green); font-weight: 700;">0
+                Papers</span>
             </div>
             <div id="presenterMyWritingsList">
               <!-- Populated dynamically -->
@@ -2550,14 +2651,18 @@
           </div>
 
           <!-- Section 2: Authoring Studio Form -->
-          <div class="card-panel" id="presenterWritingFormCard" style="max-width: 860px; margin: 0 auto; border-top: 4px solid var(--accent-gold);">
+          <div class="card-panel" id="presenterWritingFormCard"
+            style="max-width: 860px; margin: 0 auto; border-top: 4px solid var(--accent-gold);">
             <div style="margin-bottom: 1.5rem;">
-              <span class="badge" style="background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3); margin-bottom: 0.5rem; display: inline-block;">
+              <span class="badge"
+                style="background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3); margin-bottom: 0.5rem; display: inline-block;">
                 Presenter Submission Studio
               </span>
-              <h3 class="serif-text" style="color: var(--brand-navy); margin: 0 0 0.4rem 0;">Draft & Submit Academic Paper</h3>
+              <h3 class="serif-text" style="color: var(--brand-navy); margin: 0 0 0.4rem 0;">Draft & Submit Academic
+                Paper</h3>
               <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
-                Provide a structured synthesis of your research. Coordinators review and approve before publication to Member Dashboards.
+                Provide a structured synthesis of your research. Coordinators review and approve before publication to
+                Member Dashboards.
               </p>
             </div>
 
@@ -2565,13 +2670,15 @@
               <!-- Academic Title -->
               <div class="form-group">
                 <label class="form-label" for="presNewTitle">Academic Title</label>
-                <input type="text" class="form-control" id="presNewTitle" placeholder="e.g. Sovereign Green Hydrogen Infrastructure in West Africa" required>
+                <input type="text" class="form-control" id="presNewTitle"
+                  placeholder="e.g. Sovereign Green Hydrogen Infrastructure in West Africa" required>
               </div>
 
               <!-- Academic Sphere / Category -->
               <div class="form-group">
                 <label class="form-label" for="presNewCategory">Academic Sphere / Category</label>
-                <select class="form-control" id="presNewCategory" onchange="window.handlePresCategoryChange(this)" required>
+                <select class="form-control" id="presNewCategory" onchange="window.handlePresCategoryChange(this)"
+                  required>
                   <option value="Technology & AI">Technology & AI</option>
                   <option value="Global Affairs & Geopolitics">Global Affairs & Geopolitics</option>
                   <option value="Economics & Trade">Economics & Trade</option>
@@ -2581,7 +2688,8 @@
                   <option value="Other">+ Other (Add New Category)</option>
                 </select>
                 <div id="presCustomCategoryWrap" style="display: none; margin-top: 0.5rem;">
-                  <input type="text" class="form-control" id="presCustomCategory" placeholder="Enter custom category name (e.g. Space Diplomacy, Bioethics...)">
+                  <input type="text" class="form-control" id="presCustomCategory"
+                    placeholder="Enter custom category name (e.g. Space Diplomacy, Bioethics...)">
                 </div>
               </div>
 
@@ -2589,38 +2697,47 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label" for="presNewAuthorRole">Author Attribution</label>
-                  <input type="text" class="form-control" id="presNewAuthorRole" placeholder="e.g. Accredited Presenter & Research Fellow" value="Accredited Presenter" required>
+                  <input type="text" class="form-control" id="presNewAuthorRole"
+                    placeholder="e.g. Accredited Presenter & Research Fellow" value="Accredited Presenter" required>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="presNewAuthorName">Author Name</label>
-                  <input type="text" class="form-control" id="presNewAuthorName" placeholder="Full Author Name" required>
+                  <input type="text" class="form-control" id="presNewAuthorName" placeholder="Full Author Name"
+                    required>
                 </div>
               </div>
 
               <!-- Excerpt of article -->
               <div class="form-group">
                 <label class="form-label" for="presNewExcerpt">Excerpt of Article</label>
-                <textarea class="form-control" id="presNewExcerpt" rows="3" placeholder="Brief abstract or excerpt summarizing the article's core thesis..." required></textarea>
+                <textarea class="form-control" id="presNewExcerpt" rows="3"
+                  placeholder="Brief abstract or excerpt summarizing the article's core thesis..." required></textarea>
               </div>
 
               <!-- Total content of article -->
               <div class="form-group">
                 <label class="form-label" for="presNewTotalContent">Total Content of Article</label>
-                <textarea class="form-control" id="presNewTotalContent" rows="10" placeholder="Full text and total content of your academic article, comprehensive arguments, and analysis..." required style="min-height: 200px; font-family: inherit; line-height: 1.65;"></textarea>
+                <textarea class="form-control" id="presNewTotalContent" rows="10"
+                  placeholder="Full text and total content of your academic article, comprehensive arguments, and analysis..."
+                  required style="min-height: 200px; font-family: inherit; line-height: 1.65;"></textarea>
               </div>
 
               <!-- 09. Citations, Treaties & Academic Bibliography -->
               <div class="form-group">
                 <label class="form-label" for="presNewSources">09. Citations, Treaties & Academic Bibliography</label>
-                <input type="text" class="form-control" id="presNewSources" placeholder="e.g. UN Charter Art. 51, OECD (2024), World Bank Development Report...">
+                <input type="text" class="form-control" id="presNewSources"
+                  placeholder="e.g. UN Charter Art. 51, OECD (2024), World Bank Development Report...">
               </div>
 
-              <div style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.86rem; color: var(--brand-navy); display: flex; align-items: center; gap: 0.6rem;">
+              <div
+                style="background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.86rem; color: var(--brand-navy); display: flex; align-items: center; gap: 0.6rem;">
                 <span style="font-size: 1.2rem;">ℹ️</span>
-                <span>Submitting this paper sends it directly to the <strong>Admin Review Queue</strong>. Once approved by a Coordinator, it will be published live into every Member's Academic Writings dashboard.</span>
+                <span>Submitting this paper sends it directly to the <strong>Admin Review Queue</strong>. Once approved
+                  by a Coordinator, it will be published live into every Member's Academic Writings dashboard.</span>
               </div>
 
-              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; background: #059669; border-color: #059669;">
+              <button type="submit" class="btn btn-primary btn-lg"
+                style="width: 100%; background: #059669; border-color: #059669;">
                 Request Admin Approval & Submit Paper →
               </button>
             </form>
@@ -2880,9 +2997,9 @@
                   <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg> Create Session</button>
               <button class="btn btn-primary btn-sm" id="coordQuickNewTopicBtn" type="button"
-                onclick="window.switchCoordSubview('topic-bank'); setTimeout(() => window.openCoordAddTopicBankModal(), 80);"><svg xmlns="http://www.w3.org/2000/svg"
-                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                  stroke-linecap="round" stroke-linejoin="round"
+                onclick="window.switchCoordSubview('topic-bank'); setTimeout(() => window.openCoordAddTopicBankModal(), 80);"><svg
+                  xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
                   style="display:inline; vertical-align:middle; margin-right:4px;">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -3030,8 +3147,8 @@
             </div>
             <div class="portal-actions">
               <button class="btn btn-primary btn-sm" id="coordAddTopicModalBtn" type="button"
-                onclick="window.openCoordAddTopicBankModal()"><svg xmlns="http://www.w3.org/2000/svg"
-                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                onclick="window.openCoordAddTopicBankModal()"><svg xmlns="http://www.w3.org/2000/svg" width="16"
+                  height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                   stroke-linecap="round" stroke-linejoin="round"
                   style="display:inline; vertical-align:middle; margin-right:4px;">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -3281,15 +3398,21 @@
           </div>
 
           <!-- Presenter Academic Paper Review Queue -->
-          <div class="card-panel" style="max-width: 860px; margin: 0 auto 2rem auto; border-inline-start: 4px solid var(--accent-gold); background: var(--bg-surface);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div class="card-panel"
+            style="max-width: 860px; margin: 0 auto 2rem auto; border-inline-start: 4px solid var(--accent-gold); background: var(--bg-surface);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
               <div>
-                <h3 class="serif-text" style="color: var(--brand-navy); margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <h3 class="serif-text"
+                  style="color: var(--brand-navy); margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
                   <span>📚 Presenter Paper Review Queue</span>
-                  <span class="badge" id="coordPendingWritingsBadge" style="background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3);">0 Pending</span>
+                  <span class="badge" id="coordPendingWritingsBadge"
+                    style="background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3);">0
+                    Pending</span>
                 </h3>
                 <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
-                  Review research papers authored by accredited Presenters. Approving a paper immediately publishes it to all Member Dashboards.
+                  Review research papers authored by accredited Presenters. Approving a paper immediately publishes it
+                  to all Member Dashboards.
                 </p>
               </div>
             </div>
@@ -3300,7 +3423,8 @@
 
           <div class="card-panel" style="max-width: 860px; margin: 0 auto;">
             <div style="margin-bottom: 1rem;">
-              <h3 class="serif-text" style="color: var(--brand-navy); margin: 0; font-size: 1.25rem;">Direct Coordinator Drafting Studio</h3>
+              <h3 class="serif-text" style="color: var(--brand-navy); margin: 0; font-size: 1.25rem;">Direct Coordinator
+                Drafting Studio</h3>
             </div>
             <form id="coordSummaryForm">
               <div class="form-group">
@@ -3587,7 +3711,7 @@
   <!-- =======================================================================
        MODAL 1: AUTHENTICATION / SIGN IN MODAL
        ======================================================================= -->
-    <div class="modal-backdrop" id="authModal">
+  <div class="modal-backdrop" id="authModal">
     <div class="modal-dialog">
       <button class="modal-close-btn" id="authModalClose">&times;</button>
       <h3 class="modal-title serif-text" data-i18n="navLogin">Sign In</h3>
@@ -3595,21 +3719,37 @@
 
       <!-- 3-Button Segmented Role Tab Switcher (Member | Presenter | Admin) -->
       <div class="form-group" style="margin-bottom: 1.25rem;">
-        <label class="form-label" style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+        <label class="form-label"
+          style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
           <span>Sign In As:</span>
           <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">Select Target Portal</span>
         </label>
         <div class="role-segmented-switcher" id="modalRoleSegmentedSwitcher" role="tablist">
-          <button type="button" class="role-segmented-tab tab-member active" data-role="member" role="tab" aria-selected="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <button type="button" class="role-segmented-tab tab-member active" data-role="member" role="tab"
+            aria-selected="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
             <span>Member</span>
           </button>
-          <button type="button" class="role-segmented-tab tab-presenter" data-role="presenter" role="tab" aria-selected="false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+          <button type="button" class="role-segmented-tab tab-presenter" data-role="presenter" role="tab"
+            aria-selected="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" x2="12" y1="19" y2="22"></line>
+            </svg>
             <span>Presenter</span>
           </button>
           <button type="button" class="role-segmented-tab tab-admin" data-role="admin" role="tab" aria-selected="false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
             <span>Admin</span>
           </button>
         </div>
@@ -3617,19 +3757,22 @@
       </div>
 
       <!-- Error Alert Message Box -->
-      <div id="authErrorAlert" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.88rem; margin-bottom: 1rem; line-height: 1.45;">
+      <div id="authErrorAlert"
+        style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.88rem; margin-bottom: 1rem; line-height: 1.45;">
       </div>
 
       <!-- Real credentials form -->
       <form id="loginForm">
         <div class="form-group">
           <label class="form-label" for="loginEmail" data-i18n="authEmailLabel">Email Address</label>
-          <input type="email" class="form-control" id="loginEmail" placeholder="your.name@example.com" required autocomplete="email">
+          <input type="email" class="form-control" id="loginEmail" placeholder="your.name@example.com" required
+            autocomplete="email">
         </div>
 
         <div class="form-group">
           <label class="form-label" for="loginPassword" data-i18n="authPasswordLabel">Password</label>
-          <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+          <input type="password" class="form-control" id="loginPassword" placeholder="••••••••" required
+            autocomplete="current-password">
         </div>
 
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 1rem;"
@@ -3645,8 +3788,11 @@
       </form>
 
       <!-- Convenient Demo Role Switcher for instant evaluation -->
-      <div class="demo-role-switcher" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
-        <div class="demo-role-title" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 0.5rem; text-align: center;">Instant Demo 1-Click Login</div>
+      <div class="demo-role-switcher"
+        style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+        <div class="demo-role-title"
+          style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 0.5rem; text-align: center;">
+          Instant Demo 1-Click Login</div>
         <div class="demo-buttons-grid"
           style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem;">
           <button type="button" class="btn btn-outline btn-sm auth-demo-btn" id="demoMemberBtn"
@@ -3695,8 +3841,12 @@
   <div class="modal-backdrop" id="signupModal" style="display: none;">
     <div class="modal-dialog" style="max-width: 520px;">
       <button class="modal-close-btn" id="signupModalClose">&times;</button>
-      <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; background: rgba(5, 150, 105, 0.12); color: #059669; border-radius: 999px; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.75rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <div
+        style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; background: rgba(5, 150, 105, 0.12); color: #059669; border-radius: 999px; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.75rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
         <span>Application Approved by Coordinators</span>
       </div>
       <h3 class="modal-title serif-text">Complete Your Membership Registration</h3>
@@ -3724,21 +3874,26 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="signupEmail">Email Address</label>
-            <input type="email" class="form-control" id="signupEmail" readonly style="background: var(--bg-subtle, #f1f5f9); cursor: not-allowed;" required>
+            <input type="email" class="form-control" id="signupEmail" readonly
+              style="background: var(--bg-subtle, #f1f5f9); cursor: not-allowed;" required>
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="signupPassword">Create Custom Password</label>
-          <input type="password" class="form-control" id="signupPassword" placeholder="Minimum 6 characters" minlength="6" required>
+          <input type="password" class="form-control" id="signupPassword" placeholder="Minimum 6 characters"
+            minlength="6" required>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
-          <input type="password" class="form-control" id="signupConfirmPassword" placeholder="Re-enter password" minlength="6" required>
+          <input type="password" class="form-control" id="signupConfirmPassword" placeholder="Re-enter password"
+            minlength="6" required>
         </div>
 
-        <div id="signupErrorAlert" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem;"></div>
+        <div id="signupErrorAlert"
+          style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem;">
+        </div>
 
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
           Continue to Email Verification &rarr;
@@ -3747,33 +3902,50 @@
 
       <!-- Step 2: OTP Verification (hidden initially) -->
       <div id="signupOtpStep" style="display: none; margin-top: 1rem;">
-        <div style="background: rgba(15, 43, 72, 0.05); border: 1px dashed var(--brand-navy); border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
-          <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--brand-navy); font-weight: 700; margin-bottom: 0.35rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <div
+          style="background: rgba(15, 43, 72, 0.05); border: 1px dashed var(--brand-navy); border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div
+            style="display: flex; align-items: center; gap: 0.5rem; color: var(--brand-navy); font-weight: 700; margin-bottom: 0.35rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
             <span>In-App Email Delivery Simulator</span>
           </div>
           <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0 0 0.5rem 0;">
-            A one-time verification code has been dispatched to: <strong id="otpRecipientEmail" style="color: var(--brand-navy);"></strong>
+            A one-time verification code has been dispatched to: <strong id="otpRecipientEmail"
+              style="color: var(--brand-navy);"></strong>
           </p>
-          <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.75rem; text-align: center;">
-            <span style="font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Your 6-Digit Email Verification Code:</span>
-            <span id="simulatedOtpDisplay" style="font-family: monospace; font-size: 1.7rem; font-weight: 800; letter-spacing: 0.25em; color: var(--brand-green);">------</span>
+          <div
+            style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.75rem; text-align: center;">
+            <span
+              style="font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Your
+              6-Digit Email Verification Code:</span>
+            <span id="simulatedOtpDisplay"
+              style="font-family: monospace; font-size: 1.7rem; font-weight: 800; letter-spacing: 0.25em; color: var(--brand-green);">------</span>
           </div>
         </div>
 
         <form id="signupOtpForm">
           <div class="form-group" style="text-align: center;">
             <label class="form-label" for="signupOtpInput" style="font-weight: 700;">Enter 6-Digit Code</label>
-            <input type="text" class="form-control" id="signupOtpInput" maxlength="6" pattern="[0-9]{6}" placeholder="000000" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em; font-family: monospace; max-width: 260px; margin: 0 auto;" required autocomplete="one-time-code">
+            <input type="text" class="form-control" id="signupOtpInput" maxlength="6" pattern="[0-9]{6}"
+              placeholder="000000"
+              style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em; font-family: monospace; max-width: 260px; margin: 0 auto;"
+              required autocomplete="one-time-code">
           </div>
 
-          <div id="otpErrorAlert" style="display: none; padding: 0.75rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
+          <div id="otpErrorAlert"
+            style="display: none; padding: 0.75rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;">
+          </div>
 
           <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 0.75rem;">
             Verify OTP & Complete Membership
           </button>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-top: 0.5rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-top: 0.5rem;">
             <button type="button" class="btn btn-outline btn-sm" id="signupOtpBackBtn">&larr; Back to Details</button>
             <button type="button" class="btn btn-outline btn-sm" id="signupOtpResendBtn">Resend Code</button>
           </div>
@@ -4121,7 +4293,8 @@
         <span style="color: var(--text-muted); font-size: 0.85rem;">Global Youth Dialogue</span>
       </div>
       <h3 class="modal-title serif-text">Apply to Become an Official Presenter</h3>
-      <p class="modal-subtitle">Accredited presenters can choose or curate topics from the Topic Bank, deliver 10â€“30 min
+      <p class="modal-subtitle">Accredited presenters can choose or curate topics from the Topic Bank, deliver 10â€“30
+        min
         research briefings, and present keynotes in international dialogue sessions.</p>
 
       <form id="applyPresenterForm" onsubmit="window.handlePresenterApplicationSubmit(event)">

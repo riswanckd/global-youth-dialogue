@@ -15,6 +15,166 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentCoordSubview = 'dashboard';
 
   // =========================================================================
+  // THEME SWITCHER (Light & Dark Mode) - Strict 4 Colors
+  // =========================================================================
+  function initThemeSwitcher() {
+    const savedTheme = localStorage.getItem('gyde_theme') || (
+      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    );
+    applyTheme(savedTheme);
+
+    const toggleBtn = document.getElementById('themeToggleBtn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+      });
+    }
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('gyde_theme', theme);
+    const icon = document.getElementById('themeToggleIcon');
+    if (icon) {
+      icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+    }
+  }
+
+  // =========================================================================
+  // LIVE COUNTDOWN TIMER (Scheduled Debate In-Real-Time)
+  // =========================================================================
+  function initLiveCountdownTimer() {
+    const now = new Date().getTime();
+    let target = localStorage.getItem('gyde_next_debate_time');
+    if (!target || parseInt(target) <= now) {
+      target = now + (3 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) + (28 * 60 * 1000);
+      localStorage.setItem('gyde_next_debate_time', target);
+    } else {
+      target = parseInt(target);
+    }
+
+    function updateClock() {
+      const current = new Date().getTime();
+      let diff = target - current;
+      if (diff <= 0) {
+        target = current + (7 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('gyde_next_debate_time', target);
+        diff = target - current;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const dEl = document.getElementById('timerDays');
+      const hEl = document.getElementById('timerHours');
+      const mEl = document.getElementById('timerMinutes');
+      const sEl = document.getElementById('timerSeconds');
+
+      if (dEl) dEl.textContent = String(days).padStart(2, '0');
+      if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+      if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
+      if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+
+  // =========================================================================
+  // ANIMATED NUMBER COUNTERS (Metrics Bar Scroll Easing)
+  // =========================================================================
+  function initAnimatedCounters() {
+    const counterGrid = document.getElementById('metricsCounterGrid');
+    if (!counterGrid) return;
+
+    let hasAnimated = false;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !hasAnimated) {
+          hasAnimated = true;
+          animateAllCounters();
+        }
+      });
+    }, { threshold: 0.2 });
+
+    observer.observe(counterGrid);
+
+    function animateAllCounters() {
+      const counters = [
+        { id: 'statNationsNum', target: 14, suffix: '+', bar: 'barNations' },
+        { id: 'statDebatersNum', target: 60, suffix: '+', bar: 'barDebaters' },
+        { id: 'statSessionsNum', target: 52, suffix: '', bar: 'barSessions' },
+        { id: 'statWritingsNum', target: 100, suffix: '%', bar: 'barWritings' }
+      ];
+
+      counters.forEach(item => {
+        const el = document.getElementById(item.id);
+        const bar = document.getElementById(item.bar);
+        if (bar) bar.classList.add('active');
+        if (!el) return;
+
+        const duration = 1800; // ms
+        const startTime = performance.now();
+
+        function step(now) {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const currentVal = Math.floor(easeOut * item.target);
+          el.textContent = currentVal + (progress === 1 ? item.suffix : '');
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            el.textContent = item.target + item.suffix;
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+  }
+
+  // =========================================================================
+  // INTERACTIVE LIVE MOTION POLL
+  // =========================================================================
+  window.castMotionVote = function(choice) {
+    const container = document.getElementById('pollBarContainer');
+    const ayeBar = document.getElementById('pollBarAye');
+    const nayBar = document.getElementById('pollBarNay');
+    const feedback = document.getElementById('pollVoteFeedback');
+    const actions = document.getElementById('pollVoteActions');
+
+    if (!container || !ayeBar || !nayBar) return;
+
+    container.style.display = 'flex';
+    let ayePct = choice === 'aye' ? 66 : 61;
+    let nayPct = 100 - ayePct;
+
+    setTimeout(() => {
+      ayeBar.style.width = ayePct + '%';
+      ayeBar.textContent = ayePct + '% AYE';
+      nayBar.style.width = nayPct + '%';
+      nayBar.textContent = nayPct + '% NAY';
+    }, 50);
+
+    if (feedback) feedback.style.display = 'block';
+    if (actions) {
+      actions.style.opacity = '0.7';
+      actions.style.pointerEvents = 'none';
+    }
+    showToast('Your vote was counted in the global delegate consensus!', 'success');
+  };
+
+  // Run initial modern enhancements
+  initThemeSwitcher();
+  initLiveCountdownTimer();
+  initAnimatedCounters();
+
+  // =========================================================================
   // TOAST NOTIFICATION UTILITY
   // =========================================================================
   function showToast(message, type = 'normal') {

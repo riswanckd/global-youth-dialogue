@@ -7,7 +7,7 @@
 const TRANSLATIONS = {
   en: {
     // Brand & Meta
-    brandName: 'Global Youth Dialogue',
+    brandName: 'Global Youth Dialogue & Exchange',
     brandSubtitle: 'International Community of Youth Debaters',
     taglineShort: 'Connect. Challenge. Create.',
     taglineLong: 'Young minds. Different countries. One conversation.',
@@ -276,8 +276,8 @@ const TRANSLATIONS = {
 
   ar: {
     // Brand & Meta
-    brandName: 'الحوار الشبابي الدولي',
-    brandSubtitle: 'مجتمع دولي للمناظرين الشباب',
+    brandName: 'الحوار والتبادل الشبابي الدولي (GYDE)',
+    brandSubtitle: 'مجتمع دولي للمناظرين والباحثين الشباب',
     taglineShort: 'تواصل. حاور. ابتكر.',
     taglineLong: 'عقول شابة. دول مختلفة. حوار واحد.',
     heroSubtext: 'مجتمع دولي يقوده الشباب يربط المناظرين لاستكشاف القضايا العالمية وتبادل وجهات النظر وتطوير الأفكار من خلال حوار منظم.',
