@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 
 <head>
@@ -8,12 +8,12 @@
     content="Global Youth Dialogue - An independent youth-led international community connecting young debaters worldwide to explore global issues, write academic papers, and develop ideas through weekly structured dialogue.">
   <meta name="keywords"
     content="Global Youth Dialogue, debate, international youth, academic writings, global affairs, youth leadership, student dialogue">
-  <title>Global Youth Dialogue | International Community of Youth Debaters</title>
+  <title>Global Youth Dialogue & Exchange (GYDE) | International Community of Youth Debaters</title>
 
   <!-- Google Fonts & Stylesheet -->
-  <link rel="stylesheet" href="main.css?v=2.5" onerror="this.href='styles/main.css?v=2.5'">
+  <link rel="stylesheet" href="main.css?v=4.0" onerror="this.href='styles/main.css?v=4.0'">
   <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230E4D3C'/><text y='65' x='50' text-anchor='middle' fill='%23FFFFFF' font-size='42' font-family='sans-serif' font-weight='bold'>GYD</text></svg>">
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234851BA'/><text y='65' x='50' text-anchor='middle' fill='%23FFFFFF' font-size='32' font-family='sans-serif' font-weight='bold'>GYDE</text></svg>">
 </head>
 
 <body>
@@ -23,11 +23,11 @@
        ======================================================================= -->
   <header class="site-header" id="siteHeader">
     <div class="container header-inner">
-      <!-- Brand Logo -->
+      <!-- Brand Logo (Official GYDE) -->
       <a href="#home" class="brand-identity" id="brandLogo">
-        <div class="brand-icon-wrapper">GYD</div>
+        <img src="assets/images/gyde_official_logo.png" alt="GYDE Logo" class="brand-logo-img">
         <div class="brand-text">
-          <span class="brand-title" data-i18n="brandName">Global Youth Dialogue</span>
+          <span class="brand-title" data-i18n="brandName">Global Youth Dialogue & Exchange</span>
           <span class="brand-sub" data-i18n="brandSubtitle">International Community of Youth Debaters</span>
         </div>
       </a>
@@ -44,13 +44,18 @@
       <!-- Header Action Controls -->
       <div class="header-actions">
         <!-- Global Search Button -->
-        <button class="header-control-btn" id="headerSearchBtn" title="Search GYD">
+        <button class="header-control-btn" id="headerSearchBtn" title="Search GYDE">
           <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg></span>
           <span class="search-btn-label" data-i18n="searchBtn">Search</span>
+        </button>
+
+        <!-- Theme Switcher Button (☀️ / 🌙) -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark Mode" aria-label="Toggle theme">
+          <span id="themeToggleIcon">☀️</span>
         </button>
 
         <!-- In-App Notification Bell (Only visible for authenticated users in dashboards) -->
@@ -64,14 +69,14 @@
         </button>
 
         <!-- Language Switcher Button (English / Arabic) -->
-        <button class="btn-lang" id="langToggleBtn" title="Switch Language / ØªØºÙŠÙŠØ± Ø§Ù„Ù„ØºØ©">
+        <button class="btn-lang" id="langToggleBtn" title="Switch Language / تغيير اللغة">
           <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
               fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="2" y1="12" x2="22" y2="12"></line>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
               </path>
-            </svg></span> <span>Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</span>
+            </svg></span> <span>العربية</span>
         </button>
 
         <!-- Dynamic User Status / Action Buttons -->
@@ -98,9 +103,9 @@
   <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true">
     <div class="mobile-drawer-header">
       <div class="brand-identity">
-        <div class="brand-icon-wrapper">GYD</div>
+        <img src="assets/images/gyde_official_logo.png" alt="GYDE Logo" style="height: 38px; width: auto;">
         <div class="brand-text">
-          <span class="brand-title" data-i18n="brandName">Global Youth Dialogue</span>
+          <span class="brand-title" data-i18n="brandName">Global Youth Dialogue & Exchange</span>
         </div>
       </div>
       <button class="modal-close-btn" id="mobileDrawerCloseBtn" aria-label="Close Menu">&times;</button>
@@ -114,10 +119,8 @@
         <a href="#impact" class="mobile-nav-link" data-i18n="navImpact">Our Impact</a>
       </nav>
       <div class="mobile-drawer-actions" id="mobileDrawerActions">
-        <button class="btn btn-outline" id="mobileDrawerLoginBtn" style="width: 100%;" data-i18n="navLogin">Sign
-          In</button>
-        <button class="btn btn-primary" id="mobileDrawerJoinBtn" style="width: 100%;" data-i18n="navJoinUs">Join
-          Us</button>
+        <button class="btn btn-outline" id="mobileDrawerLoginBtn" style="width: 100%;" data-i18n="navLogin">Sign In</button>
+        <button class="btn btn-primary" id="mobileDrawerJoinBtn" style="width: 100%;" data-i18n="navJoinUs">Join Us</button>
       </div>
     </div>
   </aside>
@@ -130,57 +133,198 @@
          PUBLIC SECTION 1: HOME
          ======================================================================= -->
     <div class="public-section active" id="home">
-      <!-- Hero Section -->
+      <!-- Modern Asymmetric Split Hero Section -->
       <section class="hero-section">
+        <!-- Ambient Background Glow -->
+        <div class="hero-ambient-glow"></div>
+
         <div class="container">
-          <div class="hero-badge-wrap">
-            <span class="svg-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="8" r="7"></circle>
-                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-              </svg></span>
-            <span data-i18n="badgeOrigin">International Community of Youth Debaters</span>
-          </div>
-          <h1 class="hero-title serif-text" data-i18n="taglineLong">
-            Young minds. Different countries. One conversation.
-          </h1>
-          <p class="hero-subtext" data-i18n="heroSubtext">
-            A youth-led international community connecting young debaters to explore global issues, exchange
-            perspectives and develop ideas through structured dialogue.
-          </p>
-          <div class="hero-actions">
-            <button class="btn btn-primary btn-lg" id="heroExploreBtn" data-i18n="btnExplore">
-              Explore the Community
-            </button>
-            <button class="btn btn-outline btn-lg" id="heroSessionsBtn" data-i18n="btnUpcomingSessions">
-              Upcoming Sessions
-            </button>
-            <button class="btn btn-navy btn-lg" id="heroJoinBtn" data-i18n="btnJoinCommunity">
-              Apply for Membership
-            </button>
+          <div class="hero-grid">
+            
+            <!-- Left Column: Editorial Content & CTAs -->
+            <div class="hero-content">
+              <div class="hero-eyebrow">
+                <span class="hero-eyebrow-line"></span>
+                <span data-i18n="badgeOrigin">Global Youth Dialogue & Exchange (GYDE) • 14+ Countries</span>
+              </div>
+
+              <h1 class="hero-title serif-text" data-i18n="taglineLong">
+                Young minds. Different countries. One conversation.
+              </h1>
+
+              <div class="hero-subtitle-lead">
+                International Youth Academic & Debate Forum Connecting Global Thinkers
+              </div>
+
+              <p class="hero-subtext" data-i18n="heroSubtext">
+                A youth-led international community connecting debaters across 14+ nations to explore complex global issues, exchange perspectives, and publish academic research through weekly structured parliamentary dialogue.
+              </p>
+
+              <div class="hero-actions">
+                <button class="btn btn-primary btn-lg" id="heroJoinBtn" data-i18n="btnJoinCommunity">
+                  Apply for Membership &rarr;
+                </button>
+                <button class="btn btn-outline btn-lg" id="heroSessionsBtn" data-i18n="btnUpcomingSessions">
+                  Explore Dialogue Sessions
+                </button>
+              </div>
+
+              <!-- 4-Item Diamond Bullet Metadata Grid -->
+              <div class="hero-meta-grid">
+                <div class="hero-meta-item">
+                  <span class="hero-meta-diamond">&#9670;</span>
+                  <span>14+ Global Chapters</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-diamond">&#9670;</span>
+                  <span>Weekly Structured Debates</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-diamond">&#9670;</span>
+                  <span>60+ Active Youth Debaters</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-diamond">&#9670;</span>
+                  <span>100% Youth-Researched Papers</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Curated 3-Photo Community Collage -->
+            <div class="hero-collage-wrap">
+              <!-- Decorative Geometric Sunburst Accent -->
+              <svg class="hero-sunburst-accent" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 0L53.5 35L85.3 14.6L64.6 46.5L100 50L64.6 53.5L85.3 85.4L53.5 64.6L50 100L46.5 64.6L14.7 85.4L35.4 53.5L0 50L35.4 46.5L14.7 14.6L46.5 35L50 0Z" fill="currentColor"/>
+              </svg>
+
+              <div class="hero-collage-grid">
+                <!-- Main Tall Keynote Speaker Portrait -->
+                <div class="collage-main-card">
+                  <img src="assets/images/speaker_female_debate.jpg" alt="Female delegate presenting keynote" class="collage-main-img">
+                  <div class="collage-badge-tag">
+                    <span>&#127908;</span>
+                    <span>Floor Keynote Speech</span>
+                  </div>
+                </div>
+
+                <!-- Stacked Column (Walk + Paper Presenter) -->
+                <div class="collage-stack-col">
+                  <!-- Top: Outdoor Global Walk -->
+                  <div class="collage-stack-card">
+                    <img src="assets/images/delegates_walk_outdoor.jpg" alt="International youth delegates walking together" class="collage-stack-img">
+                    <div class="collage-badge-tag">
+                      <span>&#127757;</span>
+                      <span>14+ Nations Connected</span>
+                    </div>
+                  </div>
+
+                  <!-- Bottom: Academic Paper Presenter -->
+                  <div class="collage-stack-card">
+                    <img src="assets/images/debater_paper_presenter.jpg" alt="Youth delegate presenting academic draft" class="collage-stack-img">
+                    <div class="collage-badge-tag">
+                      <span>&#128220;</span>
+                      <span>Youth Academic Research</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      <!-- Key Metrics Strip -->
+      <!-- Floating Live Session Countdown Strip (Overlapping Hero Bottom) -->
+      <div class="container floating-countdown-strip" id="heroCountdownStrip">
+        <div class="floating-countdown-card">
+          <div class="countdown-label-wrap">
+            <div class="countdown-radar-tag">
+              <span class="radar-dot"></span>
+              <span>Next Global Dialogue Debate</span>
+            </div>
+            <h4 class="countdown-topic-title">AI Sovereignty & International Human Rights</h4>
+          </div>
+
+          <!-- Digital Countdown Boxes Group -->
+          <div class="countdown-boxes-group">
+            <div class="countdown-box">
+              <span class="countdown-digit" id="timerDays">03</span>
+              <span class="countdown-unit">Days</span>
+            </div>
+            <span class="countdown-separator">:</span>
+            <div class="countdown-box">
+              <span class="countdown-digit" id="timerHours">14</span>
+              <span class="countdown-unit">Hours</span>
+            </div>
+            <span class="countdown-separator">:</span>
+            <div class="countdown-box">
+              <span class="countdown-digit" id="timerMinutes">28</span>
+              <span class="countdown-unit">Mins</span>
+            </div>
+            <span class="countdown-separator">:</span>
+            <div class="countdown-box">
+              <span class="countdown-digit" id="timerSeconds">42</span>
+              <span class="countdown-unit">Secs</span>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button class="btn btn-primary" onclick="window.navigatePublic('sessions')" style="white-space: nowrap;">
+            <span>Register to Attend</span> &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- Continuous Silky Marquee Ribbon -->
+      <div class="marquee-ribbon-wrap">
+        <div class="marquee-track">
+          <div class="marquee-item">&#127757; 14+ Global Chapters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127469; Accra</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127478;&#127462; Doha</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127463;&#127479; S&atilde;o Paulo</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127463; Oxford</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127470;&#127475; New Delhi</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#9878; Weekly Live Parliamentary Motions</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#128220; 100% Youth-Researched Papers</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127891; 60+ International Debaters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127482;&#127480; Washington D.C.</div>
+          <!-- Repeated for smooth infinite loop -->
+          <div class="marquee-item">&#127757; 14+ Global Chapters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127469; Accra</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127478;&#127462; Doha</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127463;&#127479; S&atilde;o Paulo</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127463; Oxford</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127470;&#127475; New Delhi</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#9878; Weekly Live Parliamentary Motions</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#128220; 100% Youth-Researched Papers</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127891; 60+ International Debaters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127482;&#127480; Washington D.C.</div>
+        </div>
+      </div>
+
+      <!-- Key Metrics Strip with Animated Numbers -->
       <div class="metrics-strip">
         <div class="container">
-          <div class="metrics-grid">
+          <div class="metrics-grid" id="metricsCounterGrid">
             <div class="metric-item">
-              <div class="metric-number" data-i18n="statNationsNum">14+</div>
+              <div class="metric-number-animated" id="statNationsNum" data-target="14">0</div>
               <div class="metric-label" data-i18n="statNations">Countries Represented</div>
+              <div class="metric-item-bar" id="barNations"></div>
             </div>
             <div class="metric-item">
-              <div class="metric-number" data-i18n="statDebatersNum">60+</div>
+              <div class="metric-number-animated" id="statDebatersNum" data-target="60">0</div>
               <div class="metric-label" data-i18n="statDebaters">Youth Debaters</div>
+              <div class="metric-item-bar" id="barDebaters"></div>
             </div>
             <div class="metric-item">
-              <div class="metric-number" data-i18n="statSessionsNum">Weekly</div>
-              <div class="metric-label" data-i18n="statSessions">Weekly Dialogue Sessions</div>
+              <div class="metric-number-animated" id="statSessionsNum" data-target="52">0</div>
+              <div class="metric-label" data-i18n="statSessions">Weekly Dialogue Sessions / Yr</div>
+              <div class="metric-item-bar" id="barSessions"></div>
             </div>
             <div class="metric-item">
-              <div class="metric-number" data-i18n="statWritingsNum">100%</div>
-              <div class="metric-label" data-i18n="statWritings">Youth-Led & Researched</div>
+              <div class="metric-number-animated" id="statWritingsNum" data-target="100">0</div>
+              <div class="metric-label" data-i18n="statWritings">Youth-Led & Researched (%)</div>
+              <div class="metric-item-bar" id="barWritings"></div>
             </div>
           </div>
         </div>
@@ -200,7 +344,7 @@
             <button class="btn btn-outline btn-sm home-upcoming-all-btn" id="homeViewAllSessionsBtn"
               data-public-nav="sessions">
               <span data-i18n="homeSessionsViewAll">View All Sessions & Archives</span> <span
-                class="arrow-sym">â†’</span>
+                class="arrow-sym">&rarr;</span>
             </button>
           </div>
 
@@ -233,7 +377,7 @@
               <h3 class="serif-text" data-i18n="navAbout">About the Movement</h3>
               <p data-i18n="aboutSubtitle">Founded by friends who met at an international debate championship to turn
                 competitive debate into a permanent global academic network.</p>
-              <span class="feature-learn-more"><span data-i18n="btnLearnMore">Learn More</span> â†’</span>
+              <span class="feature-learn-more"><span data-i18n="btnLearnMore">Learn More</span> &rarr;</span>
             </div>
             <div class="highlight-feature-card" data-public-nav="topics">
               <div class="feature-icon-badge">
@@ -248,7 +392,7 @@
               <h3 class="serif-text" data-i18n="topicsTitle">16 Core Knowledge Spheres</h3>
               <p data-i18n="topicsSubtitle">Explore multidisciplinary arenas from Geopolitics & AI Ethics to Climate,
                 Governance, and Human Rights.</p>
-              <span class="feature-learn-more"><span data-i18n="navTopics">Explore Topics</span> â†’</span>
+              <span class="feature-learn-more"><span data-i18n="navTopics">Explore Topics</span> &rarr;</span>
             </div>
             <div class="highlight-feature-card" data-public-nav="impact">
               <div class="feature-icon-badge">
@@ -266,7 +410,7 @@
               <h3 class="serif-text" data-i18n="impactTitle">Our Impact</h3>
               <p data-i18n="impactSubtitle">Grow beyond the debate room: develop rigorous research, public speaking,
                 academic writing, and international leadership.</p>
-              <span class="feature-learn-more"><span data-i18n="navImpact">Discover Impact</span> â†’</span>
+              <span class="feature-learn-more"><span data-i18n="navImpact">Discover Impact</span> &rarr;</span>
             </div>
           </div>
         </div>
@@ -662,22 +806,22 @@
             <div class="journey-flow-wrapper">
               <div class="journey-step"><span class="journey-step-num">1</span> <span
                   data-i18n="impactJourneyStep1">Join</span></div>
-              <div class="journey-arrow">â†’</div>
+              <div class="journey-arrow">&rarr;</div>
               <div class="journey-step"><span class="journey-step-num">2</span> <span
                   data-i18n="impactJourneyStep2">Participate</span></div>
-              <div class="journey-arrow">â†’</div>
+              <div class="journey-arrow">&rarr;</div>
               <div class="journey-step"><span class="journey-step-num">3</span> <span
                   data-i18n="impactJourneyStep3">Research</span></div>
-              <div class="journey-arrow">â†’</div>
+              <div class="journey-arrow">&rarr;</div>
               <div class="journey-step"><span class="journey-step-num">4</span> <span
                   data-i18n="impactJourneyStep4">Present</span></div>
-              <div class="journey-arrow">â†’</div>
+              <div class="journey-arrow">&rarr;</div>
               <div class="journey-step"><span class="journey-step-num">5</span> <span
                   data-i18n="impactJourneyStep5">Lead</span></div>
-              <div class="journey-arrow">â†’</div>
+              <div class="journey-arrow">&rarr;</div>
               <div class="journey-step"><span class="journey-step-num">6</span> <span
                   data-i18n="impactJourneyStep6">Write</span></div>
-              <div class="journey-arrow">â†’</div>
+              <div class="journey-arrow">&rarr;</div>
               <div class="journey-step journey-step-final"><span class="journey-step-num">7</span> <span
                   data-i18n="impactJourneyStep7">Contribute</span></div>
             </div>
@@ -1942,19 +2086,19 @@
             <div class="cert-corner cert-bl"></div>
             <div class="cert-corner cert-br"></div>
 
-            <div class="cert-header-seal">GYD</div>
-            <div class="cert-main-title">Global Youth Dialogue</div>
+            <div class="cert-header-seal">GYDE</div>
+            <div class="cert-main-title">Global Youth Dialogue & Exchange</div>
             <div
-              style="font-family: 'Cairo', sans-serif; font-size: 1rem; color: #0E4D3C; font-weight: 700; margin-bottom: 0.25rem;">
-              Ø§Ù„Ø­ÙˆØ§Ø± Ø§Ù„Ø´Ø¨Ø§Ø¨ÙŠ Ø§Ù„Ø¯ÙˆÙ„ÙŠ â€” Ø´Ø¨ÙƒØ© Ù…Ù†Ø§Ø¸Ø±Ø§Øª Ù‚Ø·Ø±
+              style="font-family: 'Cairo', sans-serif; font-size: 1rem; color: #4851BA; font-weight: 700; margin-bottom: 0.25rem;">
+              الحوار والتبادل الشبابي الدولي (GYDE)
             </div>
             <div class="cert-sub-title">Certificate of International Youth Dialogue Participation</div>
 
-            <p style="font-size: 0.9rem; color: #5C726D; margin-bottom: 0.5rem;">This official testimonial is proudly
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">This official testimonial is proudly
               presented to:</p>
             <div class="cert-recipient" id="certRecipientName">Kofi Mensah</div>
-            <div style="font-size: 1rem; font-weight: 600; color: #0E4D3C; margin-bottom: 1.5rem;" id="certCountryRole">
-              Ghana â€¢ National Schools Debate Delegate
+            <div style="font-size: 1rem; font-weight: 600; color: #4851BA; margin-bottom: 1.5rem;" id="certCountryRole">
+              Ghana • National Schools Debate Delegate
             </div>
 
             <p class="cert-body-p">
@@ -2304,7 +2448,7 @@
               </p>
             </div>
             <button class="btn btn-primary" onclick="window.switchPresenterSubview('present')">
-              Present a Topic Now â†’
+              Present a Topic Now &rarr;
             </button>
           </div>
 
@@ -2328,7 +2472,7 @@
                 <div class="panel-header">
                   <h4>My Slidedecks & Briefings</h4>
                   <a href="#" style="font-size: 0.82rem; color: var(--brand-green); font-weight: 600;"
-                    onclick="window.switchPresenterSubview('decks'); return false;">View All â†’</a>
+                    onclick="window.switchPresenterSubview('decks'); return false;">View All &rarr;</a>
                 </div>
                 <div id="presenterRecentBriefingsList">
                   <!-- Populated dynamically -->
@@ -2340,7 +2484,7 @@
                 <div class="panel-header">
                   <h4>Academic Topic Bank Quick Access</h4>
                   <a href="#" style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600;"
-                    onclick="window.switchPresenterSubview('topic-bank'); return false;">Browse Bank â†’</a>
+                    onclick="window.switchPresenterSubview('topic-bank'); return false;">Browse Bank &rarr;</a>
                 </div>
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
                   Browse themes in Education, Economics, AI, Environment, and Global Affairs to prepare your next
@@ -2481,7 +2625,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
-                  Submit Presentation Proposal for Scheduling â†’
+                  Submit Presentation Proposal for Scheduling &rarr;
                 </button>
               </form>
             </div>
@@ -3142,8 +3286,8 @@
           <div class="portal-page-header">
             <div class="portal-page-title">
               <h2 class="serif-text">Topic Management & Pipeline</h2>
-              <p>Move proposed debate motions through the academic pipeline: Proposed â†’ Under Review â†’ Approved â†’
-                Scheduled â†’ Completed.</p>
+              <p>Move proposed debate motions through the academic pipeline: Proposed &rarr; Under Review &rarr; Approved &rarr;
+                Scheduled &rarr; Completed.</p>
             </div>
             <div class="portal-actions">
               <button class="btn btn-primary btn-sm" id="coordAddTopicModalBtn" type="button"
@@ -4369,7 +4513,7 @@
           <button type="button" class="btn btn-outline"
             onclick="window.closePresenterApplicationModal()">Cancel</button>
           <button type="submit" class="btn btn-primary"
-            style="background: #059669; border-color: #059669; gap: 0.4rem; display: inline-flex; align-items: center;">
+            style="gap: 0.4rem; display: inline-flex; align-items: center;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -4386,11 +4530,11 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Application Logic Scripts -->
-  <script src="icons.js?v=2.6" onerror="this.src='js/icons.js?v=2.6'"></script>
-  <script src="data.js?v=2.6" onerror="this.src='js/data.js?v=2.6'"></script>
-  <script src="i18n.js?v=2.6" onerror="this.src='js/i18n.js?v=2.6'"></script>
-  <script src="auth.js?v=2.6" onerror="this.src='js/auth.js?v=2.6'"></script>
-  <script src="app.js?v=2.6" onerror="this.src='js/app.js?v=2.6'"></script>
+  <script src="icons.js?v=4.0" onerror="this.src='js/icons.js?v=4.0'"></script>
+  <script src="data.js?v=4.0" onerror="this.src='js/data.js?v=4.0'"></script>
+  <script src="i18n.js?v=4.0" onerror="this.src='js/i18n.js?v=4.0'"></script>
+  <script src="auth.js?v=4.0" onerror="this.src='js/auth.js?v=4.0'"></script>
+  <script src="app.js?v=4.0" onerror="this.src='js/app.js?v=4.0'"></script>
 </body>
 
 </html>
