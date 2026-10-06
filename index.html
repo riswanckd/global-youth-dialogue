@@ -11,7 +11,7 @@
   <title>Global Youth Dialogue & Exchange (GYDE) | International Community of Youth Debaters</title>
 
   <!-- Google Fonts & Stylesheet -->
-  <link rel="stylesheet" href="main.css?v=4.2" onerror="this.href='styles/main.css?v=4.2'">
+  <link rel="stylesheet" href="main.css?v=4.3" onerror="this.href='styles/main.css?v=4.3'">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234851BA'/><text y='65' x='50' text-anchor='middle' fill='%23FFFFFF' font-size='32' font-family='sans-serif' font-weight='bold'>GYDE</text></svg>">
 </head>
@@ -348,8 +348,19 @@
             </button>
           </div>
 
-          <div id="homeUpcomingSessionsContainer" class="home-upcoming-container">
-            <!-- Dynamically populated from data.js via app.js -->
+          <!-- Spotlight Container with Rotating Sunburst Accents -->
+          <div class="spotlight-sunburst-wrapper">
+            <!-- Top-Right Rotating Geometric Sunburst Accent (Orchid Violet) -->
+            <svg class="moving-sunburst-accent spotlight-sunburst-tr" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 0L53.5 35L85.3 14.6L64.6 46.5L100 50L64.6 53.5L85.3 85.4L53.5 64.6L50 100L46.5 64.6L14.7 85.4L35.4 53.5L0 50L35.4 46.5L14.7 14.6L46.5 35L50 0Z" fill="currentColor"/>
+            </svg>
+            <!-- Bottom-Left Rotating Geometric Sunburst Accent (Royal Indigo) -->
+            <svg class="moving-sunburst-accent spotlight-sunburst-bl accent-indigo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 0L53.5 35L85.3 14.6L64.6 46.5L100 50L64.6 53.5L85.3 85.4L53.5 64.6L50 100L46.5 64.6L14.7 85.4L35.4 53.5L0 50L35.4 46.5L14.7 14.6L46.5 35L50 0Z" fill="currentColor"/>
+            </svg>
+            <div id="homeUpcomingSessionsContainer" class="home-upcoming-container">
+              <!-- Dynamically populated from data.js via app.js -->
+            </div>
           </div>
         </div>
       </section>
@@ -379,20 +390,26 @@
                 competitive debate into a permanent global academic network.</p>
               <span class="feature-learn-more"><span data-i18n="btnLearnMore">Learn More</span> &rarr;</span>
             </div>
-            <div class="highlight-feature-card" data-public-nav="topics">
-              <div class="feature-icon-badge">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="2" y1="12" x2="22" y2="12"></line>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                  </path>
-                </svg>
+            <!-- Center Featured Highlight with Rotating Geometric Sunburst Accent -->
+            <div class="highlight-sunburst-card-wrap">
+              <svg class="moving-sunburst-accent highlight-card-sunburst" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 0L53.5 35L85.3 14.6L64.6 46.5L100 50L64.6 53.5L85.3 85.4L53.5 64.6L50 100L46.5 64.6L14.7 85.4L35.4 53.5L0 50L35.4 46.5L14.7 14.6L46.5 35L50 0Z" fill="currentColor"/>
+              </svg>
+              <div class="highlight-feature-card highlight-featured-accent" data-public-nav="topics">
+                <div class="feature-icon-badge">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                    </path>
+                  </svg>
+                </div>
+                <h3 class="serif-text" data-i18n="topicsTitle">16 Core Knowledge Spheres</h3>
+                <p data-i18n="topicsSubtitle">Explore multidisciplinary arenas from Geopolitics & AI Ethics to Climate,
+                  Governance, and Human Rights.</p>
+                <span class="feature-learn-more"><span data-i18n="navTopics">Explore Topics</span> &rarr;</span>
               </div>
-              <h3 class="serif-text" data-i18n="topicsTitle">16 Core Knowledge Spheres</h3>
-              <p data-i18n="topicsSubtitle">Explore multidisciplinary arenas from Geopolitics & AI Ethics to Climate,
-                Governance, and Human Rights.</p>
-              <span class="feature-learn-more"><span data-i18n="navTopics">Explore Topics</span> &rarr;</span>
             </div>
             <div class="highlight-feature-card" data-public-nav="impact">
               <div class="feature-icon-badge">
@@ -4530,11 +4547,11 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Application Logic Scripts -->
-  <script src="icons.js?v=4.1" onerror="this.src='js/icons.js?v=4.1'"></script>
-  <script src="data.js?v=4.1" onerror="this.src='js/data.js?v=4.1'"></script>
-  <script src="i18n.js?v=4.1" onerror="this.src='js/i18n.js?v=4.1'"></script>
-  <script src="auth.js?v=4.1" onerror="this.src='js/auth.js?v=4.1'"></script>
-  <script src="app.js?v=4.1" onerror="this.src='js/app.js?v=4.1'"></script>
+  <script src="icons.js?v=4.3" onerror="this.src='js/icons.js?v=4.3'"></script>
+  <script src="data.js?v=4.3" onerror="this.src='js/data.js?v=4.3'"></script>
+  <script src="i18n.js?v=4.3" onerror="this.src='js/i18n.js?v=4.3'"></script>
+  <script src="auth.js?v=4.3" onerror="this.src='js/auth.js?v=4.3'"></script>
+  <script src="app.js?v=4.3" onerror="this.src='js/app.js?v=4.3'"></script>
 </body>
 
 </html>

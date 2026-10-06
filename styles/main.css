@@ -5607,6 +5607,79 @@ body.rtl-mode .topic-bank-card-title-ar {
   100% { transform: rotate(360deg); }
 }
 
+@keyframes sunburstSpinReverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Reusable Moving Geometric Sunburst Accents */
+.moving-sunburst-accent {
+  position: absolute;
+  color: var(--color-primary-2);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: sunburstSpin 24s linear infinite;
+  filter: drop-shadow(0 0 16px rgba(158, 89, 172, 0.45));
+}
+
+.moving-sunburst-accent.accent-indigo {
+  color: var(--color-primary-1);
+  animation: sunburstSpinReverse 28s linear infinite;
+  filter: drop-shadow(0 0 16px rgba(72, 81, 186, 0.45));
+}
+
+/* Spotlight Card Moving Sunburst Placement */
+.spotlight-sunburst-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.spotlight-sunburst-tr {
+  top: -32px;
+  inset-inline-end: -26px;
+  width: 110px;
+  height: 110px;
+  z-index: 0;
+}
+
+.spotlight-sunburst-bl {
+  bottom: -28px;
+  inset-inline-start: -22px;
+  width: 90px;
+  height: 90px;
+  z-index: 0;
+}
+
+.home-session-spotlight {
+  position: relative;
+  z-index: 1;
+}
+
+/* Highlight Card Moving Sunburst Placement */
+.highlight-sunburst-card-wrap {
+  position: relative;
+  display: flex;
+}
+
+.highlight-sunburst-card-wrap .highlight-feature-card {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.highlight-featured-accent {
+  border-color: rgba(158, 89, 172, 0.35) !important;
+  box-shadow: 0 8px 28px rgba(158, 89, 172, 0.12) !important;
+}
+
+.highlight-card-sunburst {
+  top: -22px;
+  inset-inline-end: -22px;
+  width: 75px;
+  height: 75px;
+  z-index: 0;
+}
+
 .hero-collage-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
