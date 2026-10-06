@@ -259,8 +259,8 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
-  gap: 1rem;
+  height: 74px;
+  gap: 1.25rem;
   max-width: 1360px;
   margin: 0 auto;
   width: 100%;
@@ -268,26 +268,30 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Brand Identity */
 .brand-identity {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   text-decoration: none;
   flex-shrink: 0;
-}
-
-.brand-logo-img {
-  height: 44px;
-  width: auto;
-  max-width: 180px;
-  object-fit: contain;
-  display: block;
-  flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px rgba(72, 81, 186, 0.25));
   transition: transform var(--transition-fast);
 }
 
+.brand-logo-img {
+  height: 56px;
+  width: auto;
+  max-width: 240px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(72, 81, 186, 0.22));
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
 .brand-identity:hover .brand-logo-img {
-  transform: scale(1.03);
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .brand-logo-img {
+  filter: drop-shadow(0 2px 14px rgba(158, 89, 172, 0.45)) brightness(1.08);
 }
 
 .brand-icon-wrapper {
@@ -5418,14 +5422,6 @@ body.rtl-mode .topic-bank-card-title-ar {
 [data-theme="dark"] .theme-toggle-btn:hover {
   background: rgba(158, 89, 172, 0.22);
   border-color: var(--color-primary-2);
-}
-
-.brand-logo-img {
-  height: 42px;
-  width: auto;
-  object-fit: contain;
-  border-radius: 6px;
-  display: block;
 }
 
 /* ==========================================================================
