@@ -2215,22 +2215,57 @@ class DataService {
         if (!parsed.presenterApplications || !parsed.presenterApplications.length) {
           parsed.presenterApplications = JSON.parse(JSON.stringify(INITIAL_DATABASE.presenterApplications || []));
         }
-        // Ensure admin user and all seed users are synced with up-to-date credentials
-        if (parsed.users) {
-          INITIAL_DATABASE.users.forEach(initU => {
-            const existing = parsed.users.find(u => u.email && u.email.toLowerCase() === initU.email.toLowerCase());
-            if (!existing) {
-              parsed.users.unshift(JSON.parse(JSON.stringify(initU)));
-            } else {
-              existing.password = initU.password;
-              existing.role = initU.role;
-              existing.status = initU.status;
-              if (initU.name) existing.name = initU.name;
-              if (initU.department) existing.department = initU.department;
-            }
-          });
+        // Check if trial data has been purged by the administrator
+        const isTrialDeleted = (function() {
+          try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+        })();
+
+        if (isTrialDeleted) {
+          // Permanently erase all demo/trial profiles of members, presenters, and coordinators
+          // Retain strictly the official Administrator account (Mubashir CP / 3681mubashircp@gmail.com)
+          const adminInit = INITIAL_DATABASE.users.find(u => 
+            u.id === 'usr_admin_mubashir' || (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com')
+          );
+          if (Array.isArray(parsed.users)) {
+            parsed.users = parsed.users.filter(u => 
+              (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
+            );
+          } else {
+            parsed.users = [];
+          }
+          const adminExisting = parsed.users.find(u => 
+            (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
+          );
+          if (!adminExisting && adminInit) {
+            parsed.users.unshift(JSON.parse(JSON.stringify(adminInit)));
+          } else if (adminExisting && adminInit) {
+            adminExisting.password = adminInit.password;
+            adminExisting.role = adminInit.role;
+            adminExisting.status = adminInit.status;
+            if (adminInit.name) adminExisting.name = adminInit.name;
+            if (adminInit.department) adminExisting.department = adminInit.department;
+          }
+          parsed.applications = [];
+          parsed.presenterApplications = [];
+          if (parsed.feedback) parsed.feedback = [];
         } else {
-          parsed.users = JSON.parse(JSON.stringify(INITIAL_DATABASE.users));
+          // Ensure admin user and all seed users are synced with up-to-date credentials
+          if (parsed.users) {
+            INITIAL_DATABASE.users.forEach(initU => {
+              const existing = parsed.users.find(u => u.email && u.email.toLowerCase() === initU.email.toLowerCase());
+              if (!existing) {
+                parsed.users.unshift(JSON.parse(JSON.stringify(initU)));
+              } else {
+                existing.password = initU.password;
+                existing.role = initU.role;
+                existing.status = initU.status;
+                if (initU.name) existing.name = initU.name;
+                if (initU.department) existing.department = initU.department;
+              }
+            });
+          } else {
+            parsed.users = JSON.parse(JSON.stringify(INITIAL_DATABASE.users));
+          }
         }
         return parsed;
       }
@@ -2251,7 +2286,14 @@ class DataService {
   }
 
   resetToDefault() {
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem('gyd_trial_data_deleted');
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('gyd_otp_session');
+      localStorage.removeItem('gyd_user_votes');
+      localStorage.removeItem('gyd_ballot_votes');
+      localStorage.removeItem('gyd_pending_registration');
+    } catch (e) {}
     this.db = JSON.parse(JSON.stringify(INITIAL_DATABASE));
     this.saveDatabase();
     return this.db;
@@ -2259,10 +2301,12 @@ class DataService {
 
   clearTrialData(mode = 'all') {
     try {
+      localStorage.setItem('gyd_trial_data_deleted', 'true');
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('gyd_otp_session');
       localStorage.removeItem('gyd_user_votes');
       localStorage.removeItem('gyd_ballot_votes');
+      localStorage.removeItem('gyd_pending_registration');
     } catch (e) {}
 
     // Reset database to initial curated state
@@ -2273,12 +2317,26 @@ class DataService {
     this.db.presenterApplications = [];
     if (this.db.feedback) this.db.feedback = [];
     
-    // Retain only official founding Secretariat and demo benchmark accounts
-    if (Array.isArray(this.db.users)) {
-      this.db.users = this.db.users.filter(u => 
-        u.id.startsWith('usr_coord') || u.id.startsWith('usr_pres') || u.id === 'usr_mem_1'
-      );
-    }
+    // Purge ALL demo and trial profiles of members, presenters, and coordinators
+    // Retain strictly the official Administrator account (Mubashir CP / 3681mubashircp@gmail.com)
+    const adminUser = (INITIAL_DATABASE.users && INITIAL_DATABASE.users.find(u => 
+      u.id === 'usr_admin_mubashir' || (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com')
+    )) || {
+      id: 'usr_admin_mubashir',
+      name: 'Mubashir CP',
+      email: '3681mubashircp@gmail.com',
+      password: '368136',
+      role: 'Coordinator',
+      department: 'Executive Leadership & Administration',
+      country: 'Qatar',
+      flag: 'QA',
+      bio: 'Executive Director & Chief Platform Administrator, Global Youth Dialogue & Exchange (GYDE).',
+      interests: ['Global Affairs', 'Governance & Society', 'Technology & AI', 'Education'],
+      status: 'active',
+      joinedDate: '2024-01-01'
+    };
+
+    this.db.users = [JSON.parse(JSON.stringify(adminUser))];
 
     this.saveDatabase();
     return true;

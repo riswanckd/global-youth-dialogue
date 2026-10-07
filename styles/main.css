@@ -6210,11 +6210,7 @@ body.rtl-mode .topic-bank-card-title-ar {
 }
 
 .hero-eyebrow-line {
-  display: inline-block;
-  width: 32px;
-  height: 2px;
-  background: var(--brand-gradient);
-  border-radius: 2px;
+  display: none !important;
 }
 
 .hero-title {

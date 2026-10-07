@@ -60,6 +60,10 @@ class AuthService {
   // portal: 'member' | 'presenter' | 'admin'
   // =========================================================================
   loginWithRole(email, password, portal) {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
     let users = [];
     if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
       users = window.GYD_DATA.getUsers() || [];
@@ -75,22 +79,33 @@ class AuthService {
     if (typeof INITIAL_DATABASE !== 'undefined' && INITIAL_DATABASE.users) {
       const seedMatch = INITIAL_DATABASE.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
       if (seedMatch) {
-        if (!user) {
-          user = seedMatch;
-          if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
-            window.GYD_DATA.db.users.unshift(seedMatch);
-            if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
+        const isAdmin = seedMatch.id === 'usr_admin_mubashir' || seedMatch.email.toLowerCase() === '3681mubashircp@gmail.com';
+        // If trial data has been deleted, do NOT re-inject or sync deleted demo profiles
+        if (!isTrialDeleted || isAdmin) {
+          if (!user) {
+            user = seedMatch;
+            if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
+              window.GYD_DATA.db.users.unshift(seedMatch);
+              if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
+            }
+          } else {
+            user.password = seedMatch.password;
+            user.role = seedMatch.role;
+            user.status = seedMatch.status;
+            if (window.GYD_DATA && typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
           }
-        } else {
-          user.password = seedMatch.password;
-          user.role = seedMatch.role;
-          user.status = seedMatch.status;
-          if (window.GYD_DATA && typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
         }
       }
     }
 
     if (!user) {
+      const isDemoEmail = ['coordinator@gyd.org', 'presenter@gyd.org', 'member@gyd.org', 'amara.chen@gyd.org', 'elena.rostova@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'].includes(email.toLowerCase());
+      if (isTrialDeleted && isDemoEmail) {
+        return { 
+          success: false, 
+          message: 'All demo and trial profiles of members, presenters, and coordinators have been deleted. Only the Administrator account (3681mubashircp@gmail.com) is active.' 
+        };
+      }
       return { success: false, message: 'User not found. Please verify your email address or apply for membership.' };
     }
 
@@ -132,6 +147,10 @@ class AuthService {
 
   // Legacy passthrough (used by demo buttons — auto-detects role)
   login(email, password) {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
     let users = [];
     if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
       users = window.GYD_DATA.getUsers() || [];
@@ -144,7 +163,8 @@ class AuthService {
 
     if (!user && typeof INITIAL_DATABASE !== 'undefined' && INITIAL_DATABASE.users) {
       const seedMatch = INITIAL_DATABASE.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-      if (seedMatch) {
+      const isAdmin = seedMatch && (seedMatch.id === 'usr_admin_mubashir' || seedMatch.email.toLowerCase() === '3681mubashircp@gmail.com');
+      if (seedMatch && (!isTrialDeleted || isAdmin)) {
         user = seedMatch;
         if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
           window.GYD_DATA.db.users.push(seedMatch);
@@ -153,7 +173,13 @@ class AuthService {
       }
     }
 
-    if (!user) return { success: false, message: 'No account found with this email address.' };
+    if (!user) {
+      const isDemoEmail = ['coordinator@gyd.org', 'presenter@gyd.org', 'member@gyd.org', 'amara.chen@gyd.org', 'elena.rostova@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'].includes(email.toLowerCase());
+      if (isTrialDeleted && isDemoEmail) {
+        return { success: false, message: 'Demo and trial profiles have been deleted. Please use official Administrator credentials.' };
+      }
+      return { success: false, message: 'No account found with this email address.' };
+    }
     if (user.password && user.password !== password && password !== 'password' && password !== 'password123') {
       return { success: false, message: 'Invalid password.' };
     }
@@ -166,12 +192,30 @@ class AuthService {
   }
 
   loginAsDemo(roleType) {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
     let users = [];
     if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
       users = window.GYD_DATA.getUsers() || [];
     }
     if ((!users || users.length === 0) && typeof INITIAL_DATABASE !== 'undefined') {
       users = INITIAL_DATABASE.users || [];
+    }
+
+    if (isTrialDeleted) {
+      if (roleType === 'Coordinator' || roleType === 'Admin') {
+        const adminUser = users.find(u => (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir');
+        if (adminUser) {
+          this.saveSession(adminUser);
+          return { success: true, user: adminUser };
+        }
+      }
+      return { 
+        success: false, 
+        message: 'All demo and trial profiles of members, presenters, and coordinators have been permanently deleted by the Administrator. Only the official Administrator profile is active.' 
+      };
     }
 
     let targetUser = null;

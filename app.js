@@ -587,6 +587,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 1-Click Role Testing & Global Demo Login Helpers
   window.signInDemoCoordinator = function() {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
+    if (isTrialDeleted) {
+      let res = authService.login('3681mubashircp@gmail.com', '368136');
+      if (res && res.success && res.user) {
+        closeModal('authModal');
+        navigateToPortal('coordinator');
+        showToast(`Signed in as Administrator: ${res.user.name} (3681mubashircp@gmail.com) → Opened Admin Workspace!`, 'success');
+        return;
+      }
+    }
+
     let res = authService.login('coordinator@gyd.org', 'password123');
     if (!res || !res.success) {
       res = authService.loginAsDemo('Coordinator');
@@ -596,11 +610,20 @@ document.addEventListener('DOMContentLoaded', () => {
       navigateToPortal('coordinator');
       showToast(`Signed in as Admin / Coordinator: ${res.user.name} (${res.user.country}) → Opened Admin Workspace!`, 'success');
     } else {
-      showToast('Could not sign in as Coordinator demo. Please try again.', 'error');
+      showToast(isTrialDeleted ? 'Demo coordinator profile was deleted. Please sign in with 3681mubashircp@gmail.com' : 'Could not sign in as Coordinator demo. Please try again.', 'error');
     }
   };
 
   window.signInDemoPresenter = function() {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
+    if (isTrialDeleted) {
+      showToast('All demo and trial profiles of presenters have been deleted by the Administrator. Only the official Administrator account is active.', 'warning');
+      return;
+    }
+
     let res = authService.login('presenter@gyd.org', 'password123');
     if (!res || !res.success) {
       res = authService.loginAsDemo('Presenter');
@@ -615,6 +638,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.signInDemoMember = function() {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
+    if (isTrialDeleted) {
+      showToast('All demo and trial profiles of members have been deleted by the Administrator. Please register a new member account.', 'warning');
+      return;
+    }
+
     let res = authService.login('member@gyd.org', 'password123');
     if (!res || !res.success) {
       res = authService.loginAsDemo('Member');
@@ -627,6 +659,44 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Could not sign in as Member demo. Please try again.', 'error');
     }
   };
+
+  function syncTrialDeletionUI() {
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
+    const adminBtn1 = document.getElementById('demoRoleAdminBtn');
+    const adminBtn2 = document.getElementById('demoCoordBtn');
+    const memberBtn1 = document.getElementById('demoRoleMemberBtn');
+    const memberBtn2 = document.getElementById('demoMemberBtn');
+    const presBtn1 = document.getElementById('demoRolePresenterBtn');
+    const presBtn2 = document.getElementById('demoPresenterBtn');
+
+    if (isTrialDeleted) {
+      if (adminBtn1) {
+        const span = adminBtn1.querySelector('span:last-child');
+        if (span) span.textContent = 'Mubashir CP (Admin) → Workspace';
+      }
+      if (adminBtn2) {
+        const span = adminBtn2.querySelector('[data-i18n="demoRoleAdmin"]') || adminBtn2.querySelector('span:last-child');
+        if (span) span.textContent = 'Admin (Mubashir CP)';
+      }
+      [memberBtn1, memberBtn2, presBtn1, presBtn2].forEach(btn => {
+        if (btn) {
+          btn.style.opacity = '0.55';
+          btn.title = 'Demo profile deleted by Administrator';
+        }
+      });
+    } else {
+      [memberBtn1, memberBtn2, presBtn1, presBtn2].forEach(btn => {
+        if (btn) {
+          btn.style.opacity = '1';
+          btn.removeAttribute('title');
+        }
+      });
+    }
+  }
+  window.syncTrialDeletionUI = syncTrialDeletionUI;
 
   // Event listeners for page demo buttons
   document.getElementById('demoRoleMemberBtn')?.addEventListener('click', () => window.signInDemoMember());
@@ -3336,13 +3406,33 @@ document.addEventListener('DOMContentLoaded', () => {
   let pendingAvatarData = {};
 
   function renderProfileView(portalType) {
-    const user = authService.getCurrentUser() || (
-      portalType === 'coordinator' 
-        ? { name: 'Tariq Al-Mansoor', email: 'coordinator@gyd.org', role: 'Coordinator', country: 'Qatar', flag: 'QA' }
-        : portalType === 'presenter'
+    const isTrialDeleted = (function() {
+      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
+    })();
+
+    const adminFallback = { 
+      id: 'usr_admin_mubashir',
+      name: 'Mubashir CP', 
+      email: '3681mubashircp@gmail.com', 
+      role: 'Coordinator', 
+      department: 'Executive Leadership & Administration',
+      country: 'Qatar', 
+      flag: 'QA',
+      bio: 'Executive Director & Chief Platform Administrator, Global Youth Dialogue & Exchange (GYDE).'
+    };
+
+    let user = authService.getCurrentUser();
+    if (!user) {
+      if (portalType === 'coordinator' || isTrialDeleted) {
+        user = adminFallback;
+      } else {
+        user = portalType === 'presenter'
           ? { name: 'Kofi Mensah', email: 'presenter@gyd.org', role: 'Presenter', country: 'Ghana', flag: 'GH' }
-          : { name: 'Lucas Silva', email: 'member@gyd.org', role: 'Member', country: 'Brazil', flag: 'BR' }
-    );
+          : { name: 'Lucas Silva', email: 'member@gyd.org', role: 'Member', country: 'Brazil', flag: 'BR' };
+      }
+    } else if (portalType === 'coordinator' && isTrialDeleted && user.email !== '3681mubashircp@gmail.com') {
+      user = adminFallback;
+    }
 
     const containerId = portalType === 'coordinator'
       ? 'coordProfileFormCard'
@@ -3899,14 +3989,39 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (dataService && typeof dataService.resetToDefault === 'function') {
           dataService.resetToDefault();
         }
+
+        // Set active session strictly to Administrator Mubashir CP
+        const adminUser = (dataService && typeof dataService.getUsers === 'function' ? dataService.getUsers() : []).find(u => 
+          (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
+        ) || {
+          id: 'usr_admin_mubashir',
+          name: 'Mubashir CP',
+          email: '3681mubashircp@gmail.com',
+          role: 'Coordinator',
+          department: 'Executive Leadership & Administration',
+          country: 'Qatar',
+          flag: 'QA'
+        };
+        if (authService && typeof authService.saveSession === 'function') {
+          authService.saveSession(adminUser);
+        }
+
         closeModal('deleteTrialModal');
-        showToast('All website trial and test data has been deleted successfully!', 'success');
+        showToast('All demo and trial profiles of members, presenters, and coordinators have been deleted. Only Administrator Mubashir CP is active.', 'success');
+
+        if (typeof syncTrialDeletionUI === 'function') syncTrialDeletionUI();
+
         if (typeof renderCoordinatorPortal === 'function' && document.getElementById('viewCoordinator')?.style.display !== 'none') {
           renderCoordinatorPortal();
+          if (typeof renderCoordTeamList === 'function') renderCoordTeamList();
+          if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
+          if (typeof renderCoordFeedbackList === 'function') renderCoordFeedbackList();
+          if (typeof renderProfileView === 'function') renderProfileView('coordinator');
         } else if (typeof renderPresenterPortal === 'function' && document.getElementById('viewPresenter')?.style.display !== 'none') {
           renderPresenterPortal();
         } else if (typeof renderMemberPortal === 'function') {
           renderMemberPortal();
+          if (typeof renderMemberCommunityDirectory === 'function') renderMemberCommunityDirectory();
         }
       };
     }
@@ -6004,6 +6119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   function renderAll() {
     i18n.applyLanguage();
+    if (typeof syncTrialDeletionUI === 'function') syncTrialDeletionUI();
     const user = authService.getCurrentUser();
     const hash = window.location.hash;
 
