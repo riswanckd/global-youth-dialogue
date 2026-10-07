@@ -14,6 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentMemberSubview = 'dashboard';
   let currentCoordSubview = 'dashboard';
 
+  // Ensure favicon immediately updates to the official brand logo
+  (function ensureBrandFavicon() {
+    try {
+      let link = document.querySelector("link[rel='icon'][type='image/svg+xml']");
+      if (!link) link = document.querySelector("link[rel~='icon']");
+      if (link) link.href = 'assets/images/gyde_favicon.svg?v=3';
+    } catch (e) {}
+  })();
+
   // =========================================================================
   // THEME SWITCHER (Light & Dark Mode) - Strict 4 Colors
   // =========================================================================
