@@ -192,6 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const toast = document.createElement('div');
     toast.className = `toast ${type === 'success' ? 'toast-success' : type === 'error' ? 'toast-error' : ''}`;
+    
+    // Explicitly guarantee our brand palette colors (#4851BA -> #9E59AC)
+    if (type === 'error') {
+      toast.style.background = 'linear-gradient(135deg, #991B1B 0%, #7F1D1D 100%)';
+      toast.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+      toast.style.boxShadow = '0 10px 25px -4px rgba(153, 27, 27, 0.5)';
+    } else {
+      toast.style.background = 'linear-gradient(135deg, #4851BA 0%, #9E59AC 100%)';
+      toast.style.borderColor = 'rgba(255, 255, 255, 0.35)';
+      toast.style.boxShadow = '0 10px 28px -4px rgba(72, 81, 186, 0.55), 0 6px 14px -2px rgba(158, 89, 172, 0.4)';
+    }
+    toast.style.color = '#FFFFFF';
+    toast.style.borderRadius = '999px';
+    toast.style.borderWidth = '1px';
+    toast.style.borderStyle = 'solid';
+
     toast.innerHTML = `
       <span class="svg-icon">${type === 'success' ? icons.check : type === 'error' ? icons.x : icons.sparkle}</span>
       <span>${message}</span>
