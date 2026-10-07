@@ -1327,7 +1327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = sessions.map(ses => {
       const isUpcoming = ses.status === 'Upcoming';
       const statusBadge = isUpcoming
-        ? `<span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); font-weight: 700;">🟢 ${isAr ? 'جلسة قادمة' : 'Upcoming Live Dialogue'}</span>`
+        ? `<span class="badge" style="background: var(--presenter-badge-bg); color: var(--presenter-badge-text); border: 1px solid var(--presenter-badge-border); font-weight: 700;">🟢 ${isAr ? 'جلسة قادمة' : 'Upcoming Live Dialogue'}</span>`
         : `<span class="badge" style="background: rgba(15, 43, 72, 0.08); color: var(--brand-navy); border: 1px solid var(--border-color); font-weight: 700;">📜 ${isAr ? 'أرشيف منجز' : 'Completed Archive'}</span>`;
 
       const sesNumText = isAr 
@@ -1445,20 +1445,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mobileText) mobileText.textContent = 'Presenter';
       if (bannerEl) {
         bannerEl.innerHTML = `
-          <div class="card-panel" style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(9, 29, 44, 0.04) 100%); border: 1px solid rgba(5, 150, 105, 0.35); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <div class="card-panel presenter-accreditation-banner">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);">
+              <div class="presenter-icon-circle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
               </div>
               <div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                  <strong style="color: #059669; font-size: 1rem;">Official Accredited Presenter</strong>
-                  <span class="badge" style="background: rgba(5, 150, 105, 0.2); color: #059669; font-size: 0.72rem; padding: 2px 7px;">Active Access</span>
+                  <strong class="presenter-banner-title">Official Accredited Presenter</strong>
+                  <span class="badge presenter-status-badge">Active Access</span>
                 </div>
                 <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">You have full presenter rights to propose session topics, attach keynote research decks, and take the stage.</p>
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.handlePresenterMenuClick()">
+            <button class="btn btn-be-presenter btn-sm" onclick="window.handlePresenterMenuClick()">
               Open Presenter Portal →
             </button>
           </div>
@@ -1508,17 +1508,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mobileText) mobileText.textContent = 'Be Presenter';
       if (bannerEl) {
         bannerEl.innerHTML = `
-          <div class="card-panel" style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(9, 29, 44, 0.03) 100%); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <div class="card-panel presenter-accreditation-banner">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">
+              <div class="presenter-icon-circle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
               </div>
               <div>
-                <strong style="color: #059669; font-size: 1rem;">Ready to Lead Dialogue as an Official Presenter?</strong>
+                <strong class="presenter-banner-title">Ready to Lead Dialogue as an Official Presenter?</strong>
                 <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">Deliver 10–30 min research briefings, present keynote topics, and lead international debates. Submit your request for coordinator approval to unlock the Presenter Portal.</p>
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.handlePresenterMenuClick()">
+            <button class="btn btn-be-presenter btn-sm" onclick="window.handlePresenterMenuClick()">
               Request to be Presenter
             </button>
           </div>
@@ -3721,7 +3721,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isUnderReview = w.status === 'Under Review' || w.status === 'Pending' || w.status === 'Draft';
       const statusBadge = isUnderReview
         ? `<span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #b45309; border: 1px solid rgba(234, 179, 8, 0.4); font-weight: 700;">⏳ Under Review by Secretariat</span>`
-        : `<span class="badge" style="background: rgba(5, 150, 105, 0.15); color: #059669; border: 1px solid rgba(5, 150, 105, 0.4); font-weight: 700;">✓ Approved & Live in Member Dashboard</span>`;
+        : `<span class="badge" style="background: var(--presenter-badge-bg); color: var(--presenter-badge-text); border: 1px solid var(--presenter-badge-border); font-weight: 700;">✓ Approved & Live in Member Dashboard</span>`;
 
       return `
         <div class="writing-card" style="margin-bottom: 1.25rem; padding: 1.5rem; border: 1px solid var(--border-color);">
@@ -3975,17 +3975,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (presApps.length > 0) {
       html += presApps.slice(0, 3).map(pApp => `
-        <div class="application-item" style="border-inline-start: 4px solid #059669; background: rgba(5, 150, 105, 0.05); margin-bottom: 0.65rem; border-radius: var(--radius-md); padding: 0.85rem; border: 1px solid rgba(5, 150, 105, 0.2);">
+        <div class="application-item" style="border-inline-start: 4px solid var(--presenter-border); background: var(--presenter-subtle); margin-bottom: 0.65rem; border-radius: var(--radius-md); padding: 0.85rem; border: 1px solid var(--presenter-card-border);">
           <div class="app-meta">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-              <span class="badge" style="background: #059669; color: #fff; font-size: 0.72rem; padding: 2px 7px; font-weight: 700;">🎤 Presenter Request</span>
+              <span class="badge presenter-status-badge" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700;">🎤 Presenter Request</span>
               <strong style="color: var(--brand-navy); font-size: 0.92rem;">${pApp.name} (${pApp.country})</strong>
             </div>
             <div style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600;">Proposed: "${pApp.proposedTopic}"</div>
             <p class="app-motivation" style="font-size: 0.8rem; margin: 0.25rem 0; color: var(--text-body);">"${pApp.statementOfIntent || pApp.researchExperience}"</p>
           </div>
           <div class="app-actions" style="margin-top: 0.4rem; display: flex; gap: 0.5rem;">
-            <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.approvePresenterApp('${pApp.id}')">${icons.check} Approve Presenter</button>
+            <button class="btn btn-be-presenter btn-sm" onclick="window.approvePresenterApp('${pApp.id}')">${icons.check} Approve Presenter</button>
             <button class="btn btn-outline btn-sm" onclick="window.rejectPresenterApp('${pApp.id}')">${icons.x} Decline</button>
           </div>
         </div>
@@ -4298,13 +4298,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (category === 'Topic Presentation') {
       if (badge) {
-        badge.textContent = '🎤 Topic Presentation';
-        badge.style.background = 'rgba(5, 150, 105, 0.12)';
-        badge.style.color = '#059669';
-        badge.style.borderColor = 'rgba(5, 150, 105, 0.3)';
+        badge.textContent = 'Topic Presentation';
+        badge.style.background = 'var(--presenter-badge-bg)';
+        badge.style.color = 'var(--presenter-badge-text)';
+        badge.style.borderColor = 'var(--presenter-badge-border)';
       }
       container.innerHTML = `
-        <div style="font-weight: 600; color: #059669; font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+        <div style="font-weight: 600; color: var(--presenter-title); font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
           Topic Presentation Configuration (Presenter & Moderator)
         </div>
@@ -4747,7 +4747,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="btn btn-outline btn-sm" onclick="window.openFullAcademicPaper('${w.id}')">
             ${icons.book || '📖'} Inspect Full Paper
           </button>
-          <button class="btn btn-primary btn-sm" onclick="window.approveWriting('${w.id}')" style="background: #059669; border-color: #059669; gap: 0.4rem;">
+          <button class="btn btn-be-presenter btn-sm" onclick="window.approveWriting('${w.id}')" style="gap: 0.4rem;">
             ${icons.check || '✓'} Approve & Publish to Member Dashboard
           </button>
           <button class="btn btn-outline btn-sm" onclick="window.rejectWriting('${w.id}')">
@@ -4833,13 +4833,13 @@ document.addEventListener('DOMContentLoaded', () => {
         presListEl.innerHTML = `<div style="color: var(--text-muted); padding: 0.8rem 0; font-size: 0.9rem;">No pending presenter accreditation requests in the queue.</div>`;
       } else {
         presListEl.innerHTML = pendingPresApps.map(app => `
-          <div class="application-item" style="border-inline-start: 4px solid #059669; background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1rem; border: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+          <div class="application-item" style="border-inline-start: 4px solid var(--presenter-border); background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1rem; border: 1px solid var(--border-color); display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
             <div class="app-meta" style="flex: 1; min-width: 280px;">
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
                 <span class="flag-icon-wrap">${icons.getFlag(app.country, app.flag)}</span>
                 <strong style="font-size: 1.05rem; color: var(--brand-navy);">${app.name}</strong>
                 <span style="color: var(--text-muted); font-size: 0.88rem;">(${app.country})</span>
-                <span class="badge" style="background: rgba(5, 150, 105, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(5, 150, 105, 0.3);">Presenter Applicant</span>
+                <span class="badge presenter-status-badge">Presenter Applicant</span>
               </div>
               <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.6rem;">
                 <span>${app.email}</span> • <span>Applied: ${app.date}</span> • <span>Preferred Format: ${app.preferredFormat || '15-min Keynote'}</span>
@@ -4864,7 +4864,7 @@ document.addEventListener('DOMContentLoaded', () => {
               ` : ''}
             </div>
             <div class="app-actions" style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; min-width: 180px;">
-              <button class="btn btn-primary btn-sm" onclick="window.approvePresenterApp('${app.id}')" style="background: #059669; border-color: #059669; width: 100%; justify-content: center; gap: 0.4rem;">
+              <button class="btn btn-be-presenter btn-sm" onclick="window.approvePresenterApp('${app.id}')" style="width: 100%; justify-content: center; gap: 0.4rem;">
                 ${icons.check} Approve Presenter
               </button>
               <button class="btn btn-outline btn-sm" onclick="window.rejectPresenterApp('${app.id}')" style="width: 100%; justify-content: center; gap: 0.4rem;">
@@ -4969,7 +4969,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="font-size: 1.1rem; font-style: italic; font-weight: 600; color: var(--brand-navy); margin: 0.25rem 0 0.75rem 0;">"${session.debateMotion || session.title}"</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div style="background: #fff; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
-              <strong style="color: #059669; font-size: 0.78rem; text-transform: uppercase;">Proposition / Affirmative:</strong>
+              <strong style="color: var(--brand-primary); font-size: 0.78rem; text-transform: uppercase;">Proposition / Affirmative:</strong>
               <div style="font-size: 0.88rem; margin-top: 0.2rem;">${session.propositionTeam || 'Delegation Speakers'}</div>
             </div>
             <div style="background: #fff; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
@@ -4986,9 +4986,9 @@ document.addEventListener('DOMContentLoaded', () => {
       ` : ''}
 
       ${session.sessionCategory === 'Topic Presentation' && session.presenter ? `
-        <div style="background: rgba(5, 150, 105, 0.06); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="background: var(--presenter-subtle); border: 1px solid var(--presenter-card-border); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
           <div>
-            <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase;">Accredited Keynote Presenter</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--presenter-title); text-transform: uppercase;">Accredited Keynote Presenter</div>
             <div style="font-size: 1.05rem; font-weight: 700; color: var(--brand-navy);">${session.presenter.name} (${session.presenter.country})</div>
           </div>
           ${session.presentationPaperUrl ? `

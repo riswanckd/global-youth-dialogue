@@ -37,6 +37,20 @@
   --accent-gold-light: rgba(158, 89, 172, 0.08);
   --accent-gold-border: rgba(158, 89, 172, 0.3);
 
+  /* Presenter & Accreditation Tokens (Black in Light Theme, White in Dark Theme) */
+  --presenter-bg: #000000;
+  --presenter-text: #FFFFFF;
+  --presenter-border: #000000;
+  --presenter-hover: #1f2937;
+  --presenter-subtle: rgba(0, 0, 0, 0.04);
+  --presenter-badge-bg: rgba(0, 0, 0, 0.07);
+  --presenter-badge-text: #000000;
+  --presenter-badge-border: rgba(0, 0, 0, 0.22);
+  --presenter-title: #000000;
+  --presenter-card-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.01) 100%);
+  --presenter-card-border: rgba(0, 0, 0, 0.15);
+  --presenter-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+
   /* Light Theme Canvas & Surfaces */
   --bg-body: #FFFFFF;
   --bg-surface: #FFFFFF;
@@ -123,6 +137,20 @@
   --accent-gold: #9E59AC;
   --accent-gold-light: rgba(158, 89, 172, 0.18);
   --accent-gold-border: rgba(158, 89, 172, 0.45);
+
+  /* Presenter & Accreditation Tokens (White in Dark Theme) */
+  --presenter-bg: #FFFFFF;
+  --presenter-text: #000000;
+  --presenter-border: #FFFFFF;
+  --presenter-hover: #e2e8f0;
+  --presenter-subtle: rgba(255, 255, 255, 0.08);
+  --presenter-badge-bg: rgba(255, 255, 255, 0.16);
+  --presenter-badge-text: #FFFFFF;
+  --presenter-badge-border: rgba(255, 255, 255, 0.35);
+  --presenter-title: #FFFFFF;
+  --presenter-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --presenter-card-border: rgba(255, 255, 255, 0.25);
+  --presenter-shadow: 0 4px 16px rgba(255, 255, 255, 0.25);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.7);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 16px rgba(72, 81, 186, 0.22);
@@ -2300,8 +2328,10 @@ body.rtl-mode .session-lock-tag {
 }
 
 .portal-user-avatar.avatar-presenter {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+  background: var(--presenter-bg);
+  color: var(--presenter-text);
+  border: 1px solid var(--presenter-border);
+  box-shadow: var(--presenter-shadow);
 }
 
 .portal-user-avatar img {
@@ -5136,49 +5166,138 @@ body.rtl-mode .topic-bank-card-title-ar {
   line-height: 1;
 }
 
-/* Green "Be a Presenter" Menu Button */
+/* Presenter & Accreditation Components (Black in Light Theme, White in Dark Theme) */
 .btn-be-presenter {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   gap: 0.5rem;
-  background: #059669;
-  color: #ffffff !important;
-  border: none;
-  font-weight: 600;
+  background: var(--presenter-bg) !important;
+  color: var(--presenter-text) !important;
+  border: 1px solid var(--presenter-border) !important;
+  font-weight: 700;
   font-size: 0.88rem;
-  padding: 0.65rem 0.85rem;
+  padding: 0.65rem 0.95rem;
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+  box-shadow: var(--presenter-shadow);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
+}
+
+.btn-be-presenter svg {
+  stroke: var(--presenter-text) !important;
 }
 
 .btn-be-presenter.btn-sm {
   width: auto;
-  padding: 0.38rem 0.85rem;
-  font-size: 0.82rem;
+  padding: 0.42rem 0.9rem;
+  font-size: 0.84rem;
   border-radius: var(--radius-md);
 }
 
 .btn-be-presenter:hover {
-  background: #047857;
+  background: var(--presenter-hover) !important;
+  color: var(--presenter-text) !important;
+  border-color: var(--presenter-border) !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
-  color: #ffffff !important;
+  box-shadow: var(--presenter-shadow);
 }
 
 .btn-be-presenter.status-approved {
-  background: linear-gradient(135deg, var(--brand-navy) 0%, #059669 100%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 10px rgba(9, 29, 44, 0.25);
+  background: var(--presenter-bg) !important;
+  color: var(--presenter-text) !important;
+  border: 1px solid var(--presenter-border) !important;
+  box-shadow: var(--presenter-shadow);
+}
+
+.btn-be-presenter.status-approved:hover {
+  background: var(--presenter-hover) !important;
+  color: var(--presenter-text) !important;
 }
 
 .btn-be-presenter.status-pending {
-  background: #d97706;
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
   box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+}
+
+.btn-be-presenter.status-pending:hover {
+  background: #b45309 !important;
+  color: #ffffff !important;
+}
+
+/* Accreditation Banner & Icon Components */
+.presenter-accreditation-banner {
+  background: var(--presenter-card-bg) !important;
+  border: 1px solid var(--presenter-card-border) !important;
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.presenter-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--presenter-bg) !important;
+  color: var(--presenter-text) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--presenter-shadow);
+  transition: all var(--transition-fast);
+}
+
+.presenter-icon-circle svg {
+  stroke: var(--presenter-text) !important;
+}
+
+.presenter-banner-title {
+  color: var(--presenter-title) !important;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: color var(--transition-fast);
+}
+
+.presenter-status-badge {
+  background: var(--presenter-badge-bg) !important;
+  color: var(--presenter-badge-text) !important;
+  border: 1px solid var(--presenter-badge-border) !important;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
+}
+
+.qa-card.qa-card-presenter {
+  border: 1px solid var(--presenter-card-border) !important;
+  background: var(--presenter-subtle) !important;
+}
+
+.qa-card.qa-card-presenter .qa-icon {
+  background: var(--presenter-bg) !important;
+  color: var(--presenter-text) !important;
+  box-shadow: var(--presenter-shadow);
+}
+
+.qa-card.qa-card-presenter .qa-icon svg {
+  stroke: var(--presenter-text) !important;
+}
+
+.qa-card.qa-card-presenter .qa-title {
+  color: var(--presenter-title) !important;
+  font-weight: 700;
 }
 
 .btn-be-presenter.status-pending:hover {
@@ -5376,8 +5495,8 @@ body.rtl-mode .topic-bank-card-title-ar {
 }
 
 #signupOtpInput:focus {
-  border-color: var(--brand-green);
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(72, 81, 186, 0.2);
 }
 
 /* 3-Button Segmented Role Tab Switcher (Member | Presenter | Admin) */
@@ -5428,8 +5547,8 @@ body.rtl-mode .topic-bank-card-title-ar {
 }
 
 .role-segmented-tab.tab-member.active {
-  color: #059669;
-  border-bottom: 2.5px solid #059669;
+  color: var(--brand-primary);
+  border-bottom: 2.5px solid var(--brand-primary);
 }
 
 .role-segmented-tab.tab-presenter.active {
