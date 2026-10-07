@@ -3887,15 +3887,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Delete All Trial Data Handlers
-    const deleteTrialBtn = document.getElementById('btnDeleteTrialData');
-    if (deleteTrialBtn) {
-      deleteTrialBtn.onclick = () => openModal('deleteTrialModal');
-    }
-
-    const deleteTrialSidebarBtn = document.getElementById('coordSidebarDeleteTrialBtn');
-    if (deleteTrialSidebarBtn) {
-      deleteTrialSidebarBtn.onclick = () => openModal('deleteTrialModal');
-    }
+    document.querySelectorAll('.btn-sidebar-delete-trial, .btn-delete-trial-data, #btnDeleteTrialData, #coordSidebarDeleteTrialBtn, #memberSidebarDeleteTrialBtn, #presenterSidebarDeleteTrialBtn').forEach(btn => {
+      btn.onclick = () => openModal('deleteTrialModal');
+    });
 
     const confirmDeleteBtn = document.getElementById('btnConfirmDeleteTrial');
     if (confirmDeleteBtn) {
@@ -3907,7 +3901,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         closeModal('deleteTrialModal');
         showToast('All website trial and test data has been deleted successfully!', 'success');
-        renderCoordinatorPortal();
+        if (typeof renderCoordinatorPortal === 'function' && document.getElementById('viewCoordinator')?.style.display !== 'none') {
+          renderCoordinatorPortal();
+        } else if (typeof renderPresenterPortal === 'function' && document.getElementById('viewPresenter')?.style.display !== 'none') {
+          renderPresenterPortal();
+        } else if (typeof renderMemberPortal === 'function') {
+          renderMemberPortal();
+        }
       };
     }
   }
@@ -6044,6 +6044,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initGlobalSearch();
   initNotifications();
   initPhase2Forms();
+
+  // Global Delete Trial Data delegate
+  document.addEventListener('click', (e) => {
+    const trialBtn = e.target.closest('.btn-sidebar-delete-trial, .btn-delete-trial-data, #coordSidebarDeleteTrialBtn, #memberSidebarDeleteTrialBtn, #presenterSidebarDeleteTrialBtn');
+    if (trialBtn) {
+      e.preventDefault();
+      openModal('deleteTrialModal');
+    }
+  });
 
   
   // Re-render all dynamic content instantly on language change
