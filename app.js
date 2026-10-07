@@ -457,6 +457,119 @@ document.addEventListener('DOMContentLoaded', () => {
         notifBtn.style.display = 'none';
       }
     }
+
+    renderMobileNavDrawer();
+  }
+
+  function renderMobileNavDrawer() {
+    const nav = document.querySelector('#mobileNavDrawer .mobile-drawer-nav');
+    if (!nav) return;
+    const isAr = i18n.isRTL();
+    const user = authService.getCurrentUser();
+
+    if (activePortal === 'coordinator' && user) {
+      nav.innerHTML = `
+        <a href="#" class="mobile-nav-link" data-coord-nav="dashboard">${icons.sparkle || ''} ${isAr ? 'لوحة القيادة' : 'Dashboard Overview'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="topic-bank">${icons.book || ''} ${isAr ? 'بنك المواضيع' : 'Academic Topic Bank'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="sessions">${icons.calendar || ''} ${isAr ? 'جلسات الحوار' : 'Debate Sessions'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="topics">${icons.lightbulb || ''} ${isAr ? 'مقترحات المواضيع' : 'Topic Proposals'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="writings">${icons.scroll || ''} ${isAr ? 'الأوراق الأكاديمية' : 'Academic Writings'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="feedback">${icons.messageSquare || ''} ${isAr ? 'تقييمات الأعضاء' : 'Member Feedback'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="applications">${icons.users || ''} ${isAr ? 'طلبات العضوية' : 'Membership Applicants'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="team">${icons.award || ''} ${isAr ? 'فريق المنسقين' : 'Coordinator Team'}</a>
+        <a href="#" class="mobile-nav-link" data-coord-nav="profile">${icons.shield || ''} ${isAr ? 'الإعدادات والملف' : 'Settings & Admin Profile'}</a>
+        <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid var(--border-light);">
+        <a href="#" class="mobile-nav-link" data-nav-action="public">${icons.globe || ''} ${isAr ? 'الموقع العام' : 'Public Site Landing'}</a>
+      `;
+    } else if (activePortal === 'presenter' && user) {
+      nav.innerHTML = `
+        <a href="#" class="mobile-nav-link" data-presenter-nav="dashboard">${icons.sparkle || ''} ${isAr ? 'لوحة المتحدث' : 'Presenter Dashboard'}</a>
+        <a href="#" class="mobile-nav-link" data-presenter-nav="present">${icons.mic || ''} ${isAr ? 'تقديم موضوع' : 'Present a Topic'}</a>
+        <a href="#" class="mobile-nav-link" data-presenter-nav="decks">${icons.award || ''} ${isAr ? 'عروض الأبحاث' : 'Slide Decks & Briefings'}</a>
+        <a href="#" class="mobile-nav-link" data-presenter-nav="topic-bank">${icons.book || ''} ${isAr ? 'بنك المواضيع' : 'Topic Bank'}</a>
+        <a href="#" class="mobile-nav-link" data-presenter-nav="sessions">${icons.calendar || ''} ${isAr ? 'جلسات التحدث' : 'Speaking Sessions'}</a>
+        <a href="#" class="mobile-nav-link" data-presenter-nav="writings">${icons.scroll || ''} ${isAr ? 'أوراق البحث' : 'Research Briefings'}</a>
+        <a href="#" class="mobile-nav-link" data-presenter-nav="profile">${icons.user || ''} ${isAr ? 'ملف المتحدث' : 'Presenter Profile'}</a>
+        <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid var(--border-light);">
+        <a href="#" class="mobile-nav-link" data-nav-action="public">${icons.globe || ''} ${isAr ? 'الموقع العام' : 'Public Site Landing'}</a>
+      `;
+    } else if (activePortal === 'member' && user) {
+      nav.innerHTML = `
+        <a href="#" class="mobile-nav-link" data-member-nav="dashboard">${icons.sparkle || ''} ${isAr ? 'لوحة العضو' : 'Member Dashboard'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="sessions">${icons.calendar || ''} ${isAr ? 'جلسات الحوار' : 'Dialogue Sessions'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="topic-bank">${icons.book || ''} ${isAr ? 'بنك المواضيع' : 'Academic Topic Bank'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="topics">${icons.lightbulb || ''} ${isAr ? 'اقتراح موضوع' : 'Propose a Topic'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="calendar">${icons.calendar || ''} ${isAr ? 'التقويم العالمي' : 'Interactive Calendar'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="writings">${icons.scroll || ''} ${isAr ? 'أوراقي الأكاديمية' : 'My Academic Papers'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="feedback">${icons.messageSquare || ''} ${isAr ? 'تقييمات الغرفة' : 'Chamber Peer Review'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="journey">${icons.award || ''} ${isAr ? 'شارات التميز' : 'Debate Journey & Badges'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="certificate">${icons.fileText || ''} ${isAr ? 'الشهادة الرسمية' : 'Official Certificate'}</a>
+        <a href="#" class="mobile-nav-link" data-member-nav="profile">${icons.user || ''} ${isAr ? 'الملف الشخصي' : 'Profile Settings'}</a>
+        <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid var(--border-light);">
+        <a href="#" class="mobile-nav-link" data-nav-action="public">${icons.globe || ''} ${isAr ? 'الموقع العام' : 'Public Site Landing'}</a>
+      `;
+    } else {
+      nav.innerHTML = `
+        <a href="#home" class="mobile-nav-link">${isAr ? 'الرئيسية' : 'Home'}</a>
+        <a href="#about" class="mobile-nav-link">${isAr ? 'عن المبادرة' : 'About'}</a>
+        <a href="#process" class="mobile-nav-link">${isAr ? 'كيف يعمل' : 'Process'}</a>
+        <a href="#topics" class="mobile-nav-link">${isAr ? 'المواضيع' : 'Topics'}</a>
+        <a href="#sessions" class="mobile-nav-link">${isAr ? 'الجلسات' : 'Sessions'}</a>
+        <a href="#impact" class="mobile-nav-link">${isAr ? 'أثرنا' : 'Our Impact'}</a>
+      `;
+    }
+
+    // Attach click handlers to drawer items
+    nav.querySelectorAll('[data-coord-nav]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-coord-nav');
+        closeMobileDrawer();
+        if (typeof switchCoordSubview === 'function') switchCoordSubview(target);
+      });
+    });
+
+    nav.querySelectorAll('[data-presenter-nav]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-presenter-nav');
+        closeMobileDrawer();
+        if (typeof switchPresenterSubview === 'function') switchPresenterSubview(target);
+      });
+    });
+
+    nav.querySelectorAll('[data-member-nav]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-member-nav');
+        closeMobileDrawer();
+        if (typeof switchMemberSubview === 'function') switchMemberSubview(target);
+      });
+    });
+
+    nav.querySelectorAll('[data-nav-action="public"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeMobileDrawer();
+        navigateToPortal('public');
+      });
+    });
+
+    nav.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const hash = link.getAttribute('href');
+        if (hash && hash !== '#') {
+          closeMobileDrawer();
+          if (activePortal !== 'public') {
+            navigateToPortal('public');
+          }
+          const targetEl = document.querySelector(hash);
+          if (targetEl) {
+            setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth' }), 50);
+          }
+        }
+      });
+    });
   }
 
   function navigateToPortal(portalName) {

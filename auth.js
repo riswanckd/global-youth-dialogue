@@ -17,7 +17,15 @@ class AuthService {
   loadSession() {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const demoEmails = ['member@gyd.org', 'presenter@gyd.org', 'coordinator@gyd.org', 'amara.chen@gyd.org', 'elena.rostova@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'];
+        if (parsed && parsed.email && demoEmails.includes(parsed.email.toLowerCase())) {
+          localStorage.removeItem(AUTH_STORAGE_KEY);
+          return null;
+        }
+        return parsed;
+      }
     } catch (e) {
       console.warn('Could not read session from localStorage', e);
     }
@@ -128,7 +136,7 @@ class AuthService {
         };
       }
     } else if (portal === 'presenter') {
-      const isApprovedPresenter = user.role === 'Presenter' || user.role === 'Speaker' || user.isApprovedPresenter === true;
+      const isApprovedPresenter = user.role === 'Presenter' || user.role === 'Speaker' || user.role === 'Coordinator' || user.role === 'Admin' || user.isApprovedPresenter === true;
       if (!isApprovedPresenter) {
         return {
           success: false,
@@ -192,56 +200,10 @@ class AuthService {
   }
 
   loginAsDemo(roleType) {
-    const isTrialDeleted = (function() {
-      try { return localStorage.getItem('gyd_trial_data_deleted') === 'true'; } catch (e) { return false; }
-    })();
-
-    let users = [];
-    if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
-      users = window.GYD_DATA.getUsers() || [];
-    }
-    if ((!users || users.length === 0) && typeof INITIAL_DATABASE !== 'undefined') {
-      users = INITIAL_DATABASE.users || [];
-    }
-
-    if (isTrialDeleted) {
-      if (roleType === 'Coordinator' || roleType === 'Admin') {
-        const adminUser = users.find(u => (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir');
-        if (adminUser) {
-          this.saveSession(adminUser);
-          return { success: true, user: adminUser };
-        }
-      }
-      return { 
-        success: false, 
-        message: 'All demo and trial profiles of members, presenters, and coordinators have been permanently deleted by the Administrator. Only the official Administrator profile is active.' 
-      };
-    }
-
-    let targetUser = null;
-    if (roleType === 'Coordinator') {
-      targetUser = users.find(u => u.role === 'Coordinator' || u.email === 'coordinator@gyd.org');
-      if (!targetUser && typeof INITIAL_DATABASE !== 'undefined') {
-        targetUser = INITIAL_DATABASE.users.find(u => u.role === 'Coordinator');
-      }
-    } else if (roleType === 'Presenter') {
-      targetUser = users.find(u => u.role === 'Presenter' || u.email === 'presenter@gyd.org' || u.role === 'Speaker');
-      if (!targetUser && typeof INITIAL_DATABASE !== 'undefined') {
-        targetUser = INITIAL_DATABASE.users.find(u => u.role === 'Presenter' || u.email === 'presenter@gyd.org');
-      }
-    } else {
-      targetUser = users.find(u => (u.role === 'Member' || u.email === 'member@gyd.org') && u.role !== 'Coordinator' && u.role !== 'Presenter');
-      if (!targetUser && typeof INITIAL_DATABASE !== 'undefined') {
-        targetUser = INITIAL_DATABASE.users.find(u => u.role === 'Member' || u.email === 'member@gyd.org');
-      }
-    }
-
-    if (!targetUser && users.length > 0) targetUser = users[0];
-    if (targetUser) {
-      this.saveSession(targetUser);
-      return { success: true, user: targetUser };
-    }
-    return { success: false, message: 'Demo profile not found.' };
+    return {
+      success: false,
+      message: 'Demo and trial profiles have been permanently removed. Please sign in using your official credentials.'
+    };
   }
 
   logout() {
