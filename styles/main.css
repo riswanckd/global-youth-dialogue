@@ -14,6 +14,8 @@
   --color-primary-2: #9E59AC;
   --color-dark: #000000;
   --color-light: #FFFFFF;
+  --brand-primary: #4851BA;
+  --brand-primary-hover: #3B43A1;
 
   /* Primary Variations & Gradients */
   --brand-gradient: linear-gradient(135deg, #4851BA 0%, #9E59AC 100%);
@@ -137,6 +139,8 @@
   --accent-gold: #9E59AC;
   --accent-gold-light: rgba(158, 89, 172, 0.18);
   --accent-gold-border: rgba(158, 89, 172, 0.45);
+  --brand-primary: #4851BA;
+  --brand-primary-hover: #5A64D4;
 
   /* Presenter & Accreditation Tokens (White in Dark Theme) */
   --presenter-bg: #FFFFFF;
@@ -2987,8 +2991,12 @@ body.rtl-mode .search-icon-pos {
   display: block;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--brand-navy);
+  color: var(--text-main);
   margin-bottom: 0.45rem;
+}
+
+[data-theme="dark"] .form-label {
+  color: #FFFFFF !important;
 }
 
 .form-control {
@@ -5600,32 +5608,77 @@ body.rtl-mode .topic-bank-card-title-ar {
 .role-segmented-tab svg {
   flex-shrink: 0;
   transition: transform 0.2s ease;
+  stroke: currentColor;
 }
 
 .role-segmented-tab:hover {
-  color: var(--brand-navy, #0f2b48);
+  color: var(--text-main, #0f2b48);
   background: rgba(255, 255, 255, 0.65);
 }
 
 .role-segmented-tab.active {
-  background: #ffffff;
+  background: #ffffff !important;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-.role-segmented-tab.tab-member.active {
-  color: var(--brand-primary);
-  border-bottom: 2.5px solid var(--brand-primary);
+.role-segmented-tab.active svg {
+  stroke: currentColor !important;
 }
 
-.role-segmented-tab.tab-presenter.active {
-  color: #b45309;
-  border-bottom: 2.5px solid #d97706;
+.role-segmented-tab.tab-member.active,
+.role-segmented-tab.tab-member.active span {
+  color: #4851BA !important;
+  border-bottom: 2.5px solid #4851BA;
 }
 
-.role-segmented-tab.tab-admin.active {
-  color: #0f2b48;
-  border-bottom: 2.5px solid #0f2b48;
+.role-segmented-tab.tab-presenter.active,
+.role-segmented-tab.tab-presenter.active span {
+  color: #9E59AC !important;
+  border-bottom: 2.5px solid #9E59AC;
+}
+
+.role-segmented-tab.tab-admin.active,
+.role-segmented-tab.tab-admin.active span {
+  color: #000000 !important;
+  border-bottom: 2.5px solid #000000;
+}
+
+[data-theme="dark"] .role-segmented-switcher {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .role-segmented-tab {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+[data-theme="dark"] .role-segmented-tab:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .role-segmented-tab.active {
+  background: #FFFFFF !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .role-segmented-tab.tab-member.active,
+[data-theme="dark"] .role-segmented-tab.tab-member.active span {
+  color: #4851BA !important;
+  border-bottom-color: #4851BA;
+}
+
+[data-theme="dark"] .role-segmented-tab.tab-presenter.active,
+[data-theme="dark"] .role-segmented-tab.tab-presenter.active span {
+  color: #9E59AC !important;
+  border-bottom-color: #9E59AC;
+}
+
+[data-theme="dark"] .role-segmented-tab.tab-admin.active,
+[data-theme="dark"] .role-segmented-tab.tab-admin.active span {
+  color: #000000 !important;
+  border-bottom-color: #000000;
 }
 
 /* User Profile Form & Avatar Studio */
