@@ -149,6 +149,9 @@ const TRANSLATIONS = {
     sessionMembersOnly: 'Members Only',
     sessionLabel: 'Session',
     sessionFormat: 'Format:',
+    sessionsFilterAll: 'All Dialogue Sessions',
+    sessionsFilterUpcoming: 'Upcoming Sessions',
+    sessionsFilterCompleted: 'Completed Archive',
 
     // Our Impact Section
     impactTag: 'Transformative Growth',
@@ -418,6 +421,9 @@ const TRANSLATIONS = {
     sessionMembersOnly: 'محتوى خاص بالأعضاء',
     sessionLabel: 'الجلسة',
     sessionFormat: 'شكل المناظرة:',
+    sessionsFilterAll: 'جميع الجلسات الحوارية',
+    sessionsFilterUpcoming: 'الجلسات القادمة',
+    sessionsFilterCompleted: 'الأرشيف المكتمل',
 
     // Our Impact Section
     impactTag: 'النمو والتطور المستمر',

@@ -1151,6 +1151,60 @@ body.rtl-mode .brand-sub {
   line-height: 1.6;
 }
 
+/* Public Session Filter Controls */
+#publicSessionStatusFilters {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+#publicSessionStatusFilters .btn {
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.45rem 1.15rem;
+  transition: all var(--transition-fast);
+}
+
+#publicSessionStatusFilters .btn-primary {
+  background: var(--brand-green);
+  border-color: var(--brand-green);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(98, 138, 13, 0.28);
+}
+
+#publicSessionStatusFilters .btn-outline {
+  border-color: var(--border-medium);
+  color: var(--text-main);
+  background: transparent;
+}
+
+#publicSessionStatusFilters .btn-outline:hover {
+  background: var(--bg-subtle);
+  border-color: var(--brand-green);
+  color: var(--brand-green);
+}
+
+[data-theme="dark"] #publicSessionStatusFilters .btn-primary {
+  background: #76A612;
+  border-color: #76A612;
+  color: #080309;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(118, 166, 18, 0.4);
+}
+
+[data-theme="dark"] #publicSessionStatusFilters .btn-outline {
+  border-color: rgba(203, 202, 207, 0.25);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] #publicSessionStatusFilters .btn-outline:hover {
+  border-color: #76A612;
+  color: #76A612;
+  background: rgba(118, 166, 18, 0.12);
+}
+
 .public-sessions-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
