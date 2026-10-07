@@ -5811,22 +5811,47 @@ body.rtl-mode .topic-bank-card-title-ar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   background: rgba(72, 81, 186, 0.05);
   border: 1px solid rgba(72, 81, 186, 0.28);
   color: #000000;
   cursor: pointer;
   transition: all var(--transition-normal);
   padding: 0;
-  font-size: 1.1rem;
+  margin: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  line-height: 1;
 }
 
 .theme-toggle-btn:hover {
   background: rgba(72, 81, 186, 0.14);
   border-color: var(--color-primary-1);
-  transform: rotate(15deg) scale(1.06);
+  transform: scale(1.06);
+}
+
+#themeToggleIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+}
+
+#themeToggleIcon svg {
+  display: block;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  stroke: currentColor;
 }
 
 [data-theme="dark"] .theme-toggle-btn {
