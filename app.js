@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('gyde_theme', theme);
     const icon = document.getElementById('themeToggleIcon');
     if (icon) {
-      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      icon.innerHTML = theme === 'dark' ? (window.icons && window.icons.sun ? window.icons.sun : '') : (window.icons && window.icons.moon ? window.icons.moon : '');
     }
   }
 
@@ -1020,13 +1020,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let categoryFeatureHtml = '';
 
     if (sesCategory === 'Guest Talk') {
-      catBadgeHtml = `<span class="badge-session-cat badge-cat-guest">🌟 ${isAr ? 'حوار ضيف شرف' : 'Guest Talk'}</span>`;
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-guest">${icons.award || ""} ${isAr ? 'حوار ضيف شرف' : 'Guest Talk'}</span>`;
       if (mainSession.guestName) {
         categoryFeatureHtml = `
           <div class="home-guest-banner">
             <img src="${mainSession.guestPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80'}" alt="${mainSession.guestName}" class="home-guest-photo">
             <div class="home-guest-info">
-              <span class="home-guest-badge">🌟 ${isAr ? 'ضيف الشرف الدولي' : 'Distinguished Guest Speaker'}</span>
+              <span class="home-guest-badge">${icons.award || ""} ${isAr ? 'ضيف الشرف الدولي' : 'Distinguished Guest Speaker'}</span>
               <h4 class="home-guest-name">${mainSession.guestName}</h4>
               <p class="home-guest-bio">"${mainSession.guestBio || ''}"</p>
             </div>
@@ -1034,11 +1034,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
     } else if (sesCategory === 'Debate') {
-      catBadgeHtml = `<span class="badge-session-cat badge-cat-deb">⚖️ ${isAr ? 'مناظرة رسمية' : 'Formal Debate'}</span>`;
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-deb">${icons.scale || ""} ${isAr ? 'مناظرة رسمية' : 'Formal Debate'}</span>`;
       if (mainSession.debateMotion || mainSession.propositionTeam) {
         categoryFeatureHtml = `
           <div class="home-debate-banner">
-            <div class="home-team-tag" style="color: #9E59AC; font-size: 0.78rem;">⚖️ ${isAr ? 'قضية المناظرة الرسمية' : 'Parliamentary Debate Motion'}</div>
+            <div class="home-team-tag" style="color: #9E59AC; font-size: 0.78rem;">${icons.scale || ""} ${isAr ? 'قضية المناظرة الرسمية' : 'Parliamentary Debate Motion'}</div>
             <div style="font-size: 1.15rem; font-style: italic; color: #FFFFFF; margin: 0.25rem 0 0.75rem 0; font-family: var(--font-serif);">
               "${mainSession.debateMotion || mainSession.title}"
             </div>
@@ -1061,10 +1061,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
     } else if (sesCategory === 'Diplomatic Roundtable') {
-      catBadgeHtml = `<span class="badge-session-cat badge-cat-round">🏛️ ${isAr ? 'طاولة مستديرة' : 'Diplomatic Roundtable'}</span>`;
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-round">${icons.landmark || ""} ${isAr ? 'طاولة مستديرة' : 'Diplomatic Roundtable'}</span>`;
       categoryFeatureHtml = `
         <div class="home-debate-banner" style="border-inline-start: 4px solid #4851BA;">
-          <div class="home-team-tag" style="color: #4851BA; font-size: 0.78rem;">🏛️ ${isAr ? 'مسودة القرار المطروحة للتفاوض' : 'Working Draft Resolution'}</div>
+          <div class="home-team-tag" style="color: #4851BA; font-size: 0.78rem;">${icons.landmark || ''} ${isAr ? 'مسودة القرار المطروحة للتفاوض' : 'Working Draft Resolution'}</div>
           <div style="font-size: 1.15rem; font-style: italic; color: #FFFFFF; margin: 0.25rem 0 0.5rem 0; font-family: var(--font-serif);">
             "${mainSession.workingDraftTitle || 'Draft Resolution on Multilateral Consensus'}"
           </div>
@@ -1077,11 +1077,11 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     } else if (sesCategory === 'Discussions') {
-      catBadgeHtml = `<span class="badge-session-cat badge-cat-disc">💬 ${isAr ? 'حلقة نقاشية' : 'Discussions'}</span>`;
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-disc">${icons.messageSquare || ""} ${isAr ? 'حلقة نقاشية' : 'Discussions'}</span>`;
       if (mainSession.discussionQuestions) {
         categoryFeatureHtml = `
           <div class="home-session-motion-box" style="border-inline-start-color: #9E59AC;">
-            <div class="home-motion-tag" style="color: #9E59AC;">💬 ${isAr ? 'محاور ونقاط النقاش المفتوح' : 'Core Discussion Inquiries'}</div>
+            <div class="home-motion-tag" style="color: #9E59AC;">${icons.messageSquare || ""} ${isAr ? 'محاور ونقاط النقاش المفتوح' : 'Core Discussion Inquiries'}</div>
             <div style="font-size: 0.95rem; color: #f8fafc; line-height: 1.6;">
               ${mainSession.discussionQuestions}
             </div>
@@ -1089,7 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
     } else {
-      catBadgeHtml = `<span class="badge-session-cat badge-cat-pres">🎤 ${isAr ? 'عرض بحثي' : 'Topic Presentation'}</span>`;
+      catBadgeHtml = `<span class="badge-session-cat badge-cat-pres">${icons.mic || ""} ${isAr ? 'عرض بحثي' : 'Topic Presentation'}</span>`;
     }
 
     const moderatorLabel = isAr ? 'إدارة الجلسة:' : 'Session Moderator:';
@@ -1316,7 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sessions.length === 0) {
       container.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
-          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+          <div style="display:flex;justify-content:center;margin-bottom:0.6rem;opacity:0.6;">${icons.search || ""}</div>
           <h4 style="margin: 0 0 0.35rem; color: var(--brand-navy);">No sessions found</h4>
           <p style="margin: 0; font-size: 0.88rem;">Try clearing your search query or selecting a different status filter.</p>
         </div>
@@ -1327,8 +1327,8 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = sessions.map(ses => {
       const isUpcoming = ses.status === 'Upcoming';
       const statusBadge = isUpcoming
-        ? `<span class="badge" style="background: var(--presenter-badge-bg); color: var(--presenter-badge-text); border: 1px solid var(--presenter-badge-border); font-weight: 700;">🟢 ${isAr ? 'جلسة قادمة' : 'Upcoming Live Dialogue'}</span>`
-        : `<span class="badge" style="background: rgba(15, 43, 72, 0.08); color: var(--brand-navy); border: 1px solid var(--border-color); font-weight: 700;">📜 ${isAr ? 'أرشيف منجز' : 'Completed Archive'}</span>`;
+        ? `<span class="badge" style="background: var(--presenter-badge-bg); color: var(--presenter-badge-text); border: 1px solid var(--presenter-badge-border); font-weight: 700;">${icons.liveDot || ''}${isAr ? 'جلسة قادمة' : 'Upcoming Live Dialogue'}</span>`
+        : `<span class="badge" style="background: rgba(15, 43, 72, 0.08); color: var(--brand-navy); border: 1px solid var(--border-color); font-weight: 700;">${icons.scroll || ''} ${isAr ? 'أرشيف منجز' : 'Completed Archive'}</span>`;
 
       const sesNumText = isAr 
         ? `الجلسة ${ses.sessionNumber.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])} • ${ses.categoryNameAr || ses.categoryName}` 
@@ -1359,7 +1359,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
           <button class="btn btn-navy btn-sm" onclick="window.viewSessionDetail('${ses.id}')" style="width: 100%; justify-content: center; gap: 6px; margin-top: 0.5rem;">
-            ${icons.book || '📖'} Inspect Session Agenda & Brief →
+            ${icons.book} Inspect Session Agenda & Brief →
           </button>
         </div>
       `;
@@ -1632,7 +1632,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.closePresenterApplicationModal();
     updateMemberPresenterButtonState();
-    showToast('🎉 Presenter Application submitted! The Academic Secretariat will review your accreditation.', 'success');
+    showToast('Presenter Application submitted! The Academic Secretariat will review your accreditation.', 'success');
 
     if (typeof renderCoordApplicationsList === 'function') {
       renderCoordApplicationsList();
@@ -1899,15 +1899,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let catBadge = '';
         if (sesCategory === 'Guest Talk') {
-          catBadge = `<span class="badge-session-cat badge-cat-guest">🌟 Guest Talk</span>`;
+          catBadge = `<span class="badge-session-cat badge-cat-guest">${icons.award} Guest Talk</span>`;
         } else if (sesCategory === 'Debate') {
-          catBadge = `<span class="badge-session-cat badge-cat-deb">⚖️ Debate</span>`;
+          catBadge = `<span class="badge-session-cat badge-cat-deb">${icons.scale} Debate</span>`;
         } else if (sesCategory === 'Discussions') {
-          catBadge = `<span class="badge-session-cat badge-cat-disc">💬 Discussions</span>`;
+          catBadge = `<span class="badge-session-cat badge-cat-disc">${icons.messageSquare} Discussions</span>`;
         } else if (sesCategory === 'Diplomatic Roundtable') {
-          catBadge = `<span class="badge-session-cat badge-cat-round">🏛️ Roundtable</span>`;
+          catBadge = `<span class="badge-session-cat badge-cat-round">${icons.landmark} Roundtable</span>`;
         } else {
-          catBadge = `<span class="badge-session-cat badge-cat-pres">🎤 Presentation</span>`;
+          catBadge = `<span class="badge-session-cat badge-cat-pres">${icons.mic} Presentation</span>`;
         }
 
         return `
@@ -2158,7 +2158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (bank.length === 0) {
         listEl.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-light);">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📚</div>
+            <div style="display:flex;justify-content:center;margin-bottom:0.75rem;opacity:0.6;">${icons.book || ""}</div>
             <h4 style="margin-bottom: 0.5rem; color: var(--brand-navy);">No matching topics found</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 1.25rem;">
               Cannot find what you are looking for? Propose your own custom academic topic using the "Others" option in the proposal form.
@@ -2181,7 +2181,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="topic-bank-top-meta">
                 <div class="topic-bank-badges">
                   <span class="badge-bank-cat">${catName}</span>
-                  ${isCustom ? `<span class="badge-bank-custom">⭐ Community Approved</span>` : ''}
+                  ${isCustom ? `<span class="badge-bank-custom" style="display:inline-flex;align-items:center;gap:4px;">${icons.star} Community Approved</span>` : ''}
                   ${formats.length ? `<span class="badge-bank-format">${formats[0]}</span>` : ''}
                 </div>
                 ${t.dateAdded ? `<span class="topic-bank-author-tag">${t.dateAdded}</span>` : ''}
@@ -2231,7 +2231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Placeholder
     const defOpt = document.createElement('option');
     defOpt.value = '';
-    defOpt.textContent = '-- 📚 Select a Topic from Academic Topic Bank --';
+    defOpt.textContent = '-- Select a Topic from Academic Topic Bank --';
     bankSelect.appendChild(defOpt);
 
     const bank = dataService.getTopicBank();
@@ -2258,7 +2258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         grp.topics.forEach(t => {
           const opt = document.createElement('option');
           opt.value = t.id;
-          opt.textContent = `${t.title}${(t.isCustom || t.isCustomAdded) ? ' ⭐ (Community Approved)' : ''}`;
+          opt.textContent = `${t.title}${(t.isCustom || t.isCustomAdded) ? ' (Community Approved)' : ''}`;
           optgroup.appendChild(opt);
         });
         bankSelect.appendChild(optgroup);
@@ -2268,7 +2268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Special option "Others"
     const otherOpt = document.createElement('option');
     otherOpt.value = 'others';
-    otherOpt.textContent = '✨ Others (Suggest New Custom Topic)';
+    otherOpt.textContent = 'Others (Suggest New Custom Topic)';
     bankSelect.appendChild(otherOpt);
 
     if (selectedBankId) {
@@ -2318,14 +2318,14 @@ document.addEventListener('DOMContentLoaded', () => {
           subSelect.innerHTML = '';
           const allOpt = document.createElement('option');
           allOpt.value = 'General Comprehensive Overview';
-          allOpt.textContent = '🌐 Comprehensive / All Angles in this Theme';
+          allOpt.textContent = 'Comprehensive / All Angles in this Theme';
           subSelect.appendChild(allOpt);
 
           const subList = item.subtopics || item.subTopics || [];
           subList.forEach(st => {
             const opt = document.createElement('option');
             opt.value = st;
-            opt.textContent = `🎯 Focus: ${st}`;
+            opt.textContent = `Focus: ${st}`;
             subSelect.appendChild(opt);
           });
         }
@@ -2410,7 +2410,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="badge badge-category" style="margin-bottom: 0.35rem;">${t.categoryName}</span>
               ${t.isCustom ? `<span class="badge-bank-custom" style="margin-left: 0.35rem; font-size: 0.72rem; padding: 2px 7px;">Custom Proposal</span>` : ''}
               <h4>${t.title}</h4>
-              ${t.subtopic && t.subtopic !== 'General Comprehensive Overview' ? `<div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 500; margin-top: 2px;">🎯 Focus: ${t.subtopic}</div>` : ''}
+              ${t.subtopic && t.subtopic !== 'General Comprehensive Overview' ? `<div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 500; margin-top: 2px;">Focus: ${t.subtopic}</div>` : ''}
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <button class="topic-upvote-btn" onclick="window.voteTopic('${t.id}')" title="Upvote in community ballot">
@@ -2506,7 +2506,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (isCustom) {
-        showToast('✨ Custom topic submitted! When coordinators review and approve this topic, it will automatically join the official Topic Bank.', 'success');
+        showToast('Custom topic submitted! When coordinators review and approve this topic, it will automatically join the official Topic Bank.', 'success');
       } else {
         showToast('Topic proposal submitted! It is now in the review pipeline.', 'success');
       }
@@ -2658,7 +2658,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="portal-user-avatar avatar-presenter" title="${user.name}">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : initial}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
-          <span class="portal-user-role" style="color: var(--accent-gold); font-weight: 600;">⭐ Academic Presenter (${user.country})</span>
+          <span class="portal-user-role" style="color: var(--accent-gold); font-weight: 600;">${icons.star} Academic Presenter (${user.country})</span>
         </div>
       `;
     }
@@ -2775,7 +2775,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="badge badge-category" style="margin-bottom: 0.25rem;">${s.categoryName || s.category}</span>
                 <h4 style="margin: 0.25rem 0; font-size: 1.05rem; color: var(--brand-navy);">${s.title}</h4>
                 <div style="font-size: 0.82rem; color: var(--text-muted);">
-                  📅 ${s.date} • ⏰ ${s.time} (${s.timezone || 'QST'}) • ⏱️ ${s.duration}
+                  <span style="display:inline-flex;align-items:center;gap:4px;">${icons.calendar} ${s.date}</span> • <span style="display:inline-flex;align-items:center;gap:4px;">${icons.clock} ${s.time} (${s.timezone || 'QST'})</span> • <span style="display:inline-flex;align-items:center;gap:4px;">${icons.hourglass} ${s.duration}</span>
                 </div>
               </div>
               <span class="badge badge-scheduled">Confirmed Speaker Slot</span>
@@ -2785,10 +2785,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
               <button class="btn btn-outline btn-sm" onclick="switchPresenterSubview('present')">
-                📑 Prepare Presentation Deck
+                ${icons.fileText} Prepare Presentation Deck
               </button>
               <a href="${s.meetingLink || 'https://meet.google.com/gyd-dialogue'}" target="_blank" class="btn btn-primary btn-sm">
-                🎙️ Enter Speaker Stage Link
+                ${icons.mic} Enter Speaker Stage Link
               </a>
             </div>
           </div>
@@ -2831,7 +2831,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bankSelect.innerHTML = '';
       const defOpt = document.createElement('option');
       defOpt.value = '';
-      defOpt.textContent = '-- 📚 Select a Topic from Academic Topic Bank to Present --';
+      defOpt.textContent = '-- Select a Topic from Academic Topic Bank to Present --';
       bankSelect.appendChild(defOpt);
 
       const bank = dataService.getTopicBank();
@@ -2853,7 +2853,7 @@ document.addEventListener('DOMContentLoaded', () => {
           grp.topics.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.id;
-            opt.textContent = `${t.title}${(t.isCustom || t.isCustomAdded) ? ' ⭐ (Community Approved)' : ''}`;
+            opt.textContent = `${t.title}${(t.isCustom || t.isCustomAdded) ? ' (Community Approved)' : ''}`;
             optgroup.appendChild(opt);
           });
           bankSelect.appendChild(optgroup);
@@ -2862,7 +2862,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const otherOpt = document.createElement('option');
       otherOpt.value = 'others';
-      otherOpt.textContent = '✨ Others (Present a Custom Academic Topic)';
+      otherOpt.textContent = 'Others (Present a Custom Academic Topic)';
       bankSelect.appendChild(otherOpt);
 
       if (preselectedBankId) {
@@ -2924,14 +2924,14 @@ document.addEventListener('DOMContentLoaded', () => {
             subSelect.innerHTML = '';
             const allOpt = document.createElement('option');
             allOpt.value = 'Comprehensive Theoretical Overview';
-            allOpt.textContent = '🌐 Comprehensive Overview of this Academic Theme';
+            allOpt.textContent = 'Comprehensive Overview of this Academic Theme';
             subSelect.appendChild(allOpt);
 
             const subList = item.subtopics || item.subTopics || [];
             subList.forEach(st => {
               const opt = document.createElement('option');
               opt.value = st;
-              opt.textContent = `🎯 Subtopic Angle: ${st}`;
+              opt.textContent = `Subtopic Angle: ${st}`;
               subSelect.appendChild(opt);
             });
           }
@@ -3022,7 +3022,7 @@ document.addEventListener('DOMContentLoaded', () => {
           status: 'Proposed'
         });
 
-        showToast('🎯 Presentation proposal submitted! Secretariat coordinators will review and schedule your session speaking slot.', 'success');
+        showToast('Presentation proposal submitted! Secretariat coordinators will review and schedule your session speaking slot.', 'success');
         form.reset();
         renderPresenterPresentView();
       };
@@ -3053,7 +3053,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div>
               <span class="badge badge-category" style="margin-bottom: 0.35rem;">${p.categoryName || p.category}</span>
               <h4 style="margin: 0.25rem 0;">${p.title}</h4>
-              <div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 500;">🎯 Focus: ${p.subtopic}</div>
+              <div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 500;">Focus: ${p.subtopic}</div>
             </div>
             <span class="badge badge-${p.status.toLowerCase().replace(' ', '')}">${p.status}</span>
           </div>
@@ -3112,7 +3112,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (items.length === 0) {
         listEl.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-light);">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📊</div>
+            <div style="display:flex;justify-content:center;margin-bottom:0.75rem;opacity:0.6;">${icons.barChart || ""}</div>
             <h4 style="margin-bottom: 0.5rem; color: var(--brand-navy);">No presentation decks found</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 1.25rem;">
               You haven't prepared any presentation briefings for this filter. Start by proposing an academic keynote!
@@ -3132,12 +3132,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="badge badge-${p.status.toLowerCase().replace(' ', '')}">${p.status}</span>
                 <span class="badge-bank-format">${p.format}</span>
               </div>
-              <span class="topic-bank-author-tag">📅 ${p.presentationDate || p.createdAt}</span>
+              <span class="topic-bank-author-tag">${icons.calendar} ${p.presentationDate || p.createdAt}</span>
             </div>
 
             <h3 class="topic-bank-card-title">${p.title}</h3>
             <div style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 0.6rem;">
-              🎯 Focus Subtopic: ${p.subtopic}
+              Focus Subtopic: ${p.subtopic}
             </div>
             <p class="topic-bank-card-desc">${p.abstract}</p>
 
@@ -3156,15 +3156,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="topic-bank-card-footer" style="flex-wrap: wrap; gap: 0.5rem;">
             ${p.slidesUrl ? `
               <a href="${p.slidesUrl}" target="_blank" class="btn btn-outline btn-sm">
-                📂 Open Slides Deck
+                ${icons.folder} Open Slides Deck
               </a>
             ` : `
               <button class="btn btn-outline btn-sm" onclick="switchPresenterSubview('present')">
-                ✏️ Attach Slides
+                ${icons.pen} Attach Slides
               </button>
             `}
             <a href="https://meet.google.com/gyd-dialogue" target="_blank" class="btn btn-primary btn-sm">
-              🎙️ Join Stage Room
+              ${icons.mic} Join Stage Room
             </a>
           </div>
         </div>
@@ -3232,7 +3232,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="topic-bank-top-meta">
                 <div class="topic-bank-badges">
                   <span class="badge-bank-cat">${catName}</span>
-                  ${isCustom ? `<span class="badge-bank-custom">⭐ Community Approved</span>` : ''}
+                  ${isCustom ? `<span class="badge-bank-custom" style="display:inline-flex;align-items:center;gap:4px;">${icons.star} Community Approved</span>` : ''}
                   ${formats.length ? `<span class="badge-bank-format">${formats[0]}</span>` : ''}
                 </div>
                 ${t.dateAdded ? `<span class="topic-bank-author-tag">${t.dateAdded}</span>` : ''}
@@ -3255,7 +3255,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="topic-bank-card-footer">
               <span class="topic-bank-author-tag">By: ${t.addedBy || 'Academic Board'}</span>
               <button class="btn btn-primary btn-sm" onclick="window.presentTopicFromBank('${t.id}')">
-                🎤 Present This Topic
+                ${icons.mic} Present This Topic
               </button>
             </div>
           </div>
@@ -3294,7 +3294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="badge badge-category">${s.categoryName || s.category}</span>
             <h3 style="margin: 0.35rem 0 0.2rem 0; color: var(--brand-navy);">${s.title}</h3>
             <div style="font-size: 0.85rem; color: var(--text-muted);">
-              Session ${s.sessionNumber.toString().padStart(2, '0')} • 📅 ${s.date} • ⏰ ${s.time} (${s.timezone || 'QST'})
+              Session ${s.sessionNumber.toString().padStart(2, '0')} • <span style="display:inline-flex;align-items:center;gap:4px;">${icons.calendar} ${s.date}</span> • <span style="display:inline-flex;align-items:center;gap:4px;">${icons.clock} ${s.time} (${s.timezone || 'QST'})</span>
             </div>
           </div>
           <span class="badge badge-${s.status.toLowerCase()}">${s.status}</span>
@@ -3310,10 +3310,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
           <button class="btn btn-outline btn-sm" onclick="switchPresenterSubview('present')">
-            📑 Prepare Topic Presentation
+            ${icons.fileText} Prepare Topic Presentation
           </button>
           <a href="${s.meetingLink || 'https://meet.google.com/gyd-dialogue'}" target="_blank" class="btn btn-primary btn-sm">
-            🎙️ Launch Presenter Stage Link
+            ${icons.mic} Launch Presenter Stage Link
           </a>
         </div>
       </div>
@@ -3704,7 +3704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (myWritings.length === 0) {
       listEl.innerHTML = `
         <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); background: var(--bg-body); border-radius: var(--radius-md);">
-          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
+          <div style="display:flex;justify-content:center;margin-bottom:0.6rem;opacity:0.6;">${icons.pen || ""}</div>
           <h4 style="margin: 0 0 0.4rem 0; color: var(--brand-navy);">No Academic Papers Submitted Yet</h4>
           <p style="font-size: 0.88rem; max-width: 480px; margin: 0 auto 1.25rem auto;">
             As an accredited Presenter, you can author in-depth research papers, policy syntheses, and debate dossiers.
@@ -3720,8 +3720,8 @@ document.addEventListener('DOMContentLoaded', () => {
     listEl.innerHTML = myWritings.map(w => {
       const isUnderReview = w.status === 'Under Review' || w.status === 'Pending' || w.status === 'Draft';
       const statusBadge = isUnderReview
-        ? `<span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #b45309; border: 1px solid rgba(234, 179, 8, 0.4); font-weight: 700;">⏳ Under Review by Secretariat</span>`
-        : `<span class="badge" style="background: var(--presenter-badge-bg); color: var(--presenter-badge-text); border: 1px solid var(--presenter-badge-border); font-weight: 700;">✓ Approved & Live in Member Dashboard</span>`;
+        ? `<span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #b45309; border: 1px solid rgba(234, 179, 8, 0.4); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${icons.hourglass} Under Review by Secretariat</span>`
+        : `<span class="badge" style="background: var(--presenter-badge-bg); color: var(--presenter-badge-text); border: 1px solid var(--presenter-badge-border); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">${icons.check} Approved & Live in Member Dashboard</span>`;
 
       return `
         <div class="writing-card" style="margin-bottom: 1.25rem; padding: 1.5rem; border: 1px solid var(--border-color);">
@@ -3741,7 +3741,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <strong>Author:</strong> ${w.author} • <em>${w.authorRole || 'Presenter'}</em>
             </div>
             <button class="btn btn-navy btn-sm" onclick="window.openFullAcademicPaper('${w.id}')">
-              ${icons.book || '📖'} Read Full Dossier
+              ${icons.book} Read Full Dossier
             </button>
           </div>
         </div>
@@ -3789,7 +3789,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dataService.db && dataService.db.notifications) {
       dataService.db.notifications.unshift({
         id: 'notif_' + Date.now().toString(36),
-        title: '📝 New Academic Paper Pending Review',
+        title: 'New Academic Paper Pending Review',
         message: `${authorName} submitted "${title}" for coordinator review and approval.`,
         type: 'topic',
         read: false,
@@ -3978,7 +3978,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="application-item" style="border-inline-start: 4px solid var(--presenter-border); background: var(--presenter-subtle); margin-bottom: 0.65rem; border-radius: var(--radius-md); padding: 0.85rem; border: 1px solid var(--presenter-card-border);">
           <div class="app-meta">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-              <span class="badge presenter-status-badge" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700;">🎤 Presenter Request</span>
+              <span class="badge presenter-status-badge" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700;">${icons.mic} Presenter Request</span>
               <strong style="color: var(--brand-navy); font-size: 0.92rem;">${pApp.name} (${pApp.country})</strong>
             </div>
             <div style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600;">Proposed: "${pApp.proposedTopic}"</div>
@@ -4174,7 +4174,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (items.length === 0) {
         listEl.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-light);">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📚</div>
+            <div style="display:flex;justify-content:center;margin-bottom:0.75rem;opacity:0.6;">${icons.book || ""}</div>
             <h4 style="margin-bottom: 0.5rem; color: var(--brand-navy);">No topics found</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 1.25rem;">
               No topics in the bank match your search criteria. Add a new topic directly to the bank.
@@ -4197,7 +4197,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="topic-bank-top-meta">
                 <div class="topic-bank-badges">
                   <span class="badge-bank-cat">${catName}</span>
-                  ${isCustom ? `<span class="badge-bank-custom">⭐ Community Approved</span>` : ''}
+                  ${isCustom ? `<span class="badge-bank-custom" style="display:inline-flex;align-items:center;gap:4px;">${icons.star} Community Approved</span>` : ''}
                   ${formats.length ? `<span class="badge-bank-format">${formats[0]}</span>` : ''}
                 </div>
                 ${t.dateAdded ? `<span class="topic-bank-author-tag">${t.dateAdded}</span>` : ''}
@@ -4222,7 +4222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="topic-bank-card-footer">
               <span class="topic-bank-author-tag">By: ${t.addedBy || 'Academic Board'}</span>
               <button class="btn btn-navy btn-sm" onclick="window.scheduleTopicFromBank('${t.id}')">
-                📅 Schedule Session
+                ${icons.calendar} Schedule Session
               </button>
             </div>
           </div>
@@ -4329,7 +4329,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     } else if (category === 'Discussions') {
       if (badge) {
-        badge.textContent = '💬 Discussions';
+        badge.innerHTML = (icons.messageSquare || '') + ' Discussions';
         badge.style.background = 'rgba(37, 99, 235, 0.12)';
         badge.style.color = '#2563eb';
         badge.style.borderColor = 'rgba(37, 99, 235, 0.3)';
@@ -4358,7 +4358,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     } else if (category === 'Guest Talk') {
       if (badge) {
-        badge.textContent = '🌟 Guest Talk';
+        badge.innerHTML = (icons.award || '') + ' Guest Talk';
         badge.style.background = 'rgba(147, 51, 234, 0.12)';
         badge.style.color = '#9333ea';
         badge.style.borderColor = 'rgba(147, 51, 234, 0.3)';
@@ -4430,7 +4430,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else if (category === 'Diplomatic Roundtable') {
       if (badge) {
-        badge.textContent = '🏛️ Diplomatic Roundtable';
+        badge.innerHTML = (icons.landmark || '') + ' Diplomatic Roundtable';
         badge.style.background = 'rgba(217, 119, 6, 0.12)';
         badge.style.color = '#d97706';
         badge.style.borderColor = 'rgba(217, 119, 6, 0.3)';
@@ -4459,7 +4459,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     } else if (category === 'Debate') {
       if (badge) {
-        badge.textContent = '⚖️ Debate';
+        badge.innerHTML = (icons.scale || '') + ' Debate';
         badge.style.background = 'rgba(220, 38, 38, 0.12)';
         badge.style.color = '#dc2626';
         badge.style.borderColor = 'rgba(220, 38, 38, 0.3)';
@@ -4648,7 +4648,7 @@ document.addEventListener('DOMContentLoaded', () => {
           recordingUrl
         });
 
-        showToast(`🎉 Scheduled "${title}" as a new ${sessionCategory} session!`, 'success');
+        showToast(`Scheduled "${title}" as a new ${sessionCategory} session!`, 'success');
         form.reset();
         switchCoordSubview('dashboard');
       };
@@ -4745,13 +4745,13 @@ document.addEventListener('DOMContentLoaded', () => {
         </p>
         <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end;">
           <button class="btn btn-outline btn-sm" onclick="window.openFullAcademicPaper('${w.id}')">
-            ${icons.book || '📖'} Inspect Full Paper
+            ${icons.book} Inspect Full Paper
           </button>
           <button class="btn btn-be-presenter btn-sm" onclick="window.approveWriting('${w.id}')" style="gap: 0.4rem;">
-            ${icons.check || '✓'} Approve & Publish to Member Dashboard
+            ${icons.check} Approve & Publish to Member Dashboard
           </button>
           <button class="btn btn-outline btn-sm" onclick="window.rejectWriting('${w.id}')">
-            ${icons.x || '✕'} Decline
+            ${icons.x} Decline
           </button>
         </div>
       </div>
@@ -5523,7 +5523,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="calendar-speakers-tags">
               <span class="country-pill" style="background: var(--brand-green-light); color: var(--brand-green); font-weight: 600;">${ses.status}</span>
               <span class="country-pill">Format: ${ses.format}</span>
-              <span class="country-pill">⏳ ${ses.duration}</span>
+              <span class="country-pill">${icons.hourglass} ${ses.duration}</span>
             </div>
           </div>
           <div class="calendar-actions-col">

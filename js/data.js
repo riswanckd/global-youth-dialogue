@@ -2570,7 +2570,7 @@ class DataService {
     if (this.db.notifications) {
       this.db.notifications.unshift({
         id: 'notif_' + Date.now().toString(36),
-        title: '📚 New Academic Paper Published',
+        title: 'New Academic Paper Published',
         message: `"${writing.title}" by ${writing.author} (${writing.categoryName}) is now live in the Academic Library.`,
         type: 'topic',
         read: false,
@@ -2716,7 +2716,7 @@ class DataService {
     if (this.db.notifications) {
       this.db.notifications.unshift({
         id: 'notif_' + Date.now().toString(36),
-        title: '🎤 New Presenter Application',
+        title: 'New Presenter Application',
         message: `${newApp.name} (${newApp.country}) has applied for Official Presenter accreditation: "${newApp.proposedTopic}".`,
         type: 'topic',
         read: false,
@@ -2756,7 +2756,7 @@ class DataService {
     if (this.db.notifications) {
       this.db.notifications.unshift({
         id: 'notif_' + Date.now().toString(36),
-        title: '🎉 Presenter Accreditation Approved',
+        title: 'Presenter Accreditation Approved',
         message: `Congratulations ${app.name}! You are now an official accredited GYD Presenter with full access to the Presenter Portal.`,
         type: 'topic',
         read: false,

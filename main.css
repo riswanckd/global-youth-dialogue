@@ -2291,6 +2291,11 @@ body.rtl-mode .session-lock-tag {
   flex-direction: column;
   flex-shrink: 0;
   padding: 1.5rem 1rem;
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  align-self: flex-start;
 }
 
 .portal-user-card {
@@ -2298,7 +2303,7 @@ body.rtl-mode .session-lock-tag {
   background: var(--bg-body);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -2369,7 +2374,7 @@ body.rtl-mode .session-lock-tag {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  flex-grow: 1;
+  flex-grow: 0;
 }
 
 .sidebar-item-btn {
@@ -2432,6 +2437,7 @@ body.rtl-mode .session-lock-tag {
 .kpi-icon svg { width: 26px; height: 26px; }
 
 .sidebar-bottom {
+  margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border-light);
 }
