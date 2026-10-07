@@ -1424,7 +1424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isPending = !isApproved && (app && app.status === 'Pending');
 
     if (isApproved) {
-      if (textEl) textEl.textContent = '🎤 Presenter Portal →';
+      if (textEl) textEl.textContent = 'Presenter Portal →';
       if (btn) {
         btn.className = 'btn-be-presenter status-approved';
         btn.title = 'You are an accredited Official Presenter. Click to open Presenter Portal.';
@@ -1440,7 +1440,9 @@ document.addEventListener('DOMContentLoaded', () => {
         bannerEl.innerHTML = `
           <div class="card-panel" style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(9, 29, 44, 0.04) 100%); border: 1px solid rgba(5, 150, 105, 0.35); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);">🎤</div>
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+              </div>
               <div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                   <strong style="color: #059669; font-size: 1rem;">Official Accredited Presenter</strong>
@@ -1456,7 +1458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
     } else if (isPending) {
-      if (textEl) textEl.textContent = '⏳ Request Pending';
+      if (textEl) textEl.textContent = 'Request Pending';
       if (btn) {
         btn.className = 'btn-be-presenter status-pending';
         btn.title = 'Your Presenter application is under review by coordinators.';
@@ -1472,7 +1474,9 @@ document.addEventListener('DOMContentLoaded', () => {
         bannerEl.innerHTML = `
           <div class="card-panel" style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.35); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: #d97706; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);">⏳</div>
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #d97706; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
               <div>
                 <strong style="color: #b45309; font-size: 1rem;">Presenter Request Under Review</strong>
                 <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">Your application for topic <em>"${app.proposedTopic || 'Academic Research Briefing'}"</em> is currently with the Academic Secretariat. You will receive Presenter Portal access upon coordinator approval.</p>
@@ -1483,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
     } else {
-      if (textEl) textEl.textContent = '🎤 Request to be Presenter';
+      if (textEl) textEl.textContent = 'Request to be Presenter';
       if (btn) {
         btn.className = 'btn-be-presenter';
         btn.title = 'Apply to become an accredited official Presenter';
@@ -1499,14 +1503,16 @@ document.addEventListener('DOMContentLoaded', () => {
         bannerEl.innerHTML = `
           <div class="card-panel" style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(9, 29, 44, 0.03) 100%); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: var(--radius-lg); padding: 1.15rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">🎤</div>
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+              </div>
               <div>
                 <strong style="color: #059669; font-size: 1rem;">Ready to Lead Dialogue as an Official Presenter?</strong>
                 <p style="font-size: 0.85rem; color: var(--text-body); margin: 0.2rem 0 0 0;">Deliver 10–30 min research briefings, present keynote topics, and lead international debates. Submit your request for coordinator approval to unlock the Presenter Portal.</p>
               </div>
             </div>
             <button class="btn btn-primary btn-sm" style="background: #059669; border-color: #059669; font-weight: 600;" onclick="window.handlePresenterMenuClick()">
-              🎤 Request to be Presenter
+              Request to be Presenter
             </button>
           </div>
         `;
