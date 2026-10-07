@@ -387,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         authService.logout();
         navigateToPortal('public');
         showToast(isAr ? 'تم تسجيل الخروج بنجاح.' : 'You have signed out successfully.');
+        setTimeout(() => checkApprovedVisitorRedirect(), 350);
       });
 
       if (publicNav) publicNav.style.display = (activePortal === 'public') ? 'flex' : 'none';
@@ -419,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
           authService.logout();
           navigateToPortal('public');
           showToast(isAr ? 'تم تسجيل الخروج بنجاح.' : 'You have signed out successfully.');
+          setTimeout(() => checkApprovedVisitorRedirect(), 350);
         });
       }
     } else {
@@ -848,6 +850,17 @@ document.addEventListener('DOMContentLoaded', () => {
     openModal('applyModal');
   });
 
+  document.getElementById('authToSignUpLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    handleApprovedApplicantClick();
+  });
+
+  document.getElementById('modalToSignUpLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal('authModal');
+    handleApprovedApplicantClick();
+  });
+
   // -------------------------------------------------------------------------
   // 3-BUTTON SEGMENTED ROLE TAB SWITCHER (Member | Presenter | Admin)
   // -------------------------------------------------------------------------
@@ -937,18 +950,63 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Your membership application was approved! Please set your custom password.', 'success');
   }
 
+  function handleApprovedApplicantClick() {
+    let pending = authService.checkApprovedApplicant();
+    if (!pending || !pending.email) {
+      pending = authService.getPendingRegistration();
+    }
+    if (!pending || !pending.email) {
+      const apps = dataService ? (dataService.getApplications() || []) : [];
+      const approved = apps.filter(a => a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
+      if (approved.length > 0) {
+        authService.setPendingRegistration(approved[0]);
+        pending = authService.getPendingRegistration();
+      }
+    }
+
+    if (pending && pending.email) {
+      closeModal('authModal');
+      openSignupModal(pending);
+      return;
+    }
+
+    // Prompt user for their applied email
+    const emailPrompt = prompt('Please enter the email address used in your approved membership application:');
+    if (emailPrompt && emailPrompt.trim()) {
+      const email = emailPrompt.trim().toLowerCase();
+      const apps = dataService ? (dataService.getApplications() || []) : [];
+      const app = apps.find(a => a.email && a.email.toLowerCase() === email);
+      if (app) {
+        if (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration') {
+          authService.setPendingRegistration(app);
+          closeModal('authModal');
+          openSignupModal(app);
+        } else if (app.status === 'Registered') {
+          showToast('Your membership is already registered! Please sign in with your email and password.', 'normal');
+        } else {
+          showToast(`Your application status is "${app.status}". A Coordinator must approve it first.`, 'warning');
+        }
+      } else {
+        showToast('No membership application found for this email. Please apply first.', 'error');
+      }
+    }
+  }
+
   function checkApprovedVisitorRedirect() {
-    if (authService.isLoggedIn()) return;
+    const currentUser = authService.getCurrentUser();
+    if (currentUser && currentUser.role === 'Member') return;
+
     const pending = authService.checkApprovedApplicant();
-    if (pending) {
+    if (pending && pending.email) {
       setTimeout(() => {
         openSignupModal(pending);
-      }, 500);
+      }, 400);
     }
   }
 
   window.openSignupModal = openSignupModal;
   window.checkApprovedVisitorRedirect = checkApprovedVisitorRedirect;
+  window.handleApprovedApplicantClick = handleApprovedApplicantClick;
 
   // Step 1: Submit Details & Custom Password
   document.getElementById('signupDetailsForm')?.addEventListener('submit', (e) => {
@@ -1037,26 +1095,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const newUser = dataService.registerUserFromSignup(currentSignupData);
     closeModal('signupModal');
 
-    showToast(`Membership activated for ${newUser.name}! Please sign in as Member with your email and password.`, 'success');
-
-    // Automatically open Sign In modal with Member pre-selected and email filled in
-    setTimeout(() => {
-      openModal('authModal');
-      const memberRadio = document.querySelector('input[name="authPortalRole"][value="member"]');
-      if (memberRadio) {
-        memberRadio.checked = true;
-        memberRadio.dispatchEvent(new Event('change'));
-      }
-      const emailInput = document.getElementById('loginEmail');
-      if (emailInput) {
-        emailInput.value = newUser.email;
-      }
-      const passInput = document.getElementById('loginPassword');
-      if (passInput) {
-        passInput.value = '';
-        passInput.focus();
-      }
-    }, 450);
+    // Automatically log in the newly activated member into the Member Portal
+    const loginRes = authService.login(newUser.email, currentSignupData.password, 'member');
+    if (loginRes.success) {
+      showToast(`Welcome to GYDE, ${newUser.name}! Your official membership is now active.`, 'success');
+      navigateToPortal('member');
+    } else {
+      showToast(`Membership activated for ${newUser.name}! Please sign in as Member with your email and password.`, 'success');
+      setTimeout(() => {
+        openModal('authModal');
+        const memberRadio = document.querySelector('input[name="authPortalRole"][value="member"]');
+        if (memberRadio) {
+          memberRadio.checked = true;
+          memberRadio.dispatchEvent(new Event('change'));
+        }
+        const emailInput = document.getElementById('loginEmail');
+        if (emailInput) emailInput.value = newUser.email;
+        const passInput = document.getElementById('loginPassword');
+        if (passInput) {
+          passInput.value = '';
+          passInput.focus();
+        }
+      }, 450);
+    }
   });
 
   // Membership Application Form Handler
@@ -4087,6 +4148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         authService.logout();
         navigateToPortal('public');
         showToast('Signed out from Coordinator Workspace.');
+        setTimeout(() => checkApprovedVisitorRedirect(), 350);
       };
     }
 

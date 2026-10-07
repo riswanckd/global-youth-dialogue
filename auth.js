@@ -246,8 +246,8 @@ class AuthService {
    * Returns the pending reg data if found AND the application is Approved in the DB.
    */
   checkApprovedApplicant() {
-    // Already have an active session -> no need to sign up
-    if (this.currentUser) return null;
+    // Already have an active Member session -> no need to sign up
+    if (this.currentUser && this.currentUser.role === 'Member') return null;
 
     let pending = this.getPendingRegistration();
 
@@ -260,6 +260,20 @@ class AuthService {
           const app = apps.find(a => a.email && a.email.toLowerCase() === appliedEmail.toLowerCase());
           if (app && (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration')) {
             this.setPendingRegistration(app);
+            pending = this.getPendingRegistration();
+          }
+        }
+      } catch (e) {}
+    }
+
+    // If still no pending, check if any application in DB is currently Approved & awaiting registration
+    if (!pending || !pending.email) {
+      try {
+        if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
+          const apps = window.GYD_DATA.getApplications() || [];
+          const approved = apps.filter(a => (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration'));
+          if (approved.length > 0) {
+            this.setPendingRegistration(approved[0]);
             pending = this.getPendingRegistration();
           }
         }

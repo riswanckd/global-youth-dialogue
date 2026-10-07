@@ -1670,6 +1670,9 @@ class DataService {
     if (window.GYD_AUTH && typeof window.GYD_AUTH.setPendingRegistration === 'function') {
       window.GYD_AUTH.setPendingRegistration(app);
     }
+    try {
+      localStorage.setItem('gyd_applied_email', app.email);
+    } catch (e) {}
 
     this.saveDatabase();
     return app;

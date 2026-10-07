@@ -1117,129 +1117,6 @@
   </div>
 
   <!-- =======================================================================
-       MODAL: SIGN UP (for approved applicants completing registration + OTP)
-       ======================================================================= -->
-  <div class="modal-backdrop" id="signUpModal">
-    <div class="modal-dialog" style="max-width: 540px;">
-      <button class="modal-close-btn" id="signUpModalClose">&times;</button>
-
-      <!-- Step 1: Personal details + password -->
-      <div id="signUpStep1">
-        <h3 class="modal-title serif-text">Complete Your Registration</h3>
-        <p class="modal-subtitle">You have been approved! Set up your credentials to access the Member Portal.</p>
-
-        <div
-          style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.65rem;">
-          <span style="display: flex; align-items: center; color: #059669;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span>
-          <div>
-            <div style="font-weight: 700; color: #065f46; font-size: 0.88rem;">Application Approved by Coordinator</div>
-            <div style="font-size: 0.8rem; color: #047857;" id="signUpApprovedEmail">Your email has been verified as an
-              approved applicant.</div>
-          </div>
-        </div>
-
-        <form id="signUpForm" autocomplete="off">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="signUpFirstName">First Name</label>
-              <input type="text" class="form-control" id="signUpFirstName" placeholder="e.g. Fatima" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="signUpLastName">Last Name</label>
-              <input type="text" class="form-control" id="signUpLastName" placeholder="e.g. Al-Kuwari" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="signUpCountry">Country of Residence</label>
-            <input type="text" class="form-control" id="signUpCountry" placeholder="e.g. Qatar, India, Brazil&hellip;"
-              required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="signUpEmail">Email Address</label>
-            <input type="email" class="form-control" id="signUpEmail" placeholder="your.email@example.com" required
-              readonly style="background: var(--bg-subtle); cursor: not-allowed;">
-            <span class="form-helper">This is the email from your approved application.</span>
-          </div>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="signUpPassword">Choose Password</label>
-              <input type="password" class="form-control" id="signUpPassword" placeholder="Min. 8 characters" required
-                minlength="8" autocomplete="new-password">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="signUpConfirmPassword">Confirm Password</label>
-              <input type="password" class="form-control" id="signUpConfirmPassword" placeholder="Re-enter password"
-                required minlength="8" autocomplete="new-password">
-            </div>
-          </div>
-          <div id="signUpFormError"
-            style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.65rem 1rem; font-size:0.83rem; margin-bottom:0.75rem;">
-          </div>
-          <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem;">
-            <button type="button" class="btn btn-outline" onclick="window.closeModal('signUpModal')">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="signUpStep1Btn">Verify Email &amp; Send OTP
-              &rarr;</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Step 2: OTP Verification -->
-      <div id="signUpStep2" style="display:none; text-align: center;">
-        <div style="display: flex; justify-content: center; margin-bottom: 1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
-        <h3 class="modal-title serif-text">Email Verification</h3>
-        <p class="modal-subtitle" id="signUpOtpDesc">Enter the 6-digit verification code.</p>
-
-        <!-- Simulated Email Preview -->
-        <div
-          style="background: linear-gradient(135deg, #1e3a5f, #0f2440); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; text-align: left; border: 1px solid rgba(255,255,255,0.1);">
-          <div
-            style="font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">
-            <span style="display: inline-flex; align-items: center; gap: 0.35rem;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Simulated Email &mdash; Global Youth Dialogue</span></div>
-          <div style="color: #a7f3d0; font-size: 0.82rem; margin-bottom: 0.25rem;"><strong>To:</strong> <span
-              id="signUpOtpEmailDisplay">user@example.com</span></div>
-          <div style="color: rgba(255,255,255,0.7); font-size: 0.82rem; margin-bottom: 1rem;"><strong>Subject:</strong>
-            Your GYD Verification Code</div>
-          <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 0.75rem;">Dear Approved
-            Applicant,<br>Your verification code is:</div>
-          <div style="text-align: center; margin: 0.75rem 0;">
-            <span id="signUpOtpDisplay"
-              style="font-size: 2.5rem; font-weight: 800; letter-spacing: 0.3em; color: #fbbf24; font-family: monospace; background: rgba(255,255,255,0.08); padding: 0.5rem 1.5rem; border-radius: var(--radius-md);">&mdash;
-              &mdash; &mdash; &mdash; &mdash; &mdash;</span>
-          </div>
-          <div style="font-size: 0.78rem; color: rgba(255,255,255,0.5);">Expires in <span id="signUpOtpCountdown"
-              style="color:#fbbf24; font-weight:700;">10:00</span>. Do not share it.</div>
-        </div>
-
-        <!-- 6 OTP input boxes -->
-        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.25rem;" id="otpInputGroup">
-          <input type="text" maxlength="1" class="otp-box" id="otpBox0" inputmode="numeric" pattern="[0-9]">
-          <input type="text" maxlength="1" class="otp-box" id="otpBox1" inputmode="numeric" pattern="[0-9]">
-          <input type="text" maxlength="1" class="otp-box" id="otpBox2" inputmode="numeric" pattern="[0-9]">
-          <input type="text" maxlength="1" class="otp-box" id="otpBox3" inputmode="numeric" pattern="[0-9]">
-          <input type="text" maxlength="1" class="otp-box" id="otpBox4" inputmode="numeric" pattern="[0-9]">
-          <input type="text" maxlength="1" class="otp-box" id="otpBox5" inputmode="numeric" pattern="[0-9]">
-        </div>
-
-        <div id="signUpOtpError"
-          style="display:none; background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:var(--radius-md); padding:0.65rem 1rem; font-size:0.83rem; margin-bottom:0.75rem; text-align:left;">
-        </div>
-
-        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-          <button type="button" class="btn btn-outline" id="signUpResendBtn" style="display: inline-flex; align-items: center; gap: 0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg> Resend Code</button>
-          <button type="button" class="btn btn-primary" id="signUpVerifyBtn" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verify &amp; Create Account
-          </button>
-        </div>
-        <div style="margin-top: 1rem;">
-          <a href="#" id="signUpBackBtn" style="font-size: 0.82rem; color: var(--text-muted);">&larr; Back to
-            details</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- =======================================================================
        VIEW 2: MEMBER PORTAL
        ======================================================================= -->
   <div id="viewMember" class="app-view" style="display: none;">
@@ -4013,10 +3890,14 @@
           Sign In
         </button>
 
-        <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 0.4rem;">
           <span data-i18n="authNoAccount">Don't have an approved account yet?</span>
           <a href="#" id="switchApplyModalBtn" style="color: var(--brand-green); font-weight: 600;"
             data-i18n="btnJoinCommunity">Apply for membership</a>
+        </p>
+        <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <span>Approved applicant?</span>
+          <a href="#" id="modalToSignUpLink" style="color: var(--accent-gold, #f59e0b); font-weight: 600; margin-inline-start: 0.25rem;">Complete Registration &rarr;</a>
         </p>
       </form>
 
