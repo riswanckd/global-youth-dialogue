@@ -1038,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (mainSession.debateMotion || mainSession.propositionTeam) {
         categoryFeatureHtml = `
           <div class="home-debate-banner">
-            <div class="home-team-tag" style="color: #9E59AC; font-size: 0.78rem;">⚖️ ${isAr ? 'قضية المناظرة الرسمية' : 'Parliamentary Debate Motion'}</div>
+            <div class="home-team-tag" style="color: var(--color-primary-1); font-size: 0.78rem;">⚖️ ${isAr ? 'قضية المناظرة الرسمية' : 'Parliamentary Debate Motion'}</div>
             <div style="font-size: 1.15rem; font-style: italic; color: #FFFFFF; margin: 0.25rem 0 0.75rem 0; font-family: var(--font-serif);">
               "${mainSession.debateMotion || mainSession.title}"
             </div>
@@ -1063,8 +1063,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (sesCategory === 'Diplomatic Roundtable') {
       catBadgeHtml = `<span class="badge-session-cat badge-cat-round">🏛️ ${isAr ? 'طاولة مستديرة' : 'Diplomatic Roundtable'}</span>`;
       categoryFeatureHtml = `
-        <div class="home-debate-banner" style="border-inline-start: 4px solid #4851BA;">
-          <div class="home-team-tag" style="color: #4851BA; font-size: 0.78rem;">🏛️ ${isAr ? 'مسودة القرار المطروحة للتفاوض' : 'Working Draft Resolution'}</div>
+        <div class="home-debate-banner" style="border-inline-start: 4px solid var(--color-primary-1);">
+          <div class="home-team-tag" style="color: var(--color-primary-1); font-size: 0.78rem;">🏛️ ${isAr ? 'مسودة القرار المطروحة للتفاوض' : 'Working Draft Resolution'}</div>
           <div style="font-size: 1.15rem; font-style: italic; color: #FFFFFF; margin: 0.25rem 0 0.5rem 0; font-family: var(--font-serif);">
             "${mainSession.workingDraftTitle || 'Draft Resolution on Multilateral Consensus'}"
           </div>
@@ -1080,8 +1080,8 @@ document.addEventListener('DOMContentLoaded', () => {
       catBadgeHtml = `<span class="badge-session-cat badge-cat-disc">💬 ${isAr ? 'حلقة نقاشية' : 'Discussions'}</span>`;
       if (mainSession.discussionQuestions) {
         categoryFeatureHtml = `
-          <div class="home-session-motion-box" style="border-inline-start-color: #9E59AC;">
-            <div class="home-motion-tag" style="color: #9E59AC;">💬 ${isAr ? 'محاور ونقاط النقاش المفتوح' : 'Core Discussion Inquiries'}</div>
+          <div class="home-session-motion-box" style="border-inline-start-color: var(--color-primary-1);">
+            <div class="home-motion-tag" style="color: var(--color-primary-1);">💬 ${isAr ? 'محاور ونقاط النقاش المفتوح' : 'Core Discussion Inquiries'}</div>
             <div style="font-size: 0.95rem; color: #f8fafc; line-height: 1.6;">
               ${mainSession.discussionQuestions}
             </div>
