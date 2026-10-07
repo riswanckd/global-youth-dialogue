@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="light">
 
 <head>
   <meta charset="UTF-8">
@@ -11,15 +11,22 @@
   <title>Global Youth Dialogue & Exchange (GYDE) | International Community of Youth Debaters</title>
 
   <!-- Google Fonts & Stylesheet -->
-  <link rel="stylesheet" href="main.css?v=6.8" onerror="this.href='styles/main.css?v=6.8'">
+  <link rel="stylesheet" href="main.css?v=7.1" onerror="this.href='styles/main.css?v=7.1'">
   <!-- Favicon & Touch Icons (New Official Brand Logo) -->
   <link rel="icon" type="image/svg+xml" href="assets/images/gyde_favicon.svg?v=3">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/images/gyde_favicon.png?v=3">
   <link rel="shortcut icon" href="favicon.ico?v=3">
   <link rel="apple-touch-icon" href="assets/images/gyde_favicon.png?v=3">
+
+  <script>
+    (function () {
+      var theme = (localStorage.getItem('gyde_theme_v2') === 'set' && localStorage.getItem('gyde_theme')) || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 
-<body>
+<body data-theme="light">
 
   <!-- =======================================================================
        GLOBAL SITE HEADER
@@ -171,19 +178,19 @@
               <div class="hero-meta-grid">
                 <div class="hero-meta-item">
                   <span class="hero-meta-diamond">&#9670;</span>
-                  <span>14+ Global Chapters</span>
+                  <span data-i18n="heroChapters">14+ Global Chapters</span>
                 </div>
                 <div class="hero-meta-item">
                   <span class="hero-meta-diamond">&#9670;</span>
-                  <span>Weekly Structured Debates</span>
+                  <span data-i18n="heroStructured">Weekly Structured Debates</span>
                 </div>
                 <div class="hero-meta-item">
                   <span class="hero-meta-diamond">&#9670;</span>
-                  <span>60+ Active Youth Debaters</span>
+                  <span data-i18n="heroDebaters">60+ Active Youth Debaters</span>
                 </div>
                 <div class="hero-meta-item">
                   <span class="hero-meta-diamond">&#9670;</span>
-                  <span>100% Youth-Researched Papers</span>
+                  <span data-i18n="heroPapers">100% Youth-Researched Papers</span>
                 </div>
               </div>
             </div>
@@ -200,8 +207,8 @@
                 <div class="collage-main-card">
                   <img src="assets/images/delegate_floor_speech.jpg" alt="Youth delegate delivering keynote debate speech" class="collage-main-img">
                   <div class="collage-badge-tag">
-                    <span>&#127908;</span>
-                    <span>Floor Keynote Speech</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    <span data-i18n="heroKeynote">Floor Keynote Speech</span>
                   </div>
                 </div>
 
@@ -211,17 +218,17 @@
                   <div class="collage-stack-card">
                     <img src="assets/images/delegates_walk_outdoor.jpg" alt="International youth delegates walking together" class="collage-stack-img">
                     <div class="collage-badge-tag">
-                      <span>&#127757;</span>
-                      <span>14+ Nations Connected</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                      <span data-i18n="heroNations">14+ Nations Connected</span>
                     </div>
                   </div>
 
                   <!-- Bottom: Academic Research Delegate -->
                   <div class="collage-stack-card">
-                    <img src="assets/images/delegate_research_presentation.jpg" alt="Youth delegate presenting academic research" class="collage-stack-img">
+                    <img src="assets/images/debate_session_roundtable.jpg" alt="Youth delegates participating in academic dialogue session" class="collage-stack-img">
                     <div class="collage-badge-tag">
-                      <span>&#128220;</span>
-                      <span>Youth Academic Research</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                      <span data-i18n="heroResearch">Youth Academic Research</span>
                     </div>
                   </div>
                 </div>
@@ -276,27 +283,27 @@
       <!-- Continuous Silky Marquee Ribbon -->
       <div class="marquee-ribbon-wrap">
         <div class="marquee-track">
-          <div class="marquee-item">&#127757; 14+ Global Chapters</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127469; Accra</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127478;&#127462; Doha</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127463;&#127479; S&atilde;o Paulo</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127463; Oxford</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127470;&#127475; New Delhi</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#9878; Weekly Live Parliamentary Motions</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#128220; 100% Youth-Researched Papers</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127891; 60+ International Debaters</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127482;&#127480; Washington D.C.</div>
+          <div class="marquee-item"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 14+ Global Chapters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Accra</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Doha</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> S&atilde;o Paulo</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Oxford</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> New Delhi</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> Weekly Live Parliamentary Motions</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> 100% Youth-Researched Papers</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> 60+ International Debaters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Washington D.C.</div>
           <!-- Repeated for smooth infinite loop -->
-          <div class="marquee-item">&#127757; 14+ Global Chapters</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127469; Accra</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127478;&#127462; Doha</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127463;&#127479; S&atilde;o Paulo</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127468;&#127463; Oxford</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127470;&#127475; New Delhi</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#9878; Weekly Live Parliamentary Motions</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#128220; 100% Youth-Researched Papers</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127891; 60+ International Debaters</div>
-          <div class="marquee-item"><span class="marquee-star">&#10022;</span> &#127482;&#127480; Washington D.C.</div>
+          <div class="marquee-item"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 14+ Global Chapters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Accra</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Doha</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> S&atilde;o Paulo</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Oxford</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> New Delhi</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> Weekly Live Parliamentary Motions</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> 100% Youth-Researched Papers</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> 60+ International Debaters</div>
+          <div class="marquee-item"><span class="marquee-star">&#10022;</span> <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Washington D.C.</div>
         </div>
       </div>
 
@@ -1372,7 +1379,7 @@
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg></span>
-              <span>Calendar & Schedule</span>
+              <span data-i18n="navCalendar">Calendar & Schedule</span>
             </button>
           </li>
           <li>
@@ -1383,7 +1390,7 @@
                   <circle cx="12" cy="8" r="7"></circle>
                   <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
                 </svg></span>
-              <span>My Journey & Badges</span>
+              <span data-i18n="navJourney">My Journey & Badges</span>
             </button>
           </li>
           <li>
@@ -1396,10 +1403,10 @@
                   <line x1="16" y1="13" x2="8" y2="13"></line>
                   <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg></span>
-              <span>Participation Certificate</span>
+              <span data-i18n="navCertificate">Participation Certificate</span>
             </button>
           </li>
-          <li style="margin-top: 0.85rem; padding: 0 0.5rem;">
+          <li style="margin-top: 0.35rem; margin-bottom: 0.2rem; padding: 0 0.25rem;">
             <button class="btn-be-presenter" id="btnMemberBePresenter" onclick="window.handlePresenterMenuClick()">
               <span style="display:inline-flex; align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="16"
                   height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -1408,7 +1415,7 @@
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                   <line x1="12" x2="12" y1="19" y2="22"></line>
                 </svg></span>
-              <span id="memberPresenterMenuText">Request to be Presenter</span>
+              <span id="memberPresenterMenuText" data-i18n="reqPresenter">Request to be Presenter</span>
             </button>
           </li>
           <li>
@@ -1419,7 +1426,7 @@
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg></span>
-              <span>My Profile & Settings</span>
+              <span data-i18n="navProfile">My Profile & Settings</span>
             </button>
           </li>
         </ul>
@@ -2255,7 +2262,7 @@
                   <rect x="3" y="16" width="7" height="5"></rect>
                 </svg>
               </span>
-              <span>Overview & Agenda</span>
+              <span data-i18n="presOverview">Overview & Agenda</span>
             </button>
           </li>
           <li>
@@ -2281,7 +2288,7 @@
                   <line x1="12" y1="17" x2="12" y2="21"></line>
                 </svg>
               </span>
-              <span>My Presentations & Slides</span>
+              <span data-i18n="btnMyDecks">My Presentations & Slides</span>
             </button>
           </li>
           <li>
@@ -2293,7 +2300,7 @@
                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
               </span>
-              <span>Topic Bank Catalog</span>
+              <span data-i18n="topicBankCatalog">Topic Bank Catalog</span>
             </button>
           </li>
           <li>
@@ -2307,7 +2314,7 @@
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
               </span>
-              <span>Speaking Sessions</span>
+              <span data-i18n="btnAssignedSessions">Speaking Sessions</span>
             </button>
           </li>
           <li>
@@ -2319,7 +2326,7 @@
                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
               </span>
-              <span>Academic Writing</span>
+              <span data-i18n="navWritings">Academic Writing</span>
             </button>
           </li>
           <li>
@@ -2331,7 +2338,7 @@
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               </span>
-              <span>Speaker Profile</span>
+              <span data-i18n="speakerProfile">Speaker Profile</span>
             </button>
           </li>
         </ul>
@@ -2347,7 +2354,7 @@
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg></span>
-            <span>Participate as Member</span>
+            <span data-i18n="participateAsMember">Participate as Member</span>
           </button>
           <button class="btn btn-outline btn-sm btn-sidebar-delete-trial"
             id="presenterSidebarDeleteTrialBtn" type="button" title="Delete all trial and test data">
@@ -2904,7 +2911,7 @@
 
               <div
                 style="background: var(--presenter-subtle); border: 1px solid var(--presenter-badge-border); border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.86rem; color: var(--text-color); display: flex; align-items: center; gap: 0.6rem;">
-                <span style="font-size: 1.2rem;">ℹ️</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span>Submitting this paper sends it directly to the <strong>Admin Review Queue</strong>. Once approved
                   by a Coordinator, it will be published live into every Member's Academic Writings dashboard.</span>
               </div>
@@ -3095,7 +3102,7 @@
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
                   </path>
                 </svg></span>
-              <span>Country Chapters</span>
+              <span data-i18n="countryChapters">Country Chapters</span>
             </button>
           </li>
           <li>
@@ -3109,7 +3116,7 @@
                   <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                 </svg></span>
-              <span>Media & PR Studio</span>
+              <span data-i18n="mediaStudio">Media & PR Studio</span>
             </button>
           </li>
           <li>
@@ -3120,7 +3127,7 @@
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg></span>
-              <span>Coordinator Profile</span>
+              <span data-i18n="coordProfile">Coordinator Profile</span>
             </button>
           </li>
         </ul>
@@ -4637,10 +4644,10 @@
 
   <!-- Application Logic Scripts -->
   <script src="icons.js?v=4.9" onerror="this.src='js/icons.js?v=4.9'"></script>
-  <script src="data.js?v=4.8" onerror="this.src='js/data.js?v=4.8'"></script>
-  <script src="i18n.js?v=4.8" onerror="this.src='js/i18n.js?v=4.8'"></script>
-  <script src="auth.js?v=4.7" onerror="this.src='js/auth.js?v=4.7'"></script>
-  <script src="app.js?v=5.0" onerror="this.src='js/app.js?v=5.0'"></script>
+  <script src="data.js?v=4.9" onerror="this.src='js/data.js?v=4.9'"></script>
+  <script src="i18n.js?v=5.0" onerror="this.src='js/i18n.js?v=5.0'"></script>
+  <script src="auth.js?v=4.8" onerror="this.src='js/auth.js?v=4.8'"></script>
+  <script src="app.js?v=5.3" onerror="this.src='js/app.js?v=5.3'"></script>
 </body>
 
 </html>

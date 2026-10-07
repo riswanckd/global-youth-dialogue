@@ -287,7 +287,32 @@ const TRANSLATIONS = {
     deleteTrialItem5: 'Test Evaluations, Feedback & Community Ballots',
     deleteTrialItem6: 'Ephemeral OTP Sessions & Local Cache',
     deleteTrialNote: 'Official Founding Secretariat accounts and benchmark curriculum spheres will remain intact.',
-    btnConfirmDeleteTrial: 'Yes, Delete All Trial Data'
+    btnConfirmDeleteTrial: 'Yes, Delete All Trial Data',
+
+    // Additional Navigation & Dashboards
+    navDashboard: 'Dashboard',
+    navSubmissions: 'Paper Submissions',
+    navMaterials: 'Academic Materials',
+    navForum: 'Discussion Forum',
+    navCalendar: 'Calendar & Schedule',
+    navJourney: 'My Journey & Badges',
+    navCertificate: 'Participation Certificate',
+    reqPresenter: 'Request to be Presenter',
+    navProfile: 'My Profile & Settings',
+    presOverview: 'Overview & Agenda',
+    topicBankCatalog: 'Topic Bank Catalog',
+    speakerProfile: 'Speaker Profile',
+    participateAsMember: 'Participate as Member',
+    countryChapters: 'Country Chapters',
+    mediaStudio: 'Media & PR Studio',
+    coordProfile: 'Coordinator Profile',
+    heroChapters: '14+ Global Chapters',
+    heroStructured: 'Weekly Structured Debates',
+    heroDebaters: '60+ Active Youth Debaters',
+    heroPapers: '100% Youth-Researched Papers',
+    heroKeynote: 'Floor Keynote Speech',
+    heroNations: '14+ Nations Connected',
+    heroResearch: 'Youth Academic Research'
   },
 
   ar: {
@@ -568,13 +593,342 @@ const TRANSLATIONS = {
     deleteTrialItem5: 'تقييمات واستبيانات وتصويتات الجلسات التجريبية',
     deleteTrialItem6: 'جلسات التحقق برمز OTP المؤقت والذاكرة المحلية',
     deleteTrialNote: 'ستظل حسابات الأمانة العامة الرسمية والمجالات المعيارية الأساسية محفوظة بالكامل دون تغيير.',
-    btnConfirmDeleteTrial: 'نعم، احذف جميع البيانات التجريبية'
+    btnConfirmDeleteTrial: 'نعم، احذف جميع البيانات التجريبية',
+
+    // Additional Navigation & Dashboards
+    navDashboard: 'لوحة التحكم',
+    navSubmissions: 'تقديم الأوراق البحثية',
+    navMaterials: 'المواد الأكاديمية',
+    navForum: 'منتدى النقاش',
+    navCalendar: 'التقويم والجدول الزمني',
+    navJourney: 'مساري وأوسمتي',
+    navCertificate: 'شهادة المشاركة',
+    reqPresenter: 'طلب الاعتماد كمقدم أوراق',
+    navProfile: 'ملفي الشخصي والإعدادات',
+    presOverview: 'نظرة عامة وجدول الأعمال',
+    topicBankCatalog: 'كتالوج بنك المواضيع',
+    speakerProfile: 'ملف المتحدث',
+    participateAsMember: 'المشاركة كعضو',
+    countryChapters: 'الفروع والمنسقون الوطنيون',
+    mediaStudio: 'استوديو الإعلام والعلاقات العامة',
+    coordProfile: 'ملف المنسق',
+    heroChapters: '+14 فرعاً عالمياً',
+    heroStructured: 'مناظرات أسبوعية منظمة',
+    heroDebaters: '+60 مناظراً شبابياً نشطاً',
+    heroPapers: 'أوراق بحثية شبابية 100%',
+    heroKeynote: 'الكلمة الرئيسية في القاعة',
+    heroNations: '+14 دولة متصلة',
+    heroResearch: 'بحوث أكاديمية شبابية'
   }
+};
+
+/**
+ * COMPREHENSIVE ENGLISH-TO-ARABIC TRANSLATION DICTIONARY
+ * Covers dynamic templates, UI strings, dashboard widgets, tables, filters,
+ * forms, statuses, categories, countries, badges, and roles.
+ */
+const GLOBAL_TRANSLATION_MAP = {
+  // Brand & High-level
+  'Global Youth Dialogue & Exchange (GYDE)': 'الحوار والتبادل الشبابي الدولي (GYDE)',
+  'Global Youth Dialogue & Exchange': 'الحوار والتبادل الشبابي الدولي',
+  'Global Youth Dialogue': 'الحوار الشبابي الدولي',
+  'International Community of Youth Debaters': 'مجتمع دولي للمناظرين والباحثين الشباب',
+  'Connect. Challenge. Create.': 'تواصل. حاور. ابتكر.',
+  'Young minds. Different countries. One conversation.': 'عقول شابة. دول مختلفة. حوار واحد.',
+
+  // Hero & Collage Tags
+  'Floor Keynote Speech': 'الكلمة الرئيسية في القاعة',
+  '14+ Nations Connected': '+14 دولة متصلة',
+  'Youth Academic Research': 'بحوث أكاديمية شبابية',
+  '60+ Active Youth Debaters': '+60 مناظراً شبابياً نشطاً',
+  '100% Youth-Researched Papers': 'أوراق بحثية شبابية 100%',
+  '14+ Global Chapters': '+14 فرعاً عالمياً',
+  'Weekly Structured Debates': 'مناظرات أسبوعية منظمة',
+  'Countries Represented': 'دولة ممثلة',
+  'Weekly Dialogue Sessions': 'جلسات حوار أسبوعية',
+  'Youth-Led & Researched': 'أوراق يقودها ويبحثها الشباب',
+
+  // Sidebars & Menus
+  'Suggest a Topic Now': 'اقترح موضوعاً الآن',
+  'Suggest a Topic': 'اقترح موضوعاً',
+  'Suggest Topic': 'اقترح موضوعاً',
+  'Suggest a Topic or Dialogue Activity': 'اقتراح موضوع أو نشاط حواري',
+  'Calendar & Schedule': 'التقويم والجدول الزمني',
+  'My Journey & Badges': 'مساري وأوسمتي',
+  'My Dialogue Journey & Badges': 'مساري الحواري وأوسمتي التقديرية',
+  'Participation Certificate': 'شهادة المشاركة',
+  'Download Certificate': 'تحميل الشهادة',
+  'Request to be Presenter': 'طلب الاعتماد كمقدم أوراق',
+  'Presenter Accreditation Status': 'حالة الاعتماد كمقدم أوراق',
+  'Accredited Keynote Presenter': 'مقدم أوراق معتمد رسمياً',
+  'Pending Presenter Accreditation': 'طلب الاعتماد قيد المراجعة',
+  'My Profile & Settings': 'ملفي الشخصي والإعدادات',
+  'Delete Trial Data': 'حذف البيانات التجريبية',
+  'Sign Out': 'تسجيل الخروج',
+  'Sign In': 'تسجيل الدخول',
+  'Join Us': 'انضم إلينا',
+  'Overview & Agenda': 'نظرة عامة وجدول الأعمال',
+  'Present a Topic': 'تقديم موضوع بحثي',
+  'My Presentations & Slides': 'عروضي التقديمية والشرائح',
+  'Topic Bank Catalog': 'كتالوج بنك المواضيع',
+  'Speaking Sessions': 'جلسات التحدث',
+  'Academic Writing': 'الكتابة الأكاديمية',
+  'Speaker Profile': 'ملف المتحدث',
+  'Participate as Member': 'المشاركة كعضو',
+  'Programme Overview': 'نظرة عامة على البرنامج',
+  'Topic Pipeline': 'مسار إدارة المواضيع',
+  'Topic Lifecycle Pipeline': 'مسار إدارة دورة حياة المواضيع',
+  'Create & Schedule': 'إنشاء وجدولة الجلسات',
+  'Writing Studio': 'استوديو الكتابة الأكاديمية',
+  'Review Feedback': 'مراجعة تقييمات الأعضاء',
+  'Member Applications': 'طلبات العضوية',
+  'ISDC7 Team': 'فريق ISDC7',
+  'ISDC7 Coordinator Team': 'فريق المنسقين التأسيسي (ISDC7)',
+  'Country Chapters': 'الفروع والمنسقون الوطنيون',
+  'Media & PR Studio': 'استوديو الإعلام والعلاقات العامة',
+  'Coordinator Profile': 'ملف المنسق',
+  'Sessions & Dialogue': 'الجلسات والحوار',
+  'Paper Submissions': 'تقديم الأوراق البحثية',
+  'Academic Materials': 'المواد الأكاديمية',
+  'Discussion Forum': 'منتدى النقاش',
+  'Give Feedback': 'تقديم الملاحظات والتقييم',
+  'Topic Bank': 'بنك المواضيع',
+  'Academic Topic Bank': 'بنك المواضيع الأكاديمية',
+  'Quick Access': 'الوصول السريع',
+  'Scheduled Sessions': 'الجلسات المجدولة',
+  'Submit Paper': 'تقديم ورقة أكاديمية',
+  'Submit Feedback': 'إرسال التقييم',
+
+  // Dashboards & Sections
+  'Member Dashboard': 'لوحة تحكم الأعضاء',
+  'Presenter & Speaker Workspace': 'مساحة عمل المتحدثين ومقدمي الأوراق',
+  'Coordinator Workspace': 'مساحة عمل المنسقين',
+  'Next Scheduled Session': 'الجلسة القادمة المجدولة',
+  'Next Session': 'الجلسة القادمة',
+  'Recent Platform Activity': 'النشاط الأخير على المنصة',
+  'Recent Activity': 'النشاط الأخير',
+  'My Submitted Topics': 'موضوعاتي المقترحة',
+  'International Community': 'المجتمع الدولي',
+  'Honorary Dialogue Badges': 'أوسمة الشرف الحوارية',
+  'Welcome back to the international dialogue platform.': 'مرحباً بك مجدداً في منصة الحوار الدولي.',
+  'Active Debater': 'مناظر نشط',
+  'Academic Researcher': 'باحث أكاديمي',
+  'Session Lead': 'قائد جلسة',
+  'Global Contributor': 'مساهم دولي',
+  'Diplomacy Fellow': 'زميل دبلوماسي',
+  'Certified Academic Delegate': 'مندوب أكاديمي معتمد',
+  'Official Certificate of Active Participation': 'الشهادة الرسمية للمشاركة النشطة',
+  'Certificate of Appreciation': 'شهادة تقدير واعتزاز',
+
+  // 16 Knowledge Spheres
+  'Global Affairs': 'الشؤون الدولية والعالمية',
+  'Governance & Society': 'الحوكمة والمجتمع',
+  'Education': 'التعليم',
+  'Technology & AI': 'التكنولوجيا والذكاء الاصطناعي',
+  'Economy': 'الاقتصاد',
+  'Environment': 'البيئة والمناخ',
+  'Culture & Identity': 'الثقافة والهوية',
+  'Emerging Issues': 'القضايا الناشئة',
+  'Ethics & Philosophy': 'الأخلاق والفلسفة',
+  'Law & Justice': 'القانون والعدالة',
+  'Youth & Leadership': 'الشباب والقيادة',
+  'Media & Information': 'الإعلام والمعلومات',
+  'Health & Society': 'الصحة والمجتمع',
+  'Human Rights': 'حقوق الإنسان',
+  'Peace & Conflict Resolution': 'السلام وحل النزاعات',
+  'Science & Innovation': 'العلوم والابتكار',
+
+  // Roles
+  'Coordinator': 'منسق',
+  'Presenter': 'مقدم أوراق',
+  'Member': 'عضو',
+  'Moderator': 'مدير جلسة',
+  'Research Contributor': 'باحث ومساهم',
+  'Guest Speaker': 'متحدث ضيف',
+  'Admin': 'مدير النظام',
+  'Delegate': 'مندوب',
+  'Academic Presenter & Keynote Fellow': 'مقدم أوراق أكاديمية وزميل رئيسي',
+
+  // Statuses
+  'Under Review': 'قيد المراجعة',
+  'under_review': 'قيد المراجعة',
+  'Approved': 'معتمد',
+  'approved': 'معتمد',
+  'Upcoming': 'قادمة',
+  'upcoming': 'قادمة',
+  'Completed': 'مكتملة',
+  'completed': 'مكتملة',
+  'Pending': 'قيد الانتظار',
+  'pending': 'قيد الانتظار',
+  'Scheduled': 'مجدولة',
+  'scheduled': 'مجدولة',
+  'Draft': 'مسودة',
+  'draft': 'مسودة',
+  'Active': 'نشط',
+  'active': 'نشط',
+  'Rejected': 'مرفوض',
+  'rejected': 'مرفوض',
+  'Proposed': 'مقترح',
+  'Published': 'منشور',
+  'In Progress': 'قيد الإعداد',
+
+  // Actions & Buttons
+  'View Details': 'عرض التفاصيل',
+  'Join Room': 'انضم إلى الغرفة',
+  'Join Live Session': 'انضم إلى الجلسة المباشرة',
+  'Join Session': 'انضم إلى الجلسة',
+  'Download PDF': 'تحميل بصيغة PDF',
+  'Submit Proposal': 'إرسال المقترح',
+  'Submit Application': 'إرسال الطلب',
+  'Submit Topic Proposal': 'إرسال مقترح الموضوع',
+  'Save Changes': 'حفظ التغييرات',
+  'Save Session': 'حفظ الجلسة',
+  'Cancel': 'إلغاء',
+  'Submit': 'إرسال',
+  'Close': 'إغلاق',
+  'Back': 'رجوع',
+  'Next': 'التالي',
+  'Edit': 'تعديل',
+  'Delete': 'حذف',
+  'Approve': 'اعتماد',
+  'Decline': 'رفض',
+  'Reject': 'رفض',
+  'Publish': 'نشر',
+  'Filter': 'تصفية',
+  'All Categories': 'جميع الفئات',
+  'All Formats': 'جميع أشكال الحوار',
+  'All Statuses': 'جميع الحالات',
+  'Copy Link': 'نسخ الرابط',
+  'Copied!': 'تم النسخ!',
+  'Loading...': 'جاري التحميل...',
+  'No records found': 'لم يتم العثور على سجلات',
+  'No topics found': 'لم يتم العثور على مواضيع',
+  'No sessions found': 'لم يتم العثور على جلسات',
+  'Notifications': 'الإشعارات',
+  'Search GYDE': 'البحث في المنصة',
+  'Search': 'بحث',
+
+  // Countries
+  'Qatar': 'قطر',
+  'Singapore': 'سنغافورة',
+  'Ghana': 'غانا',
+  'Brazil': 'البرازيل',
+  'United Kingdom': 'المملكة المتحدة',
+  'Jordan': 'الأردن',
+  'Mexico': 'المكسيك',
+  'United States': 'الولايات المتحدة',
+  'Canada': 'كندا',
+  'Germany': 'ألمانيا',
+  'France': 'فرنسا',
+  'Japan': 'اليابان',
+  'South Korea': 'كوريا الجنوبية',
+  'India': 'الهند',
+  'Pakistan': 'باكستان',
+  'Turkey': 'تركيا',
+  'Malaysia': 'ماليزيا',
+  'Indonesia': 'إندونيسيا',
+  'South Africa': 'جنوب أفريقيا',
+  'Nigeria': 'نيجيريا',
+  'Kenya': 'كينيا',
+  'Morocco': 'المغرب',
+  'Egypt': 'مصر',
+  'Saudi Arabia': 'المملكة العربية السعودية',
+  'United Arab Emirates': 'الإمارات العربية المتحدة',
+  'Oman': 'عُمان',
+  'Kuwait': 'الكويت',
+  'Bahrain': 'البحرين',
+  'Lebanon': 'لبنان',
+  'Palestine': 'فلسطين',
+  'Tunisia': 'تونس',
+  'Algeria': 'الجزائر',
+  'Iraq': 'العراق',
+  'Yemen': 'اليمن',
+  'Sudan': 'السودان',
+  'Libya': 'ليبيا',
+
+  // Names
+  'Tariq Al-Mansoor': 'طارق المنصور',
+  'Amara Chen': 'أمارا تشين',
+  'Kofi Mensah': 'كوفي منساه',
+  'Lucas Silva': 'لوكاس سيلفا',
+  'Elena Rostova': 'إيلينا روستوفا',
+  'Zaid Al-Harbi': 'زيد الحربي',
+  'Sofia Morales': 'صوفيا موراليس',
+
+  // Formats & Session Labels
+  'Key Motion for Debate:': 'القضية المحورية للمناظرة:',
+  'Lead Debaters:': 'المناظرون الرئيسيون:',
+  'Lead Speakers:': 'المتحدثون الرئيسيون:',
+  'Moderator:': 'مدير الجلسة:',
+  'Format:': 'الشكل الحواري:',
+  'Duration:': 'المدة:',
+  'Platform:': 'المنصة:',
+  'Date:': 'التاريخ:',
+  'Time:': 'الوقت:',
+  'Minutes': 'دقيقة',
+  'Hours': 'ساعة',
+  'Parliamentary Debate': 'مناظرة برلمانية',
+  'Roundtable Dialogue': 'طاولة مستديرة',
+  'Panel Discussion': 'جلسة حوارية متخصصة',
+  'Policy Briefing': 'إيجاز سياساتي',
+  'Academic Presentation': 'عرض أكاديمي',
+  'Working Paper': 'ورقة عمل بحثية',
+  'Executive Summary': 'ملخص تنفيذي',
+
+  // Journey Steps
+  'Grow from Participant to Contributor': 'التدرج: من مشارك إلى قائد ومساهم',
+  'Join': 'الانضمام',
+  'Participate': 'المشاركة',
+  'Research': 'البحث',
+  'Present': 'التقديم',
+  'Lead': 'القيادة',
+  'Write': 'الكتابة',
+  'Contribute': 'المساهمة',
+
+  // Form Placeholders & Labels
+  'Full Name': 'الاسم الكامل',
+  'Email Address': 'البريد الإلكتروني',
+  'Password': 'كلمة المرور',
+  'Country of Residence / Representation': 'دولة الإقامة / التمثيل',
+  'Areas of Primary Intellectual Interest': 'مجالات الاهتمام الفكري والبحثي',
+  'Debate & Public Speaking Background': 'الخبرة في المناظرات والخطابة',
+  'Why do you want to join Global Youth Dialogue?': 'لماذا ترغب في الانضمام إلى الحوار الشبابي الدولي؟',
+  'Submit Membership Application': 'إرسال طلب الانضمام',
+  'Topic Title': 'عنوان الموضوع',
+  'Category': 'المجال الأكاديمي',
+  'Description': 'الوصف والملخص',
+  'Proposed Motion': 'القضية المقترحة للمناظرة',
+  'Search topics, subtopics, or keywords...': 'ابحث في المواضيع والمحاور والكلمات المفتاحية...',
+  'Search sessions, academic papers, topic proposals, members...': 'ابحث في الجلسات والأوراق الأكاديمية والمقترحات والأعضاء...',
+  'Type your message...': 'اكتب رسالتك...',
+  'Enter your password': 'أدخل كلمة المرور',
+  'Enter email address': 'أدخل البريد الإلكتروني'
 };
 
 class I18nService {
   constructor() {
     this.currentLang = localStorage.getItem('gyd_language') || 'en';
+    this.isTranslating = false;
+
+    // Pre-sort dictionary phrases by length descending to match longest phrases first
+    this.sortedPhrases = Object.entries(GLOBAL_TRANSLATION_MAP).sort(
+      (a, b) => b[0].length - a[0].length
+    );
+
+    this.setupMutationObserver();
+
+    // Auto-apply on initial DOM load if Arabic is selected
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (this.currentLang === 'ar') {
+          this.applyLanguage();
+        }
+      });
+    } else {
+      if (this.currentLang === 'ar') {
+        this.applyLanguage();
+      }
+    }
   }
 
   getLang() {
@@ -594,7 +948,161 @@ class I18nService {
 
   t(key) {
     const dict = TRANSLATIONS[this.currentLang] || TRANSLATIONS.en;
-    return dict[key] || TRANSLATIONS.en[key] || key;
+    return dict[key] || TRANSLATIONS.en[key] || GLOBAL_TRANSLATION_MAP[key] || key;
+  }
+
+  translateText(text) {
+    if (!text || typeof text !== 'string') return text;
+    const trimmed = text.trim();
+    if (!trimmed) return text;
+
+    // 1. Direct exact phrase match
+    if (GLOBAL_TRANSLATION_MAP[trimmed]) {
+      return text.replace(trimmed, GLOBAL_TRANSLATION_MAP[trimmed]);
+    }
+
+    // 2. Multi-word phrase & keyword replacement from longest to shortest
+    let result = text;
+    for (let i = 0; i < this.sortedPhrases.length; i++) {
+      const [en, ar] = this.sortedPhrases[i];
+      if (result.includes(en)) {
+        if (en.length <= 4 && /^[a-zA-Z]+$/.test(en)) {
+          const regex = new RegExp('\\b' + en + '\\b', 'gi');
+          result = result.replace(regex, ar);
+        } else {
+          result = result.split(en).join(ar);
+        }
+      }
+    }
+    return result;
+  }
+
+  translateTextNode(node) {
+    if (!node || node.nodeType !== 3) return;
+    const val = node.nodeValue;
+    if (!val || !val.trim()) return;
+
+    if (this.currentLang === 'ar') {
+      if (node._origEn === undefined) {
+        node._origEn = val;
+      }
+      const translated = this.translateText(node._origEn);
+      if (translated !== val) {
+        node.nodeValue = translated;
+      }
+    } else {
+      if (node._origEn !== undefined && node.nodeValue !== node._origEn) {
+        node.nodeValue = node._origEn;
+      }
+    }
+  }
+
+  translateAttributes(el) {
+    if (!el || el.nodeType !== 1) return;
+    if (this.currentLang === 'ar') {
+      if (el.placeholder) {
+        if (el._origPlaceholder === undefined) el._origPlaceholder = el.placeholder;
+        el.placeholder = this.translateText(el._origPlaceholder);
+      }
+      if (el.title) {
+        if (el._origTitle === undefined) el._origTitle = el.title;
+        el.title = this.translateText(el._origTitle);
+      }
+      const aria = el.getAttribute('aria-label');
+      if (aria) {
+        if (el._origAria === undefined) el._origAria = aria;
+        el.setAttribute('aria-label', this.translateText(el._origAria));
+      }
+    } else {
+      if (el._origPlaceholder !== undefined) el.placeholder = el._origPlaceholder;
+      if (el._origTitle !== undefined) el.title = el._origTitle;
+      if (el._origAria !== undefined) el.setAttribute('aria-label', el._origAria);
+    }
+  }
+
+  translateSubtree(root) {
+    if (!root || root.nodeType === 8) return;
+    if (root.nodeType === 3) {
+      this.translateTextNode(root);
+      return;
+    }
+    if (root.nodeType === 1) {
+      const tag = root.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') return;
+      this.translateAttributes(root);
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: node => {
+            const parent = node.parentElement;
+            if (!parent) return NodeFilter.FILTER_REJECT;
+            const pTag = parent.tagName;
+            if (pTag === 'SCRIPT' || pTag === 'STYLE' || pTag === 'NOSCRIPT' || pTag === 'INPUT' || pTag === 'TEXTAREA') {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+      let curr;
+      while ((curr = walker.nextNode())) {
+        this.translateTextNode(curr);
+      }
+    }
+  }
+
+  restoreEnglish(root) {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let curr;
+    while ((curr = walker.nextNode())) {
+      if (curr._origEn !== undefined) {
+        curr.nodeValue = curr._origEn;
+      }
+    }
+    const allEls = root.querySelectorAll ? root.querySelectorAll('*') : [];
+    allEls.forEach(el => this.translateAttributes(el));
+  }
+
+  setupMutationObserver() {
+    if (typeof MutationObserver === 'undefined') return;
+    this.observer = new MutationObserver(mutations => {
+      if (this.isTranslating || this.currentLang !== 'ar') return;
+      this.isTranslating = true;
+      try {
+        for (const m of mutations) {
+          if (m.type === 'childList') {
+            m.addedNodes.forEach(node => {
+              this.translateSubtree(node);
+            });
+          } else if (m.type === 'characterData' && m.target) {
+            this.translateTextNode(m.target);
+          }
+        }
+      } finally {
+        this.isTranslating = false;
+      }
+    });
+
+    const target = document.body || document.documentElement;
+    if (target) {
+      this.observer.observe(target, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        this.observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      });
+    }
   }
 
   applyLanguage() {
@@ -602,7 +1110,7 @@ class I18nService {
     document.documentElement.dir = this.isRTL() ? 'rtl' : 'ltr';
     document.body.classList.toggle('rtl-mode', this.isRTL());
 
-    // Update all elements with data-i18n
+    // 1. Update all elements explicitly keyed with data-i18n
     const elements = document.querySelectorAll('[data-i18n]');
     elements.forEach(el => {
       const key = el.getAttribute('data-i18n');
@@ -611,9 +1119,14 @@ class I18nService {
       }
     });
 
-    // Update language switch button text with black & white vector SVG icon
-    // When Arabic is active, show "الإنجليزية" (Pure Arabic, ZERO English characters)
-    // When English is active, show "العربية"
+    // 2. Run full DOM text node & attribute translation
+    if (this.currentLang === 'ar') {
+      this.translateSubtree(document.body);
+    } else {
+      this.restoreEnglish(document.body);
+    }
+
+    // 3. Update language toggle button text with black & white vector SVG icon
     const langBtn = document.getElementById('langToggleBtn');
     if (langBtn) {
       const globeSvg = `<span class="svg-icon" style="display:inline-flex; align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>`;
@@ -622,7 +1135,7 @@ class I18nService {
         : `${globeSvg} <span>English</span>`;
     }
 
-    // Trigger custom event so UI can re-render dynamic content if needed
+    // 4. Trigger custom event so portals re-render
     window.dispatchEvent(new CustomEvent('gyd-lang-changed', { detail: { lang: this.currentLang } }));
   }
 }

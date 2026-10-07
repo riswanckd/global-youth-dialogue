@@ -52,7 +52,7 @@ class AuthService {
   }
 
   isCoordinator() {
-    return this.currentUser && this.currentUser.role === 'Coordinator';
+    return this.currentUser && (this.currentUser.role === 'Coordinator' || this.currentUser.role === 'Admin');
   }
 
   // =========================================================================
@@ -71,14 +71,21 @@ class AuthService {
     // --- Find user ---
     let user = users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
 
-    // Auto-inject seed user if needed
-    if (!user && typeof INITIAL_DATABASE !== 'undefined' && INITIAL_DATABASE.users) {
+    // Auto-inject or sync seed user if needed
+    if (typeof INITIAL_DATABASE !== 'undefined' && INITIAL_DATABASE.users) {
       const seedMatch = INITIAL_DATABASE.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
       if (seedMatch) {
-        user = seedMatch;
-        if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
-          window.GYD_DATA.db.users.push(seedMatch);
-          if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
+        if (!user) {
+          user = seedMatch;
+          if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
+            window.GYD_DATA.db.users.unshift(seedMatch);
+            if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
+          }
+        } else {
+          user.password = seedMatch.password;
+          user.role = seedMatch.role;
+          user.status = seedMatch.status;
+          if (window.GYD_DATA && typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
         }
       }
     }
@@ -99,7 +106,7 @@ class AuthService {
 
     // --- Role-portal gatekeeping ---
     if (portal === 'admin') {
-      if (user.role !== 'Coordinator') {
+      if (user.role !== 'Coordinator' && user.role !== 'Admin') {
         return {
           success: false,
           message: 'Access denied: Administrative privileges are required for the Admin Workspace.'

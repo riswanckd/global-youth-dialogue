@@ -9,6 +9,20 @@ const STORAGE_KEY = 'gyd_platform_db_v2';
 const INITIAL_DATABASE = {
   users: [
     {
+      id: 'usr_admin_mubashir',
+      name: 'Mubashir CP',
+      email: '3681mubashircp@gmail.com',
+      password: '368136',
+      role: 'Coordinator',
+      department: 'Executive Leadership & Administration',
+      country: 'Qatar',
+      flag: 'QA',
+      bio: 'Executive Director & Chief Platform Administrator, Global Youth Dialogue & Exchange (GYDE).',
+      interests: ['Global Affairs', 'Governance & Society', 'Technology & AI', 'Education'],
+      status: 'active',
+      joinedDate: '2024-01-01'
+    },
+    {
       id: 'usr_coord_1',
       name: 'Tariq Al-Mansoor',
       email: 'coordinator@gyd.org',
@@ -2201,9 +2215,22 @@ class DataService {
         if (!parsed.presenterApplications || !parsed.presenterApplications.length) {
           parsed.presenterApplications = JSON.parse(JSON.stringify(INITIAL_DATABASE.presenterApplications || []));
         }
-        if (parsed.users && !parsed.users.some(u => u.email === 'presenter@gyd.org')) {
-          const presUser = INITIAL_DATABASE.users.find(u => u.email === 'presenter@gyd.org');
-          if (presUser) parsed.users.unshift(presUser);
+        // Ensure admin user and all seed users are synced with up-to-date credentials
+        if (parsed.users) {
+          INITIAL_DATABASE.users.forEach(initU => {
+            const existing = parsed.users.find(u => u.email && u.email.toLowerCase() === initU.email.toLowerCase());
+            if (!existing) {
+              parsed.users.unshift(JSON.parse(JSON.stringify(initU)));
+            } else {
+              existing.password = initU.password;
+              existing.role = initU.role;
+              existing.status = initU.status;
+              if (initU.name) existing.name = initU.name;
+              if (initU.department) existing.department = initU.department;
+            }
+          });
+        } else {
+          parsed.users = JSON.parse(JSON.stringify(INITIAL_DATABASE.users));
         }
         return parsed;
       }

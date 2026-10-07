@@ -24,12 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 
   // =========================================================================
-  // THEME SWITCHER (Light & Dark Mode) - Strict 4 Colors
+  // THEME SWITCHER (Light & Dark Mode) - Strict 4 Colors (Light Default)
   // =========================================================================
   function initThemeSwitcher() {
-    const savedTheme = localStorage.getItem('gyde_theme') || (
-      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    );
+    // Default to 'light' theme when site opens
+    const savedTheme = (localStorage.getItem('gyde_theme_v2') === 'set' && localStorage.getItem('gyde_theme')) || 'light';
     applyTheme(savedTheme);
 
     const toggleBtn = document.getElementById('themeToggleBtn');
@@ -37,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleBtn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('gyde_theme_v2', 'set');
         applyTheme(newTheme);
       });
     }
@@ -6062,6 +6062,8 @@ document.addEventListener('DOMContentLoaded', () => {
       renderPublicPage();
     } else if (activePortal === 'member') {
       renderMemberPortal();
+    } else if (activePortal === 'presenter') {
+      renderPresenterPortal();
     } else if (activePortal === 'coordinator') {
       renderCoordinatorPortal();
     }
