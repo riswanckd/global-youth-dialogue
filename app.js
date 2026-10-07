@@ -3840,6 +3840,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 80);
       };
     }
+
+    // Delete All Trial Data Handlers
+    const deleteTrialBtn = document.getElementById('btnDeleteTrialData');
+    if (deleteTrialBtn) {
+      deleteTrialBtn.onclick = () => openModal('deleteTrialModal');
+    }
+
+    const deleteTrialSidebarBtn = document.getElementById('coordSidebarDeleteTrialBtn');
+    if (deleteTrialSidebarBtn) {
+      deleteTrialSidebarBtn.onclick = () => openModal('deleteTrialModal');
+    }
+
+    const confirmDeleteBtn = document.getElementById('btnConfirmDeleteTrial');
+    if (confirmDeleteBtn) {
+      confirmDeleteBtn.onclick = () => {
+        if (dataService && typeof dataService.clearTrialData === 'function') {
+          dataService.clearTrialData();
+        } else if (dataService && typeof dataService.resetToDefault === 'function') {
+          dataService.resetToDefault();
+        }
+        closeModal('deleteTrialModal');
+        showToast('All website trial and test data has been deleted successfully!', 'success');
+        renderCoordinatorPortal();
+      };
+    }
   }
 
   function switchCoordSubview(targetName) {

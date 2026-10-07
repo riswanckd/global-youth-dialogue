@@ -274,7 +274,20 @@ const TRANSLATIONS = {
     sessionManagement: 'Session Management',
     feedbackReview: 'Delegate Feedback Analysis',
     summaryEditor: 'Academic Writing Studio',
-    teamManagement: 'ISDC7 Coordinator Team'
+    teamManagement: 'ISDC7 Coordinator Team',
+    btnDeleteTrialData: 'Delete Trial Data',
+    deleteTrialModalTitle: 'Delete All Trial Data',
+    deleteTrialModalSubtitle: 'Admin Database Maintenance & Trial Cleanup',
+    deleteTrialWarning: 'Warning: This administrative action will permanently erase all trial and test data generated during website testing.',
+    deleteTrialItemsTitle: 'The following trial data will be cleared:',
+    deleteTrialItem1: 'Trial Member Applications & Pending Sign-ups',
+    deleteTrialItem2: 'Test Sessions & Custom Scheduled Debates',
+    deleteTrialItem3: 'Test Academic Papers & Draft Submissions',
+    deleteTrialItem4: 'Custom Topic Bank Items & Pipeline Entries',
+    deleteTrialItem5: 'Test Evaluations, Feedback & Community Ballots',
+    deleteTrialItem6: 'Ephemeral OTP Sessions & Local Cache',
+    deleteTrialNote: 'Official Founding Secretariat accounts and benchmark curriculum spheres will remain intact.',
+    btnConfirmDeleteTrial: 'Yes, Delete All Trial Data'
   },
 
   ar: {
@@ -542,7 +555,20 @@ const TRANSLATIONS = {
     sessionManagement: 'إدارة الجلسات',
     feedbackReview: 'تحليل تقييمات الأعضاء',
     summaryEditor: 'مختبر الكتابة الأكاديمية',
-    teamManagement: 'فريق التنسيق التأسيسي (ISDC7)'
+    teamManagement: 'فريق التنسيق التأسيسي (ISDC7)',
+    btnDeleteTrialData: 'حذف البيانات التجريبية',
+    deleteTrialModalTitle: 'حذف جميع البيانات التجريبية',
+    deleteTrialModalSubtitle: 'صيانة قاعدة بيانات الإدارة وتنظيف السجلات التجريبية',
+    deleteTrialWarning: 'تحذير: سيؤدي هذا الإجراء الإداري إلى مسح جميع البيانات والاختبارات التجريبية التي تم إنشاؤها أثناء تجربة الموقع.',
+    deleteTrialItemsTitle: 'سيتم مسح البيانات التجريبية التالية:',
+    deleteTrialItem1: 'طلبات العضوية التجريبية والتسجيلات المعلقة',
+    deleteTrialItem2: 'الجلسات والمناظرات التجريبية المجدولة',
+    deleteTrialItem3: 'الأوراق الأكاديمية والمسودات التجريبية',
+    deleteTrialItem4: 'المواضيع المخصصة في بنك المواضيع التجريبي',
+    deleteTrialItem5: 'تقييمات واستبيانات وتصويتات الجلسات التجريبية',
+    deleteTrialItem6: 'جلسات التحقق برمز OTP المؤقت والذاكرة المحلية',
+    deleteTrialNote: 'ستظل حسابات الأمانة العامة الرسمية والمجالات المعيارية الأساسية محفوظة بالكامل دون تغيير.',
+    btnConfirmDeleteTrial: 'نعم، احذف جميع البيانات التجريبية'
   }
 };
 

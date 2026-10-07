@@ -3104,6 +3104,15 @@
         </ul>
 
         <div class="sidebar-bottom">
+          <button class="btn btn-outline btn-sm btn-sidebar-delete-trial" style="width: 100%; justify-content: flex-start; gap: 0.5rem; margin-bottom: 0.5rem; color: #dc2626; border-color: rgba(220, 38, 38, 0.35); background: rgba(220, 38, 38, 0.05);"
+            id="coordSidebarDeleteTrialBtn" type="button" title="Delete all trial and test data">
+            <span class="sidebar-item-icon" style="color: #dc2626;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg></span> <span data-i18n="btnDeleteTrialData">Delete Trial Data</span>
+          </button>
           <button class="btn btn-outline btn-sm" style="width: 100%; justify-content: flex-start; gap: 0.5rem;"
             id="coordLogoutBtn">
             <span class="sidebar-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -3155,6 +3164,17 @@
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg> Add Topic</button>
+              <button class="btn btn-outline btn-sm btn-delete-trial-data" id="btnDeleteTrialData" type="button"
+                title="Delete all trial and test data from the website">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                <span data-i18n="btnDeleteTrialData">Delete Trial Data</span>
+              </button>
             </div>
           </div>
 
@@ -4533,15 +4553,74 @@
     </div>
   </div>
 
+  <!-- =======================================================================
+       MODAL: DELETE ALL TRIAL DATA CONFIRMATION
+       ======================================================================= -->
+  <div class="modal-overlay" id="deleteTrialModal" style="display: none;">
+    <div class="modal-card" style="max-width: 540px; border-radius: var(--radius-xl); border: 2px solid rgba(220, 38, 38, 0.4);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 1.15rem;">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(220, 38, 38, 0.12); display: flex; align-items: center; justify-content: center; color: #dc2626; flex-shrink: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 class="serif-text" style="margin: 0; font-size: 1.25rem; color: var(--text-main);" data-i18n="deleteTrialModalTitle">Delete All Trial Data</h3>
+            <p style="margin: 0.2rem 0 0; font-size: 0.82rem; color: var(--text-muted);" data-i18n="deleteTrialModalSubtitle">Admin Database Maintenance & Trial Cleanup</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal('deleteTrialModal')" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem 0;">
+        <div style="background: rgba(220, 38, 38, 0.06); border: 1px solid rgba(220, 38, 38, 0.25); border-radius: var(--radius-md); padding: 1rem 1.15rem; margin-bottom: 1.25rem;">
+          <p style="margin: 0; font-size: 0.9rem; line-height: 1.55; color: var(--text-main);" data-i18n="deleteTrialWarning">
+            <strong>Warning:</strong> This administrative action will permanently erase all trial and test data generated during website testing.
+          </p>
+        </div>
+
+        <div style="font-size: 0.88rem; color: var(--text-body); line-height: 1.6; margin-bottom: 1.25rem;">
+          <p style="font-weight: 700; margin-bottom: 0.5rem;" data-i18n="deleteTrialItemsTitle">The following trial data will be cleared:</p>
+          <ul style="padding-inline-start: 1.25rem; margin: 0; display: flex; flex-direction: column; gap: 0.35rem;">
+            <li data-i18n="deleteTrialItem1">Trial Member Applications & Pending Sign-ups</li>
+            <li data-i18n="deleteTrialItem2">Test Sessions & Custom Scheduled Debates</li>
+            <li data-i18n="deleteTrialItem3">Test Academic Papers & Draft Submissions</li>
+            <li data-i18n="deleteTrialItem4">Custom Topic Bank Items & Pipeline Entries</li>
+            <li data-i18n="deleteTrialItem5">Test Evaluations, Feedback & Community Ballots</li>
+            <li data-i18n="deleteTrialItem6">Ephemeral OTP Sessions & Local Cache</li>
+          </ul>
+        </div>
+
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;" data-i18n="deleteTrialNote">
+          Official Founding Secretariat accounts and benchmark curriculum spheres will remain intact.
+        </p>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid var(--border-light); padding-top: 1.15rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('deleteTrialModal')" data-i18n="cancel">Cancel</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDeleteTrial" style="background: #dc2626; border-color: #dc2626; color: #fff; font-weight: 700; gap: 0.4rem; display: inline-flex; align-items: center; padding: 0.55rem 1.2rem; border-radius: var(--radius-md);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span data-i18n="btnConfirmDeleteTrial">Yes, Delete All Trial Data</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notifications Container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Application Logic Scripts -->
-  <script src="icons.js?v=4.4" onerror="this.src='js/icons.js?v=4.4'"></script>
-  <script src="data.js?v=4.4" onerror="this.src='js/data.js?v=4.4'"></script>
-  <script src="i18n.js?v=4.4" onerror="this.src='js/i18n.js?v=4.4'"></script>
-  <script src="auth.js?v=4.4" onerror="this.src='js/auth.js?v=4.4'"></script>
-  <script src="app.js?v=4.4" onerror="this.src='js/app.js?v=4.4'"></script>
+  <script src="icons.js?v=4.5" onerror="this.src='js/icons.js?v=4.5'"></script>
+  <script src="data.js?v=4.5" onerror="this.src='js/data.js?v=4.5'"></script>
+  <script src="i18n.js?v=4.5" onerror="this.src='js/i18n.js?v=4.5'"></script>
+  <script src="auth.js?v=4.5" onerror="this.src='js/auth.js?v=4.5'"></script>
+  <script src="app.js?v=4.5" onerror="this.src='js/app.js?v=4.5'"></script>
 </body>
 
 </html>

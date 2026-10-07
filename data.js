@@ -2230,6 +2230,33 @@ class DataService {
     return this.db;
   }
 
+  clearTrialData(mode = 'all') {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('gyd_otp_session');
+      localStorage.removeItem('gyd_user_votes');
+      localStorage.removeItem('gyd_ballot_votes');
+    } catch (e) {}
+
+    // Reset database to initial curated state
+    this.db = JSON.parse(JSON.stringify(INITIAL_DATABASE));
+    
+    // Completely purge trial applicant queues & test submissions
+    this.db.applications = [];
+    this.db.presenterApplications = [];
+    if (this.db.feedback) this.db.feedback = [];
+    
+    // Retain only official founding Secretariat and demo benchmark accounts
+    if (Array.isArray(this.db.users)) {
+      this.db.users = this.db.users.filter(u => 
+        u.id.startsWith('usr_coord') || u.id.startsWith('usr_pres') || u.id === 'usr_mem_1'
+      );
+    }
+
+    this.saveDatabase();
+    return true;
+  }
+
   // Getters
   getUsers() { return this.db.users; }
   getCategories() { return this.db.categories; }
