@@ -2936,7 +2936,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Subview: Presenter Dashboard
   function renderPresenterDashboardContent() {
-    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', country: 'Ghana' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
     const presentations = dataService.getPresentations();
     const myPresentations = presentations.filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
     const sessions = dataService.getSessions();
@@ -3146,7 +3146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) {
       form.onsubmit = (e) => {
         e.preventDefault();
-        const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', country: 'Ghana', flag: 'GH' };
+        const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
         const bankVal = bankSelect.value;
 
         if (!bankVal) {
@@ -3225,7 +3225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listEl = document.getElementById('presenterPipelineList');
     if (!listEl) return;
 
-    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
     const presentations = dataService.getPresentations();
     const myPres = presentations.filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
 
@@ -3276,7 +3276,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Subview: My Presentations & Slide Decks
   function renderPresenterDecksView() {
-    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
     const searchInput = document.getElementById('presenterDecksSearch');
     const statusFilter = document.getElementById('presenterDecksStatusFilter');
     const listEl = document.getElementById('presenterDecksList');
@@ -3540,8 +3540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         user = adminFallback;
       } else {
         user = portalType === 'presenter'
-          ? { name: 'Kofi Mensah', email: 'presenter@gyd.org', role: 'Presenter', country: 'Ghana', flag: 'GH' }
-          : { name: 'Lucas Silva', email: 'member@gyd.org', role: 'Member', country: 'Brazil', flag: 'BR' };
+          : { name: 'Mubashir CP', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
       }
     } else if (portalType === 'coordinator' && isTrialDeleted && user.email !== '3681mubashircp@gmail.com') {
       user = adminFallback;
@@ -3887,7 +3886,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Subview: Presenter Academic Writings Studio
   function renderPresenterWritingsView() {
-    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', email: 'presenter@gyd.org' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
     const listEl = document.getElementById('presenterMyWritingsList');
     const badgeEl = document.getElementById('presMyWritingsBadge');
     const authorRoleInput = document.getElementById('presNewAuthorRole');
@@ -3966,7 +3965,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle Presenter Writing Submission
   window.handlePresenterWritingSubmit = function(event) {
     event.preventDefault();
-    const user = authService.getCurrentUser() || { name: 'Kofi Mensah', id: 'usr_pres_1', email: 'presenter@gyd.org' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
 
     const title = document.getElementById('presNewTitle')?.value.trim();
     const categorySelect = document.getElementById('presNewCategory')?.value;
