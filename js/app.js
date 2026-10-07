@@ -3555,8 +3555,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (portalType === 'coordinator' || isTrialDeleted) {
         user = adminFallback;
       } else {
-        user = portalType === 'presenter'
-          : { name: 'Mubashir CP', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+        user = adminFallback;
       }
     } else if (portalType === 'coordinator' && isTrialDeleted && user.email !== '3681mubashircp@gmail.com') {
       user = adminFallback;
