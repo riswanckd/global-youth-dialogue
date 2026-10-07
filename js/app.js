@@ -1377,6 +1377,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPublicSessionsPreview();
   };
 
+  function getUserInitial(name) {
+    if (!name || typeof name !== 'string') return 'U';
+    const trimmed = name.trim();
+    return trimmed ? trimmed.charAt(0).toUpperCase() : 'U';
+  }
+
   // =========================================================================
   // VIEW: MEMBER PORTAL RENDERING
   // =========================================================================
@@ -1387,8 +1393,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sidebar Profile Card
     const profileCard = document.getElementById('memberSidebarProfile');
     if (profileCard) {
+      const initial = getUserInitial(user.name);
       profileCard.innerHTML = `
-        <div class="portal-user-avatar">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-avatar" title="${user.name}">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : initial}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role">${user.role} • ${user.country}</span>
@@ -2517,7 +2524,7 @@ document.addEventListener('DOMContentLoaded', () => {
     listEl.innerHTML = users.map(u => `
       <div class="member-card">
         <div class="m-card-top">
-          <div class="m-avatar">${icons.getFlag(u.country, u.flag)}</div>
+          <div class="m-avatar" title="${u.name}">${u.avatar ? `<img src="${u.avatar}" alt="${u.name}">` : getUserInitial(u.name)}</div>
           <div>
             <div class="m-name">${u.name}</div>
             <div class="m-country">${u.role} • ${u.country}</div>
@@ -2646,8 +2653,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sidebar Profile
     const profileCard = document.getElementById('presenterSidebarProfile');
     if (profileCard) {
+      const initial = getUserInitial(user.name);
       profileCard.innerHTML = `
-        <div class="portal-user-avatar avatar-presenter">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-avatar avatar-presenter" title="${user.name}">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : initial}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role" style="color: var(--accent-gold); font-weight: 600;">⭐ Academic Presenter (${user.country})</span>
@@ -3353,9 +3361,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="profile-card-header">
           <div class="profile-avatar-wrap">
             <img id="${portalType}AvatarPreview" class="profile-avatar-img" src="${user.avatar || ''}" style="${user.avatar ? 'display:block;' : 'display:none;'}" alt="${user.name}">
-            <span id="${portalType}AvatarFlag" class="profile-avatar-flag" style="${user.avatar ? 'display:none;' : 'display:block;'}">
-              ${icons.getFlag(user.country, user.flag)}
-            </span>
+            <div id="${portalType}AvatarInitial" class="profile-avatar-initial" style="${user.avatar ? 'display:none;' : 'display:flex;'}">
+              <span class="avatar-letter">${getUserInitial(user.name)}</span>
+            </div>
+            ${user.country ? `<span id="${portalType}AvatarFlagBadge" class="profile-avatar-flag-badge" title="${user.country}">${icons.getFlag(user.country, user.flag)}</span>` : ''}
           </div>
 
           <div style="flex: 1; min-width: 240px;">
@@ -3453,6 +3462,18 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </form>
     `;
+
+    // Live update initial when first name input changes
+    const fnInput = document.getElementById(`${portalType}FirstName`);
+    if (fnInput) {
+      fnInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        const letterSpan = document.querySelector(`#${portalType}AvatarInitial .avatar-letter`);
+        if (letterSpan && val) {
+          letterSpan.textContent = val.charAt(0).toUpperCase();
+        }
+      });
+    }
   }
 
   window.renderProfileView = renderProfileView;
@@ -3471,12 +3492,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const dataUrl = e.target.result;
       pendingAvatarData[portalType] = dataUrl;
       const preview = document.getElementById(`${portalType}AvatarPreview`);
-      const flag = document.getElementById(`${portalType}AvatarFlag`);
+      const initialEl = document.getElementById(`${portalType}AvatarInitial`);
       if (preview) {
         preview.src = dataUrl;
         preview.style.display = 'block';
       }
-      if (flag) flag.style.display = 'none';
+      if (initialEl) initialEl.style.display = 'none';
       showToast('Photo selected! Click "Save Profile Changes" to apply.', 'normal');
     };
     reader.readAsDataURL(file);
@@ -3487,12 +3508,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (url && url.trim()) {
       pendingAvatarData[portalType] = url.trim();
       const preview = document.getElementById(`${portalType}AvatarPreview`);
-      const flag = document.getElementById(`${portalType}AvatarFlag`);
+      const initialEl = document.getElementById(`${portalType}AvatarInitial`);
       if (preview) {
         preview.src = url.trim();
         preview.style.display = 'block';
       }
-      if (flag) flag.style.display = 'none';
+      if (initialEl) initialEl.style.display = 'none';
       showToast('Photo URL set! Click "Save Profile Changes" to apply.', 'normal');
     }
   };
@@ -3500,12 +3521,20 @@ document.addEventListener('DOMContentLoaded', () => {
   window.removeAvatar = function(portalType) {
     pendingAvatarData[portalType] = '';
     const preview = document.getElementById(`${portalType}AvatarPreview`);
-    const flag = document.getElementById(`${portalType}AvatarFlag`);
+    const initialEl = document.getElementById(`${portalType}AvatarInitial`);
     if (preview) {
       preview.src = '';
       preview.style.display = 'none';
     }
-    if (flag) flag.style.display = 'block';
+    if (initialEl) {
+      initialEl.style.display = 'flex';
+      const fnInput = document.getElementById(`${portalType}FirstName`);
+      const val = fnInput ? fnInput.value.trim() : '';
+      const user = authService.getCurrentUser();
+      const initChar = val ? val.charAt(0).toUpperCase() : getUserInitial(user?.name);
+      const letter = initialEl.querySelector('.avatar-letter');
+      if (letter) letter.textContent = initChar;
+    }
     showToast('Photo removed! Click "Save Profile Changes" to apply.', 'normal');
   };
 
@@ -3790,8 +3819,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sidebar Profile
     const profileCard = document.getElementById('coordSidebarProfile');
     if (profileCard) {
+      const initial = getUserInitial(user.name);
       profileCard.innerHTML = `
-        <div class="portal-user-avatar avatar-coord">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : icons.getFlag(user.country, user.flag)}</div>
+        <div class="portal-user-avatar avatar-coord" title="${user.name}">${user.avatar ? `<img src="${user.avatar}" alt="${user.name}">` : initial}</div>
         <div class="portal-user-info">
           <span class="portal-user-name">${user.name}</span>
           <span class="portal-user-role">Founding Coordinator (${user.country})</span>
@@ -4887,7 +4917,7 @@ document.addEventListener('DOMContentLoaded', () => {
     listEl.innerHTML = coords.map(c => `
       <div class="member-card">
         <div class="m-card-top">
-          <div class="m-avatar" style="background: var(--brand-navy); color: #fff;">${icons.getFlag(c.country, c.flag)}</div>
+          <div class="m-avatar" style="background: linear-gradient(135deg, #1e1b4b, #4851BA); color: #fff;" title="${c.name}">${c.avatar ? `<img src="${c.avatar}" alt="${c.name}">` : getUserInitial(c.name)}</div>
           <div>
             <div class="m-name">${c.name}</div>
             <div class="m-country">${c.department || 'Founding Secretariat'} • ${c.country}</div>

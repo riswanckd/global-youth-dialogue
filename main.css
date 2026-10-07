@@ -2280,18 +2280,35 @@ body.rtl-mode .session-lock-tag {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-full);
-  background: var(--brand-green);
-  color: #fff;
+  background: linear-gradient(135deg, var(--brand-indigo, #4851BA) 0%, var(--brand-purple, #9E59AC) 100%);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-transform: uppercase;
   flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(72, 81, 186, 0.25);
 }
 
 .portal-user-avatar.avatar-coord {
-  background: var(--brand-navy);
+  background: linear-gradient(135deg, #1e1b4b 0%, #4851BA 100%);
+  box-shadow: 0 2px 6px rgba(30, 27, 75, 0.3);
+}
+
+.portal-user-avatar.avatar-presenter {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+}
+
+.portal-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .portal-user-info {
@@ -2972,13 +2989,25 @@ textarea.form-control {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full);
-  background: var(--brand-green-light);
-  color: var(--brand-green);
+  background: linear-gradient(135deg, var(--brand-indigo, #4851BA) 0%, var(--brand-purple, #9E59AC) 100%);
+  color: #FFFFFF;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-transform: uppercase;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(72, 81, 186, 0.2);
+}
+
+.m-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .m-name {
@@ -5436,13 +5465,13 @@ body.rtl-mode .topic-bank-card-title-ar {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  border: 3px solid var(--accent-gold);
-  overflow: hidden;
+  border: 3px solid var(--brand-purple, #9E59AC);
+  overflow: visible;
   background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 14px rgba(72, 81, 186, 0.15);
   flex-shrink: 0;
 }
 
@@ -5453,9 +5482,45 @@ body.rtl-mode .topic-bank-card-title-ar {
   border-radius: 50%;
 }
 
-.profile-avatar-flag {
-  font-size: 3.2rem;
+.profile-avatar-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--brand-indigo, #4851BA) 0%, var(--brand-purple, #9E59AC) 100%);
+  color: #FFFFFF;
+  font-size: 2.85rem;
+  font-weight: 800;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  user-select: none;
+  border-radius: 50%;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-avatar-flag-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-surface, #ffffff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
   line-height: 1;
+  border: 2px solid var(--bg-surface, #ffffff);
+  z-index: 2;
+}
+
+[data-theme="dark"] .profile-avatar-flag-badge {
+  background: var(--bg-card, #1e293b);
+  border-color: var(--bg-card, #1e293b);
 }
 
 .profile-section-box {
