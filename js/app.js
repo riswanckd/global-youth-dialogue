@@ -4043,7 +4043,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Live profile country input handler for avatar flag badge
   window.handleProfileCountryInput = function(val, portalType) {
-    const badge = document.getElementById(${portalType}AvatarFlagBadge);
+    const badge = document.getElementById(`${portalType}AvatarFlagBadge`);
     if (!badge) return;
     const trimmed = (val || '').trim();
     if (!trimmed) {
@@ -5319,6 +5319,349 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // GLOBAL WINDOW HELPER METHODS (MODAL POPUPS & BUTTON ACTIONS)
   // =========================================================================
+  
+  // =========================================================================
+  // SUBVIEW: THE COMMUNITY (COORDINATOR ROSTER & USER MANAGEMENT)
+  // =========================================================================
+  window._coordCommunityFilterRole = 'all';
+  window._coordCommunitySearchQuery = '';
+  window._coordCommunityCountryFilter = 'all';
+
+  function renderCoordCommunityRoster() {
+    const container = document.getElementById('coordCommunityContainer');
+    const statsGrid = document.getElementById('coordCommunityStatsGrid');
+    const countrySelect = document.getElementById('coordCommunityCountryFilter');
+    if (!container) return;
+
+    const allUsers = dataService.getUsers() || [];
+
+    // Calculate metrics
+    const totalCount = allUsers.length;
+    const coAdminCount = allUsers.filter(u => u.role === 'Coordinator' || u.role === 'Admin').length;
+    const presenterCount = allUsers.filter(u => u.role === 'Presenter' || u.role === 'Speaker').length;
+    const memberCount = allUsers.filter(u => u.role === 'Member' || (!['Coordinator', 'Admin', 'Presenter', 'Speaker'].includes(u.role))).length;
+
+    // Update filter counters
+    const cAll = document.getElementById('countFilterAll');
+    const cCoord = document.getElementById('countFilterCoordinators');
+    const cPres = document.getElementById('countFilterPresenters');
+    const cMem = document.getElementById('countFilterMembers');
+    if (cAll) cAll.textContent = totalCount;
+    if (cCoord) cCoord.textContent = coAdminCount;
+    if (cPres) cPres.textContent = presenterCount;
+    if (cMem) cMem.textContent = memberCount;
+
+    // Render Stats Grid
+    if (statsGrid) {
+      statsGrid.className = 'coord-kpi-grid';
+      statsGrid.innerHTML = `
+        <div class="kpi-card" style="cursor: pointer;" onclick="window.setCoordCommunityRoleFilter('all')">
+          <div class="kpi-icon" style="background: rgba(138, 21, 56, 0.12); color: #8A1538;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="kpi-num">${totalCount}</div>
+            <div class="kpi-label">Total Community</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" style="cursor: pointer;" onclick="window.setCoordCommunityRoleFilter('Coordinator')">
+          <div class="kpi-icon" style="background: rgba(72, 81, 186, 0.12); color: #4851BA;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="kpi-num">${coAdminCount}</div>
+            <div class="kpi-label">Co-Admins & Leads</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" style="cursor: pointer;" onclick="window.setCoordCommunityRoleFilter('Presenter')">
+          <div class="kpi-icon" style="background: rgba(184, 142, 62, 0.12); color: #B88E3E;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+            </svg>
+          </div>
+          <div>
+            <div class="kpi-num">${presenterCount}</div>
+            <div class="kpi-label">Academic Presenters</div>
+          </div>
+        </div>
+
+        <div class="kpi-card" style="cursor: pointer;" onclick="window.setCoordCommunityRoleFilter('Member')">
+          <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.12); color: #10B981;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div>
+            <div class="kpi-num">${memberCount}</div>
+            <div class="kpi-label">Debate Members</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Populate country filter dropdown
+    if (countrySelect && countrySelect.options.length <= 1) {
+      const countries = Array.from(new Set(allUsers.map(u => u.country).filter(Boolean))).sort();
+      const currentSelected = window._coordCommunityCountryFilter;
+      countrySelect.innerHTML = `<option value="all">All Countries (${countries.length})</option>` +
+        countries.map(c => `<option value="${c}" ${c === currentSelected ? 'selected' : ''}>${c}</option>`).join('');
+    }
+
+    // Update active tab styling
+    document.querySelectorAll('#coordCommunityRoleFilter .coord-filter-tab-btn').forEach(btn => {
+      const role = btn.getAttribute('data-role-filter');
+      btn.classList.toggle('active', role === window._coordCommunityFilterRole);
+    });
+
+    // Filter users
+    let filtered = allUsers.filter(u => {
+      if (window._coordCommunityFilterRole === 'Coordinator') {
+        if (u.role !== 'Coordinator' && u.role !== 'Admin') return false;
+      } else if (window._coordCommunityFilterRole === 'Presenter') {
+        if (u.role !== 'Presenter' && u.role !== 'Speaker') return false;
+      } else if (window._coordCommunityFilterRole === 'Member') {
+        if (u.role === 'Coordinator' || u.role === 'Admin' || u.role === 'Presenter' || u.role === 'Speaker') return false;
+      }
+
+      if (window._coordCommunityCountryFilter !== 'all') {
+        if ((u.country || '').toLowerCase() !== window._coordCommunityCountryFilter.toLowerCase()) return false;
+      }
+
+      if (window._coordCommunitySearchQuery) {
+        const q = window._coordCommunitySearchQuery.toLowerCase();
+        const matchName = (u.name || '').toLowerCase().includes(q);
+        const matchEmail = (u.email || '').toLowerCase().includes(q);
+        const matchCountry = (u.country || '').toLowerCase().includes(q);
+        const matchDept = (u.department || '').toLowerCase().includes(q);
+        const matchBio = (u.bio || '').toLowerCase().includes(q);
+        if (!matchName && !matchEmail && !matchCountry && !matchDept && !matchBio) return false;
+      }
+
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="card-panel" style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.5;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <h4 style="color: var(--text-main); margin-bottom: 0.35rem;">No Community Members Found</h4>
+          <p style="font-size: 0.88rem; max-width: 420px; margin: 0 auto 1.25rem auto;">No records matched your search query or role filter. You can add a new community member or reset filters.</p>
+          <button class="btn btn-outline btn-sm" onclick="window.setCoordCommunityRoleFilter('all'); document.getElementById('coordCommunitySearchInput').value=''; window.handleCoordCommunitySearch('');">
+            Reset All Filters
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="community-roster-grid">
+        ${filtered.map(u => {
+          const isPrimaryAdmin = u.id === 'usr_admin_mubashir' || (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com');
+          const isCoAdmin = u.role === 'Coordinator' || u.role === 'Admin';
+          const isPresenter = u.role === 'Presenter' || u.role === 'Speaker';
+          
+          let roleBadgeHtml = '';
+          if (isPrimaryAdmin) {
+            roleBadgeHtml = `<span class="badge" style="background: rgba(138, 21, 56, 0.14); color: #8A1538; font-weight: 700; border: 1px solid rgba(138, 21, 56, 0.28); font-size: 0.72rem; padding: 2px 7px;">Chief Administrator</span>`;
+          } else if (isCoAdmin) {
+            roleBadgeHtml = `<span class="badge badge-approved" style="font-size: 0.72rem; padding: 2px 7px;">Co-Admin</span>`;
+          } else if (isPresenter) {
+            roleBadgeHtml = `<span class="badge presenter-status-badge" style="font-size: 0.72rem; padding: 2px 7px;">Academic Presenter</span>`;
+          } else {
+            roleBadgeHtml = `<span class="badge badge-completed" style="font-size: 0.72rem; padding: 2px 7px;">Debate Member</span>`;
+          }
+
+          const flagSvg = (typeof icons !== 'undefined' && icons.getFlag) ? icons.getFlag(u.country, u.flag) : '';
+
+          return `
+            <div class="community-user-card" id="userCard_${u.id}">
+              <div>
+                <div class="community-card-top">
+                  <div class="community-card-avatar-wrap">
+                    ${u.avatar ? `
+                      <img src="${u.avatar}" alt="${u.name}" class="community-card-avatar">
+                    ` : `
+                      <div class="community-card-avatar" style="${isCoAdmin ? 'background: linear-gradient(135deg, #1e1b4b, #4851BA);' : (isPresenter ? 'background: linear-gradient(135deg, #B88E3E, #7A5C1E);' : 'background: linear-gradient(135deg, #4851BA, #9E59AC);')}">
+                        ${getUserInitial(u.name)}
+                      </div>
+                    `}
+                    <span class="community-card-flag-badge" title="${u.country || 'Global'}">
+                      ${flagSvg}
+                    </span>
+                  </div>
+
+                  <div class="community-card-info">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem;">
+                      <h4 class="community-card-name" title="${u.name}">${u.name}</h4>
+                      ${roleBadgeHtml}
+                    </div>
+                    <div class="community-card-meta">
+                      <span>${u.department || 'Youth Delegation'}</span>
+                      <span>•</span>
+                      <strong>${u.country || 'Global'}</strong>
+                    </div>
+                    <div class="community-card-email">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.email}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p style="font-size: 0.82rem; color: var(--text-body); line-height: 1.45; margin: 0 0 0.85rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${u.bio || ''}">
+                  "${u.bio || 'Active participant in the international youth debate society.'}"
+                </p>
+              </div>
+
+              <div class="community-card-footer">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                  Joined: ${u.joinedDate || '2024'}
+                </span>
+
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  ${!isPrimaryAdmin ? `
+                    <button class="btn btn-outline btn-sm" style="font-size: 0.76rem; padding: 0.25rem 0.55rem; gap: 3px;" onclick="window.openChangeUserRoleModal('${u.id}')" title="Change Role">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                      Role
+                    </button>
+                    <button class="btn btn-outline btn-sm" style="font-size: 0.76rem; padding: 0.25rem 0.45rem; color: #dc2626; border-color: rgba(220, 38, 38, 0.3);" onclick="window.handleDeleteCommunityUser('${u.id}')" title="Remove User">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  ` : `
+                    <span style="font-size: 0.72rem; color: var(--brand-primary); font-weight: 600;">System Protected</span>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+  window.renderCoordCommunityRoster = renderCoordCommunityRoster;
+
+  window.setCoordCommunityRoleFilter = function(role) {
+    window._coordCommunityFilterRole = role;
+    renderCoordCommunityRoster();
+  };
+
+  window.handleCoordCommunitySearch = function(query) {
+    window._coordCommunitySearchQuery = (query || '').trim();
+    renderCoordCommunityRoster();
+  };
+
+  window.handleCoordCommunityCountryFilter = function(country) {
+    window._coordCommunityCountryFilter = country;
+    renderCoordCommunityRoster();
+  };
+
+  window.openAddCommunityUserModal = function() {
+    openModal('addCommunityUserModal');
+  };
+
+  window.handleAddCommunityUserSubmit = function(event) {
+    event.preventDefault();
+    const firstName = document.getElementById('addCommFirstName')?.value.trim();
+    const lastName = document.getElementById('addCommLastName')?.value.trim();
+    const email = document.getElementById('addCommEmail')?.value.trim();
+    const role = document.getElementById('addCommRole')?.value;
+    const country = document.getElementById('addCommCountry')?.value.trim();
+    const password = document.getElementById('addCommPassword')?.value.trim() || 'gyde2024';
+    const institution = document.getElementById('addCommInstitution')?.value.trim();
+
+    if (!email || !firstName) {
+      showToast('Please fill in required fields.', 'error');
+      return;
+    }
+
+    const fullName = `${firstName} ${lastName}`.trim();
+    const user = dataService.addCommunityUser({
+      name: fullName,
+      email,
+      password,
+      role,
+      country,
+      institution
+    });
+
+    closeModal('addCommunityUserModal');
+    showToast(`Added ${fullName} (${role}) to the community!`, 'success');
+    renderCoordCommunityRoster();
+  };
+
+  window.openChangeUserRoleModal = function(userId) {
+    const user = (dataService.getUsers() || []).find(u => u.id === userId);
+    if (!user) return;
+
+    document.getElementById('changeRoleUserId').value = user.id;
+    const nameEl = document.getElementById('changeRoleUserName');
+    if (nameEl) nameEl.textContent = `Update role for: ${user.name} (${user.email})`;
+    
+    const roleSelect = document.getElementById('changeRoleSelect');
+    if (roleSelect) {
+      roleSelect.value = (user.role === 'Coordinator' || user.role === 'Admin') ? 'Coordinator' : 
+                         (user.role === 'Presenter' || user.role === 'Speaker' ? 'Presenter' : 'Member');
+    }
+
+    openModal('changeUserRoleModal');
+  };
+
+  window.handleChangeUserRoleSubmit = function(event) {
+    event.preventDefault();
+    const userId = document.getElementById('changeRoleUserId')?.value;
+    const newRole = document.getElementById('changeRoleSelect')?.value;
+
+    if (!userId || !newRole) return;
+
+    const updated = dataService.updateUserRole(userId, newRole);
+    closeModal('changeUserRoleModal');
+    if (updated) {
+      showToast(`Updated role for ${updated.name} to ${newRole}.`, 'success');
+      renderCoordCommunityRoster();
+    }
+  };
+
+  window.handleDeleteCommunityUser = function(userId) {
+    const user = (dataService.getUsers() || []).find(u => u.id === userId);
+    if (!user) return;
+
+    if (confirm(`Are you sure you want to remove "${user.name}" (${user.role}) from the community database?`)) {
+      try {
+        dataService.deleteCommunityUser(userId);
+        showToast(`Removed "${user.name}" from community directory.`, 'normal');
+        renderCoordCommunityRoster();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+  };
+
   window.viewSessionDetail = function(sessionId) {
     const session = dataService.getSessions().find(s => s.id === sessionId);
     if (!session) return;

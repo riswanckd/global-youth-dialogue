@@ -4681,192 +4681,193 @@
   <!-- Toast Notifications Container -->
   <div class="toast-container" id="toastContainer"></div>
 
+
+  <!-- =======================================================================
+       MODAL: ADD NEW COMMUNITY USER (Member, Presenter, Co-Admin)
+       ======================================================================= -->
+  <div class="modal-overlay" id="addCommunityUserModal" style="display: none;">
+    <div class="modal-content modal-md" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.25rem;">Add Community User</h3>
+        <button class="modal-close-btn" type="button" onclick="closeModal('addCommunityUserModal')" aria-label="Close">&times;</button>
+      </div>
+      <form onsubmit="window.handleAddCommunityUserSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem;">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="addCommFirstName">First Name *</label>
+              <input type="text" class="form-control" id="addCommFirstName" required placeholder="e.g. Elena">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="addCommLastName">Last Name *</label>
+              <input type="text" class="form-control" id="addCommLastName" required placeholder="e.g. Chen">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="addCommEmail">Email Address *</label>
+            <input type="email" class="form-control" id="addCommEmail" required placeholder="user@domain.com">
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="addCommRole">Community Role *</label>
+              <select class="form-control" id="addCommRole" required>
+                <option value="Member">Member (Debate Delegate)</option>
+                <option value="Presenter">Presenter (Academic Keynote)</option>
+                <option value="Coordinator">Co-Admin / Coordinator</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="addCommCountry">Country *</label>
+              <input type="text" class="form-control" id="addCommCountry" required placeholder="e.g. India, Qatar, UK">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="addCommPassword">Temporary Password</label>
+            <input type="text" class="form-control" id="addCommPassword" value="gyde2024" placeholder="Default: gyde2024">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="addCommInstitution">Department / School / Chapter</label>
+            <input type="text" class="form-control" id="addCommInstitution" placeholder="e.g. Oxford Union, Doha Chapter">
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('addCommunityUserModal')">Cancel</button>
+          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Save User to Community</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: CHANGE USER ROLE (Promote / Adjust Permissions)
+       ======================================================================= -->
+  <div class="modal-overlay" id="changeUserRoleModal" style="display: none;">
+    <div class="modal-content modal-sm" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.2rem;">Change Community Role</h3>
+        <button class="modal-close-btn" type="button" onclick="closeModal('changeUserRoleModal')" aria-label="Close">&times;</button>
+      </div>
+      <form onsubmit="window.handleChangeUserRoleSubmit(event)">
+        <input type="hidden" id="changeRoleUserId">
+        <div class="modal-body" style="padding: 1.25rem;">
+          <p id="changeRoleUserName" style="font-weight: 700; margin: 0 0 1rem 0; color: var(--text-main);"></p>
+          <div class="form-group">
+            <label class="form-label" for="changeRoleSelect">Select New Role *</label>
+            <select class="form-control" id="changeRoleSelect" required>
+              <option value="Member">Member (Debate Delegate)</option>
+              <option value="Presenter">Presenter (Academic Keynote)</option>
+              <option value="Coordinator">Co-Admin / Coordinator</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('changeUserRoleModal')">Cancel</button>
+          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Update Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: ADD NEW COMMUNITY USER (Member, Presenter, Co-Admin)
+       ======================================================================= -->
+  <div class="modal-overlay" id="addCommunityUserModal" style="display: none;">
+    <div class="modal-content modal-md" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.25rem;">Add Community User</h3>
+        <button class="modal-close-btn" type="button" onclick="closeModal('addCommunityUserModal')" aria-label="Close">&times;</button>
+      </div>
+      <form onsubmit="window.handleAddCommunityUserSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem;">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="addCommFirstName">First Name *</label>
+              <input type="text" class="form-control" id="addCommFirstName" required placeholder="e.g. Elena">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="addCommLastName">Last Name *</label>
+              <input type="text" class="form-control" id="addCommLastName" required placeholder="e.g. Chen">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="addCommEmail">Email Address *</label>
+            <input type="email" class="form-control" id="addCommEmail" required placeholder="user@domain.com">
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="addCommRole">Community Role *</label>
+              <select class="form-control" id="addCommRole" required>
+                <option value="Member">Member (Debate Delegate)</option>
+                <option value="Presenter">Presenter (Academic Keynote)</option>
+                <option value="Coordinator">Co-Admin / Coordinator</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="addCommCountry">Country *</label>
+              <input type="text" class="form-control" id="addCommCountry" required placeholder="e.g. India, Qatar, UK">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="addCommPassword">Temporary Password</label>
+            <input type="text" class="form-control" id="addCommPassword" value="gyde2024" placeholder="Default: gyde2024">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="addCommInstitution">Department / School / Chapter</label>
+            <input type="text" class="form-control" id="addCommInstitution" placeholder="e.g. Oxford Union, Doha Chapter">
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('addCommunityUserModal')">Cancel</button>
+          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Save User to Community</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: CHANGE USER ROLE (Promote / Adjust Permissions)
+       ======================================================================= -->
+  <div class="modal-overlay" id="changeUserRoleModal" style="display: none;">
+    <div class="modal-content modal-sm" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.2rem;">Change Community Role</h3>
+        <button class="modal-close-btn" type="button" onclick="closeModal('changeUserRoleModal')" aria-label="Close">&times;</button>
+      </div>
+      <form onsubmit="window.handleChangeUserRoleSubmit(event)">
+        <input type="hidden" id="changeRoleUserId">
+        <div class="modal-body" style="padding: 1.25rem;">
+          <p id="changeRoleUserName" style="font-weight: 700; margin: 0 0 1rem 0; color: var(--text-main);"></p>
+          <div class="form-group">
+            <label class="form-label" for="changeRoleSelect">Select New Role *</label>
+            <select class="form-control" id="changeRoleSelect" required>
+              <option value="Member">Member (Debate Delegate)</option>
+              <option value="Presenter">Presenter (Academic Keynote)</option>
+              <option value="Coordinator">Co-Admin / Coordinator</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
+          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('changeUserRoleModal')">Cancel</button>
+          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Update Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Application Logic Scripts -->
   <script src="icons.js?v=5.0" onerror="this.src='js/icons.js?v=5.0'"></script>
   <script src="data.js?v=5.2" onerror="this.src='js/data.js?v=5.2'"></script>
   <script src="i18n.js?v=5.2" onerror="this.src='js/i18n.js?v=5.2'"></script>
   <script src="auth.js?v=5.0" onerror="this.src='js/auth.js?v=5.0'"></script>
-  <script src="app.js?v=5.6" onerror="this.src='js/app.js?v=5.6'"></script>
-  <!-- =======================================================================
-       MODAL: ADD NEW COMMUNITY USER (Member, Presenter, Co-Admin)
-       ======================================================================= -->
-  <div class="modal-overlay" id="addCommunityUserModal" style="display: none;">
-    <div class="modal-content modal-md" style="max-width: 540px;">
-      <div class="modal-header">
-        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.25rem;">Add Community User</h3>
-        <button class="modal-close-btn" type="button" onclick="closeModal('addCommunityUserModal')" aria-label="Close">&times;</button>
-      </div>
-      <form onsubmit="window.handleAddCommunityUserSubmit(event)">
-        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem;">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="addCommFirstName">First Name *</label>
-              <input type="text" class="form-control" id="addCommFirstName" required placeholder="e.g. Elena">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="addCommLastName">Last Name *</label>
-              <input type="text" class="form-control" id="addCommLastName" required placeholder="e.g. Chen">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="addCommEmail">Email Address *</label>
-            <input type="email" class="form-control" id="addCommEmail" required placeholder="user@domain.com">
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="addCommRole">Community Role *</label>
-              <select class="form-control" id="addCommRole" required>
-                <option value="Member">Member (Debate Delegate)</option>
-                <option value="Presenter">Presenter (Academic Keynote)</option>
-                <option value="Coordinator">Co-Admin / Coordinator</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="addCommCountry">Country *</label>
-              <input type="text" class="form-control" id="addCommCountry" required placeholder="e.g. India, Qatar, UK">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="addCommPassword">Temporary Password</label>
-            <input type="text" class="form-control" id="addCommPassword" value="gyde2024" placeholder="Default: gyde2024">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="addCommInstitution">Department / School / Chapter</label>
-            <input type="text" class="form-control" id="addCommInstitution" placeholder="e.g. Oxford Union, Doha Chapter">
-          </div>
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
-          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('addCommunityUserModal')">Cancel</button>
-          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Save User to Community</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       MODAL: CHANGE USER ROLE (Promote / Adjust Permissions)
-       ======================================================================= -->
-  <div class="modal-overlay" id="changeUserRoleModal" style="display: none;">
-    <div class="modal-content modal-sm" style="max-width: 440px;">
-      <div class="modal-header">
-        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.2rem;">Change Community Role</h3>
-        <button class="modal-close-btn" type="button" onclick="closeModal('changeUserRoleModal')" aria-label="Close">&times;</button>
-      </div>
-      <form onsubmit="window.handleChangeUserRoleSubmit(event)">
-        <input type="hidden" id="changeRoleUserId">
-        <div class="modal-body" style="padding: 1.25rem;">
-          <p id="changeRoleUserName" style="font-weight: 700; margin: 0 0 1rem 0; color: var(--text-main);"></p>
-          <div class="form-group">
-            <label class="form-label" for="changeRoleSelect">Select New Role *</label>
-            <select class="form-control" id="changeRoleSelect" required>
-              <option value="Member">Member (Debate Delegate)</option>
-              <option value="Presenter">Presenter (Academic Keynote)</option>
-              <option value="Coordinator">Co-Admin / Coordinator</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
-          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('changeUserRoleModal')">Cancel</button>
-          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Update Role</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       MODAL: ADD NEW COMMUNITY USER (Member, Presenter, Co-Admin)
-       ======================================================================= -->
-  <div class="modal-overlay" id="addCommunityUserModal" style="display: none;">
-    <div class="modal-content modal-md" style="max-width: 540px;">
-      <div class="modal-header">
-        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.25rem;">Add Community User</h3>
-        <button class="modal-close-btn" type="button" onclick="closeModal('addCommunityUserModal')" aria-label="Close">&times;</button>
-      </div>
-      <form onsubmit="window.handleAddCommunityUserSubmit(event)">
-        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem;">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="addCommFirstName">First Name *</label>
-              <input type="text" class="form-control" id="addCommFirstName" required placeholder="e.g. Elena">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="addCommLastName">Last Name *</label>
-              <input type="text" class="form-control" id="addCommLastName" required placeholder="e.g. Chen">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="addCommEmail">Email Address *</label>
-            <input type="email" class="form-control" id="addCommEmail" required placeholder="user@domain.com">
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="addCommRole">Community Role *</label>
-              <select class="form-control" id="addCommRole" required>
-                <option value="Member">Member (Debate Delegate)</option>
-                <option value="Presenter">Presenter (Academic Keynote)</option>
-                <option value="Coordinator">Co-Admin / Coordinator</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="addCommCountry">Country *</label>
-              <input type="text" class="form-control" id="addCommCountry" required placeholder="e.g. India, Qatar, UK">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="addCommPassword">Temporary Password</label>
-            <input type="text" class="form-control" id="addCommPassword" value="gyde2024" placeholder="Default: gyde2024">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="addCommInstitution">Department / School / Chapter</label>
-            <input type="text" class="form-control" id="addCommInstitution" placeholder="e.g. Oxford Union, Doha Chapter">
-          </div>
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
-          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('addCommunityUserModal')">Cancel</button>
-          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Save User to Community</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- =======================================================================
-       MODAL: CHANGE USER ROLE (Promote / Adjust Permissions)
-       ======================================================================= -->
-  <div class="modal-overlay" id="changeUserRoleModal" style="display: none;">
-    <div class="modal-content modal-sm" style="max-width: 440px;">
-      <div class="modal-header">
-        <h3 class="serif-text" style="margin: 0; color: var(--brand-navy); font-size: 1.2rem;">Change Community Role</h3>
-        <button class="modal-close-btn" type="button" onclick="closeModal('changeUserRoleModal')" aria-label="Close">&times;</button>
-      </div>
-      <form onsubmit="window.handleChangeUserRoleSubmit(event)">
-        <input type="hidden" id="changeRoleUserId">
-        <div class="modal-body" style="padding: 1.25rem;">
-          <p id="changeRoleUserName" style="font-weight: 700; margin: 0 0 1rem 0; color: var(--text-main);"></p>
-          <div class="form-group">
-            <label class="form-label" for="changeRoleSelect">Select New Role *</label>
-            <select class="form-control" id="changeRoleSelect" required>
-              <option value="Member">Member (Debate Delegate)</option>
-              <option value="Presenter">Presenter (Academic Keynote)</option>
-              <option value="Coordinator">Co-Admin / Coordinator</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border-light);">
-          <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('changeUserRoleModal')">Cancel</button>
-          <button type="submit" class="btn btn-navy btn-sm" style="font-weight: 700;">Update Role</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
+  <script src="app.js?v=5.7" onerror="this.src='js/app.js?v=5.7'"></script>
 </body>
 
 </html>
