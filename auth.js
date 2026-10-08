@@ -334,18 +334,19 @@ class AuthService {
       'color: #94a3b8; font-size: 11px;'
     );
 
-    try {
-      const resp = await fetch('/api/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code, name })
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        return data;
-      }
-    } catch (e) {
-      console.warn('Backend email API unreachable or error sending OTP:', e);
+    const endpoints = ['/api/send-otp', 'http://127.0.0.1:8080/api/send-otp'];
+    for (const url of endpoints) {
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code, name })
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          return data;
+        }
+      } catch (e) {}
     }
     return { success: false, message: 'Could not contact email server (offline or unconfigured)' };
   }
