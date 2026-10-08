@@ -4233,6 +4233,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    if (window.GYD_DATA && typeof window.GYD_DATA.syncRemoteApplications === 'function') {
+      window.GYD_DATA.syncRemoteApplications();
+    }
     bindCoordinatorNavigation();
     switchCoordSubview(currentCoordSubview);
   }

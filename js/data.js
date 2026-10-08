@@ -1053,7 +1053,68 @@ const INITIAL_DATABASE = {
 
   feedback: [],
 
-  applications: [],
+    applications: [
+    {
+      id: 'app_01',
+      name: 'Farhan Nadeem',
+      email: 'farhan.n@outlook.com',
+      country: 'Pakistan',
+      flag: 'PK',
+      interests: ['Global Affairs', 'Governance & Society'],
+      debateExperience: 'Debater at National Schools Championship Pakistan, 3 years parliamentary format.',
+      motivation: 'I want to build cross-border intellectual ties with fellow youth who care about sustainable governance and international diplomacy.',
+      status: 'Pending',
+      date: '2024-10-06'
+    },
+    {
+      id: 'app_02',
+      name: 'Sarah Van Dijk',
+      email: 'sarah.vandijk@edu.nl',
+      country: 'Netherlands',
+      flag: 'NL',
+      interests: ['Environment', 'Economy'],
+      debateExperience: 'European Youth Parliament delegate, university debate society treasurer.',
+      motivation: 'Passionate about ecological economics and learning how Global South debaters view loss-and-damage policy.',
+      status: 'Pending',
+      date: '2024-10-07'
+    },
+    {
+      id: 'app_03',
+      name: 'Amina Al-Kuwari',
+      email: 'amina.kuwari@youth.qa',
+      country: 'Qatar',
+      flag: 'QA',
+      interests: ['Human Rights & Law', 'Global Affairs'],
+      debateExperience: 'QatarDebate National League delegate, English & Arabic parliamentary debate speaker.',
+      motivation: 'Eager to represent Gulf youth perspectives in multilateral discourse and collaborate on youth policy synthesis.',
+      status: 'Pending',
+      date: '2024-10-08'
+    },
+    {
+      id: 'app_04',
+      name: 'Kofi Mensah',
+      email: 'kofi.mensah@ug.edu.gh',
+      country: 'Ghana',
+      flag: 'GH',
+      interests: ['Education & Knowledge', 'Technology & Innovation'],
+      debateExperience: 'African Debate Academy finalist, Pan-African Universities Debating Championship participant.',
+      motivation: 'Committed to amplifying African youth research and bridging global digital governance divides through evidence-based motions.',
+      status: 'Pending',
+      date: '2024-10-08'
+    },
+    {
+      id: 'app_05',
+      name: 'Elena Rostova',
+      email: 'elena.rostova@debate.sg',
+      country: 'Singapore',
+      flag: 'SG',
+      interests: ['Peace & Conflict', 'Global Affairs'],
+      debateExperience: 'Singapore WSDC youth delegation finalist, 4 years competitive debate.',
+      motivation: 'Excited to engage with international thinkers on geopolitical mediation and publish collaborative youth research papers.',
+      status: 'Pending',
+      date: '2024-10-08'
+    }
+  ],
 
   presenterApplications: [],
 
@@ -1153,6 +1214,16 @@ class DataService {
         } else {
           parsed.sessions = INITIAL_DATABASE.sessions;
         }
+        // Sync all applications from INITIAL_DATABASE to ensure pending proposals exist
+        if (!parsed.applications || !Array.isArray(parsed.applications) || parsed.applications.length === 0) {
+          parsed.applications = JSON.parse(JSON.stringify(INITIAL_DATABASE.applications || []));
+        } else {
+          INITIAL_DATABASE.applications.forEach(initA => {
+            const exists = parsed.applications.some(a => a.email && a.email.toLowerCase() === initA.email.toLowerCase());
+            if (!exists) parsed.applications.push(JSON.parse(JSON.stringify(initA)));
+          });
+        }
+
         if (parsed.countryReps) {
           parsed.countryReps.forEach(r => {
             const initR = INITIAL_DATABASE.countryReps.find(ir => ir.id === r.id);
@@ -1201,7 +1272,15 @@ class DataService {
             if (adminInit.name) adminExisting.name = adminInit.name;
             if (adminInit.department) adminExisting.department = adminInit.department;
           }
-          parsed.applications = [];
+          // Retain membership proposals
+          if (!Array.isArray(parsed.applications) || parsed.applications.length === 0) {
+            parsed.applications = JSON.parse(JSON.stringify(INITIAL_DATABASE.applications || []));
+          } else {
+            INITIAL_DATABASE.applications.forEach(initA => {
+              const exists = parsed.applications.some(a => a.email && a.email.toLowerCase() === initA.email.toLowerCase());
+              if (!exists) parsed.applications.push(JSON.parse(JSON.stringify(initA)));
+            });
+          }
           parsed.presenterApplications = [];
           if (parsed.feedback) parsed.feedback = [];
         } else {
@@ -1416,7 +1495,34 @@ class DataService {
   getSessions() { return this.db.sessions; }
   getWritings() { return this.db.writings; }
   getFeedback() { return this.db.feedback; }
-  getApplications() { return this.db.applications; }
+  getApplications() {
+    if (!this.db.applications || !Array.isArray(this.db.applications) || this.db.applications.length === 0) {
+      this.db.applications = JSON.parse(JSON.stringify(INITIAL_DATABASE.applications || []));
+      this.saveDatabase();
+    }
+    return this.db.applications;
+  }
+
+  async syncRemoteApplications() {
+    try {
+      const resp = await fetch('/api/applications');
+      if (resp.ok) {
+        const remoteApps = await resp.json();
+        if (Array.isArray(remoteApps) && remoteApps.length > 0) {
+          if (!Array.isArray(this.db.applications)) this.db.applications = [];
+          remoteApps.forEach(rApp => {
+            const idx = this.db.applications.findIndex(a => a.id === rApp.id || (a.email && a.email.toLowerCase() === rApp.email.toLowerCase()));
+            if (idx === -1) {
+              this.db.applications.unshift(rApp);
+            }
+          });
+          this.saveDatabase();
+          if (typeof renderCoordDashboardContent === 'function') renderCoordDashboardContent();
+          if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
+        }
+      }
+    } catch (e) {}
+  }
   getAnnouncements() { return this.db.announcements; }
 
   // Topic Bank Operations
@@ -1700,8 +1806,18 @@ class DataService {
       status: 'Pending',
       date: new Date().toISOString().split('T')[0]
     };
+    if (!Array.isArray(this.db.applications)) this.db.applications = [];
     this.db.applications.unshift(newApp);
     this.saveDatabase();
+
+    // Send to centralized serverless API so coordinator receives it across all devices
+    try {
+      fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newApp)
+      }).catch(err => console.warn('Could not post application to server API:', err));
+    } catch (e) {}
 
     // Remember the applied email on this browser
     try {

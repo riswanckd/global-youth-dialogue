@@ -4,6 +4,10 @@
     {
       "source": "/api/send-otp",
       "destination": "/api/send-otp.js"
+    },
+    {
+      "source": "/api/applications",
+      "destination": "/api/applications.js"
     }
   ]
 }
