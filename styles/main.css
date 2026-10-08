@@ -4844,11 +4844,16 @@ body.rtl-mode .mobile-nav-drawer {
   .container, .container-wide { padding-left: 0.85rem !important; padding-right: 0.85rem !important; }
   .brand-logo-img { height: 30px !important; max-width: 140px !important; }
 
-  /* Hero section typography, collage & actions on mobile */
   .hero-section { padding: 1.5rem 0 1.25rem; }
   .hero-grid { grid-template-columns: 1fr !important; gap: 1.25rem; }
   .hero-content { align-items: center; text-align: center; }
-  .hero-eyebrow { justify-content: center; }
+  .hero-eyebrow {
+    font-size: 0.64rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    margin-bottom: 0.45rem !important;
+    justify-content: center;
+  }
   .hero-title { font-size: clamp(1.3rem, 4.5vw, 1.62rem) !important; line-height: 1.24; text-align: center; }
   .hero-subtitle-lead { font-size: 0.86rem; text-align: center; line-height: 1.45; }
   .hero-subtext { font-size: 0.78rem; margin-bottom: 1rem; max-width: 100%; text-align: center; margin-inline: auto; line-height: 1.45; }
@@ -5460,6 +5465,12 @@ body.rtl-mode .mobile-nav-drawer {
 
   /* Hero Section Small Mobile */
   .hero-section { padding: 1.25rem 0 0.9rem; }
+  .hero-eyebrow {
+    font-size: 0.58rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.035em !important;
+    margin-bottom: 0.35rem !important;
+  }
   .hero-title { font-size: 1.22rem !important; line-height: 1.22; }
   .hero-subtitle-lead { font-size: 0.8rem; }
   .hero-subtext { font-size: 0.74rem; margin-bottom: 0.85rem; }
@@ -6481,13 +6492,13 @@ body.rtl-mode .topic-bank-card-title-ar {
 .hero-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.82rem;
-  font-weight: 700;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: var(--color-primary-1);
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 [data-theme="dark"] .hero-eyebrow {
