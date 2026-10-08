@@ -323,6 +323,17 @@ class AuthService {
   }
 
   async sendOTPEmail(email, code, name = 'Applicant') {
+    // Log verification OTP to browser console for immediate testing & audit
+    console.info(
+      `%c[GYDE Verification]%c OTP for %c${email}%c: %c${code}%c (Valid for 10 minutes)`,
+      'background: #4851ba; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+      'color: #64748b;',
+      'font-weight: bold; color: #0f172a;',
+      'color: #64748b;',
+      'font-size: 14px; font-weight: bold; color: #059669; padding: 2px 6px; background: #ecfdf5; border-radius: 4px;',
+      'color: #94a3b8; font-size: 11px;'
+    );
+
     try {
       const resp = await fetch('/api/send-otp', {
         method: 'POST',
@@ -336,7 +347,7 @@ class AuthService {
     } catch (e) {
       console.warn('Backend email API unreachable or error sending OTP:', e);
     }
-    return { success: false, message: 'Could not contact email server' };
+    return { success: false, message: 'Could not contact email server (offline or unconfigured)' };
   }
 
   verifyOTP(email, enteredCode) {

@@ -1064,9 +1064,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const code = authService.generateOTP(email);
     const recipientEl = document.getElementById('otpRecipientEmail');
     const inputEl = document.getElementById('signupOtpInput');
+    const revealedEl = document.getElementById('revealedTestOtp');
+    const btnReveal = document.getElementById('btnRevealTestOtp');
 
     if (recipientEl) recipientEl.textContent = email;
     if (inputEl) inputEl.value = '';
+    if (revealedEl) {
+      revealedEl.textContent = '';
+      revealedEl.style.display = 'none';
+    }
+    if (btnReveal) {
+      btnReveal.onclick = () => {
+        if (revealedEl) {
+          revealedEl.textContent = code;
+          revealedEl.style.display = 'block';
+        }
+        if (inputEl) {
+          inputEl.value = code;
+          inputEl.focus();
+        }
+        showToast('Testing code populated into verification input!', 'success');
+      };
+    }
 
     // Switch to Step 2
     document.getElementById('signupDetailsForm').style.display = 'none';
@@ -1075,9 +1094,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dispatch verification email to applicant's inbox
     const applicantName = `${firstName} ${lastName}`.trim() || 'Applicant';
-    authService.sendOTPEmail(email, code, applicantName);
-
-    showToast(`Verification code sent to ${email}. Please check your inbox or spam folder.`, 'success');
+    authService.sendOTPEmail(email, code, applicantName).then((res) => {
+      if (res && res.sent) {
+        showToast(`Verification email delivered to ${email}! Please check your inbox or spam folder.`, 'success');
+      } else {
+        showToast(`Verification code dispatched. If email server is offline, use test helper below.`, 'normal');
+      }
+    });
   });
 
   // Back button to details step
@@ -1091,8 +1114,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentSignupData || !currentSignupData.email) return;
     const code = authService.generateOTP(currentSignupData.email);
     const applicantName = `${currentSignupData.firstName || ''} ${currentSignupData.lastName || ''}`.trim() || 'Applicant';
-    authService.sendOTPEmail(currentSignupData.email, code, applicantName);
-    showToast(`A new verification code has been dispatched to ${currentSignupData.email}.`, 'success');
+    const revealedEl = document.getElementById('revealedTestOtp');
+    const btnReveal = document.getElementById('btnRevealTestOtp');
+    const inputEl = document.getElementById('signupOtpInput');
+
+    if (revealedEl) {
+      revealedEl.textContent = '';
+      revealedEl.style.display = 'none';
+    }
+    if (btnReveal) {
+      btnReveal.onclick = () => {
+        if (revealedEl) {
+          revealedEl.textContent = code;
+          revealedEl.style.display = 'block';
+        }
+        if (inputEl) {
+          inputEl.value = code;
+          inputEl.focus();
+        }
+        showToast('Testing code populated into verification input!', 'success');
+      };
+    }
+
+    authService.sendOTPEmail(currentSignupData.email, code, applicantName).then((res) => {
+      if (res && res.sent) {
+        showToast(`A new verification code has been dispatched to ${currentSignupData.email}.`, 'success');
+      } else {
+        showToast(`New code generated. If email server is offline, use test helper below.`, 'normal');
+      }
+    });
   });
 
   // Step 2: OTP Verification & Final Registration
