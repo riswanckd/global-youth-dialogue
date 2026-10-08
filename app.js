@@ -387,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
         authService.logout();
         navigateToPortal('public');
         showToast(isAr ? 'تم تسجيل الخروج بنجاح.' : 'You have signed out successfully.');
-        setTimeout(() => checkApprovedVisitorRedirect(), 350);
       });
 
       if (publicNav) publicNav.style.display = (activePortal === 'public') ? 'flex' : 'none';
@@ -420,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
           authService.logout();
           navigateToPortal('public');
           showToast(isAr ? 'تم تسجيل الخروج بنجاح.' : 'You have signed out successfully.');
-          setTimeout(() => checkApprovedVisitorRedirect(), 350);
         });
       }
     } else {
@@ -654,7 +652,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (viewPublic) viewPublic.style.display = 'block';
       renderPublicPage();
       window.scrollTo(0, 0);
-      setTimeout(() => checkApprovedVisitorRedirect(), 300);
     }
 
     updateAuthHeaderUI();
@@ -1014,6 +1011,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Only update banner if the user has navigated directly to the Sign-In view
+    const viewSignIn = document.getElementById('viewSignIn');
+    const isSignInVisible = viewSignIn && viewSignIn.style.display !== 'none';
+    if (!isSignInVisible) {
+      if (banner) banner.style.display = 'none';
+      return;
+    }
+
     const pending = authService.checkApprovedApplicant();
     if (pending && pending.email) {
       // Extra safety: check if this pending email is already registered in users
@@ -1026,19 +1031,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Not signed up yet -> show banner and auto-open signup modal
+      // Show informational banner on sign-in card ONLY. NEVER auto-open any modal!
       if (banner) {
         banner.style.display = 'block';
         const bannerMsg = document.getElementById('approvedApplicantBannerMsg');
         if (bannerMsg) {
-          bannerMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Complete your registration to activate your account.`;
+          bannerMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Click below to complete registration.`;
         }
       }
-      setTimeout(() => {
-        openSignupModal(pending);
-      }, 400);
     } else {
-      // User is already signed up or no approved application -> HIDE BANNER!
       if (banner) banner.style.display = 'none';
     }
   }
@@ -4268,7 +4269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         authService.logout();
         navigateToPortal('public');
         showToast('Signed out from Coordinator Workspace.');
-        setTimeout(() => checkApprovedVisitorRedirect(), 350);
       };
     }
 
@@ -6848,7 +6848,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderAll();
-
-  // Check if visitor has an approved application awaiting sign-up & OTP
-  checkApprovedVisitorRedirect();
 });

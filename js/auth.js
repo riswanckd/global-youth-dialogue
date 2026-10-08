@@ -11,7 +11,18 @@ const OTP_STORAGE_KEY  = 'gyd_otp_session';           // ephemeral OTP storage
 class AuthService {
   constructor() {
     this.currentUser = this.loadSession();
+    this.cleanupOrphanPending();
     this.listeners = [];
+  }
+
+  cleanupOrphanPending() {
+    try {
+      const pending = this.getPendingRegistration();
+      const applied = localStorage.getItem('gyd_applied_email');
+      if (pending && (!applied || (pending.email && pending.email.toLowerCase().trim() !== applied.toLowerCase().trim()))) {
+        this.clearPendingRegistration();
+      }
+    } catch (e) {}
   }
 
   loadSession() {
@@ -265,71 +276,45 @@ class AuthService {
       return users.some(u => u.email && u.email.toLowerCase().trim() === clean);
     };
 
-    let pending = this.getPendingRegistration();
+    // PRIVACY SECURITY: Only look for an application if THIS SPECIFIC BROWSER submitted one!
+    // Never search through database applications or suggest another user's profile.
+    let appliedEmail = null;
+    try {
+      appliedEmail = localStorage.getItem('gyd_applied_email');
+    } catch (e) {}
 
-    // If pending is already registered, clean up immediately and return null
-    if (pending && pending.email && isEmailRegistered(pending.email)) {
+    if (!appliedEmail || typeof appliedEmail !== 'string' || !appliedEmail.trim()) {
+      // Current visitor has never applied on this device -> do NOT suggest any registration!
       this.clearPendingRegistration();
-      try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
-      pending = null;
+      return null;
     }
 
-    // Check applied email
-    if (!pending || !pending.email) {
-      try {
-        const appliedEmail = localStorage.getItem('gyd_applied_email');
-        if (appliedEmail) {
-          if (isEmailRegistered(appliedEmail)) {
-            localStorage.removeItem('gyd_applied_email');
-            this.clearPendingRegistration();
-            return null;
-          }
+    const cleanApplied = appliedEmail.toLowerCase().trim();
 
-          if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
-            const apps = window.GYD_DATA.getApplications() || [];
-            const clean = appliedEmail.toLowerCase().trim();
-            const app = apps.find(a => a.email && a.email.toLowerCase().trim() === clean && (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration'));
-            if (app) {
-              this.setPendingRegistration(app);
-              pending = this.getPendingRegistration();
-            }
-          }
-        }
-      } catch (e) {}
-    }
-
-    // If still no pending, check if any application in DB is currently Approved & NOT in users list
-    if (!pending || !pending.email) {
-      try {
-        if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
-          const apps = window.GYD_DATA.getApplications() || [];
-          const approved = apps.filter(a => {
-            const isApproved = (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
-            if (!isApproved) return false;
-            return !isEmailRegistered(a.email);
-          });
-          if (approved.length > 0) {
-            this.setPendingRegistration(approved[0]);
-            pending = this.getPendingRegistration();
-          }
-        }
-      } catch (e) {}
-    }
-
-    if (!pending || !pending.email) return null;
-
-    // Final safety check: if already registered, clear and return null
-    if (isEmailRegistered(pending.email)) {
+    // If already registered as an active user, clean up and exit
+    if (isEmailRegistered(cleanApplied)) {
       this.clearPendingRegistration();
       try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
       return null;
     }
 
-    // Verify the application status in DB
+    // Check if the current browser's pending registration matches their applied email
+    let pending = this.getPendingRegistration();
+    if (pending && pending.email && pending.email.toLowerCase().trim() !== cleanApplied) {
+      // Mismatched or belonged to another profile -> purge it immediately
+      this.clearPendingRegistration();
+      pending = null;
+    }
+
+    // Verify THIS SPECIFIC applicant's status in DB
     if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
       const apps = window.GYD_DATA.getApplications() || [];
-      const app = apps.find(a => a.email && a.email.toLowerCase().trim() === pending.email.toLowerCase().trim());
+      const app = apps.find(a => a.email && a.email.toLowerCase().trim() === cleanApplied);
       if (app && (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration')) {
+        if (!pending) {
+          this.setPendingRegistration(app);
+          pending = this.getPendingRegistration();
+        }
         return pending;
       }
     }
