@@ -1,0 +1,9 @@
+{
+  "name": "global-youth-dialogue",
+  "version": "1.0.0",
+  "description": "Global Youth Dialogue & Exchange (GYDE) Web Platform",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  }
+}
