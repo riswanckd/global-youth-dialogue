@@ -3,6 +3,14 @@ const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
 
+// Try loading nodemailer if available (installed via package.json on Vercel)
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  // Pure TLS fallback will be used if nodemailer is not present
+}
+
 // Load config from email_config.json if available, or environment, or fallback
 function getConfig() {
   let config = {
@@ -30,20 +38,121 @@ function getConfig() {
   return config;
 }
 
-function sendEmailViaTLS(toEmail, code, name) {
-  const conf = getConfig();
+function getEmailContent(code, name) {
+  const plainText = `Hello ${name || 'Applicant'},
+
+Your GYDE verification code is: ${code}
+
+Please enter this 6-digit code on the GYDE platform to verify your email address and activate your membership credentials.
+
+This code will expire in 10 minutes. If you did not request this, please disregard this email.
+
+---
+Global Youth Dialogue & Exchange (GYDE)
+International Community of Youth Debaters
+Official Platform: https://gydonline.vercel.app`;
+
+  const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your GYDE Verification Code</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; }
+    .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { background: linear-gradient(135deg, #1e293b, #0f172a); color: #ffffff; padding: 26px 20px; text-align: center; }
+    .header h2 { margin: 0 0 6px 0; font-size: 1.25rem; letter-spacing: 0.05em; font-weight: 700; }
+    .header p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
+    .content { padding: 30px 24px; text-align: center; }
+    .greeting { font-size: 1rem; color: #334155; margin-bottom: 12px; text-align: left; font-weight: 600; }
+    .text { font-size: 0.94rem; color: #64748b; line-height: 1.55; margin-bottom: 22px; text-align: left; }
+    .otp-box { background: #f1f5f9; border: 2px dashed #4851ba; border-radius: 10px; padding: 18px 28px; display: inline-block; margin: 10px auto 20px; }
+    .otp-code { font-family: 'Courier New', Courier, monospace; font-size: 2.3rem; font-weight: 800; letter-spacing: 0.35em; color: #4851ba; margin: 0; }
+    .notice { font-size: 0.82rem; color: #94a3b8; margin-top: 14px; line-height: 1.45; text-align: center; }
+    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; font-size: 0.78rem; color: #94a3b8; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h2>Global Youth Dialogue & Exchange</h2>
+      <p>Official Membership Verification</p>
+    </div>
+    <div class="content">
+      <div class="greeting">Dear ${name || 'Applicant'},</div>
+      <div class="text">
+        Welcome to GYDE! To verify your email and activate your official debate community credentials, please enter the one-time verification code below:
+      </div>
+      <div class="otp-box">
+        <div class="otp-code">${code}</div>
+      </div>
+      <div class="notice">
+        This verification code is valid for <strong>10 minutes</strong>.<br>
+        If you did not request this, please disregard this email.
+      </div>
+    </div>
+    <div class="footer">
+      &copy; Global Youth Dialogue & Exchange (GYDE) &bull; International Community of Youth Debaters<br>
+      <a href="https://gydonline.vercel.app" style="color: #4851ba; text-decoration: none;">gydonline.vercel.app</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  return { plainText, htmlBody };
+}
+
+// 1. Send via nodemailer (Standard RFC 5322 MIME engine)
+async function sendViaNodemailer(toEmail, code, name, conf) {
+  const { plainText, htmlBody } = getEmailContent(code, name);
+  const fromName = conf.from_name || 'Global Youth Dialogue & Exchange (GYDE)';
+  const fromEmail = conf.from_email || conf.smtp_user;
+
+  const transporter = nodemailer.createTransport({
+    host: conf.smtp_host || 'smtp.gmail.com',
+    port: 465,
+    secure: true, // SSL/TLS
+    auth: {
+      user: conf.smtp_user,
+      pass: conf.smtp_pass
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000
+  });
+
+  const mailOptions = {
+    from: `"${fromName}" <${fromEmail}>`,
+    to: toEmail,
+    replyTo: `"${fromName}" <${fromEmail}>`,
+    subject: `${code} is your GYDE Verification Code`,
+    text: plainText,
+    html: htmlBody,
+    headers: {
+      'X-Priority': '1 (Highest)',
+      'X-MSMail-Priority': 'High',
+      'Importance': 'High',
+      'Auto-Submitted': 'auto-generated'
+    }
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+  return { success: true, message: 'Delivered successfully via Nodemailer', messageId: info.messageId };
+}
+
+// 2. Pure Node.js TLS fallback with full RFC 5322 headers
+function sendViaPureTLS(toEmail, code, name, conf) {
   const user = conf.smtp_user;
   const pass = conf.smtp_pass;
   const host = conf.smtp_host || 'smtp.gmail.com';
-  const port = 465; // Direct TLS port
+  const port = 465;
   const fromName = conf.from_name || 'Global Youth Dialogue & Exchange (GYDE)';
   const fromEmail = conf.from_email || user;
+  const { plainText, htmlBody } = getEmailContent(code, name);
 
   return new Promise((resolve, reject) => {
-    const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' }, () => {
-      // TLS connection established
-    });
-
+    const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' });
     socket.setEncoding('utf8');
 
     let step = 0;
@@ -74,60 +183,37 @@ function sendEmailViaTLS(toEmail, code, name) {
         socket.write('DATA\r\n');
       } else if (step === 7 && reply.startsWith('354')) {
         step = 8;
-        const subject = `Your GYDE Verification Code: ${code}`;
-        const htmlBody = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
-    .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .header { background: linear-gradient(135deg, #1e293b, #0f172a); color: #ffffff; padding: 24px 20px; text-align: center; }
-    .header h2 { margin: 0 0 6px 0; font-size: 1.25rem; letter-spacing: 0.05em; }
-    .header p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
-    .content { padding: 28px 24px; text-align: center; }
-    .greeting { font-size: 1rem; color: #334155; margin-bottom: 12px; text-align: left; }
-    .text { font-size: 0.92rem; color: #64748b; line-height: 1.5; margin-bottom: 20px; text-align: left; }
-    .otp-box { background: #f1f5f9; border: 2px dashed #4851ba; border-radius: 10px; padding: 16px 24px; display: inline-block; margin: 10px auto 20px; }
-    .otp-code { font-family: monospace; font-size: 2.2rem; font-weight: 800; letter-spacing: 0.35em; color: #4851ba; margin: 0; }
-    .notice { font-size: 0.82rem; color: #94a3b8; margin-top: 14px; line-height: 1.4; }
-    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; font-size: 0.78rem; color: #94a3b8; text-align: center; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <h2>Global Youth Dialogue & Exchange</h2>
-      <p>Official Membership Verification</p>
-    </div>
-    <div class="content">
-      <div class="greeting">Dear ${name || 'Applicant'},</div>
-      <div class="text">
-        Your membership application has been approved by the GYDE Coordinator Secretariat! To complete your registration and activate your official credentials, please verify your email address with the one-time code below:
-      </div>
-      <div class="otp-box">
-        <div class="otp-code">${code}</div>
-      </div>
-      <div class="notice">
-        This verification code will expire in <strong>10 minutes</strong>.<br>
-        If you did not request this, please disregard this email.
-      </div>
-    </div>
-    <div class="footer">
-      &copy; Global Youth Dialogue & Exchange (GYDE) &bull; International Community of Youth Debaters
-    </div>
-  </div>
-</body>
-</html>`;
+        const boundary = '----=_Part_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const msgId = `<gyde-${Date.now()}-${Math.random().toString(36).slice(2)}@gmail.com>`;
+        const dateStr = new Date().toUTCString();
+        const subject = `${code} is your GYDE Verification Code`;
 
         const mimeMessage = [
+          `Date: ${dateStr}`,
+          `Message-ID: ${msgId}`,
           `From: "${fromName}" <${fromEmail}>`,
           `To: ${toEmail}`,
+          `Reply-To: <${fromEmail}>`,
           `Subject: ${subject}`,
           `MIME-Version: 1.0`,
+          `X-Priority: 1 (Highest)`,
+          `Importance: High`,
+          `Auto-Submitted: auto-generated`,
+          `Content-Type: multipart/alternative; boundary="${boundary}"`,
+          '',
+          `--${boundary}`,
+          `Content-Type: text/plain; charset=UTF-8`,
+          `Content-Transfer-Encoding: 7bit`,
+          '',
+          plainText,
+          '',
+          `--${boundary}`,
           `Content-Type: text/html; charset=UTF-8`,
+          `Content-Transfer-Encoding: 8bit`,
           '',
           htmlBody,
+          '',
+          `--${boundary}--`,
           '',
           '.'
         ].join('\r\n') + '\r\n';
@@ -136,7 +222,7 @@ function sendEmailViaTLS(toEmail, code, name) {
       } else if (step === 8 && reply.startsWith('250')) {
         step = 9;
         socket.write('QUIT\r\n');
-        resolve({ success: true, message: 'Delivered successfully via SMTP TLS' });
+        resolve({ success: true, message: 'Delivered successfully via RFC TLS' });
       } else if (reply.startsWith('5') || reply.startsWith('4')) {
         reject(new Error(`SMTP Error: ${reply.trim()}`));
       }
@@ -146,11 +232,26 @@ function sendEmailViaTLS(toEmail, code, name) {
       reject(err);
     });
 
-    socket.setTimeout(15000, () => {
+    socket.setTimeout(12000, () => {
       socket.destroy();
-      reject(new Error('SMTP connection timed out after 15s'));
+      reject(new Error('SMTP connection timed out after 12s'));
     });
   });
+}
+
+async function sendEmail(toEmail, code, name) {
+  const conf = getConfig();
+  const cleanEmail = (toEmail || '').trim();
+
+  if (nodemailer) {
+    try {
+      return await sendViaNodemailer(cleanEmail, code, name, conf);
+    } catch (err) {
+      console.warn('Nodemailer failed, falling back to pure TLS:', err.message);
+    }
+  }
+
+  return await sendViaPureTLS(cleanEmail, code, name, conf);
 }
 
 module.exports = async function handler(req, res) {
@@ -182,7 +283,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Missing email or code parameter.' });
     }
 
-    const result = await sendEmailViaTLS(email, code, name);
+    const result = await sendEmail(email, code, name);
     return res.status(200).json({
       success: true,
       sent: true,

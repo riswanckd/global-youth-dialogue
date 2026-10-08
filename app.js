@@ -1101,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
           inputEl.value = code;
           inputEl.focus();
         }
-        showToast('Testing code populated into verification input!', 'success');
+        showToast('Verification code auto-filled! Click "Verify OTP & Complete Membership" to finish.', 'success');
       };
     }
 
@@ -1114,9 +1114,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const applicantName = `${firstName} ${lastName}`.trim() || 'Applicant';
     authService.sendOTPEmail(email, code, applicantName).then((res) => {
       if (res && res.sent) {
-        showToast(`Verification email delivered to ${email}! Please check your inbox or spam folder.`, 'success');
+        showToast(`Verification email sent to ${email}! Check inbox (or Spam/Junk folder).`, 'success');
       } else {
-        showToast(`Verification code dispatched. If email server is offline, use test helper below.`, 'normal');
+        showToast(`Verification code dispatched. Check inbox or use instant auto-fill below.`, 'normal');
       }
     });
   });
@@ -1150,15 +1150,15 @@ document.addEventListener('DOMContentLoaded', () => {
           inputEl.value = code;
           inputEl.focus();
         }
-        showToast('Testing code populated into verification input!', 'success');
+        showToast('Verification code auto-filled! Click "Verify OTP & Complete Membership" to finish.', 'success');
       };
     }
 
     authService.sendOTPEmail(currentSignupData.email, code, applicantName).then((res) => {
       if (res && res.sent) {
-        showToast(`A new verification code has been dispatched to ${currentSignupData.email}.`, 'success');
+        showToast(`New verification code delivered to ${currentSignupData.email}! Check inbox or spam.`, 'success');
       } else {
-        showToast(`New code generated. If email server is offline, use test helper below.`, 'normal');
+        showToast(`New code generated. Check inbox or use instant auto-fill below.`, 'normal');
       }
     });
   });

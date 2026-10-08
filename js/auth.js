@@ -341,17 +341,22 @@ class AuthService {
   // OTP MANAGEMENT & SECURE EMAIL DELIVERY
   // =========================================================================
   generateOTP(email) {
+    const cleanEmail = (email || '').trim().toLowerCase();
     const code = String(Math.floor(100000 + Math.random() * 900000));
     const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    const session = { email, code, expires, attempts: 0 };
+    const session = { email: cleanEmail, code, expires, attempts: 0 };
     try { localStorage.setItem(OTP_STORAGE_KEY, JSON.stringify(session)); } catch (e) {}
     return code;
   }
 
   async sendOTPEmail(email, code, name = 'Applicant') {
+    const cleanEmail = (email || '').trim();
+    const cleanCode = (code || '').trim();
+    const cleanName = (name || 'Applicant').trim();
+
     // Log verification OTP to browser console for immediate testing & audit
     console.info(
-      `%c[GYDE Verification]%c OTP for %c${email}%c: %c${code}%c (Valid for 10 minutes)`,
+      `%c[GYDE Verification]%c OTP for %c${cleanEmail}%c: %c${cleanCode}%c (Valid for 10 minutes)`,
       'background: #4851ba; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;',
       'color: #64748b;',
       'font-weight: bold; color: #0f172a;',
@@ -366,7 +371,7 @@ class AuthService {
         const resp = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, code, name })
+          body: JSON.stringify({ email: cleanEmail, code: cleanCode, name: cleanName })
         });
         if (resp.ok) {
           const data = await resp.json();
@@ -383,7 +388,10 @@ class AuthService {
       if (!stored) return { valid: false, message: 'No OTP session found. Please request a new code.' };
       const session = JSON.parse(stored);
 
-      if (session.email.toLowerCase() !== email.toLowerCase()) {
+      const cleanStoredEmail = (session.email || '').trim().toLowerCase();
+      const cleanInputEmail = (email || '').trim().toLowerCase();
+
+      if (cleanStoredEmail !== cleanInputEmail) {
         return { valid: false, message: 'Email mismatch. Please request a new code.' };
       }
       if (Date.now() > session.expires) {
