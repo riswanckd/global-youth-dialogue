@@ -957,10 +957,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleApprovedApplicantClick() {
     const banner = document.getElementById('approvedApplicantBanner');
     const pending = authService.checkApprovedApplicant();
+  async function handleApprovedApplicantClick() {
+    const banner = document.getElementById('approvedApplicantBanner');
+    let pending = authService.checkApprovedApplicant();
     if (pending && pending.email) {
       closeModal('authModal');
       openSignupModal(pending);
       return;
+    }
+
+    // Always sync remote applications before prompting to get the freshest approval status
+    if (dataService && typeof dataService.syncRemoteApplications === 'function') {
+      try { await dataService.syncRemoteApplications(); } catch (e) {}
+      pending = authService.checkApprovedApplicant();
+      if (pending && pending.email) {
+        closeModal('authModal');
+        openSignupModal(pending);
+        return;
+      }
     }
 
     // Check if the user is already registered in users list
@@ -976,7 +990,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Prompt user for their applied email
-    const emailPrompt = prompt('Please enter the email address used in your approved membership application:');
+    const defaultVal = appliedEmail || '';
+    const emailPrompt = prompt('Please enter the email address used in your approved membership application:', defaultVal);
     if (emailPrompt && emailPrompt.trim()) {
       const email = emailPrompt.trim().toLowerCase();
       const apps = dataService ? (dataService.getApplications() || []) : [];
@@ -991,6 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (app) {
         if (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration') {
+          try { localStorage.setItem('gyd_applied_email', app.email); } catch (e) {}
           authService.setPendingRegistration(app);
           closeModal('authModal');
           openSignupModal(app);
@@ -1003,50 +1019,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function checkApprovedVisitorRedirect() {
-    const banner = document.getElementById('approvedApplicantBanner');
+  function checkApprovedApplicantNotice() {
+    const topBanner = document.getElementById('approvedMemberBannerTop');
+    const topName = document.getElementById('approvedMemberBannerTopName');
+    const signinBanner = document.getElementById('approvedApplicantBanner');
+    const signinMsg = document.getElementById('approvedApplicantBannerMsg');
+
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
-      if (banner) banner.style.display = 'none';
-      return;
-    }
-
-    // Only update banner if the user has navigated directly to the Sign-In view
-    const viewSignIn = document.getElementById('viewSignIn');
-    const isSignInVisible = viewSignIn && viewSignIn.style.display !== 'none';
-    if (!isSignInVisible) {
-      if (banner) banner.style.display = 'none';
+      if (topBanner) topBanner.style.display = 'none';
+      if (signinBanner) signinBanner.style.display = 'none';
       return;
     }
 
     const pending = authService.checkApprovedApplicant();
     if (pending && pending.email) {
-      // Extra safety: check if this pending email is already registered in users
-      const users = dataService ? (dataService.getUsers() || []) : [];
-      const isAlreadyUser = users.some(u => u.email && u.email.toLowerCase().trim() === pending.email.toLowerCase().trim());
-      if (isAlreadyUser) {
-        authService.clearPendingRegistration();
-        try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
-        if (banner) banner.style.display = 'none';
-        return;
+      if (topBanner) {
+        topBanner.style.display = 'block';
+        if (topName) {
+          topName.textContent = `Welcome ${pending.name || 'Member'}! Your Membership Application is Approved!`;
+        }
       }
-
-      // Show informational banner on sign-in card ONLY. NEVER auto-open any modal!
-      if (banner) {
-        banner.style.display = 'block';
-        const bannerMsg = document.getElementById('approvedApplicantBannerMsg');
-        if (bannerMsg) {
-          bannerMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Click below to complete registration.`;
+      if (signinBanner) {
+        signinBanner.style.display = 'block';
+        if (signinMsg) {
+          signinMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Complete your registration to activate your account.`;
         }
       }
     } else {
-      if (banner) banner.style.display = 'none';
+      if (topBanner) topBanner.style.display = 'none';
+      if (signinBanner) signinBanner.style.display = 'none';
     }
+  }
+
+  function checkApprovedVisitorRedirect() {
+    checkApprovedApplicantNotice();
   }
 
   window.openSignupModal = openSignupModal;
   window.checkApprovedVisitorRedirect = checkApprovedVisitorRedirect;
+  window.checkApprovedApplicantNotice = checkApprovedApplicantNotice;
   window.handleApprovedApplicantClick = handleApprovedApplicantClick;
+
+  document.getElementById('btnTopCompleteSignup')?.addEventListener('click', () => {
+    handleApprovedApplicantClick();
+  });
 
   // Step 1: Submit Details & Custom Password
   document.getElementById('signupDetailsForm')?.addEventListener('submit', (e) => {
@@ -6848,4 +6865,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderAll();
+
+  // Sync applications from remote server and update approved applicant notification
+  if (dataService && typeof dataService.syncRemoteApplications === 'function') {
+    dataService.syncRemoteApplications().then(() => {
+      checkApprovedApplicantNotice();
+    });
+  } else {
+    checkApprovedApplicantNotice();
+  }
 });

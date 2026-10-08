@@ -1511,14 +1511,18 @@ class DataService {
         if (Array.isArray(remoteApps) && remoteApps.length > 0) {
           if (!Array.isArray(this.db.applications)) this.db.applications = [];
           remoteApps.forEach(rApp => {
-            const idx = this.db.applications.findIndex(a => a.id === rApp.id || (a.email && a.email.toLowerCase() === rApp.email.toLowerCase()));
+            const idx = this.db.applications.findIndex(a => a.id === rApp.id || (a.email && a.email.toLowerCase().trim() === (rApp.email || '').toLowerCase().trim()));
             if (idx === -1) {
               this.db.applications.unshift(rApp);
+            } else {
+              // ALWAYS synchronize remote status so approvals propagate to the applicant's device!
+              this.db.applications[idx] = { ...this.db.applications[idx], ...rApp, status: rApp.status };
             }
           });
           this.saveDatabase();
           if (typeof renderCoordDashboardContent === 'function') renderCoordDashboardContent();
           if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
+          if (typeof window.checkApprovedApplicantNotice === 'function') window.checkApprovedApplicantNotice();
         }
       }
     } catch (e) {}
@@ -1832,8 +1836,22 @@ class DataService {
     if (!app) return null;
 
     app.status = 'Approved - Awaiting Registration';
-
     this.saveDatabase();
+
+    // Immediately sync approval to remote server so applicant gets approved on their device
+    try {
+      fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updateStatus',
+          id: app.id,
+          email: app.email,
+          status: 'Approved - Awaiting Registration'
+        })
+      }).catch(err => console.warn('Could not sync approval to remote API', err));
+    } catch (e) {}
+
     return app;
   }
 
@@ -1891,6 +1909,20 @@ class DataService {
     if (app) {
       app.status = 'Rejected';
       this.saveDatabase();
+
+      try {
+        fetch('/api/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'updateStatus',
+            id: app.id,
+            email: app.email,
+            status: 'Rejected'
+          })
+        }).catch(err => console.warn('Could not sync rejection to remote API', err));
+      } catch (e) {}
+
       return app;
     }
     return null;

@@ -3,8 +3,48 @@ const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
 
-// In-memory applications cache with seed proposals
+// Persistent file storage fallback (in /tmp on Vercel or cwd locally)
+const TMP_FILE = path.join('/tmp', 'applications.json');
+const LOCAL_FILE = path.join(process.cwd(), 'applications.json');
+
+// Initial seed applications including live applicants
 let globalApplications = [
+  {
+    id: 'app_muzwgir5',
+    name: 'Rana Ali',
+    email: 'ranaalo.644@gmail.com',
+    country: 'Pakistan',
+    flag: 'PK',
+    interests: ['Global Affairs', 'Governance & Society'],
+    debateExperience: 'Competitive parliamentary debate speaker.',
+    motivation: 'Committed to international youth diplomacy and collaborative research.',
+    status: 'Approved - Awaiting Registration',
+    date: '2024-10-08'
+  },
+  {
+    id: 'app_muzw3l9n',
+    name: 'Sümeyye Bulut',
+    email: 'sumeyye.bulut@stu.ihu.edu.tr',
+    country: 'Turkey',
+    flag: 'TR',
+    interests: ['Education & Knowledge', 'Global Affairs'],
+    debateExperience: 'University debate society delegate.',
+    motivation: 'Excited to represent international youth debaters in multilateral discourse.',
+    status: 'Approved - Awaiting Registration',
+    date: '2024-10-08'
+  },
+  {
+    id: 'app_muzw3483',
+    name: 'Hima works',
+    email: 'himaworking@gmail.com',
+    country: 'India',
+    flag: 'IN',
+    interests: ['Technology & Innovation', 'Governance & Society'],
+    debateExperience: 'Youth parliament and debating forum participant.',
+    motivation: 'Eager to debate digital policy and sustainable governance with global delegates.',
+    status: 'Approved - Awaiting Registration',
+    date: '2024-10-08'
+  },
   {
     id: 'app_01',
     name: 'Farhan Nadeem',
@@ -14,7 +54,7 @@ let globalApplications = [
     interests: ['Global Affairs', 'Governance & Society'],
     debateExperience: 'Debater at National Schools Championship Pakistan, 3 years parliamentary format.',
     motivation: 'I want to build cross-border intellectual ties with fellow youth who care about sustainable governance and international diplomacy.',
-    status: 'Pending',
+    status: 'Approved - Awaiting Registration',
     date: '2024-10-06'
   },
   {
@@ -62,17 +102,49 @@ let globalApplications = [
     interests: ['Peace & Conflict', 'Global Affairs'],
     debateExperience: 'Singapore WSDC youth delegation finalist, 4 years competitive debate.',
     motivation: 'Excited to engage with international thinkers on geopolitical mediation and publish collaborative youth research papers.',
-    status: 'Pending',
+    status: 'Approved - Awaiting Registration',
     date: '2024-10-08'
   }
 ];
+
+function loadSavedApplications() {
+  for (const filePath of [TMP_FILE, LOCAL_FILE]) {
+    try {
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        const list = JSON.parse(raw);
+        if (Array.isArray(list) && list.length > 0) {
+          // Merge with globalApplications
+          list.forEach(rApp => {
+            const idx = globalApplications.findIndex(a => a.id === rApp.id || (a.email && a.email.toLowerCase() === (rApp.email || '').toLowerCase()));
+            if (idx >= 0) {
+              globalApplications[idx] = { ...globalApplications[idx], ...rApp };
+            } else {
+              globalApplications.unshift(rApp);
+            }
+          });
+        }
+      }
+    } catch (e) {}
+  }
+}
+
+function persistApplications() {
+  for (const filePath of [TMP_FILE, LOCAL_FILE]) {
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(globalApplications, null, 2), 'utf8');
+    } catch (e) {}
+  }
+}
+
+// Initial load on start
+loadSavedApplications();
 
 function sendAdminNotification(app) {
   const user = 'riswankckd@gmail.com';
   const pass = 'avkfjotmlvwkavgv';
   const host = 'smtp.gmail.com';
   const port = 465;
-  const adminRecipients = ['3681mubashircp@gmail.com', 'riswankckd@gmail.com'];
 
   return new Promise((resolve) => {
     try {
@@ -99,7 +171,6 @@ function sendAdminNotification(app) {
           socket.write(`MAIL FROM:<${user}>\r\n`);
         } else if (step === 5 && reply.startsWith('250')) {
           step = 6;
-          // Send to primary admin
           socket.write(`RCPT TO:<3681mubashircp@gmail.com>\r\n`);
         } else if (step === 6 && reply.startsWith('250')) {
           step = 7;
@@ -150,18 +221,20 @@ function sendAdminNotification(app) {
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
+  loadSavedApplications();
+
   if (req.method === 'GET') {
     return res.status(200).json(globalApplications);
   }
 
-  if (req.method === 'POST') {
+  if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
     try {
       let body = req.body;
       if (typeof body === 'string') {
@@ -169,6 +242,30 @@ module.exports = async function handler(req, res) {
       }
       body = body || {};
 
+      // Handle Status Updates from Coordinator Dashboard (e.g. Approved / Rejected)
+      if (body.action === 'updateStatus' || (body.status && (body.id || body.email))) {
+        const targetId = (body.id || '').trim();
+        const targetEmail = (body.email || '').trim().toLowerCase();
+        const newStatus = body.status;
+
+        const match = globalApplications.find(a => 
+          (targetId && a.id === targetId) || 
+          (targetEmail && a.email && a.email.toLowerCase().trim() === targetEmail)
+        );
+
+        if (match) {
+          match.status = newStatus;
+          persistApplications();
+          return res.status(200).json({
+            success: true,
+            message: `Application status updated to "${newStatus}"`,
+            application: match
+          });
+        }
+        return res.status(404).json({ error: 'Application not found to update.' });
+      }
+
+      // Handle New Application Submission
       const name = (body.name || '').trim();
       const email = (body.email || '').trim();
       const country = (body.country || 'Global').trim();
@@ -191,12 +288,14 @@ module.exports = async function handler(req, res) {
       };
 
       // Check if duplicate email exists
-      const existingIdx = globalApplications.findIndex(a => a.email.toLowerCase() === email.toLowerCase());
+      const existingIdx = globalApplications.findIndex(a => a.email.toLowerCase().trim() === email.toLowerCase());
       if (existingIdx >= 0) {
         globalApplications[existingIdx] = { ...globalApplications[existingIdx], ...newApp };
       } else {
         globalApplications.unshift(newApp);
       }
+
+      persistApplications();
 
       // Asynchronously notify coordinator via email
       sendAdminNotification(newApp).catch(() => {});
