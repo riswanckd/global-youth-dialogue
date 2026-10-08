@@ -958,28 +958,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleApprovedApplicantClick() {
-    let pending = authService.checkApprovedApplicant();
-    if (!pending || !pending.email) {
-      pending = authService.getPendingRegistration();
-    }
-    if (!pending || !pending.email) {
-      const apps = dataService ? (dataService.getApplications() || []) : [];
-      const users = dataService ? (dataService.getUsers() || []) : [];
-      const approved = apps.filter(a => {
-        const isApp = (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
-        if (!isApp) return false;
-        const alreadyReg = users.some(u => u.email && u.email.toLowerCase() === a.email.toLowerCase() && u.status === 'active' && u.password);
-        return !alreadyReg;
-      });
-      if (approved.length > 0) {
-        authService.setPendingRegistration(approved[0]);
-        pending = authService.getPendingRegistration();
-      }
-    }
-
+    const banner = document.getElementById('approvedApplicantBanner');
+    const pending = authService.checkApprovedApplicant();
     if (pending && pending.email) {
       closeModal('authModal');
       openSignupModal(pending);
+      return;
+    }
+
+    // Check if the user is already registered in users list
+    const users = dataService ? (dataService.getUsers() || []) : [];
+    const appliedEmail = (function() {
+      try { return localStorage.getItem('gyd_applied_email'); } catch (e) { return null; }
+    })();
+
+    if (appliedEmail && users.some(u => u.email && u.email.toLowerCase().trim() === appliedEmail.toLowerCase().trim())) {
+      if (banner) banner.style.display = 'none';
+      showToast('You have already registered your account! Please sign in with your email and password.', 'success');
       return;
     }
 
@@ -988,14 +983,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (emailPrompt && emailPrompt.trim()) {
       const email = emailPrompt.trim().toLowerCase();
       const apps = dataService ? (dataService.getApplications() || []) : [];
-      const app = apps.find(a => a.email && a.email.toLowerCase() === email);
+      const app = apps.find(a => a.email && a.email.toLowerCase().trim() === email);
+      const isAlreadyUser = users.some(u => u.email && u.email.toLowerCase().trim() === email);
+
+      if (isAlreadyUser || (app && app.status === 'Registered')) {
+        if (banner) banner.style.display = 'none';
+        showToast('Your membership is already registered! Please sign in with your email and password.', 'success');
+        return;
+      }
+
       if (app) {
         if (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration') {
           authService.setPendingRegistration(app);
           closeModal('authModal');
           openSignupModal(app);
-        } else if (app.status === 'Registered') {
-          showToast('Your membership is already registered! Please sign in with your email and password.', 'normal');
         } else {
           showToast(`Your application status is "${app.status}". A Coordinator must approve it first.`, 'warning');
         }
@@ -1006,15 +1007,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkApprovedVisitorRedirect() {
+    const banner = document.getElementById('approvedApplicantBanner');
     const currentUser = authService.getCurrentUser();
-    if (currentUser && currentUser.role === 'Member') return;
+    if (currentUser) {
+      if (banner) banner.style.display = 'none';
+      return;
+    }
 
     const pending = authService.checkApprovedApplicant();
     if (pending && pending.email) {
-      const banner = document.getElementById('approvedApplicantBanner');
-      const bannerMsg = document.getElementById('approvedApplicantBannerMsg');
+      // Extra safety: check if this pending email is already registered in users
+      const users = dataService ? (dataService.getUsers() || []) : [];
+      const isAlreadyUser = users.some(u => u.email && u.email.toLowerCase().trim() === pending.email.toLowerCase().trim());
+      if (isAlreadyUser) {
+        authService.clearPendingRegistration();
+        try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
+        if (banner) banner.style.display = 'none';
+        return;
+      }
+
+      // Not signed up yet -> show banner and auto-open signup modal
       if (banner) {
         banner.style.display = 'block';
+        const bannerMsg = document.getElementById('approvedApplicantBannerMsg');
         if (bannerMsg) {
           bannerMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Complete your registration to activate your account.`;
         }
@@ -1022,6 +1037,9 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         openSignupModal(pending);
       }, 400);
+    } else {
+      // User is already signed up or no approved application -> HIDE BANNER!
+      if (banner) banner.style.display = 'none';
     }
   }
 
@@ -1167,6 +1185,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Register active Member in dataService
     const newUser = dataService.registerUserFromSignup(currentSignupData);
     closeModal('signupModal');
+
+    // Clean up all pending tokens and explicitly hide approved applicant banner
+    authService.clearPendingRegistration();
+    try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
+    const banner = document.getElementById('approvedApplicantBanner');
+    if (banner) banner.style.display = 'none';
 
     // Automatically log in the newly activated member into the Member Portal
     const loginRes = authService.login(newUser.email, currentSignupData.password, 'member');

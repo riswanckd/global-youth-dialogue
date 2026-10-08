@@ -246,37 +246,67 @@ class AuthService {
    * Returns the pending reg data if found AND the application is Approved in the DB.
    */
   checkApprovedApplicant() {
-    // Already have an active Member session -> no need to sign up
-    if (this.currentUser && this.currentUser.role === 'Member') return null;
+    // If user is currently logged in, they don't need signup prompt
+    if (this.currentUser) return null;
+
+    const getUsersList = () => {
+      try {
+        if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
+          return window.GYD_DATA.getUsers() || [];
+        }
+      } catch (e) {}
+      return [];
+    };
+
+    const isEmailRegistered = (email) => {
+      if (!email) return false;
+      const clean = email.toLowerCase().trim();
+      const users = getUsersList();
+      return users.some(u => u.email && u.email.toLowerCase().trim() === clean);
+    };
 
     let pending = this.getPendingRegistration();
 
-    // If no direct pending object, check if this browser applied with an email
+    // If pending is already registered, clean up immediately and return null
+    if (pending && pending.email && isEmailRegistered(pending.email)) {
+      this.clearPendingRegistration();
+      try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
+      pending = null;
+    }
+
+    // Check applied email
     if (!pending || !pending.email) {
       try {
         const appliedEmail = localStorage.getItem('gyd_applied_email');
-        if (appliedEmail && window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
-          const apps = window.GYD_DATA.getApplications() || [];
-          const app = apps.find(a => a.email && a.email.toLowerCase() === appliedEmail.toLowerCase());
-          if (app && (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration')) {
-            this.setPendingRegistration(app);
-            pending = this.getPendingRegistration();
+        if (appliedEmail) {
+          if (isEmailRegistered(appliedEmail)) {
+            localStorage.removeItem('gyd_applied_email');
+            this.clearPendingRegistration();
+            return null;
+          }
+
+          if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
+            const apps = window.GYD_DATA.getApplications() || [];
+            const clean = appliedEmail.toLowerCase().trim();
+            const app = apps.find(a => a.email && a.email.toLowerCase().trim() === clean && (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration'));
+            if (app) {
+              this.setPendingRegistration(app);
+              pending = this.getPendingRegistration();
+            }
           }
         }
       } catch (e) {}
     }
 
-    // If still no pending, check if any application in DB is currently Approved & awaiting registration
+    // If still no pending, check if any application in DB is currently Approved & NOT in users list
     if (!pending || !pending.email) {
       try {
         if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
           const apps = window.GYD_DATA.getApplications() || [];
-          const users = (typeof window.GYD_DATA.getUsers === 'function') ? (window.GYD_DATA.getUsers() || []) : [];
           const approved = apps.filter(a => {
             const isApproved = (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
             if (!isApproved) return false;
-            const alreadyReg = users.some(u => u.email && u.email.toLowerCase() === a.email.toLowerCase() && u.status === 'active' && u.password);
-            return !alreadyReg;
+            return !isEmailRegistered(a.email);
           });
           if (approved.length > 0) {
             this.setPendingRegistration(approved[0]);
@@ -288,21 +318,17 @@ class AuthService {
 
     if (!pending || !pending.email) return null;
 
-    // Check if this email already has a completed account (registered)
-    if (window.GYD_DATA && typeof window.GYD_DATA.getUsers === 'function') {
-      const users = window.GYD_DATA.getUsers() || [];
-      const existingUser = users.find(u => u.email && u.email.toLowerCase() === pending.email.toLowerCase() && u.status === 'active' && u.password);
-      if (existingUser) {
-        // Already registered — clean up token
-        this.clearPendingRegistration();
-        return null;
-      }
+    // Final safety check: if already registered, clear and return null
+    if (isEmailRegistered(pending.email)) {
+      this.clearPendingRegistration();
+      try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
+      return null;
     }
 
-    // Verify the application is approved in the DB
+    // Verify the application status in DB
     if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
       const apps = window.GYD_DATA.getApplications() || [];
-      const app = apps.find(a => a.email && a.email.toLowerCase() === pending.email.toLowerCase());
+      const app = apps.find(a => a.email && a.email.toLowerCase().trim() === pending.email.toLowerCase().trim());
       if (app && (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration')) {
         return pending;
       }

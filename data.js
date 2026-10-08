@@ -1705,16 +1705,23 @@ class DataService {
       this.db.users.push(newUser);
     }
 
-    // Update application status to 'Registered'
-    const app = this.db.applications.find(a => a.email && a.email.toLowerCase() === email.toLowerCase());
-    if (app) {
-      app.status = 'Registered';
+    // Mark all matching applications for this email as 'Registered'
+    const cleanEmail = email.toLowerCase().trim();
+    if (Array.isArray(this.db.applications)) {
+      this.db.applications.forEach(a => {
+        if (a.email && a.email.toLowerCase().trim() === cleanEmail) {
+          a.status = 'Registered';
+        }
+      });
     }
 
-    // Clean up applied email & pending registration
+    // Clean up applied email & pending registration tokens
     try {
       localStorage.removeItem('gyd_applied_email');
       localStorage.removeItem('gyd_pending_registration');
+      if (window.GYD_AUTH && typeof window.GYD_AUTH.clearPendingRegistration === 'function') {
+        window.GYD_AUTH.clearPendingRegistration();
+      }
     } catch (e) {}
 
     this.saveDatabase();
