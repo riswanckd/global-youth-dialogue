@@ -4874,8 +4874,16 @@ body.rtl-mode .mobile-nav-drawer {
   }
 
   .hero-meta-grid {
-    margin: 0 auto;
-    max-width: 440px;
+    margin: 0 auto !important;
+    max-width: 440px !important;
+    width: 100% !important;
+    justify-items: center !important;
+    justify-content: center !important;
+  }
+  .hero-meta-item {
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
   }
 
   /* Photo Collage scaled gracefully for mobile */
@@ -5474,7 +5482,19 @@ body.rtl-mode .mobile-nav-drawer {
   .hero-title { font-size: 1.22rem !important; line-height: 1.22; }
   .hero-subtitle-lead { font-size: 0.8rem; }
   .hero-subtext { font-size: 0.74rem; margin-bottom: 0.85rem; }
-  .hero-meta-grid { grid-template-columns: 1fr !important; gap: 0.35rem; }
+  .hero-meta-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.35rem !important;
+    justify-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+  .hero-meta-item {
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
 
   /* Photo Collage on small phones */
   .hero-collage-grid {
@@ -6491,6 +6511,36 @@ body.rtl-mode .topic-bank-card-title-ar {
   .hero-grid {
     grid-template-columns: 1fr;
     gap: 3rem;
+  }
+  .hero-content {
+    align-items: center !important;
+    text-align: center !important;
+  }
+  .hero-eyebrow {
+    justify-content: center !important;
+  }
+  .hero-title {
+    text-align: center !important;
+  }
+  .hero-subtitle-lead {
+    text-align: center !important;
+  }
+  .hero-subtext {
+    text-align: center !important;
+    margin-inline: auto !important;
+  }
+  .hero-actions {
+    justify-content: center !important;
+    margin-inline: auto !important;
+  }
+  .hero-meta-grid {
+    margin: 0 auto !important;
+    justify-content: center !important;
+    justify-items: center !important;
+  }
+  .hero-meta-item {
+    justify-content: center !important;
+    text-align: center !important;
   }
 }
 
