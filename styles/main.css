@@ -6342,6 +6342,18 @@ body.rtl-mode .topic-bank-card-title-ar {
   line-height: 1;
   border: 2px solid var(--bg-surface, #ffffff);
   z-index: 2;
+  overflow: hidden;
+}
+
+.profile-avatar-flag-badge .flag-svg,
+.profile-avatar-flag-badge img.flag-svg {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  display: block;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .profile-avatar-flag-badge {

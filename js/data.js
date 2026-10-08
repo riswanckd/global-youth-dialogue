@@ -15,8 +15,8 @@ const INITIAL_DATABASE = {
       password: '368136',
       role: 'Coordinator',
       department: 'Executive Leadership & Administration',
-      country: 'Qatar',
-      flag: 'QA',
+      country: 'India',
+      flag: 'IN',
       bio: 'Executive Director & Chief Platform Administrator, Global Youth Dialogue & Exchange (GYDE).',
       interests: ['Global Affairs', 'Governance & Society', 'Technology & AI', 'Education'],
       status: 'active',
@@ -1285,8 +1285,8 @@ class DataService {
       password: '368136',
       role: 'Coordinator',
       department: 'Executive Leadership & Administration',
-      country: 'Qatar',
-      flag: 'QA',
+      country: 'India',
+      flag: 'IN',
       bio: 'Executive Director & Chief Platform Administrator, Global Youth Dialogue & Exchange (GYDE).',
       interests: ['Global Affairs', 'Governance & Society', 'Technology & AI', 'Education'],
       status: 'active',
@@ -2139,8 +2139,8 @@ class DataService {
     const user = this.db.users.find(u => u.id === userId) || this.db.users.find(u => u.role === 'Speaker') || this.db.users[0] || {
       id: 'usr_admin_mubashir',
       name: 'Mubashir CP',
-      country: 'Qatar',
-      flag: 'QA',
+      country: 'India',
+      flag: 'IN',
       role: 'Coordinator'
     };
     return {

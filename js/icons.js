@@ -147,9 +147,13 @@ GYD_ICONS['trending-up'] = GYD_ICONS.trendingUp;
 
 // Vector SVG Flags (High-contrast, responsive, crisp across all OSs)
 GYD_ICONS.flags = {
-  QA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6H0z"/></svg>`,
+  QA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Qatar"><path fill="#8A1538" d="M0 0h640v480H0z"/><path fill="#ffffff" d="M0 0h160l60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.7-60 26.6 60 26.7-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6-60 26.7 60 26.6H0z"/></svg>`,
+
+  IN: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="India"><path fill="#FF9933" d="M0 0h640v160H0z"/><path fill="#FFFFFF" d="M0 160h640v160H0z"/><path fill="#128807" d="M0 320h640v160H0z"/><circle cx="320" cy="240" r="52" fill="none" stroke="#000080" stroke-width="5"/><circle cx="320" cy="240" r="10" fill="#000080"/><g stroke="#000080" stroke-width="2.5"><line x1="320" y1="188" x2="320" y2="292"/><line x1="268" y1="240" x2="372" y2="240"/><line x1="283" y1="203" x2="357" y2="277"/><line x1="357" y1="203" x2="283" y2="277"/><line x1="270" y1="220" x2="370" y2="260"/><line x1="270" y1="260" x2="370" y2="220"/><line x1="300" y1="189" x2="340" y2="291"/><line x1="340" y1="189" x2="300" y2="291"/><line x1="276" y1="209" x2="364" y2="271"/><line x1="276" y1="271" x2="364" y2="209"/><line x1="310" y1="188" x2="330" y2="292"/><line x1="330" y1="188" x2="310" y2="292"/></g></svg>`,
 
   GB: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United Kingdom"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#FFF" d="m75 0 245 180L565 0h75v60L440 240l200 150v90h-75L320 300 75 480H0v-60l200-150L0 60V0z"/><path fill="#C8102E" d="m424 288 216 162v30L384 300zm-208-96L0 30V0l256 180zM640 0v30L400 210h40L640 30zM0 450v30l240-180h-40z"/><path fill="#FFF" d="M240 0h160v480H240zM0 160h640v160H0z"/><path fill="#C8102E" d="M272 0h96v480h-96zM0 192h640v96H0z"/></svg>`,
+
+  US: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United States"><path fill="#b22234" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 37h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0z"/><path fill="#3c3b6e" d="M0 0h280v259H0z"/><circle cx="50" cy="40" r="7" fill="#fff"/><circle cx="100" cy="40" r="7" fill="#fff"/><circle cx="150" cy="40" r="7" fill="#fff"/><circle cx="200" cy="40" r="7" fill="#fff"/><circle cx="75" cy="80" r="7" fill="#fff"/><circle cx="125" cy="80" r="7" fill="#fff"/><circle cx="175" cy="80" r="7" fill="#fff"/><circle cx="50" cy="120" r="7" fill="#fff"/><circle cx="100" cy="120" r="7" fill="#fff"/><circle cx="150" cy="120" r="7" fill="#fff"/><circle cx="200" cy="120" r="7" fill="#fff"/><circle cx="75" cy="160" r="7" fill="#fff"/><circle cx="125" cy="160" r="7" fill="#fff"/><circle cx="175" cy="160" r="7" fill="#fff"/><circle cx="50" cy="200" r="7" fill="#fff"/><circle cx="100" cy="200" r="7" fill="#fff"/><circle cx="150" cy="200" r="7" fill="#fff"/><circle cx="200" cy="200" r="7" fill="#fff"/></svg>`,
 
   SG: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Singapore"><path fill="#ed2939" d="M0 0h640v240H0z"/><path fill="#fff" d="M0 240h640v240H0z"/><path fill="#fff" d="M172 120a64 64 0 1 0 0 .1 64 64 0 0 0 0-.1zm-14 0a52 52 0 1 1 52-52 52 52 0 0 1-52 52z"/><circle cx="178" cy="85" r="9" fill="#fff"/><circle cx="204" cy="103" r="9" fill="#fff"/><circle cx="194" cy="133" r="9" fill="#fff"/><circle cx="162" cy="133" r="9" fill="#fff"/><circle cx="152" cy="103" r="9" fill="#fff"/></svg>`,
 
@@ -167,45 +171,202 @@ GYD_ICONS.flags = {
 
   KE: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Kenya"><path fill="#006600" d="M0 320h640v160H0z"/><path fill="#fff" d="M0 148h640v184H0z"/><path fill="#990000" d="M0 168h640v144H0z"/><path fill="#000" d="M0 0h640v148H0z"/><ellipse cx="320" cy="240" rx="36" ry="60" fill="#990000" stroke="#fff" stroke-width="4"/><circle cx="320" cy="240" r="10" fill="#fff"/></svg>`,
 
-  US: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United States"><path fill="#b22234" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 37h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0zm0 74h640v37H0z"/><path fill="#3c3b6e" d="M0 0h280v259H0z"/><circle cx="50" cy="40" r="7" fill="#fff"/><circle cx="100" cy="40" r="7" fill="#fff"/><circle cx="150" cy="40" r="7" fill="#fff"/><circle cx="200" cy="40" r="7" fill="#fff"/><circle cx="75" cy="80" r="7" fill="#fff"/><circle cx="125" cy="80" r="7" fill="#fff"/><circle cx="175" cy="80" r="7" fill="#fff"/><circle cx="50" cy="120" r="7" fill="#fff"/><circle cx="100" cy="120" r="7" fill="#fff"/><circle cx="150" cy="120" r="7" fill="#fff"/><circle cx="200" cy="120" r="7" fill="#fff"/><circle cx="75" cy="160" r="7" fill="#fff"/><circle cx="125" cy="160" r="7" fill="#fff"/><circle cx="175" cy="160" r="7" fill="#fff"/><circle cx="50" cy="200" r="7" fill="#fff"/><circle cx="100" cy="200" r="7" fill="#fff"/><circle cx="150" cy="200" r="7" fill="#fff"/><circle cx="200" cy="200" r="7" fill="#fff"/></svg>`,
+  CA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Canada"><path fill="#d80027" d="M0 0h160v480H0zm480 0h160v480H480z"/><path fill="#fff" d="M160 0h320v480H160z"/><path fill="#d80027" d="m320 90 18 48 38-16-10 40 42 12-28 28 32 30-48 10 2 50-36-28-10 66h-10l-10-66-36 28 2-50-48-10 32-30-28-28 42-12-10-40 38 16z"/></svg>`,
+
+  AU: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Australia"><path fill="#00008b" d="M0 0h640v480H0z"/><path fill="#fff" d="m0 0 160 120M160 0 0 120" stroke="#fff" stroke-width="24"/><path fill="#c8102e" d="m0 0 160 120M160 0 0 120" stroke="#c8102e" stroke-width="12"/><path fill="#fff" d="M80 0v120M0 60h160" stroke="#fff" stroke-width="36"/><path fill="#c8102e" d="M80 0v120M0 60h160" stroke="#c8102e" stroke-width="20"/><circle cx="160" cy="360" r="32" fill="#fff"/><circle cx="480" cy="120" r="16" fill="#fff"/><circle cx="560" cy="200" r="16" fill="#fff"/><circle cx="480" cy="380" r="16" fill="#fff"/><circle cx="420" cy="240" r="16" fill="#fff"/><circle cx="510" cy="280" r="10" fill="#fff"/></svg>`,
+
+  DE: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Germany"><path fill="#000" d="M0 0h640v160H0z"/><path fill="#dd0000" d="M0 160h640v160H0z"/><path fill="#ffce00" d="M0 320h640v160H0z"/></svg>`,
+
+  FR: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="France"><path fill="#002395" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ed2939" d="M426.7 0H640v480H426.7z"/></svg>`,
+
+  SA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Saudi Arabia"><path fill="#006c35" d="M0 0h640v480H0z"/><path fill="#fff" d="M140 310h360v16H140zm20 0-40 8 40 8zm320-16 20 24-20 24z"/><text x="320" y="240" fill="#fff" font-size="64" font-family="sans-serif" font-weight="bold" text-anchor="middle">لا إله إلا الله</text></svg>`,
+
+  AE: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="United Arab Emirates"><path fill="#00732f" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#000" d="M0 320h640v160H0z"/><path fill="#f00" d="M0 0h160v480H0z"/></svg>`,
+
+  TR: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Turkey"><path fill="#e30a17" d="M0 0h640v480H0z"/><circle cx="260" cy="240" r="120" fill="#fff"/><circle cx="290" cy="240" r="96" fill="#e30a17"/><polygon fill="#fff" points="380,240 440,260 410,200 410,280 440,220"/></svg>`,
+
+  EG: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Egypt"><path fill="#c8102e" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#000" d="M0 320h640v160H0z"/><circle cx="320" cy="240" r="30" fill="#c09339"/></svg>`,
+
+  PS: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Palestine"><path fill="#000" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#007a3d" d="M0 320h640v160H0z"/><polygon fill="#e4312b" points="0,0 240,240 0,480"/></svg>`,
+
+  MY: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Malaysia"><path fill="#cc0000" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 34h640v34H0zm0 68h640v34H0zm0 68h640v34H0zm0 68h640v34H0zm0 68h640v34H0zm0 68h640v34H0zm0 68h640v34H0z"/><path fill="#000066" d="M0 0h320v272H0z"/><circle cx="160" cy="136" r="68" fill="#ffcc00"/><circle cx="180" cy="136" r="56" fill="#000066"/><circle cx="210" cy="136" r="36" fill="#ffcc00"/></svg>`,
+
+  NG: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Nigeria"><path fill="#008751" d="M0 0h213.3v480H0zm426.7 0H640v480H426.7z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/></svg>`,
+
+  BR: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Brazil"><path fill="#009b3a" d="M0 0h640v480H0z"/><polygon fill="#fedf00" points="320,40 600,240 320,440 40,240"/><circle cx="320" cy="240" r="90" fill="#002776"/><path fill="#fff" d="M232 245a90 90 0 0 1 176 -10 90 90 0 0 0 -176 10z"/></svg>`,
+
+  JP: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Japan"><path fill="#fff" d="M0 0h640v480H0z"/><circle cx="320" cy="240" r="120" fill="#bc002d"/></svg>`,
+
+  CN: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="China"><path fill="#ee1c25" d="M0 0h640v480H0z"/><polygon fill="#ffff00" points="100,50 115,95 160,95 125,120 140,165 100,140 60,165 75,120 40,95 85,95"/></svg>`,
+
+  ID: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Indonesia"><path fill="#ff0000" d="M0 0h640v240H0z"/><path fill="#ffffff" d="M0 240h640v240H0z"/></svg>`,
+
+  KW: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Kuwait"><path fill="#007a3d" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#ce1126" d="M0 320h640v160H0z"/><polygon fill="#000" points="0,0 160,160 160,320 0,480"/></svg>`,
+
+  OM: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Oman"><path fill="#fff" d="M0 0h640v160H0z"/><path fill="#db161b" d="M0 160h640v160H0z"/><path fill="#008000" d="M0 320h640v160H0z"/><path fill="#db161b" d="M0 0h160v480H0z"/></svg>`,
+
+  MA: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Morocco"><path fill="#c1272d" d="M0 0h640v480H0z"/><polygon fill="none" stroke="#006233" stroke-width="12" points="320,150 360,270 260,195 380,195 280,270"/></svg>`,
+
+  BD: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Bangladesh"><path fill="#006a4e" d="M0 0h640v480H0z"/><circle cx="280" cy="240" r="130" fill="#f42a41"/></svg>`,
+
+  LK: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Sri Lanka"><path fill="#ffbe29" d="M0 0h640v480H0z"/><path fill="#00534e" d="M30 30h90v420H30z"/><path fill="#eb7400" d="M120 30h90v420H120z"/><path fill="#8d153a" d="M230 30h380v420H230z"/><circle cx="420" cy="240" r="50" fill="#ffbe29"/></svg>`,
+
+  IT: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Italy"><path fill="#009246" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce2b37" d="M426.7 0H640v480H426.7z"/></svg>`,
+
+  ES: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Spain"><path fill="#aa151b" d="M0 0h640v120H0zm0 360h640v120H0z"/><path fill="#f1bf00" d="M0 120h640v240H0z"/><circle cx="180" cy="240" r="40" fill="#aa151b"/></svg>`,
+
+  RU: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="Russia"><path fill="#fff" d="M0 0h640v160H0z"/><path fill="#0039a6" d="M0 160h640v160H0z"/><path fill="#d52b1e" d="M0 320h640v160H0z"/></svg>`,
+
+  NZ: `<svg class="flag-svg" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" aria-label="New Zealand"><path fill="#00247d" d="M0 0h640v480H0z"/><path fill="#fff" d="m0 0 160 120M160 0 0 120" stroke="#fff" stroke-width="24"/><path fill="#cc142b" d="m0 0 160 120M160 0 0 120" stroke="#cc142b" stroke-width="12"/><path fill="#fff" d="M80 0v120M0 60h160" stroke="#fff" stroke-width="36"/><path fill="#cc142b" d="M80 0v120M0 60h160" stroke="#cc142b" stroke-width="20"/><circle cx="480" cy="140" r="14" fill="#cc142b" stroke="#fff" stroke-width="4"/><circle cx="540" cy="210" r="12" fill="#cc142b" stroke="#fff" stroke-width="4"/><circle cx="480" cy="340" r="14" fill="#cc142b" stroke="#fff" stroke-width="4"/><circle cx="430" cy="240" r="12" fill="#cc142b" stroke="#fff" stroke-width="4"/></svg>`,
 
   INT: `<svg class="flag-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#2E7D5A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="background: rgba(46,125,90,0.12);" aria-label="International"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`
 };
 
-// Resolver helper to return a crisp vector SVG flag
+// Comprehensive mapping of country names, variants, and Arabic names to ISO-2 codes
+const GYD_COUNTRY_MAP = {
+  'india': 'IN', 'indian': 'IN', 'bharat': 'IN', 'hindustan': 'IN', 'الهند': 'IN',
+  'qatar': 'QA', 'qatari': 'QA', 'doha': 'QA', 'قطر': 'QA',
+  'united kingdom': 'GB', 'uk': 'GB', 'britain': 'GB', 'great britain': 'GB', 'england': 'GB', 'scotland': 'GB', 'wales': 'GB', 'british': 'GB', 'بريطانيا': 'GB', 'المملكة المتحدة': 'GB',
+  'united states': 'US', 'usa': 'US', 'us': 'US', 'america': 'US', 'american': 'US', 'united states of america': 'US', 'أمريكا': 'US', 'الولايات المتحدة': 'US',
+  'singapore': 'SG', 'singaporean': 'SG', 'سنغافورة': 'SG',
+  'ghana': 'GH', 'ghanaian': 'GH', 'غانا': 'GH',
+  'mexico': 'MX', 'mexican': 'MX', 'المكسيك': 'MX',
+  'jordan': 'JO', 'jordanian': 'JO', 'الأردن': 'JO', 'الاردن': 'JO',
+  'south africa': 'ZA', 'south african': 'ZA', 'جنوب أفريقيا': 'ZA', 'جنوب افريقيا': 'ZA',
+  'pakistan': 'PK', 'pakistani': 'PK', 'باكستان': 'PK',
+  'netherlands': 'NL', 'dutch': 'NL', 'holland': 'NL', 'هولندا': 'NL',
+  'kenya': 'KE', 'kenyan': 'KE', 'كينيا': 'KE',
+  'canada': 'CA', 'canadian': 'CA', 'كندا': 'CA',
+  'australia': 'AU', 'australian': 'AU', 'أستراليا': 'AU', 'استراليا': 'AU',
+  'germany': 'DE', 'german': 'DE', 'deutschland': 'DE', 'ألمانيا': 'DE', 'المانيا': 'DE',
+  'france': 'FR', 'french': 'FR', 'فرنسا': 'FR',
+  'turkey': 'TR', 'turkish': 'TR', 'türkiye': 'TR', 'turkiye': 'TR', 'تركيا': 'TR',
+  'saudi arabia': 'SA', 'saudi': 'SA', 'ksa': 'SA', 'المملكة العربية السعودية': 'SA', 'السعودية': 'SA',
+  'united arab emirates': 'AE', 'uae': 'AE', 'emirates': 'AE', 'dubai': 'AE', 'abu dhabi': 'AE', 'الإمارات': 'AE', 'الامارات': 'AE',
+  'kuwait': 'KW', 'kuwaiti': 'KW', 'الكويت': 'KW',
+  'oman': 'OM', 'omani': 'OM', 'عمان': 'OM', 'عُمان': 'OM',
+  'bahrain': 'BH', 'bahraini': 'BH', 'البحرين': 'BH',
+  'egypt': 'EG', 'egyptian': 'EG', 'مصر': 'EG',
+  'palestine': 'PS', 'palestinian': 'PS', 'فلسطين': 'PS',
+  'lebanon': 'LB', 'lebanese': 'LB', 'لبنان': 'LB',
+  'morocco': 'MA', 'moroccan': 'MA', 'المغرب': 'MA',
+  'malaysia': 'MY', 'malaysian': 'MY', 'ماليزيا': 'MY',
+  'indonesia': 'ID', 'indonesian': 'ID', 'إندونيسيا': 'ID', 'اندونيسيا': 'ID',
+  'nigeria': 'NG', 'nigerian': 'NG', 'نيجيريا': 'NG',
+  'tunisia': 'TN', 'tunisian': 'TN', 'تونس': 'TN',
+  'algeria': 'DZ', 'algerian': 'DZ', 'الجزائر': 'DZ',
+  'iraq': 'IQ', 'iraqi': 'IQ', 'العراق': 'IQ',
+  'syria': 'SY', 'syrian': 'SY', 'سوريا': 'SY',
+  'yemen': 'YE', 'yemeni': 'YE', 'اليمن': 'YE',
+  'sudan': 'SD', 'sudanese': 'SD', 'السودان': 'SD',
+  'brazil': 'BR', 'brazilian': 'BR', 'البرازيل': 'BR',
+  'japan': 'JP', 'japanese': 'JP', 'اليابان': 'JP',
+  'china': 'CN', 'chinese': 'CN', 'الصين': 'CN',
+  'bangladesh': 'BD', 'bangladeshi': 'BD', 'بنغلاديش': 'BD',
+  'sri lanka': 'LK', 'sri lankan': 'LK', 'سريلانكا': 'LK',
+  'nepal': 'NP', 'nepali': 'NP', 'نيبال': 'NP',
+  'philippines': 'PH', 'filipino': 'PH', 'الفلبين': 'PH',
+  'italy': 'IT', 'italian': 'IT', 'إيطاليا': 'IT', 'ايطاليا': 'IT',
+  'spain': 'ES', 'spanish': 'ES', 'إسبانيا': 'ES', 'اسبانيا': 'ES',
+  'russia': 'RU', 'russian': 'RU', 'روسيا': 'RU',
+  'new zealand': 'NZ', 'نيوزيلندا': 'NZ',
+  'argentina': 'AR', 'الأرجنتين': 'AR',
+  'ireland': 'IE', 'أيرلندا': 'IE',
+  'switzerland': 'CH', 'سويسرا': 'CH',
+  'sweden': 'SE', 'السويد': 'SE',
+  'norway': 'NO', 'النرويج': 'NO',
+  'denmark': 'DK', 'الدنمارك': 'DK',
+  'finland': 'FI', 'فنلندا': 'FI',
+  'poland': 'PL', 'بولندا': 'PL',
+  'portugal': 'PT', 'البرتغال': 'PT',
+  'belgium': 'BE', 'بلجيكا': 'BE',
+  'austria': 'AT', 'النمسا': 'AT',
+  'greece': 'GR', 'اليونان': 'GR',
+  'south korea': 'KR', 'korea': 'KR', 'كوريا الجنوبية': 'KR', 'كوريا': 'KR',
+  'thailand': 'TH', 'تايلاند': 'TH',
+  'vietnam': 'VN', 'فيتنام': 'VN',
+  'colombia': 'CO', 'كولومبيا': 'CO',
+  'chile': 'CL', 'تشيلي': 'CL',
+  'peru': 'PE', 'بيرو': 'PE',
+  'ethiopia': 'ET', 'إثيوبيا': 'ET',
+  'uganda': 'UG', 'أوغندا': 'UG',
+  'tanzania': 'TZ', 'تنزانيا': 'TZ',
+  'rwanda': 'RW', 'رواندا': 'RW',
+  'zimbabwe': 'ZW', 'زيمبابوي': 'ZW',
+  'zambia': 'ZM', 'زامبيا': 'ZM',
+  'somalia': 'SO', 'الصومال': 'SO',
+  'libya': 'LY', 'ليبيا': 'LY',
+  'afghanistan': 'AF', 'أفغانستان': 'AF',
+  'iran': 'IR', 'إيران': 'IR',
+  'ukraine': 'UA', 'أوكرانيا': 'UA'
+};
+
+// Resolver helper to convert country text, emoji, or code to standard ISO-2
+GYD_ICONS.resolveCountryCode = function(countryOrCode, fallbackFlag) {
+  function extractEmoji(str) {
+    if (!str) return null;
+    const chars = Array.from(String(str));
+    const codes = [];
+    for (const ch of chars) {
+      const cp = ch.codePointAt(0);
+      if (cp >= 0x1F1E6 && cp <= 0x1F1FF) {
+        codes.push(String.fromCharCode(cp - 0x1F1E6 + 65));
+      }
+    }
+    return codes.length === 2 ? codes.join('') : null;
+  }
+
+  // Check emoji flags in either parameter
+  const fromEmoji = extractEmoji(countryOrCode) || extractEmoji(fallbackFlag);
+  if (fromEmoji) return fromEmoji;
+
+  const raw = String(countryOrCode || '').trim();
+  const c = raw.toLowerCase();
+
+  // Pure 2-letter ISO code
+  if (/^[a-z]{2}$/i.test(c)) {
+    return c.toUpperCase();
+  }
+
+  // Direct map check
+  if (GYD_COUNTRY_MAP[c]) {
+    return GYD_COUNTRY_MAP[c];
+  }
+
+  // Substring match against dictionary
+  if (c.length > 2) {
+    for (const key of Object.keys(GYD_COUNTRY_MAP)) {
+      if (key.length > 2 && (c.includes(key) || key.includes(c))) {
+        return GYD_COUNTRY_MAP[key];
+      }
+    }
+  }
+
+  // Check fallbackFlag if 2-letter
+  if (fallbackFlag && /^[a-z]{2}$/i.test(String(fallbackFlag).trim())) {
+    return String(fallbackFlag).trim().toUpperCase();
+  }
+
+  return null;
+};
+
+// Universal flag renderer
 GYD_ICONS.getFlag = function(countryOrCode, fallbackFlag) {
   if (!countryOrCode && !fallbackFlag) return GYD_ICONS.flags.INT;
-  const c = String(countryOrCode || '').toLowerCase().trim();
   
-  if (c === 'qa' || c.includes('qatar') || c.includes('قطر')) return GYD_ICONS.flags.QA;
-  if (c === 'gb' || c === 'uk' || c.includes('united kingdom') || c.includes('britain') || c.includes('بريطانيا') || c.includes('المملكة المتحدة')) return GYD_ICONS.flags.GB;
-  if (c === 'sg' || c.includes('singapore') || c.includes('سنغافورة')) return GYD_ICONS.flags.SG;
-  if (c === 'gh' || c.includes('ghana') || c.includes('غانا')) return GYD_ICONS.flags.GH;
-  if (c === 'mx' || c.includes('mexico') || c.includes('المكسيك')) return GYD_ICONS.flags.MX;
-  if (c === 'jo' || c.includes('jordan') || c.includes('الأردن')) return GYD_ICONS.flags.JO;
-  if (c === 'za' || c.includes('south africa') || c.includes('جنوب أفريقيا')) return GYD_ICONS.flags.ZA;
-  if (c === 'pk' || c.includes('pakistan') || c.includes('باكستان')) return GYD_ICONS.flags.PK;
-  if (c === 'nl' || c.includes('netherlands') || c.includes('holland') || c.includes('هولندا')) return GYD_ICONS.flags.NL;
-  if (c === 'ke' || c.includes('kenya') || c.includes('كينيا')) return GYD_ICONS.flags.KE;
-  if (c === 'us' || c.includes('united states') || c.includes('usa') || c.includes('أمريكا')) return GYD_ICONS.flags.US;
-
-  // Check fallback emoji string if present
-  const fb = String(fallbackFlag || '');
-  if (fb.includes('🇶') || fb.includes('🇦')) return GYD_ICONS.flags.QA;
-  if (fb.includes('🇬') && fb.includes('🇧')) return GYD_ICONS.flags.GB;
-  if (fb.includes('🇸') && fb.includes('🇬')) return GYD_ICONS.flags.SG;
-  if (fb.includes('🇬') && fb.includes('🇭')) return GYD_ICONS.flags.GH;
-  if (fb.includes('🇲') && fb.includes('🇽')) return GYD_ICONS.flags.MX;
-  if (fb.includes('🇯') && fb.includes('🇴')) return GYD_ICONS.flags.JO;
-  if (fb.includes('🇿') && fb.includes('🇦')) return GYD_ICONS.flags.ZA;
-  if (fb.includes('🇵') && fb.includes('🇰')) return GYD_ICONS.flags.PK;
-  if (fb.includes('🇳') && fb.includes('🇱')) return GYD_ICONS.flags.NL;
-  if (fb.includes('🇰') && fb.includes('🇪')) return GYD_ICONS.flags.KE;
-  if (fb.includes('🇺') && fb.includes('🇸')) return GYD_ICONS.flags.US;
+  const code = GYD_ICONS.resolveCountryCode(countryOrCode, fallbackFlag);
+  if (code) {
+    if (GYD_ICONS.flags[code]) {
+      return GYD_ICONS.flags[code];
+    }
+    // Universal CDN fallback for any country in the world
+    const cLower = code.toLowerCase();
+    return `<img class="flag-svg" src="https://flagcdn.com/w80/${cLower}.png" alt="${code}" loading="lazy" onerror="this.outerHTML=GYD_ICONS.flags.INT;">`;
+  }
 
   return GYD_ICONS.flags.INT;
 };
 
+GYD_ICONS.resolveCode = GYD_ICONS.resolveCountryCode;
 window.GYD_ICONS = GYD_ICONS;
 window.icons = GYD_ICONS;
-

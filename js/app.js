@@ -3110,7 +3110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Subview: Presenter Dashboard
   function renderPresenterDashboardContent() {
-    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'India', flag: 'IN' };
     const presentations = dataService.getPresentations();
     const myPresentations = presentations.filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
     const sessions = dataService.getSessions();
@@ -3320,7 +3320,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) {
       form.onsubmit = (e) => {
         e.preventDefault();
-        const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+        const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'India', flag: 'IN' };
         const bankVal = bankSelect.value;
 
         if (!bankVal) {
@@ -3399,7 +3399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listEl = document.getElementById('presenterPipelineList');
     if (!listEl) return;
 
-    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'India', flag: 'IN' };
     const presentations = dataService.getPresentations();
     const myPres = presentations.filter(p => !p.presenterId || p.presenterId === user.id || p.presenterName === user.name);
 
@@ -3450,7 +3450,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Subview: My Presentations & Slide Decks
   function renderPresenterDecksView() {
-    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'India', flag: 'IN' };
     const searchInput = document.getElementById('presenterDecksSearch');
     const statusFilter = document.getElementById('presenterDecksStatusFilter');
     const listEl = document.getElementById('presenterDecksList');
@@ -3748,7 +3748,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="${portalType}AvatarInitial" class="profile-avatar-initial" style="${user.avatar ? 'display:none;' : 'display:flex;'}">
               <span class="avatar-letter">${getUserInitial(user.name)}</span>
             </div>
-            ${user.country ? `<span id="${portalType}AvatarFlagBadge" class="profile-avatar-flag-badge" title="${user.country}">${icons.getFlag(user.country, user.flag)}</span>` : ''}
+            ${user.country ? `<span id="${portalType}AvatarFlagBadge" class="profile-avatar-flag-badge" title="${user.country}">${icons.getFlag(user.country, user.flag)}</span>` : `<span id="${portalType}AvatarFlagBadge" class="profile-avatar-flag-badge" style="display:none;"></span>`}
           </div>
 
           <div style="flex: 1; min-width: 240px;">
@@ -3805,7 +3805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="form-group">
               <label class="form-label" for="${portalType}Country">Country of Residence / Chapter</label>
-              <input type="text" class="form-control" id="${portalType}Country" value="${user.country || ''}" placeholder="e.g. Qatar, Brazil, Ghana">
+              <input type="text" class="form-control" id="${portalType}Country" value="${user.country || ''}" placeholder="e.g. India, Qatar, Brazil, Ghana" oninput="window.handleProfileCountryInput(this.value, '${portalType}')">
             </div>
           </div>
         </div>
@@ -3982,6 +3982,9 @@ document.addEventListener('DOMContentLoaded', () => {
     user.lastName = lastName;
     user.name = `${firstName} ${lastName}`;
     user.country = country;
+    if (window.icons && window.icons.resolveCountryCode) {
+      user.flag = window.icons.resolveCountryCode(country) || user.flag;
+    }
 
     // Update avatar if pending change exists
     if (pendingAvatarData[portalType] !== undefined) {
@@ -4038,6 +4041,23 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Profile and security credentials updated successfully!', 'success');
   };
 
+  // Live profile country input handler for avatar flag badge
+  window.handleProfileCountryInput = function(val, portalType) {
+    const badge = document.getElementById(${portalType}AvatarFlagBadge);
+    if (!badge) return;
+    const trimmed = (val || '').trim();
+    if (!trimmed) {
+      badge.style.display = 'none';
+    } else {
+      badge.style.display = 'flex';
+      badge.title = trimmed;
+      if (window.icons && window.icons.getFlag) {
+        badge.innerHTML = window.icons.getFlag(trimmed);
+      }
+    }
+  };
+
+
   // Presenter Category Change Handler for "Other" category
   window.handlePresCategoryChange = function(selectEl) {
     const wrap = document.getElementById('presCustomCategoryWrap');
@@ -4059,7 +4079,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Subview: Presenter Academic Writings Studio
   function renderPresenterWritingsView() {
-    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'India', flag: 'IN' };
     const listEl = document.getElementById('presenterMyWritingsList');
     const badgeEl = document.getElementById('presMyWritingsBadge');
     const authorRoleInput = document.getElementById('presNewAuthorRole');
@@ -4138,7 +4158,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle Presenter Writing Submission
   window.handlePresenterWritingSubmit = function(event) {
     event.preventDefault();
-    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'Qatar', flag: 'QA' };
+    const user = authService.getCurrentUser() || { name: 'Mubashir CP', id: 'usr_admin_mubashir', email: '3681mubashircp@gmail.com', role: 'Coordinator', country: 'India', flag: 'IN' };
 
     const title = document.getElementById('presNewTitle')?.value.trim();
     const categorySelect = document.getElementById('presNewCategory')?.value;
