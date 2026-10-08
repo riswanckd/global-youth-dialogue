@@ -648,11 +648,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (viewSignIn) viewSignIn.style.display = 'block';
       window.scrollTo(0, 0);
+      setTimeout(() => checkApprovedVisitorRedirect(), 180);
     } else {
       activePortal = 'public';
       if (viewPublic) viewPublic.style.display = 'block';
       renderPublicPage();
       window.scrollTo(0, 0);
+      setTimeout(() => checkApprovedVisitorRedirect(), 300);
     }
 
     updateAuthHeaderUI();
@@ -861,6 +863,11 @@ document.addEventListener('DOMContentLoaded', () => {
     handleApprovedApplicantClick();
   });
 
+  document.getElementById('goToSignUpBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    handleApprovedApplicantClick();
+  });
+
   // -------------------------------------------------------------------------
   // 3-BUTTON SEGMENTED ROLE TAB SWITCHER (Member | Presenter | Admin)
   // -------------------------------------------------------------------------
@@ -957,7 +964,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (!pending || !pending.email) {
       const apps = dataService ? (dataService.getApplications() || []) : [];
-      const approved = apps.filter(a => a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
+      const users = dataService ? (dataService.getUsers() || []) : [];
+      const approved = apps.filter(a => {
+        const isApp = (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
+        if (!isApp) return false;
+        const alreadyReg = users.some(u => u.email && u.email.toLowerCase() === a.email.toLowerCase() && u.status === 'active' && u.password);
+        return !alreadyReg;
+      });
       if (approved.length > 0) {
         authService.setPendingRegistration(approved[0]);
         pending = authService.getPendingRegistration();
@@ -998,6 +1011,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pending = authService.checkApprovedApplicant();
     if (pending && pending.email) {
+      const banner = document.getElementById('approvedApplicantBanner');
+      const bannerMsg = document.getElementById('approvedApplicantBannerMsg');
+      if (banner) {
+        banner.style.display = 'block';
+        if (bannerMsg) {
+          bannerMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Complete your registration to activate your account.`;
+        }
+      }
       setTimeout(() => {
         openSignupModal(pending);
       }, 400);
@@ -1039,14 +1060,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentSignupData = { firstName, lastName, country, email, password };
 
-    // Generate simulated OTP
+    // Generate secure OTP
     const code = authService.generateOTP(email);
     const recipientEl = document.getElementById('otpRecipientEmail');
-    const codeEl = document.getElementById('simulatedOtpDisplay');
     const inputEl = document.getElementById('signupOtpInput');
 
     if (recipientEl) recipientEl.textContent = email;
-    if (codeEl) codeEl.textContent = code;
     if (inputEl) inputEl.value = '';
 
     // Switch to Step 2
@@ -1054,7 +1073,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signupOtpStep').style.display = 'block';
     if (inputEl) inputEl.focus();
 
-    showToast(`Verification code generated: ${code}`, 'normal');
+    // Dispatch verification email to applicant's inbox
+    const applicantName = `${firstName} ${lastName}`.trim() || 'Applicant';
+    authService.sendOTPEmail(email, code, applicantName);
+
+    showToast(`Verification code sent to ${email}. Please check your inbox or spam folder.`, 'success');
   });
 
   // Back button to details step
@@ -1067,9 +1090,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('signupOtpResendBtn')?.addEventListener('click', () => {
     if (!currentSignupData || !currentSignupData.email) return;
     const code = authService.generateOTP(currentSignupData.email);
-    const codeEl = document.getElementById('simulatedOtpDisplay');
-    if (codeEl) codeEl.textContent = code;
-    showToast(`New verification code sent: ${code}`, 'success');
+    const applicantName = `${currentSignupData.firstName || ''} ${currentSignupData.lastName || ''}`.trim() || 'Applicant';
+    authService.sendOTPEmail(currentSignupData.email, code, applicantName);
+    showToast(`A new verification code has been dispatched to ${currentSignupData.email}.`, 'success');
   });
 
   // Step 2: OTP Verification & Final Registration
@@ -4165,55 +4188,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // Delete All Trial Data Handlers
-    document.querySelectorAll('.btn-sidebar-delete-trial, .btn-delete-trial-data, #btnDeleteTrialData, #coordSidebarDeleteTrialBtn, #memberSidebarDeleteTrialBtn, #presenterSidebarDeleteTrialBtn').forEach(btn => {
-      btn.onclick = () => openModal('deleteTrialModal');
-    });
-
-    const confirmDeleteBtn = document.getElementById('btnConfirmDeleteTrial');
-    if (confirmDeleteBtn) {
-      confirmDeleteBtn.onclick = () => {
-        if (dataService && typeof dataService.clearTrialData === 'function') {
-          dataService.clearTrialData();
-        } else if (dataService && typeof dataService.resetToDefault === 'function') {
-          dataService.resetToDefault();
-        }
-
-        // Set active session strictly to Administrator Mubashir CP
-        const adminUser = (dataService && typeof dataService.getUsers === 'function' ? dataService.getUsers() : []).find(u => 
-          (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
-        ) || {
-          id: 'usr_admin_mubashir',
-          name: 'Mubashir CP',
-          email: '3681mubashircp@gmail.com',
-          role: 'Coordinator',
-          department: 'Executive Leadership & Administration',
-          country: 'Qatar',
-          flag: 'QA'
-        };
-        if (authService && typeof authService.saveSession === 'function') {
-          authService.saveSession(adminUser);
-        }
-
-        closeModal('deleteTrialModal');
-        showToast('All demo and trial profiles of members, presenters, and coordinators have been deleted. Only Administrator Mubashir CP is active.', 'success');
-
-        if (typeof syncTrialDeletionUI === 'function') syncTrialDeletionUI();
-
-        if (typeof renderCoordinatorPortal === 'function' && document.getElementById('viewCoordinator')?.style.display !== 'none') {
-          renderCoordinatorPortal();
-          if (typeof renderCoordTeamList === 'function') renderCoordTeamList();
-          if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
-          if (typeof renderCoordFeedbackList === 'function') renderCoordFeedbackList();
-          if (typeof renderProfileView === 'function') renderProfileView('coordinator');
-        } else if (typeof renderPresenterPortal === 'function' && document.getElementById('viewPresenter')?.style.display !== 'none') {
-          renderPresenterPortal();
-        } else if (typeof renderMemberPortal === 'function') {
-          renderMemberPortal();
-          if (typeof renderMemberCommunityDirectory === 'function') renderMemberCommunityDirectory();
-        }
-      };
-    }
+    // Delete Trial Data sidebar/dashboard button — handled globally, no need to re-bind here
   }
 
   function switchCoordSubview(targetName) {
@@ -6350,14 +6325,70 @@ document.addEventListener('DOMContentLoaded', () => {
   initNotifications();
   initPhase2Forms();
 
-  // Global Delete Trial Data delegate
+  // Delete Trial Data — restricted strictly to Administrator / Coordinator
   document.addEventListener('click', (e) => {
-    const trialBtn = e.target.closest('.btn-sidebar-delete-trial, .btn-delete-trial-data, #coordSidebarDeleteTrialBtn, #memberSidebarDeleteTrialBtn, #presenterSidebarDeleteTrialBtn');
+    const trialBtn = e.target.closest(
+      '.btn-delete-trial-data, #btnDeleteTrialData, #coordSidebarDeleteTrialBtn'
+    );
     if (trialBtn) {
       e.preventDefault();
+      if (!authService || !authService.isCoordinator()) {
+        showToast('Access restricted: Delete Trial Data is only accessible to Coordinators & Administrators.', 'warning');
+        return;
+      }
       openModal('deleteTrialModal');
     }
   });
+
+  // Global Delete Trial Data — confirm button handler
+  const _globalConfirmDeleteBtn = document.getElementById('btnConfirmDeleteTrial');
+  if (_globalConfirmDeleteBtn) {
+    _globalConfirmDeleteBtn.onclick = () => {
+      try {
+        localStorage.removeItem('gyd_applied_email');
+        localStorage.removeItem('gyd_pending_registration');
+        localStorage.removeItem('gyd_otp_session');
+      } catch (e) {}
+
+      if (dataService && typeof dataService.clearTrialData === 'function') {
+        dataService.clearTrialData();
+      } else if (dataService && typeof dataService.resetToDefault === 'function') {
+        dataService.resetToDefault();
+      }
+
+      // Restore session to the sole Administrator account
+      const adminUser = (dataService && typeof dataService.getUsers === 'function' ? dataService.getUsers() : []).find(u =>
+        (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
+      ) || {
+        id: 'usr_admin_mubashir',
+        name: 'Mubashir CP',
+        email: '3681mubashircp@gmail.com',
+        role: 'Coordinator',
+        department: 'Executive Leadership & Administration',
+        country: 'Qatar',
+        flag: 'QA'
+      };
+      if (authService && typeof authService.saveSession === 'function') {
+        authService.saveSession(adminUser);
+      }
+
+      closeModal('deleteTrialModal');
+      showToast('All demo and trial profiles and test submissions have been permanently deleted. Only Administrator Mubashir CP remains active.', 'success');
+
+      if (typeof renderCoordinatorPortal === 'function' && document.getElementById('viewCoordinator')?.style.display !== 'none') {
+        renderCoordinatorPortal();
+        if (typeof renderCoordTeamList === 'function') renderCoordTeamList();
+        if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
+        if (typeof renderCoordFeedbackList === 'function') renderCoordFeedbackList();
+        if (typeof renderProfileView === 'function') renderProfileView('coordinator');
+      } else if (typeof renderPresenterPortal === 'function' && document.getElementById('viewPresenter')?.style.display !== 'none') {
+        renderPresenterPortal();
+      } else if (typeof renderMemberPortal === 'function') {
+        renderMemberPortal();
+        if (typeof renderMemberCommunityDirectory === 'function') renderMemberCommunityDirectory();
+      }
+    };
+  }
 
   
   // Re-render all dynamic content instantly on language change

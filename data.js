@@ -1263,6 +1263,7 @@ class DataService {
       localStorage.removeItem('gyd_user_votes');
       localStorage.removeItem('gyd_ballot_votes');
       localStorage.removeItem('gyd_pending_registration');
+      localStorage.removeItem('gyd_applied_email');
     } catch (e) {}
 
     // Reset database to initial curated state

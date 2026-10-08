@@ -271,7 +271,13 @@ class AuthService {
       try {
         if (window.GYD_DATA && typeof window.GYD_DATA.getApplications === 'function') {
           const apps = window.GYD_DATA.getApplications() || [];
-          const approved = apps.filter(a => (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration'));
+          const users = (typeof window.GYD_DATA.getUsers === 'function') ? (window.GYD_DATA.getUsers() || []) : [];
+          const approved = apps.filter(a => {
+            const isApproved = (a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
+            if (!isApproved) return false;
+            const alreadyReg = users.some(u => u.email && u.email.toLowerCase() === a.email.toLowerCase() && u.status === 'active' && u.password);
+            return !alreadyReg;
+          });
           if (approved.length > 0) {
             this.setPendingRegistration(approved[0]);
             pending = this.getPendingRegistration();
@@ -306,7 +312,7 @@ class AuthService {
   }
 
   // =========================================================================
-  // OTP MANAGEMENT (client-side simulation)
+  // OTP MANAGEMENT & SECURE EMAIL DELIVERY
   // =========================================================================
   generateOTP(email) {
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -314,6 +320,23 @@ class AuthService {
     const session = { email, code, expires, attempts: 0 };
     try { localStorage.setItem(OTP_STORAGE_KEY, JSON.stringify(session)); } catch (e) {}
     return code;
+  }
+
+  async sendOTPEmail(email, code, name = 'Applicant') {
+    try {
+      const resp = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code, name })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        return data;
+      }
+    } catch (e) {
+      console.warn('Backend email API unreachable or error sending OTP:', e);
+    }
+    return { success: false, message: 'Could not contact email server' };
   }
 
   verifyOTP(email, enteredCode) {
