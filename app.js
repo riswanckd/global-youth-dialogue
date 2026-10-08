@@ -4305,6 +4305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const targetMap = {
       'dashboard': 'subviewCoordDashboard',
+      'community': 'subviewCoordCommunity',
       'topic-bank': 'subviewCoordTopicBank',
       'topics': 'subviewCoordTopics',
       'sessions': 'subviewCoordSessions',
@@ -4322,6 +4323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetEl) targetEl.style.display = 'block';
 
     if (targetName === 'dashboard') renderCoordDashboardContent();
+    if (targetName === 'community') renderCoordCommunityRoster();
     if (targetName === 'topic-bank') renderCoordTopicBank();
     if (targetName === 'topics') renderCoordTopicsList();
     if (targetName === 'sessions') prepareCoordSessionForm();

@@ -1301,6 +1301,56 @@ class DataService {
 
   // Getters
   getUsers() { return this.db.users; }
+
+  // --- Community Management Methods ---
+  addCommunityUser(userData) {
+    const { name, email, password, role, country, institution, bio } = userData;
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const id = 'usr_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6);
+    
+    const newUser = {
+      id,
+      name: (name || '').trim(),
+      email: cleanEmail,
+      password: password || 'gyde2024',
+      role: role || 'Member',
+      country: (country || 'Global').trim(),
+      department: (institution || 'Global Chapter').trim(),
+      bio: bio || `Verified ${role || 'Member'} of Global Youth Dialogue.`,
+      interests: ['Global Affairs', 'Debate'],
+      status: 'active',
+      joinedDate: new Date().toISOString().split('T')[0]
+    };
+
+    const existingIndex = this.db.users.findIndex(u => u.email && u.email.toLowerCase() === cleanEmail);
+    if (existingIndex >= 0) {
+      this.db.users[existingIndex] = { ...this.db.users[existingIndex], ...newUser, id: this.db.users[existingIndex].id };
+    } else {
+      this.db.users.push(newUser);
+    }
+    this.saveDatabase();
+    return newUser;
+  }
+
+  updateUserRole(userId, newRole) {
+    const user = this.db.users.find(u => u.id === userId);
+    if (!user) return null;
+    user.role = newRole;
+    this.saveDatabase();
+    return user;
+  }
+
+  deleteCommunityUser(userId) {
+    const user = this.db.users.find(u => u.id === userId);
+    if (!user) return false;
+    if (user.id === 'usr_admin_mubashir' || (user.email && user.email.toLowerCase() === '3681mubashircp@gmail.com')) {
+      throw new Error('Primary administrator cannot be removed.');
+    }
+    this.db.users = this.db.users.filter(u => u.id !== userId);
+    this.saveDatabase();
+    return true;
+  }
+
   getCategories() { return this.db.categories; }
   getTopics() { return this.db.topics; }
   getTopicBank() {

@@ -269,6 +269,10 @@ const TRANSLATIONS = {
     // Coordinator Portal
     coordDashboard: 'Coordinator Workspace',
     coordOverview: 'Programme Overview',
+    coordCommunity: 'The Community',
+    coordCommunityTitle: 'The GYDE Community',
+    coordCommunitySubtitle: 'Unified Directory & Registry of All Members, Academic Presenters, and Co-Administrators across global chapters.',
+    btnAddCommunityUser: '+ Add Community User',
     pendingApplications: 'Pending Applications',
     topicManagement: 'Topic Lifecycle Pipeline',
     sessionManagement: 'Session Management',
@@ -576,6 +580,10 @@ const TRANSLATIONS = {
     // Coordinator Portal
     coordDashboard: 'مساحة عمل المنسقين',
     coordOverview: 'نظرة عامة على البرنامج',
+    coordCommunity: 'المجتمع',
+    coordCommunityTitle: 'مجتمع الحوار والتبادل',
+    coordCommunitySubtitle: 'الدليل الموحد لجميع الأعضاء، ومقدمي الأوراق الأكاديمية، والمنسقين المشاركين عبر الفروع العالمية.',
+    btnAddCommunityUser: '+ إضافة مستخدم للمجتمع',
     pendingApplications: 'طلبات الانضمام المعلقة',
     topicManagement: 'إدارة مسار الموضوعات',
     sessionManagement: 'إدارة الجلسات',

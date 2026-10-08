@@ -7168,3 +7168,194 @@ body.rtl-mode .marquee-track {
 
 
 
+
+
+/* ==========================================================================
+   THE COMMUNITY - COORDINATOR ROSTER & DIRECTORY
+   ========================================================================== */
+.community-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.community-user-card {
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-lg, 14px);
+  padding: 1.35rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.community-user-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary-1, #8A1538);
+}
+
+.community-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.community-card-avatar-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.community-card-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4851ba, #9E59AC);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(72, 81, 186, 0.25);
+  object-fit: cover;
+}
+
+.community-card-flag-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-surface, #ffffff);
+  border: 2px solid var(--bg-surface, #ffffff);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.community-card-flag-badge .flag-svg,
+.community-card-flag-badge img.flag-svg {
+  width: 18px;
+  height: 13px;
+  border-radius: 2px;
+  object-fit: cover;
+  display: block;
+}
+
+.community-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.community-card-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.community-card-meta {
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.community-card-email {
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.community-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-light, #f1f5f9);
+  padding-top: 0.85rem;
+  margin-top: 0.85rem;
+  gap: 0.5rem;
+}
+
+.coord-filter-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.coord-filter-tab-btn {
+  background: var(--bg-subtle, #f1f5f9);
+  color: var(--text-main, #334155);
+  border: 1px solid var(--border-light, #e2e8f0);
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.coord-filter-tab-btn:hover {
+  background: rgba(138, 21, 56, 0.08);
+  color: var(--color-primary-1, #8A1538);
+  border-color: rgba(138, 21, 56, 0.3);
+}
+
+.coord-filter-tab-btn.active {
+  background: var(--color-primary-1, #8A1538);
+  color: #ffffff;
+  border-color: var(--color-primary-1, #8A1538);
+  box-shadow: 0 2px 8px rgba(138, 21, 56, 0.25);
+}
+
+[data-theme="dark"] .community-user-card {
+  background: var(--bg-card, #1e293b);
+  border-color: var(--border-dark, #334155);
+}
+
+[data-theme="dark"] .community-card-flag-badge {
+  background: var(--bg-card, #1e293b);
+  border-color: var(--bg-card, #1e293b);
+}
+
+[data-theme="dark"] .coord-filter-tab-btn {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .coord-filter-tab-btn.active {
+  background: #9E59AC;
+  color: #ffffff;
+  border-color: #9E59AC;
+}
+
+@media (max-width: 768px) {
+  .community-roster-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+}
