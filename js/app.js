@@ -666,6 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
       navigateToPortal('member');
     } else {
       navigateToPortal('public');
+      switchPublicSection('home');
+      try { history.pushState(null, '', '#home'); } catch (err) {}
     }
   });
 
@@ -954,9 +956,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Your membership application was approved! Please set your custom password.', 'success');
   }
 
-  function handleApprovedApplicantClick() {
-    const banner = document.getElementById('approvedApplicantBanner');
-    const pending = authService.checkApprovedApplicant();
   async function handleApprovedApplicantClick() {
     const banner = document.getElementById('approvedApplicantBanner');
     let pending = authService.checkApprovedApplicant();
