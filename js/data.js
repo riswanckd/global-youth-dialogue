@@ -21,6 +21,76 @@ const INITIAL_DATABASE = {
       interests: ['Global Affairs', 'Governance & Society', 'Technology & AI', 'Education'],
       status: 'active',
       joinedDate: '2024-01-01'
+    },
+    {
+      id: 'usr_muzwgir5',
+      name: 'Rana Ali',
+      email: 'ranaalo.644@gmail.com',
+      password: 'gyde2024',
+      role: 'Member',
+      department: 'Youth Delegation • Pakistan',
+      country: 'Pakistan',
+      flag: 'PK',
+      bio: 'Competitive parliamentary debate speaker. Committed to international youth diplomacy and collaborative research.',
+      interests: ['Global Affairs', 'Governance & Society'],
+      status: 'active',
+      joinedDate: '2024-10-08'
+    },
+    {
+      id: 'usr_muzw3l9n',
+      name: 'Sümeyye Bulut',
+      email: 'sumeyye.bulut@stu.ihu.edu.tr',
+      password: 'gyde2024',
+      role: 'Member',
+      department: 'Youth Delegation • Turkey',
+      country: 'Turkey',
+      flag: 'TR',
+      bio: 'University debate society delegate. Excited to represent international youth debaters in multilateral discourse.',
+      interests: ['Education & Knowledge', 'Global Affairs'],
+      status: 'active',
+      joinedDate: '2024-10-08'
+    },
+    {
+      id: 'usr_muzw3483',
+      name: 'Hima works',
+      email: 'himaworking@gmail.com',
+      password: 'gyde2024',
+      role: 'Member',
+      department: 'Youth Delegation • India',
+      country: 'India',
+      flag: 'IN',
+      bio: 'Youth parliament and debating forum participant. Eager to debate digital policy and sustainable governance with global delegates.',
+      interests: ['Technology & Innovation', 'Governance & Society'],
+      status: 'active',
+      joinedDate: '2024-10-08'
+    },
+    {
+      id: 'usr_01',
+      name: 'Farhan Nadeem',
+      email: 'farhan.n@outlook.com',
+      password: 'gyde2024',
+      role: 'Member',
+      department: 'Youth Delegation • Pakistan',
+      country: 'Pakistan',
+      flag: 'PK',
+      bio: 'Debater at National Schools Championship Pakistan, 3 years parliamentary format. Cross-border intellectual ties and sustainable governance.',
+      interests: ['Global Affairs', 'Governance & Society'],
+      status: 'active',
+      joinedDate: '2024-10-06'
+    },
+    {
+      id: 'usr_05',
+      name: 'Elena Rostova',
+      email: 'elena.rostova@debate.sg',
+      password: 'gyde2024',
+      role: 'Member',
+      department: 'Youth Delegation • Singapore',
+      country: 'Singapore',
+      flag: 'SG',
+      bio: 'Singapore WSDC youth delegation finalist, 4 years competitive debate. Excited to engage with international thinkers on geopolitical mediation and publish collaborative youth research papers.',
+      interests: ['Peace & Conflict', 'Global Affairs'],
+      status: 'active',
+      joinedDate: '2024-10-08'
     }
   ],
 
@@ -1055,6 +1125,42 @@ const INITIAL_DATABASE = {
 
     applications: [
     {
+      id: 'app_muzwgir5',
+      name: 'Rana Ali',
+      email: 'ranaalo.644@gmail.com',
+      country: 'Pakistan',
+      flag: 'PK',
+      interests: ['Global Affairs', 'Governance & Society'],
+      debateExperience: 'Competitive parliamentary debate speaker.',
+      motivation: 'Committed to international youth diplomacy and collaborative research.',
+      status: 'Approved - Awaiting Registration',
+      date: '2024-10-08'
+    },
+    {
+      id: 'app_muzw3l9n',
+      name: 'Sümeyye Bulut',
+      email: 'sumeyye.bulut@stu.ihu.edu.tr',
+      country: 'Turkey',
+      flag: 'TR',
+      interests: ['Education & Knowledge', 'Global Affairs'],
+      debateExperience: 'University debate society delegate.',
+      motivation: 'Excited to represent international youth debaters in multilateral discourse.',
+      status: 'Approved - Awaiting Registration',
+      date: '2024-10-08'
+    },
+    {
+      id: 'app_muzw3483',
+      name: 'Hima works',
+      email: 'himaworking@gmail.com',
+      country: 'India',
+      flag: 'IN',
+      interests: ['Technology & Innovation', 'Governance & Society'],
+      debateExperience: 'Youth parliament and debating forum participant.',
+      motivation: 'Eager to debate digital policy and sustainable governance with global delegates.',
+      status: 'Approved - Awaiting Registration',
+      date: '2024-10-08'
+    },
+    {
       id: 'app_01',
       name: 'Farhan Nadeem',
       email: 'farhan.n@outlook.com',
@@ -1063,7 +1169,7 @@ const INITIAL_DATABASE = {
       interests: ['Global Affairs', 'Governance & Society'],
       debateExperience: 'Debater at National Schools Championship Pakistan, 3 years parliamentary format.',
       motivation: 'I want to build cross-border intellectual ties with fellow youth who care about sustainable governance and international diplomacy.',
-      status: 'Pending',
+      status: 'Approved - Awaiting Registration',
       date: '2024-10-06'
     },
     {
@@ -1111,7 +1217,7 @@ const INITIAL_DATABASE = {
       interests: ['Peace & Conflict', 'Global Affairs'],
       debateExperience: 'Singapore WSDC youth delegation finalist, 4 years competitive debate.',
       motivation: 'Excited to engage with international thinkers on geopolitical mediation and publish collaborative youth research papers.',
-      status: 'Pending',
+      status: 'Approved - Awaiting Registration',
       date: '2024-10-08'
     }
   ],
@@ -1248,30 +1354,15 @@ class DataService {
         })();
 
         if (isTrialDeleted) {
-          // Permanently erase all demo/trial profiles of members, presenters, and coordinators
-          // Retain strictly the official Administrator account (Mubashir CP / 3681mubashircp@gmail.com)
-          const adminInit = INITIAL_DATABASE.users.find(u => 
-            u.id === 'usr_admin_mubashir' || (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com')
-          );
+          // Permanently erase only synthetic demo accounts (@gyd.org)
+          // Retain the Administrator and all real registered members & approved applicants from the database
+          const demoMockEmails = ['coordinator@gyd.org', 'presenter@gyd.org', 'member@gyd.org', 'amara.chen@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'];
           if (Array.isArray(parsed.users)) {
-            parsed.users = parsed.users.filter(u => 
-              (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
-            );
+            parsed.users = parsed.users.filter(u => !u.email || !demoMockEmails.includes(u.email.toLowerCase().trim()));
           } else {
             parsed.users = [];
           }
-          const adminExisting = parsed.users.find(u => 
-            (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com') || u.id === 'usr_admin_mubashir'
-          );
-          if (!adminExisting && adminInit) {
-            parsed.users.unshift(JSON.parse(JSON.stringify(adminInit)));
-          } else if (adminExisting && adminInit) {
-            adminExisting.password = adminInit.password;
-            adminExisting.role = adminInit.role;
-            adminExisting.status = adminInit.status;
-            if (adminInit.name) adminExisting.name = adminInit.name;
-            if (adminInit.department) adminExisting.department = adminInit.department;
-          }
+
           // Retain membership proposals
           if (!Array.isArray(parsed.applications) || parsed.applications.length === 0) {
             parsed.applications = JSON.parse(JSON.stringify(INITIAL_DATABASE.applications || []));
@@ -1281,27 +1372,15 @@ class DataService {
               if (!exists) parsed.applications.push(JSON.parse(JSON.stringify(initA)));
             });
           }
-          parsed.presenterApplications = [];
-          if (parsed.feedback) parsed.feedback = [];
         } else {
-          // Ensure admin user and all seed users are synced with up-to-date credentials
-          if (parsed.users) {
-            INITIAL_DATABASE.users.forEach(initU => {
-              const existing = parsed.users.find(u => u.email && u.email.toLowerCase() === initU.email.toLowerCase());
-              if (!existing) {
-                parsed.users.unshift(JSON.parse(JSON.stringify(initU)));
-              } else {
-                existing.password = initU.password;
-                existing.role = initU.role;
-                existing.status = initU.status;
-                if (initU.name) existing.name = initU.name;
-                if (initU.department) existing.department = initU.department;
-              }
-            });
-          } else {
+          // Ensure all seed users and applicants are present
+          if (!Array.isArray(parsed.users)) {
             parsed.users = JSON.parse(JSON.stringify(INITIAL_DATABASE.users));
           }
         }
+
+        // Always sync community users so no registered or approved members are ever missing
+        this.syncCommunityUsers(parsed);
         return parsed;
       }
     } catch (e) {
@@ -1330,6 +1409,7 @@ class DataService {
       localStorage.removeItem('gyd_pending_registration');
     } catch (e) {}
     this.db = JSON.parse(JSON.stringify(INITIAL_DATABASE));
+    this.syncCommunityUsers();
     this.saveDatabase();
     return this.db;
   }
@@ -1348,38 +1428,149 @@ class DataService {
     // Reset database to initial curated state
     this.db = JSON.parse(JSON.stringify(INITIAL_DATABASE));
     
-    // Completely purge trial applicant queues & test submissions
-    this.db.applications = [];
+    // Retain verified database applications
+    this.db.applications = JSON.parse(JSON.stringify(INITIAL_DATABASE.applications || []));
     this.db.presenterApplications = [];
     if (this.db.feedback) this.db.feedback = [];
     
-    // Purge ALL demo and trial profiles of members, presenters, and coordinators
-    // Retain strictly the official Administrator account (Mubashir CP / 3681mubashircp@gmail.com)
-    const adminUser = (INITIAL_DATABASE.users && INITIAL_DATABASE.users.find(u => 
-      u.id === 'usr_admin_mubashir' || (u.email && u.email.toLowerCase() === '3681mubashircp@gmail.com')
-    )) || {
-      id: 'usr_admin_mubashir',
-      name: 'Mubashir CP',
-      email: '3681mubashircp@gmail.com',
-      password: '368136',
-      role: 'Coordinator',
-      department: 'Executive Leadership & Administration',
-      country: 'India',
-      flag: 'IN',
-      bio: 'Executive Director & Chief Platform Administrator, Global Youth Dialogue & Exchange (GYDE).',
-      interests: ['Global Affairs', 'Governance & Society', 'Technology & AI', 'Education'],
-      status: 'active',
-      joinedDate: '2024-01-01'
-    };
-
-    this.db.users = [JSON.parse(JSON.stringify(adminUser))];
-
+    // Ensure admin and all real registered members from INITIAL_DATABASE and applications are present
+    this.syncCommunityUsers();
     this.saveDatabase();
     return true;
   }
 
+  // Synchronize registered members, presenters, and coordinators from the database
+  syncCommunityUsers(targetDb = this.db) {
+    if (!targetDb) return;
+    if (!Array.isArray(targetDb.users)) {
+      targetDb.users = [];
+    }
+
+    const demoMockEmails = [
+      'member@gyd.org', 'presenter@gyd.org', 'coordinator@gyd.org',
+      'amara.chen@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'
+    ];
+
+    // Filter out synthetic mock accounts while preserving all real registered members
+    targetDb.users = targetDb.users.filter(u => !u.email || !demoMockEmails.includes(u.email.toLowerCase().trim()));
+
+    // 1. Ensure all curated users from INITIAL_DATABASE.users exist
+    if (INITIAL_DATABASE && Array.isArray(INITIAL_DATABASE.users)) {
+      INITIAL_DATABASE.users.forEach(initU => {
+        const cleanEmail = (initU.email || '').toLowerCase().trim();
+        const existing = targetDb.users.find(u => (u.email && u.email.toLowerCase().trim() === cleanEmail) || u.id === initU.id);
+        if (!existing) {
+          targetDb.users.push(JSON.parse(JSON.stringify(initU)));
+        } else {
+          if (!existing.country) existing.country = initU.country;
+          if (!existing.flag) existing.flag = initU.flag;
+          if (!existing.bio) existing.bio = initU.bio;
+          if (!existing.department) existing.department = initU.department;
+          if (initU.id === 'usr_admin_mubashir') {
+            existing.role = 'Coordinator';
+            existing.password = initU.password;
+          }
+        }
+      });
+    }
+
+    // 2. Synchronize from applications (Approved or Registered)
+    const apps = Array.isArray(targetDb.applications) ? targetDb.applications : (INITIAL_DATABASE.applications || []);
+    apps.forEach(app => {
+      const cleanEmail = (app.email || '').toLowerCase().trim();
+      if (!cleanEmail) return;
+
+      const isRegisteredOrApproved = app.status === 'Registered' ||
+        app.status === 'Approved' ||
+        app.status === 'Approved - Awaiting Registration';
+
+      if (isRegisteredOrApproved) {
+        let existingUser = targetDb.users.find(u => u.email && u.email.toLowerCase().trim() === cleanEmail);
+        if (!existingUser) {
+          const newUser = {
+            id: 'usr_' + (app.id ? app.id.replace('app_', '') : Date.now().toString(36)),
+            name: app.name,
+            email: cleanEmail,
+            password: 'gyde2024',
+            role: 'Member',
+            department: `Youth Delegation • ${app.country || 'Global'}`,
+            country: app.country || 'Global',
+            flag: app.flag || 'INT',
+            bio: app.motivation || app.debateExperience || `Verified member representing ${app.country || 'Global'}.`,
+            interests: app.interests || ['Global Affairs'],
+            status: 'active',
+            joinedDate: app.date || new Date().toISOString().split('T')[0]
+          };
+          targetDb.users.push(newUser);
+        } else {
+          if (!existingUser.country && app.country) existingUser.country = app.country;
+          if (!existingUser.flag && app.flag) existingUser.flag = app.flag;
+          if (!existingUser.bio && (app.motivation || app.debateExperience)) {
+            existingUser.bio = app.motivation || app.debateExperience;
+          }
+          if (!existingUser.interests && app.interests) existingUser.interests = app.interests;
+        }
+      }
+    });
+
+    // 3. Synchronize from presenter applications (Approved)
+    const presApps = Array.isArray(targetDb.presenterApplications) ? targetDb.presenterApplications : [];
+    presApps.forEach(pApp => {
+      const cleanEmail = (pApp.email || '').toLowerCase().trim();
+      if (!cleanEmail) return;
+
+      if (pApp.status === 'Approved') {
+        let existingUser = targetDb.users.find(u => 
+          (pApp.userId && u.id === pApp.userId) || 
+          (u.email && u.email.toLowerCase().trim() === cleanEmail)
+        );
+        if (existingUser) {
+          existingUser.role = 'Presenter';
+        } else {
+          targetDb.users.push({
+            id: 'usr_' + (pApp.id ? pApp.id.replace('pres_', '') : Date.now().toString(36)),
+            name: pApp.name,
+            email: cleanEmail,
+            password: 'gyde2024',
+            role: 'Presenter',
+            department: pApp.institution || `Academic Delegation • ${pApp.country || 'Global'}`,
+            country: pApp.country || 'Global',
+            flag: pApp.flag || 'INT',
+            bio: pApp.bio || pApp.proposedTopic || `Accredited Academic Presenter.`,
+            interests: ['Global Affairs', 'Academic Presentations'],
+            status: 'active',
+            joinedDate: pApp.date || new Date().toISOString().split('T')[0]
+          });
+        }
+      }
+    });
+
+    // 4. Deduplicate users by email, preserving the primary admin and valid roles
+    const uniqueUsers = [];
+    const seenEmails = new Set();
+    
+    // Always put admin first
+    const admin = targetDb.users.find(u => u.id === 'usr_admin_mubashir' || (u.email && u.email.toLowerCase().trim() === '3681mubashircp@gmail.com'));
+    if (admin) {
+      uniqueUsers.push(admin);
+      seenEmails.add(admin.email.toLowerCase().trim());
+    }
+
+    targetDb.users.forEach(u => {
+      const email = (u.email || '').toLowerCase().trim();
+      if (!email || seenEmails.has(email)) return;
+      seenEmails.add(email);
+      uniqueUsers.push(u);
+    });
+
+    targetDb.users = uniqueUsers;
+  }
+
   // Getters
-  getUsers() { return this.db.users; }
+  getUsers() {
+    this.syncCommunityUsers();
+    return this.db.users;
+  }
 
   // --- Community Management Methods ---
   addCommunityUser(userData) {
@@ -1515,8 +1706,16 @@ class DataService {
             if (idx === -1) {
               this.db.applications.unshift(rApp);
             } else {
-              // ALWAYS synchronize remote status so approvals propagate to the applicant's device!
-              this.db.applications[idx] = { ...this.db.applications[idx], ...rApp, status: rApp.status };
+              const currentStatus = this.db.applications[idx].status;
+              const isLocalDecided = (
+                currentStatus === 'Approved' || 
+                currentStatus === 'Approved - Awaiting Registration' || 
+                currentStatus === 'Rejected' || 
+                currentStatus === 'Declined'
+              );
+              // Only overwrite status if remote has an updated decision, or if local was still Pending
+              const finalStatus = (isLocalDecided && rApp.status === 'Pending') ? currentStatus : (rApp.status || currentStatus);
+              this.db.applications[idx] = { ...this.db.applications[idx], ...rApp, status: finalStatus };
             }
           });
           this.saveDatabase();
@@ -1836,6 +2035,7 @@ class DataService {
     if (!app) return null;
 
     app.status = 'Approved - Awaiting Registration';
+    this.syncCommunityUsers();
     this.saveDatabase();
 
     // Immediately sync approval to remote server so applicant gets approved on their device
@@ -2008,6 +2208,7 @@ class DataService {
       });
     }
 
+    this.syncCommunityUsers();
     this.saveDatabase();
     return { app, user };
   }

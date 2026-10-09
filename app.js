@@ -4422,15 +4422,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reviewTopics.length === 0) {
       topicsList.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 0.5rem 0;">All topics have been reviewed.</div>`;
     } else {
-      topicsList.innerHTML = reviewTopics.slice(0, 3).map(t => `
-        <div style="padding: 0.85rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
-          <div>
+      topicsList.innerHTML = reviewTopics.slice(0, 5).map(t => `
+        <div style="padding: 0.85rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 220px;">
             <div style="font-weight: 600; color: var(--brand-navy); font-size: 0.95rem;">${t.title}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">${t.categoryName} • Proposed by ${t.proposedBy}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${t.categoryName || 'General'} • Proposed by ${t.proposedBy || 'Member'}</div>
           </div>
-          <button class="btn btn-navy btn-sm" onclick="document.querySelector('[data-coord-target=topics]').click()">
-            Review Motion
-          </button>
+          <div style="display: flex; align-items: center; gap: 0.45rem;">
+            <button class="btn btn-primary btn-sm" onclick="window.approveTopic('${t.id}')">
+              ${icons.check || ''} Approve
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="window.rejectTopic('${t.id}')">
+              ${icons.x || ''} Decline
+            </button>
+            <button class="btn btn-subtle btn-sm" onclick="document.querySelector('[data-coord-target=topics]').click()" title="Inspect Motion">
+              Details
+            </button>
+          </div>
         </div>
       `).join('');
     }
@@ -4485,11 +4493,16 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="badge badge-category">${t.categoryName}</span>
               <h4 style="margin: 0.35rem 0;">${t.title}</h4>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              ${(t.status === 'Proposed' || t.status === 'Under Review') ? `
+                <button class="btn btn-primary btn-sm" onclick="window.approveTopic('${t.id}')">${icons.check || ''} Approve</button>
+                <button class="btn btn-outline btn-sm" onclick="window.rejectTopic('${t.id}')">${icons.x || ''} Decline</button>
+              ` : ''}
               <select class="form-control" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.82rem;" onchange="window.updateTopicStatus('${t.id}', this.value)">
                 <option value="Proposed" ${t.status === 'Proposed' ? 'selected' : ''}>Proposed</option>
                 <option value="Under Review" ${t.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
                 <option value="Approved" ${t.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                <option value="Declined" ${t.status === 'Declined' || t.status === 'Rejected' ? 'selected' : ''}>Declined</option>
                 <option value="Scheduled" ${t.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
                 <option value="Completed" ${t.status === 'Completed' ? 'selected' : ''}>Completed</option>
               </select>
@@ -5219,13 +5232,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const presBadge = document.getElementById('coordPresenterAppsCount');
     const pendingListEl = document.getElementById('coordFullApplicationsList');
     const approvedListEl = document.getElementById('coordApprovedMembersList');
+    const declinedListEl = document.getElementById('coordDeclinedApplicationsList');
     const allApps = dataService.getApplications();
     const pendingApps = allApps.filter(a => a.status === 'Pending');
+    const approvedApps = allApps.filter(a => a.status === 'Approved' || a.status === 'Approved - Awaiting Registration');
+    const declinedApps = allApps.filter(a => a.status === 'Rejected' || a.status === 'Declined');
     const users = dataService.getUsers();
 
     // 1. Presenter Applications Queue
     const allPresApps = dataService.getPresenterApplications();
     const pendingPresApps = allPresApps.filter(a => a.status === 'Pending');
+    const approvedPresApps = allPresApps.filter(a => a.status === 'Approved');
+    const declinedPresApps = allPresApps.filter(a => a.status === 'Rejected' || a.status === 'Declined');
 
     if (presBadge) {
       presBadge.textContent = `${pendingPresApps.length} Pending`;
@@ -5281,7 +5299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Member Applications Queue
     if (pendingApps.length === 0) {
-      pendingListEl.innerHTML = `<div style="color: var(--text-muted); padding: 1rem 0;">No pending member applications in the queue.</div>`;
+      pendingListEl.innerHTML = `<div style="color: var(--text-muted); padding: 1rem 0;">No pending member applications in the queue. All submitted applications have been decided.</div>`;
     } else {
       pendingListEl.innerHTML = pendingApps.map(app => `
         <div class="application-item">
@@ -5301,15 +5319,91 @@ document.addEventListener('DOMContentLoaded', () => {
       `).join('');
     }
 
-    // Approved list
-    approvedListEl.innerHTML = users.map(u => `
-      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
-        <div>
-          <strong>${u.name}</strong> (${u.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${u.email}</span>
-        </div>
-        <span class="badge ${u.role === 'Presenter' ? 'badge-approved' : 'badge-approved'}" style="${u.role === 'Presenter' ? 'background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3);' : ''}">${u.role}</span>
-      </div>
-    `).join('');
+    // 3. Approved List (Both approved applicants awaiting password setup + active members)
+    if (approvedListEl) {
+      let approvedHtml = '';
+      
+      // Approved membership applicants awaiting registration
+      approvedApps.forEach(a => {
+        approvedHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <strong>${a.name}</strong> (${a.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${a.email}</span>
+              <span style="display: block; font-size: 0.78rem; color: #047857;">Approved applicant awaiting registration completion</span>
+            </div>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #047857; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">Approved Applicant</span>
+          </div>
+        `;
+      });
+
+      // Approved presenter applicants
+      approvedPresApps.forEach(pa => {
+        approvedHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <strong>${pa.name}</strong> (${pa.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${pa.email}</span>
+              <span style="display: block; font-size: 0.78rem; color: var(--accent-gold);">Accredited Presenter: "${pa.proposedTopic}"</span>
+            </div>
+            <span class="badge" style="background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3);">Accredited Presenter</span>
+          </div>
+        `;
+      });
+
+      // Active registered users
+      users.forEach(u => {
+        approvedHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <strong>${u.name}</strong> (${u.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${u.email}</span>
+            </div>
+            <span class="badge ${u.role === 'Presenter' ? 'badge-approved' : 'badge-approved'}" style="${u.role === 'Presenter' ? 'background: rgba(184, 142, 62, 0.15); color: var(--accent-gold); font-weight: 700; border: 1px solid rgba(184, 142, 62, 0.3);' : ''}">${u.role}</span>
+          </div>
+        `;
+      });
+
+      approvedListEl.innerHTML = approvedHtml || `<div style="color: var(--text-muted); padding: 0.8rem 0;">No approved members yet.</div>`;
+    }
+
+    // 4. Declined List (Declined applications archive)
+    if (declinedListEl) {
+      let declinedHtml = '';
+
+      declinedApps.forEach(da => {
+        declinedHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 0.5rem;">
+            <div style="flex: 1; min-width: 260px;">
+              <strong style="color: var(--text-primary);">${da.name}</strong> (${da.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${da.email}</span>
+              <p style="margin: 0.2rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">"${da.motivation || 'No statement'}"</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; font-weight: 600; border: 1px solid rgba(220, 38, 38, 0.2);">Declined</span>
+              <button class="btn btn-outline btn-sm" onclick="window.approveApp('${da.id}')" style="font-size: 0.78rem; padding: 0.25rem 0.65rem;">
+                Re-evaluate / Approve
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      declinedPresApps.forEach(dp => {
+        declinedHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 0.5rem;">
+            <div style="flex: 1; min-width: 260px;">
+              <strong style="color: var(--text-primary);">${dp.name}</strong> (${dp.country}) — <span style="color: var(--text-muted); font-size: 0.85rem;">${dp.email}</span>
+              <p style="margin: 0.2rem 0 0 0; font-size: 0.8rem; color: var(--accent-gold);">Presenter Request: "${dp.proposedTopic}"</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; font-weight: 600; border: 1px solid rgba(220, 38, 38, 0.2);">Declined</span>
+              <button class="btn btn-outline btn-sm" onclick="window.approvePresenterApp('${dp.id}')" style="font-size: 0.78rem; padding: 0.25rem 0.65rem;">
+                Re-evaluate / Approve
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      declinedListEl.innerHTML = declinedHtml || `<div style="color: var(--text-muted); padding: 0.8rem 0;">No declined applications in the archive.</div>`;
+    }
   }
 
   // --- Subview: Coordinator Team Roster ---
@@ -5431,9 +5525,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Populate country filter dropdown
-    if (countrySelect && countrySelect.options.length <= 1) {
+    if (countrySelect) {
       const countries = Array.from(new Set(allUsers.map(u => u.country).filter(Boolean))).sort();
-      const currentSelected = window._coordCommunityCountryFilter;
+      const currentSelected = window._coordCommunityCountryFilter || 'all';
       countrySelect.innerHTML = `<option value="all">All Countries (${countries.length})</option>` +
         countries.map(c => `<option value="${c}" ${c === currentSelected ? 'selected' : ''}>${c}</option>`).join('');
     }
@@ -5972,11 +6066,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const updated = dataService.updateTopicStatus(topicId, newStatus);
     if (newStatus === 'Approved') {
       showToast(`Topic approved and automatically added to the Academic Topic Bank!`, 'success');
+    } else if (newStatus === 'Declined' || newStatus === 'Rejected') {
+      showToast(`Topic proposal declined.`, 'normal');
     } else {
       showToast(`Topic updated to status: "${newStatus}"`, 'success');
     }
+    if (typeof renderCoordDashboardContent === 'function') renderCoordDashboardContent();
     if (typeof renderCoordTopicsList === 'function') renderCoordTopicsList();
     if (typeof renderCoordTopicBank === 'function') renderCoordTopicBank();
+  };
+
+  window.approveTopic = function(topicId) {
+    window.updateTopicStatus(topicId, 'Approved');
+  };
+
+  window.rejectTopic = function(topicId) {
+    window.updateTopicStatus(topicId, 'Declined');
   };
 
   window.approveApp = function(appId) {

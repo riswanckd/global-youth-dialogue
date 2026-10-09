@@ -98,9 +98,9 @@ class AuthService {
     if (typeof INITIAL_DATABASE !== 'undefined' && INITIAL_DATABASE.users) {
       const seedMatch = INITIAL_DATABASE.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
       if (seedMatch) {
-        const isAdmin = seedMatch.id === 'usr_admin_mubashir' || seedMatch.email.toLowerCase() === '3681mubashircp@gmail.com';
-        // If trial data has been deleted, do NOT re-inject or sync deleted demo profiles
-        if (!isTrialDeleted || isAdmin) {
+        const isDemo = ['coordinator@gyd.org', 'presenter@gyd.org', 'member@gyd.org', 'amara.chen@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'].includes(seedMatch.email.toLowerCase());
+        // If trial data has been deleted, do NOT re-inject or sync deleted mock demo profiles
+        if (!isTrialDeleted || !isDemo) {
           if (!user) {
             user = seedMatch;
             if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
