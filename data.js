@@ -23,6 +23,20 @@ const INITIAL_DATABASE = {
       joinedDate: '2024-01-01'
     },
     {
+      id: 'usr_sagia_asadien',
+      name: 'Sagia Saasadien',
+      email: 'sagiasaasadien@gmail.com',
+      password: 'gyde2024',
+      role: 'Member',
+      department: 'Youth Delegation • South Africa',
+      country: 'South Africa',
+      flag: 'ZA',
+      bio: 'Active youth debater and parliamentary speaker. Committed to international youth diplomacy and constructive cross-cultural dialogue.',
+      interests: ['Global Affairs', 'Governance & Society'],
+      status: 'active',
+      joinedDate: '2024-10-09'
+    },
+    {
       id: 'usr_muzwgir5',
       name: 'Rana Ali',
       email: 'ranaalo.644@gmail.com',
@@ -1124,6 +1138,18 @@ const INITIAL_DATABASE = {
   feedback: [],
 
     applications: [
+    {
+      id: 'app_sagia_asadien',
+      name: 'Sagia Saasadien',
+      email: 'sagiasaasadien@gmail.com',
+      country: 'South Africa',
+      flag: 'ZA',
+      interests: ['Global Affairs', 'Governance & Society'],
+      debateExperience: 'Active youth debater and parliamentary speaker.',
+      motivation: 'Committed to international youth diplomacy and constructive cross-cultural dialogue.',
+      status: 'Approved - Awaiting Registration',
+      date: '2024-10-09'
+    },
     {
       id: 'app_muzwgir5',
       name: 'Rana Ali',

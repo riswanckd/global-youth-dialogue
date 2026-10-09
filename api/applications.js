@@ -10,6 +10,18 @@ const LOCAL_FILE = path.join(process.cwd(), 'applications.json');
 // Initial seed applications including live applicants
 let globalApplications = [
   {
+    id: 'app_sagia_asadien',
+    name: 'Sagia Saasadien',
+    email: 'sagiasaasadien@gmail.com',
+    country: 'South Africa',
+    flag: 'ZA',
+    interests: ['Global Affairs', 'Governance & Society'],
+    debateExperience: 'Active youth debater and parliamentary speaker.',
+    motivation: 'Committed to international youth diplomacy and constructive cross-cultural dialogue.',
+    status: 'Approved - Awaiting Registration',
+    date: '2024-10-09'
+  },
+  {
     id: 'app_muzwgir5',
     name: 'Rana Ali',
     email: 'ranaalo.644@gmail.com',
