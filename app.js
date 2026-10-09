@@ -4253,6 +4253,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.GYD_DATA && typeof window.GYD_DATA.syncRemoteApplications === 'function') {
       window.GYD_DATA.syncRemoteApplications();
     }
+    if (!window._coordSyncInterval) {
+      window._coordSyncInterval = setInterval(() => {
+        const currentUser = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
+        if (currentUser && currentUser.role === 'Coordinator' && dataService && typeof dataService.syncRemoteApplications === 'function') {
+          dataService.syncRemoteApplications();
+        }
+      }, 20000);
+    }
     bindCoordinatorNavigation();
     switchCoordSubview(currentCoordSubview);
   }
@@ -4341,6 +4349,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetEl = document.getElementById(targetMap[targetName]);
     if (targetEl) targetEl.style.display = 'block';
 
+    if (targetName === 'dashboard' || targetName === 'applications') {
+      if (dataService && typeof dataService.syncRemoteApplications === 'function') {
+        dataService.syncRemoteApplications();
+      }
+    }
+
     if (targetName === 'dashboard') renderCoordDashboardContent();
     if (targetName === 'community') renderCoordCommunityRoster();
     if (targetName === 'topic-bank') renderCoordTopicBank();
@@ -4357,6 +4371,29 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo(0, 0);
   }
   window.switchCoordSubview = switchCoordSubview;
+
+  window.refreshCoordApplications = async function() {
+    const btn = document.getElementById('coordSyncAppsBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite; margin-inline-end:5px;"></span> Syncing...`;
+    }
+    try {
+      if (dataService && typeof dataService.syncRemoteApplications === 'function') {
+        await dataService.syncRemoteApplications();
+      }
+      if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
+      if (typeof renderCoordDashboardContent === 'function') renderCoordDashboardContent();
+      showToast('Cloud applications synchronized successfully!', 'success');
+    } catch (e) {
+      showToast('Could not sync cloud applications: ' + (e.message || 'Network error'), 'warning');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; vertical-align:middle; margin-inline-end:5px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Sync Cloud Applications`;
+      }
+    }
+  };
 
   // --- Subview: Coordinator Dashboard ---
   function renderCoordDashboardContent() {

@@ -255,7 +255,11 @@ module.exports = async function handler(req, res) {
       body = body || {};
 
       // Handle Status Updates from Coordinator Dashboard (e.g. Approved / Rejected)
-      if (body.action === 'updateStatus' || (body.status && (body.id || body.email))) {
+      // Only treat as status update if explicitly requested via action, OR if it's an update without a new submission payload (no name provided)
+      const isExplicitStatusUpdate = (body.action === 'updateStatus' || body.action === 'update');
+      const isStatusOnlyUpdate = (!body.name && body.status && (body.id || body.email));
+
+      if (isExplicitStatusUpdate || isStatusOnlyUpdate) {
         const targetId = (body.id || '').trim();
         const targetEmail = (body.email || '').trim().toLowerCase();
         const newStatus = body.status;
@@ -277,7 +281,7 @@ module.exports = async function handler(req, res) {
         return res.status(404).json({ error: 'Application not found to update.' });
       }
 
-      // Handle New Application Submission
+      // Handle New Application Submission (action: 'submitApplication' or standard form post)
       const name = (body.name || '').trim();
       const email = (body.email || '').trim();
       const country = (body.country || 'Global').trim();
@@ -292,7 +296,7 @@ module.exports = async function handler(req, res) {
         email,
         country,
         flag: body.flag || 'INT',
-        interests: body.interests || ['Global Affairs'],
+        interests: Array.isArray(body.interests) ? body.interests : (body.interests ? [body.interests] : ['Global Affairs']),
         debateExperience: body.debateExperience || '',
         motivation: body.motivation || '',
         status: body.status || 'Pending',
@@ -300,9 +304,15 @@ module.exports = async function handler(req, res) {
       };
 
       // Check if duplicate email exists
-      const existingIdx = globalApplications.findIndex(a => a.email.toLowerCase().trim() === email.toLowerCase());
+      const existingIdx = globalApplications.findIndex(a => a.email && a.email.toLowerCase().trim() === email.toLowerCase());
       if (existingIdx >= 0) {
-        globalApplications[existingIdx] = { ...globalApplications[existingIdx], ...newApp };
+        // If already approved/registered, do not downgrade to pending unless coordinator explicitly changed it
+        const existingStatus = globalApplications[existingIdx].status;
+        const incomingStatus = newApp.status;
+        const isExistingApproved = (existingStatus === 'Approved - Awaiting Registration' || existingStatus === 'Approved');
+        const finalStatus = (isExistingApproved && incomingStatus === 'Pending') ? existingStatus : incomingStatus;
+
+        globalApplications[existingIdx] = { ...globalApplications[existingIdx], ...newApp, status: finalStatus };
       } else {
         globalApplications.unshift(newApp);
       }

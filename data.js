@@ -1784,9 +1784,19 @@ class DataService {
     return this.db.applications;
   }
 
+  getApplicationsApiUrl() {
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      if (window.location.origin.includes('vercel.app')) {
+        return '/api/applications';
+      }
+    }
+    return 'https://gydonline.vercel.app/api/applications';
+  }
+
   async syncRemoteApplications() {
     try {
-      const resp = await fetch('/api/applications');
+      const apiUrl = this.getApplicationsApiUrl();
+      const resp = await fetch(apiUrl);
       if (resp.ok) {
         const remoteApps = await resp.json();
         if (Array.isArray(remoteApps) && remoteApps.length > 0) {
@@ -1814,7 +1824,9 @@ class DataService {
           if (typeof window.checkApprovedApplicantNotice === 'function') window.checkApprovedApplicantNotice();
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('syncRemoteApplications warning:', e);
+    }
   }
   getAnnouncements() { return this.db.announcements; }
 
@@ -2105,10 +2117,11 @@ class DataService {
 
     // Send to centralized serverless API so coordinator receives it across all devices
     try {
-      fetch('/api/applications', {
+      const apiUrl = this.getApplicationsApiUrl();
+      fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newApp)
+        body: JSON.stringify({ action: 'submitApplication', ...newApp })
       }).catch(err => console.warn('Could not post application to server API:', err));
     } catch (e) {}
 
@@ -2130,7 +2143,8 @@ class DataService {
 
     // Immediately sync approval to remote server so applicant gets approved on their device
     try {
-      fetch('/api/applications', {
+      const apiUrl = this.getApplicationsApiUrl();
+      fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2201,7 +2215,8 @@ class DataService {
       this.saveDatabase();
 
       try {
-        fetch('/api/applications', {
+        const apiUrl = this.getApplicationsApiUrl();
+        fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
