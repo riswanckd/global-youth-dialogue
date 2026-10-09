@@ -688,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Unified Sign In Form Handler with Strict Role & Portal Gatekeeping
-  document.getElementById('unifiedLoginForm')?.addEventListener('submit', (e) => {
+  document.getElementById('unifiedLoginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('unifiedEmail').value.trim();
     const password = document.getElementById('unifiedPassword').value.trim();
@@ -696,12 +696,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const errEl = document.getElementById('signinErrorMsg');
     if (errEl) errEl.style.display = 'none';
 
-    const result = authService.loginWithRole(email, password, selectedPortal);
+    let result = authService.loginWithRole(email, password, selectedPortal);
+
+    // If not found locally, query cloud applications in real-time
+    if (!result.success && result.message && result.message.includes('User not found')) {
+      try {
+        const apiUrl = (window.GYD_DATA && typeof window.GYD_DATA.getApplicationsApiUrl === 'function')
+          ? window.GYD_DATA.getApplicationsApiUrl()
+          : 'https://gydonline.vercel.app/api/applications';
+        const res = await fetch(apiUrl);
+        if (res.ok) {
+          const remoteApps = await res.json();
+          const cleanInput = email.toLowerCase().trim();
+          const match = Array.isArray(remoteApps) && remoteApps.find(a => a.email && a.email.toLowerCase().trim() === cleanInput);
+          if (match && (match.status === 'Approved' || match.status === 'Approved - Awaiting Registration' || match.status === 'Registered')) {
+            if (window.GYD_DATA && window.GYD_DATA.db) {
+              if (!Array.isArray(window.GYD_DATA.db.applications)) window.GYD_DATA.db.applications = [];
+              const idx = window.GYD_DATA.db.applications.findIndex(a => a.email && a.email.toLowerCase().trim() === cleanInput);
+              if (idx >= 0) window.GYD_DATA.db.applications[idx] = { ...window.GYD_DATA.db.applications[idx], ...match };
+              else window.GYD_DATA.db.applications.unshift(match);
+              if (typeof window.GYD_DATA.syncCommunityUsers === 'function') window.GYD_DATA.syncCommunityUsers();
+              window.GYD_DATA.saveDatabase();
+            }
+            result = authService.loginWithRole(email, password, selectedPortal);
+          }
+        }
+      } catch (err) {}
+    }
+
     if (result.success) {
-      if (selectedPortal === 'admin') {
+      const dest = result.portal || selectedPortal;
+      if (dest === 'admin' || dest === 'coordinator') {
         navigateToPortal('coordinator');
         showToast(`Welcome back, ${result.user.name}! Opened Admin Workspace.`, 'success');
-      } else if (selectedPortal === 'presenter') {
+      } else if (dest === 'presenter') {
         navigateToPortal('presenter');
         showToast(`Welcome back, ${result.user.name}! Opened Presenter Portal.`, 'success');
       } else {
@@ -892,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Modal Login Form Handler with Strict Role & Portal Gatekeeping
-  document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+  document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
@@ -903,13 +931,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (errAlert) errAlert.style.display = 'none';
 
-    const result = authService.loginWithRole(email, password, selectedPortal);
+    let result = authService.loginWithRole(email, password, selectedPortal);
+
+    // If not found locally, query cloud applications in real-time
+    if (!result.success && result.message && result.message.includes('User not found')) {
+      try {
+        const apiUrl = (window.GYD_DATA && typeof window.GYD_DATA.getApplicationsApiUrl === 'function')
+          ? window.GYD_DATA.getApplicationsApiUrl()
+          : 'https://gydonline.vercel.app/api/applications';
+        const res = await fetch(apiUrl);
+        if (res.ok) {
+          const remoteApps = await res.json();
+          const cleanInput = email.toLowerCase().trim();
+          const match = Array.isArray(remoteApps) && remoteApps.find(a => a.email && a.email.toLowerCase().trim() === cleanInput);
+          if (match && (match.status === 'Approved' || match.status === 'Approved - Awaiting Registration' || match.status === 'Registered')) {
+            if (window.GYD_DATA && window.GYD_DATA.db) {
+              if (!Array.isArray(window.GYD_DATA.db.applications)) window.GYD_DATA.db.applications = [];
+              const idx = window.GYD_DATA.db.applications.findIndex(a => a.email && a.email.toLowerCase().trim() === cleanInput);
+              if (idx >= 0) window.GYD_DATA.db.applications[idx] = { ...window.GYD_DATA.db.applications[idx], ...match };
+              else window.GYD_DATA.db.applications.unshift(match);
+              if (typeof window.GYD_DATA.syncCommunityUsers === 'function') window.GYD_DATA.syncCommunityUsers();
+              window.GYD_DATA.saveDatabase();
+            }
+            result = authService.loginWithRole(email, password, selectedPortal);
+          }
+        }
+      } catch (err) {}
+    }
+
     if (result.success) {
       closeModal('authModal');
-      if (selectedPortal === 'admin') {
+      const dest = result.portal || selectedPortal;
+      if (dest === 'admin' || dest === 'coordinator') {
         navigateToPortal('coordinator');
         showToast(`Welcome back, ${result.user.name}! Opened Admin Workspace.`, 'success');
-      } else if (selectedPortal === 'presenter') {
+      } else if (dest === 'presenter') {
         navigateToPortal('presenter');
         showToast(`Welcome back, ${result.user.name}! Opened Presenter Portal.`, 'success');
       } else {
