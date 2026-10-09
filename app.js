@@ -5660,7 +5660,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       </svg>
                       Role
                     </button>
-                    <button class="btn btn-outline btn-sm" style="font-size: 0.76rem; padding: 0.25rem 0.45rem; color: #dc2626; border-color: rgba(220, 38, 38, 0.3);" onclick="window.handleDeleteCommunityUser('${u.id}')" title="Remove User">
+                    <button class="btn btn-outline btn-sm" style="font-size: 0.76rem; padding: 0.25rem 0.45rem; color: #dc2626; border-color: rgba(220, 38, 38, 0.3);" onclick="window.openDeleteCommunityUserModal('${u.id}')" title="Remove User">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -5760,19 +5760,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  window.handleDeleteCommunityUser = function(userId) {
+  window.openDeleteCommunityUserModal = function(userId) {
     const user = (dataService.getUsers() || []).find(u => u.id === userId);
     if (!user) return;
 
-    if (confirm(`Are you sure you want to remove "${user.name}" (${user.role}) from the community database?`)) {
-      try {
-        dataService.deleteCommunityUser(userId);
-        showToast(`Removed "${user.name}" from community directory.`, 'normal');
-        renderCoordCommunityRoster();
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
+    const idInput = document.getElementById('deleteCommUserId');
+    const nameEl = document.getElementById('deleteCommUserName');
+    const emailEl = document.getElementById('deleteCommUserEmail');
+    const roleEl = document.getElementById('deleteCommUserRole');
+
+    if (idInput) idInput.value = user.id;
+    if (nameEl) nameEl.textContent = user.name;
+    if (emailEl) emailEl.textContent = user.email;
+    if (roleEl) roleEl.textContent = user.role || 'Member';
+
+    openModal('deleteCommunityUserModal');
+  };
+
+  window.handleConfirmDeleteCommunityUser = function(event) {
+    if (event && event.preventDefault) event.preventDefault();
+    const userId = document.getElementById('deleteCommUserId')?.value;
+    if (!userId) {
+      closeModal('deleteCommunityUserModal');
+      return;
     }
+
+    const user = (dataService.getUsers() || []).find(u => u.id === userId);
+    const userName = user ? user.name : 'Member';
+
+    try {
+      dataService.deleteCommunityUser(userId);
+      closeModal('deleteCommunityUserModal');
+      showToast(`Removed "${userName}" from community directory.`, 'normal');
+      renderCoordCommunityRoster();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  window.handleDeleteCommunityUser = function(userId) {
+    window.openDeleteCommunityUserModal(userId);
   };
 
   window.viewSessionDetail = function(sessionId) {

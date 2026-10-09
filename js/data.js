@@ -1446,18 +1446,39 @@ class DataService {
       targetDb.users = [];
     }
 
+    // Load persistent deleted emails tombstone
+    let deletedEmails = Array.isArray(targetDb.deletedUserEmails) ? targetDb.deletedUserEmails : [];
+    try {
+      const localDeleted = JSON.parse(localStorage.getItem('gyd_deleted_community_emails') || '[]');
+      if (Array.isArray(localDeleted)) {
+        localDeleted.forEach(em => {
+          const clean = (em || '').toLowerCase().trim();
+          if (clean && !deletedEmails.includes(clean)) deletedEmails.push(clean);
+        });
+      }
+    } catch (e) {}
+    targetDb.deletedUserEmails = deletedEmails;
+
     const demoMockEmails = [
       'member@gyd.org', 'presenter@gyd.org', 'coordinator@gyd.org',
       'amara.chen@gyd.org', 'zaid.harbi@gyd.org', 'sofia.morales@gyd.org'
     ];
 
-    // Filter out synthetic mock accounts while preserving all real registered members
-    targetDb.users = targetDb.users.filter(u => !u.email || !demoMockEmails.includes(u.email.toLowerCase().trim()));
+    // Filter out synthetic mock accounts AND explicitly deleted members
+    targetDb.users = targetDb.users.filter(u => {
+      const em = (u.email || '').toLowerCase().trim();
+      if (!em) return true;
+      if (demoMockEmails.includes(em)) return false;
+      if (deletedEmails.includes(em)) return false;
+      return true;
+    });
 
-    // 1. Ensure all curated users from INITIAL_DATABASE.users exist
+    // 1. Ensure all curated users from INITIAL_DATABASE.users exist UNLESS deleted
     if (INITIAL_DATABASE && Array.isArray(INITIAL_DATABASE.users)) {
       INITIAL_DATABASE.users.forEach(initU => {
         const cleanEmail = (initU.email || '').toLowerCase().trim();
+        if (deletedEmails.includes(cleanEmail)) return; // Exclude deleted members
+
         const existing = targetDb.users.find(u => (u.email && u.email.toLowerCase().trim() === cleanEmail) || u.id === initU.id);
         if (!existing) {
           targetDb.users.push(JSON.parse(JSON.stringify(initU)));
@@ -1474,11 +1495,11 @@ class DataService {
       });
     }
 
-    // 2. Synchronize from applications (Approved or Registered)
+    // 2. Synchronize from applications (Approved or Registered) UNLESS deleted
     const apps = Array.isArray(targetDb.applications) ? targetDb.applications : (INITIAL_DATABASE.applications || []);
     apps.forEach(app => {
       const cleanEmail = (app.email || '').toLowerCase().trim();
-      if (!cleanEmail) return;
+      if (!cleanEmail || deletedEmails.includes(cleanEmail)) return; // Exclude deleted members
 
       const isRegisteredOrApproved = app.status === 'Registered' ||
         app.status === 'Approved' ||
@@ -1513,11 +1534,11 @@ class DataService {
       }
     });
 
-    // 3. Synchronize from presenter applications (Approved)
+    // 3. Synchronize from presenter applications (Approved) UNLESS deleted
     const presApps = Array.isArray(targetDb.presenterApplications) ? targetDb.presenterApplications : [];
     presApps.forEach(pApp => {
       const cleanEmail = (pApp.email || '').toLowerCase().trim();
-      if (!cleanEmail) return;
+      if (!cleanEmail || deletedEmails.includes(cleanEmail)) return; // Exclude deleted members
 
       if (pApp.status === 'Approved') {
         let existingUser = targetDb.users.find(u => 
@@ -1558,7 +1579,7 @@ class DataService {
 
     targetDb.users.forEach(u => {
       const email = (u.email || '').toLowerCase().trim();
-      if (!email || seenEmails.has(email)) return;
+      if (!email || seenEmails.has(email) || deletedEmails.includes(email)) return;
       seenEmails.add(email);
       uniqueUsers.push(u);
     });
@@ -1578,6 +1599,18 @@ class DataService {
     const cleanEmail = (email || '').trim().toLowerCase();
     const id = 'usr_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6);
     
+    // If user was previously deleted, un-tombstone them upon re-adding
+    if (Array.isArray(this.db.deletedUserEmails)) {
+      this.db.deletedUserEmails = this.db.deletedUserEmails.filter(e => e !== cleanEmail);
+    }
+    try {
+      let localDeleted = JSON.parse(localStorage.getItem('gyd_deleted_community_emails') || '[]');
+      if (Array.isArray(localDeleted)) {
+        localDeleted = localDeleted.filter(e => e !== cleanEmail);
+        localStorage.setItem('gyd_deleted_community_emails', JSON.stringify(localDeleted));
+      }
+    } catch (e) {}
+
     const newUser = {
       id,
       name: (name || '').trim(),
@@ -1611,12 +1644,43 @@ class DataService {
   }
 
   deleteCommunityUser(userId) {
+    if (!this.db.users) this.db.users = [];
     const user = this.db.users.find(u => u.id === userId);
     if (!user) return false;
-    if (user.id === 'usr_admin_mubashir' || (user.email && user.email.toLowerCase() === '3681mubashircp@gmail.com')) {
+    
+    const cleanEmail = (user.email || '').toLowerCase().trim();
+    if (user.id === 'usr_admin_mubashir' || cleanEmail === '3681mubashircp@gmail.com') {
       throw new Error('Primary administrator cannot be removed.');
     }
-    this.db.users = this.db.users.filter(u => u.id !== userId);
+
+    // 1. Maintain persistent tombstone of deleted emails
+    if (!Array.isArray(this.db.deletedUserEmails)) {
+      this.db.deletedUserEmails = [];
+    }
+    if (cleanEmail && !this.db.deletedUserEmails.includes(cleanEmail)) {
+      this.db.deletedUserEmails.push(cleanEmail);
+    }
+    try {
+      const stored = JSON.parse(localStorage.getItem('gyd_deleted_community_emails') || '[]');
+      if (cleanEmail && !stored.includes(cleanEmail)) {
+        stored.push(cleanEmail);
+        localStorage.setItem('gyd_deleted_community_emails', JSON.stringify(stored));
+      }
+    } catch (e) {}
+
+    // 2. Remove user from this.db.users
+    this.db.users = this.db.users.filter(u => u.id !== userId && (!u.email || u.email.toLowerCase().trim() !== cleanEmail));
+
+    // 3. Remove corresponding applications
+    if (Array.isArray(this.db.applications)) {
+      this.db.applications = this.db.applications.filter(a => !a.email || a.email.toLowerCase().trim() !== cleanEmail);
+    }
+
+    // 4. Remove corresponding presenter applications
+    if (Array.isArray(this.db.presenterApplications)) {
+      this.db.presenterApplications = this.db.presenterApplications.filter(a => !a.email || a.email.toLowerCase().trim() !== cleanEmail);
+    }
+
     this.saveDatabase();
     return true;
   }
