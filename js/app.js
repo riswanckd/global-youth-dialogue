@@ -223,19 +223,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // MODAL CONTROLLERS
+  // MODAL & OVERLAY CONTROLLERS (WITH BROWSER BACK BUTTON SUPPORT)
   // =========================================================================
-  function openModal(modalId) {
+  let modalHistoryStack = [];
+  let drawerHistoryActive = false;
+  let isNavigatingBack = false;
+
+  function openModal(modalId, pushHistory = true) {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.style.display = 'flex';
       modal.offsetHeight; // force reflow
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      if (pushHistory && !modalHistoryStack.includes(modalId)) {
+        modalHistoryStack.push(modalId);
+        try {
+          history.pushState({ type: 'modal', modalId: modalId }, '', window.location.href);
+        } catch (e) {}
+      }
     }
   }
 
-  function closeModal(modalId) {
+  function closeModal(modalId, triggerHistoryBack = true) {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
@@ -245,11 +256,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }, 250);
       document.body.style.overflow = '';
+
+      const idx = modalHistoryStack.lastIndexOf(modalId);
+      if (idx !== -1) {
+        modalHistoryStack.splice(idx, 1);
+        if (triggerHistoryBack && !isNavigatingBack && history.state && history.state.type === 'modal' && history.state.modalId === modalId) {
+          try {
+            history.back();
+          } catch (e) {}
+        }
+      }
     }
+  }
+
+  function closeAllActiveModals(triggerHistoryBack = false) {
+    document.querySelectorAll('.modal-backdrop.active, .modal-backdrop[style*="display: flex"]').forEach(modal => {
+      closeModal(modal.id, triggerHistoryBack);
+    });
+    modalHistoryStack = [];
   }
 
   window.openModal = openModal;
   window.closeModal = closeModal;
+  window.closeAllActiveModals = closeAllActiveModals;
 
   // Modal event listeners
   document.getElementById('headerLoginBtn')?.addEventListener('click', () => openModal('authModal'));
@@ -278,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Switch between Login and Apply modal
   document.getElementById('switchApplyModalBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
-    closeModal('authModal');
+    closeModal('authModal', false);
     openUnifiedApplyModal();
   });
 
@@ -291,10 +320,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Close modals and drawer on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (modalHistoryStack.length > 0) {
+        closeModal(modalHistoryStack[modalHistoryStack.length - 1]);
+      } else {
+        const activeModals = document.querySelectorAll('.modal-backdrop.active');
+        if (activeModals.length > 0) {
+          activeModals.forEach(m => closeModal(m.id));
+        } else if (drawerHistoryActive) {
+          closeMobileDrawer();
+        }
+      }
+    }
+  });
+
   // =========================================================================
   // MOBILE NAVIGATION DRAWER CONTROLLER
   // =========================================================================
-  function openMobileDrawer() {
+  function openMobileDrawer(pushHistory = true) {
     const drawer = document.getElementById('mobileNavDrawer');
     const backdrop = document.getElementById('mobileDrawerBackdrop');
     if (drawer && backdrop) {
@@ -302,28 +347,45 @@ document.addEventListener('DOMContentLoaded', () => {
       backdrop.classList.add('active');
       drawer.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+
+      if (pushHistory) {
+        drawerHistoryActive = true;
+        try {
+          history.pushState({ type: 'drawer' }, '', window.location.href);
+        } catch (e) {}
+      }
     }
   }
 
-  function closeMobileDrawer() {
+  function closeMobileDrawer(triggerHistoryBack = true) {
     const drawer = document.getElementById('mobileNavDrawer');
     const backdrop = document.getElementById('mobileDrawerBackdrop');
     if (drawer && backdrop) {
+      const wasActive = drawer.classList.contains('active');
       drawer.classList.remove('active');
       backdrop.classList.remove('active');
       drawer.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+
+      if (wasActive && drawerHistoryActive && triggerHistoryBack && !isNavigatingBack && history.state && history.state.type === 'drawer') {
+        drawerHistoryActive = false;
+        try {
+          history.back();
+        } catch (e) {}
+      } else {
+        drawerHistoryActive = false;
+      }
     }
   }
 
   // Mobile drawer triggers
-  document.getElementById('mobileMenuToggleBtn')?.addEventListener('click', openMobileDrawer);
-  document.getElementById('mobileDrawerCloseBtn')?.addEventListener('click', closeMobileDrawer);
-  document.getElementById('mobileDrawerBackdrop')?.addEventListener('click', closeMobileDrawer);
+  document.getElementById('mobileMenuToggleBtn')?.addEventListener('click', () => openMobileDrawer(true));
+  document.getElementById('mobileDrawerCloseBtn')?.addEventListener('click', () => closeMobileDrawer(true));
+  document.getElementById('mobileDrawerBackdrop')?.addEventListener('click', () => closeMobileDrawer(true));
 
   document.querySelectorAll('.mobile-nav-link').forEach(link => {
     link.addEventListener('click', () => {
-      closeMobileDrawer();
+      closeMobileDrawer(false);
     });
   });
 
@@ -591,13 +653,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function navigateToPortal(portalName) {
+  function navigateToPortal(portalName, pushHistory = true) {
     const viewPublic = document.getElementById('viewPublic');
     const viewMember = document.getElementById('viewMember');
     const viewCoordinator = document.getElementById('viewCoordinator');
     const viewSignIn = document.getElementById('viewSignIn');
-
     const viewPresenter = document.getElementById('viewPresenter');
+
+    // Close any open modals and drawer when navigating between portals
+    if (typeof closeAllActiveModals === 'function') closeAllActiveModals(false);
+    if (typeof closeMobileDrawer === 'function') closeMobileDrawer(false);
 
     // Hide all
     if (viewPublic) viewPublic.style.display = 'none';
@@ -607,11 +672,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (viewSignIn) viewSignIn.style.display = 'none';
 
     activePortal = portalName;
+    let targetHash = portalName;
 
     if (portalName === 'coordinator') {
       if (!authService.isCoordinator()) {
         showToast('Coordinator clearance required. Please sign in.', 'error');
-        navigateToPortal('signin');
+        navigateToPortal('signin', pushHistory);
         return;
       }
       if (viewCoordinator) viewCoordinator.style.display = 'block';
@@ -620,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (portalName === 'presenter') {
       if (!authService.isLoggedIn()) {
         showToast('Presenter access required. Please sign in.', 'error');
-        navigateToPortal('signin');
+        navigateToPortal('signin', pushHistory);
         return;
       }
       if (viewPresenter) viewPresenter.style.display = 'block';
@@ -629,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (portalName === 'member') {
       if (!authService.isLoggedIn()) {
         showToast('Member access required. Please sign in.', 'error');
-        navigateToPortal('signin');
+        navigateToPortal('signin', pushHistory);
         return;
       }
       if (viewMember) viewMember.style.display = 'block';
@@ -639,11 +705,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = authService.getCurrentUser();
       if (user) {
         if (user.role === 'Coordinator') {
-          navigateToPortal('coordinator');
+          navigateToPortal('coordinator', pushHistory);
         } else if (user.role === 'Presenter' || user.role === 'Speaker') {
-          navigateToPortal('presenter');
+          navigateToPortal('presenter', pushHistory);
         } else {
-          navigateToPortal('member');
+          navigateToPortal('member', pushHistory);
         }
         return;
       }
@@ -652,9 +718,22 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => checkApprovedVisitorRedirect(), 180);
     } else {
       activePortal = 'public';
+      targetHash = currentPublicSection || 'home';
       if (viewPublic) viewPublic.style.display = 'block';
       renderPublicPage();
       window.scrollTo(0, 0);
+    }
+
+    // Push browser history so back button returns to previous page instead of closing web app
+    if (pushHistory && !isNavigatingBack) {
+      const currentHash = (window.location.hash || '').replace(/^#/, '');
+      if (currentHash !== targetHash) {
+        try {
+          history.pushState({ type: 'portal', portal: activePortal, section: currentPublicSection }, '', `#${targetHash}`);
+        } catch (e) {
+          window.location.hash = `#${targetHash}`;
+        }
+      }
     }
 
     updateAuthHeaderUI();
@@ -871,11 +950,18 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('demoPresenterBtn')?.addEventListener('click', () => window.signInDemoPresenter());
   document.getElementById('demoMemberBtn')?.addEventListener('click', () => window.signInDemoMember());
 
-  // Navigation Links on Unified Sign In Portal
-  document.getElementById('authToPublicLink')?.addEventListener('click', (e) => {
+  // Navigation Links on Unified Sign In Portal (In-Page Back to Home)
+  const handleAuthBackNav = (e) => {
     e.preventDefault();
-    navigateToPortal('public');
-  });
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateToPortal('public');
+    }
+  };
+
+  document.getElementById('authToPublicLink')?.addEventListener('click', handleAuthBackNav);
+  document.getElementById('authTopBackBtn')?.addEventListener('click', handleAuthBackNav);
 
   document.getElementById('authToApplyLink')?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -1379,7 +1465,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   let currentPublicSection = 'home';
 
-  function switchPublicSection(sectionId) {
+  function switchPublicSection(sectionId, pushHistory = true) {
     const rawId = (sectionId || 'home').replace(/^#/, '');
     const validSections = ['home', 'about', 'topics', 'sessions', 'impact'];
     const targetId = validSections.includes(rawId) ? rawId : 'home';
@@ -1408,15 +1494,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Close mobile drawer if open
-    closeMobileDrawer();
+    closeMobileDrawer(false);
 
     // Scroll window smoothly to top of the view
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Update URL hash cleanly
-    if (window.location.hash !== `#${targetId}`) {
+    // Update URL hash cleanly and push browser history so Back button goes to previous section!
+    const currentHash = (window.location.hash || '').replace(/^#/, '');
+    if (currentHash !== targetId) {
       try {
-        history.replaceState(null, '', `#${targetId}`);
+        if (pushHistory && !isNavigatingBack) {
+          history.pushState({ type: 'section', portal: 'public', section: targetId }, '', `#${targetId}`);
+        } else {
+          history.replaceState({ type: 'section', portal: 'public', section: targetId }, '', `#${targetId}`);
+        }
       } catch (e) {
         window.location.hash = `#${targetId}`;
       }
@@ -2202,7 +2293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function switchMemberSubview(targetName) {
+  function switchMemberSubview(targetName, pushHistory = true) {
     currentMemberSubview = targetName;
 
     // Update active class on sidebar items
@@ -2250,6 +2341,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'journey') renderMemberJourneyView();
     if (targetName === 'certificate') renderMemberCertificate();
     if (targetName === 'profile') renderProfileView('member');
+
+    if (pushHistory && !isNavigatingBack && activePortal === 'member') {
+      try {
+        history.pushState({ type: 'portalSub', portal: 'member', subview: targetName }, '', `#member/${targetName}`);
+      } catch (e) {}
+    }
 
     window.scrollTo(0, 0);
   }
@@ -3193,7 +3290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function switchPresenterSubview(targetName) {
+  function switchPresenterSubview(targetName, pushHistory = true) {
     currentPresenterSubview = targetName;
 
     // Active classes
@@ -3230,6 +3327,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'sessions') renderPresenterSessionsList();
     if (targetName === 'writings') renderPresenterWritingsView();
     if (targetName === 'profile') renderProfileView('presenter');
+
+    if (pushHistory && !isNavigatingBack && activePortal === 'presenter') {
+      try {
+        history.pushState({ type: 'portalSub', portal: 'presenter', subview: targetName }, '', `#presenter/${targetName}`);
+      } catch (e) {}
+    }
 
     window.scrollTo(0, 0);
   }
@@ -4422,7 +4525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Delete Trial Data sidebar/dashboard button — handled globally, no need to re-bind here
   }
 
-  function switchCoordSubview(targetName) {
+  function switchCoordSubview(targetName, pushHistory = true) {
     currentCoordSubview = targetName;
 
     // Update active class on sidebar
@@ -4477,6 +4580,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetName === 'countries') renderCountryChapters();
     if (targetName === 'media') renderMediaKits();
     if (targetName === 'profile') renderProfileView('coordinator');
+
+    if (pushHistory && !isNavigatingBack && activePortal === 'coordinator') {
+      try {
+        history.pushState({ type: 'portalSub', portal: 'coordinator', subview: targetName }, '', `#coordinator/${targetName}`);
+      } catch (e) {}
+    }
 
     window.scrollTo(0, 0);
   }
@@ -7040,19 +7149,127 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Initialize base browser history state on load so Back navigation has an in-app root
+  try {
+    if (!history.state) {
+      const initialHash = (window.location.hash || '').replace(/^#/, '') || 'home';
+      const isPublic = ['home', 'about', 'topics', 'sessions', 'impact'].includes(initialHash);
+      history.replaceState({
+        type: isPublic ? 'section' : 'portal',
+        portal: isPublic ? 'public' : initialHash,
+        section: isPublic ? initialHash : 'home'
+      }, '', window.location.hash || '#home');
+    }
+  } catch (e) {}
+
+  // Handle popstate for native browser & mobile phone Back button navigation
+  window.addEventListener('popstate', (e) => {
+    isNavigatingBack = true;
+
+    try {
+      // 1. If any modal is currently open, dismiss it and stay on the current page
+      if (modalHistoryStack && modalHistoryStack.length > 0) {
+        const topModalId = modalHistoryStack.pop();
+        const modal = document.getElementById(topModalId);
+        if (modal) {
+          modal.classList.remove('active');
+          setTimeout(() => {
+            if (!modal.classList.contains('active')) modal.style.display = 'none';
+          }, 250);
+          document.body.style.overflow = '';
+        }
+        return;
+      }
+
+      const openModals = document.querySelectorAll('.modal-backdrop.active, .modal-backdrop[style*="display: flex"]');
+      if (openModals.length > 0) {
+        openModals.forEach(m => {
+          m.classList.remove('active');
+          m.style.display = 'none';
+        });
+        document.body.style.overflow = '';
+        return;
+      }
+
+      // 2. If mobile drawer is open, dismiss it and stay on the current page
+      const drawer = document.getElementById('mobileNavDrawer');
+      if (drawer && drawer.classList.contains('active')) {
+        closeMobileDrawer(false);
+        return;
+      }
+
+      // 3. Handle state or URL hash restoration
+      const state = e.state;
+      const rawHash = (window.location.hash || '').replace(/^#/, '');
+
+      if (state && state.type === 'portalSub') {
+        if (activePortal !== state.portal) navigateToPortal(state.portal, false);
+        if (state.portal === 'member' && typeof switchMemberSubview === 'function') {
+          switchMemberSubview(state.subview, false);
+        } else if (state.portal === 'coordinator' && typeof switchCoordSubview === 'function') {
+          switchCoordSubview(state.subview, false);
+        } else if (state.portal === 'presenter' && typeof switchPresenterSubview === 'function') {
+          switchPresenterSubview(state.subview, false);
+        }
+        return;
+      }
+
+      if (state && state.type === 'portal') {
+        navigateToPortal(state.portal, false);
+        if (state.portal === 'public') {
+          switchPublicSection(state.section || 'home', false);
+        }
+        return;
+      }
+
+      if (state && state.type === 'section') {
+        if (activePortal !== 'public') navigateToPortal('public', false);
+        switchPublicSection(state.section || 'home', false);
+        return;
+      }
+
+      // Fallback hash check
+      if (rawHash === 'signin' || rawHash === 'login') {
+        navigateToPortal('signin', false);
+      } else if (rawHash.startsWith('member')) {
+        const parts = rawHash.split('/');
+        navigateToPortal('member', false);
+        if (parts[1] && typeof switchMemberSubview === 'function') switchMemberSubview(parts[1], false);
+      } else if (rawHash.startsWith('coordinator')) {
+        const parts = rawHash.split('/');
+        navigateToPortal('coordinator', false);
+        if (parts[1] && typeof switchCoordSubview === 'function') switchCoordSubview(parts[1], false);
+      } else if (rawHash.startsWith('presenter')) {
+        const parts = rawHash.split('/');
+        navigateToPortal('presenter', false);
+        if (parts[1] && typeof switchPresenterSubview === 'function') switchPresenterSubview(parts[1], false);
+      } else {
+        const valid = ['about', 'topics', 'sessions', 'impact'];
+        const section = valid.includes(rawHash) ? rawHash : 'home';
+        if (activePortal !== 'public') navigateToPortal('public', false);
+        switchPublicSection(section, false);
+      }
+    } finally {
+      setTimeout(() => {
+        isNavigatingBack = false;
+      }, 50);
+    }
+  });
+
   // Handle URL hash changes for direct navigation
   window.addEventListener('hashchange', () => {
+    if (isNavigatingBack) return;
     const rawHash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
     if (rawHash === 'signin' || rawHash === 'login') {
-      navigateToPortal('signin');
+      if (activePortal !== 'signin') navigateToPortal('signin', false);
     } else if (rawHash === 'public' || rawHash === 'home') {
-      if (activePortal !== 'public') navigateToPortal('public');
-      switchPublicSection('home');
+      if (activePortal !== 'public') navigateToPortal('public', false);
+      switchPublicSection('home', false);
     } else {
       const valid = ['about', 'topics', 'sessions', 'impact'];
       if (valid.includes(rawHash)) {
-        if (activePortal !== 'public') navigateToPortal('public');
-        switchPublicSection(rawHash);
+        if (activePortal !== 'public') navigateToPortal('public', false);
+        switchPublicSection(rawHash, false);
       }
     }
   });
