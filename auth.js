@@ -195,20 +195,64 @@ class AuthService {
       return { success: false, message: 'Your account is pending admin approval or review.' };
     }
 
-    // --- Role-portal gatekeeping with smart auto-routing ---
-    let destinationPortal = portal || 'member';
-    if (destinationPortal === 'admin') {
-      if (user.role !== 'Coordinator' && user.role !== 'Admin') {
-        // User is an approved Member/Presenter — route them smoothly to Member Dashboard instead of blocking with error
-        destinationPortal = 'member';
+    // --- Role-portal gatekeeping with strict role permissions ---
+    // Member: ONLY access to Member dashboard
+    // Presenter: ONLY access to Presenter and Member dashboards (no Admin)
+    // Admin: access to EVERY dashboard as he wishes
+    const isAdmin = (
+      user.role === 'Coordinator' ||
+      user.role === 'Admin' ||
+      cleanEmail === '3681mubashircp@gmail.com' ||
+      user.id === 'usr_admin_mubashir'
+    );
+    const isPresenter = (
+      user.role === 'Presenter' ||
+      user.role === 'Speaker' ||
+      user.isApprovedPresenter === true
+    );
+    const isMemberOnly = !isAdmin && !isPresenter;
+
+    const requestedPortal = (portal || 'member').toLowerCase();
+    let destinationPortal = 'member';
+
+    if (isMemberOnly) {
+      if (requestedPortal === 'admin' || requestedPortal === 'coordinator') {
+        return {
+          success: false,
+          message: 'Access Denied: Your account has Member privileges only. Please select the Member tab to sign in.',
+          requiredRole: 'member'
+        };
       }
-    } else if (destinationPortal === 'presenter') {
-      const isApprovedPresenter = user.role === 'Presenter' || user.role === 'Speaker' || user.role === 'Coordinator' || user.role === 'Admin' || user.isApprovedPresenter === true;
-      if (!isApprovedPresenter) {
-        destinationPortal = 'member';
+      if (requestedPortal === 'presenter') {
+        return {
+          success: false,
+          message: 'Access Denied: Your account has Member privileges only. Please select the Member tab to sign in.',
+          requiredRole: 'member'
+        };
       }
-    } else {
       destinationPortal = 'member';
+    } else if (isPresenter && !isAdmin) {
+      if (requestedPortal === 'admin' || requestedPortal === 'coordinator') {
+        return {
+          success: false,
+          message: 'Access Denied: Your account does not have Admin / Coordinator privileges. Please select Presenter or Member to sign in.',
+          requiredRole: 'presenter'
+        };
+      }
+      if (requestedPortal === 'presenter') {
+        destinationPortal = 'presenter';
+      } else {
+        destinationPortal = 'member';
+      }
+    } else if (isAdmin) {
+      // Admin has access to every dashboard as he wishes
+      if (requestedPortal === 'admin' || requestedPortal === 'coordinator') {
+        destinationPortal = 'coordinator';
+      } else if (requestedPortal === 'presenter') {
+        destinationPortal = 'presenter';
+      } else {
+        destinationPortal = 'member';
+      }
     }
 
     this.saveSession(user);

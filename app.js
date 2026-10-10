@@ -820,7 +820,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       if (errEl) {
-        errEl.textContent = result.message;
+        errEl.innerHTML = `
+          <div style="font-weight: 600; line-height: 1.4;">${result.message}</div>
+          ${result.requiredRole ? `
+            <div style="margin-top: 0.6rem;">
+              <button type="button" class="btn btn-sm btn-primary" onclick="window.selectSignInRole('${result.requiredRole}')" style="padding: 0.3rem 0.75rem; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer;">
+                Switch to ${result.requiredRole.charAt(0).toUpperCase() + result.requiredRole.slice(1)} Tab &rarr;
+              </button>
+            </div>
+          ` : ''}
+        `;
         errEl.style.display = 'block';
       }
       showToast(result.message, 'error');
@@ -1008,6 +1017,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  window.selectSignInRole = function(role) {
+    document.querySelectorAll('.role-segmented-switcher').forEach(switcher => {
+      const btn = switcher.querySelector(`.role-segmented-tab[data-role="${role}"]`);
+      if (btn) {
+        switcher.querySelectorAll('.role-segmented-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+      }
+    });
+    const hiddenInputs = document.querySelectorAll('#unifiedRoleInput, #modalPortalRoleInput');
+    hiddenInputs.forEach(input => { input.value = role; });
+    const errAlert = document.getElementById('authErrorAlert');
+    if (errAlert) errAlert.style.display = 'none';
+    const pageErr = document.getElementById('signinErrorMsg');
+    if (pageErr) pageErr.style.display = 'none';
+  };
+
   // Modal Login Form Handler with Strict Role & Portal Gatekeeping
   document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1063,7 +1092,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       if (errAlert) {
-        errAlert.textContent = result.message;
+        errAlert.innerHTML = `
+          <div style="font-weight: 600; line-height: 1.4;">${result.message}</div>
+          ${result.requiredRole ? `
+            <div style="margin-top: 0.6rem;">
+              <button type="button" class="btn btn-sm btn-primary" onclick="window.selectSignInRole('${result.requiredRole}')" style="padding: 0.3rem 0.75rem; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer;">
+                Switch to ${result.requiredRole.charAt(0).toUpperCase() + result.requiredRole.slice(1)} Tab &rarr;
+              </button>
+            </div>
+          ` : ''}
+        `;
         errAlert.style.display = 'block';
       }
       showToast(result.message, 'error');
