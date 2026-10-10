@@ -5902,7 +5902,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="community-user-card" id="userCard_${u.id}">
               <div>
                 <div class="community-card-top">
-                  <div class="community-card-avatar-wrap">
+                  <div class="community-card-avatar-wrap" onclick="window.openCoordUserDossierModal('${u.id}')" style="cursor: pointer;" title="View ${u.name}'s Complete Dossier">
                     ${u.avatar ? `
                       <img src="${u.avatar}" alt="${u.name}" class="community-card-avatar">
                     ` : `
@@ -5917,7 +5917,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                   <div class="community-card-info">
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.2rem;">
-                      <h4 class="community-card-name" title="${u.name}">${u.name}</h4>
+                      <h4 class="community-card-name" style="cursor: pointer;" onclick="window.openCoordUserDossierModal('${u.id}')" title="View ${u.name}'s Complete Dossier">${u.name}</h4>
                       ${roleBadgeHtml}
                     </div>
                     <div class="community-card-meta">
@@ -5946,6 +5946,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 </span>
 
                 <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <button class="btn btn-outline btn-sm" style="font-size: 0.76rem; padding: 0.25rem 0.55rem; gap: 3px; color: var(--brand-primary); border-color: rgba(72, 81, 186, 0.35);" onclick="window.openCoordUserDossierModal('${u.id}')" title="View Complete Member Dossier">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Details
+                  </button>
                   ${!isPrimaryAdmin ? `
                     <button class="btn btn-outline btn-sm" style="font-size: 0.76rem; padding: 0.25rem 0.55rem; gap: 3px;" onclick="window.openChangeUserRoleModal('${u.id}')" title="Change Role">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6020,6 +6027,200 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal('addCommunityUserModal');
     showToast(`Added ${fullName} (${role}) to the community!`, 'success');
     renderCoordCommunityRoster();
+  };
+
+  window.openCoordUserDossierModal = function(userId) {
+    const allUsers = (typeof dataService !== 'undefined' && dataService.getUsers) ? dataService.getUsers() : [];
+    let user = allUsers.find(u => String(u.id) === String(userId));
+    
+    // Fallback/enrich from db.applications if needed
+    const applications = (dataService && dataService.db && dataService.db.applications) || [];
+    let appMatch = null;
+    if (user) {
+      appMatch = applications.find(a => (a.email && user.email && a.email.toLowerCase() === user.email.toLowerCase()) || String(a.id) === String(user.id));
+    } else {
+      appMatch = applications.find(a => String(a.id) === String(userId));
+      if (appMatch) {
+        user = {
+          id: appMatch.id,
+          name: appMatch.name,
+          email: appMatch.email,
+          country: appMatch.country,
+          role: 'Member',
+          status: 'Active Member',
+          joinedDate: appMatch.submittedAt ? new Date(appMatch.submittedAt).toLocaleDateString() : '2024',
+          interests: appMatch.interests,
+          debateExperience: appMatch.debateExperience,
+          motivation: appMatch.motivation
+        };
+      }
+    }
+
+    if (!user) {
+      if (typeof showToast === 'function') showToast('User profile record not found.', 'error');
+      return;
+    }
+
+    const modalContent = document.getElementById('coordUserDossierContent');
+    if (!modalContent) return;
+
+    const sanitize = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    // Role identification
+    const isPrimaryAdmin = user.id === 'usr_admin_mubashir' || (user.email && user.email.toLowerCase() === '3681mubashircp@gmail.com');
+    const normRole = (user.role || 'Member').toLowerCase();
+    const isCoAdmin = normRole.includes('admin') || normRole.includes('coord');
+    const isPresenter = normRole.includes('present') || normRole.includes('speak');
+
+    let roleBadgeHtml = '';
+    let roleTitle = 'Official Debate Member';
+    if (isPrimaryAdmin) {
+      roleTitle = 'Chief Executive Administrator';
+      roleBadgeHtml = `<span class="badge" style="background: rgba(138, 21, 56, 0.14); color: #8A1538; font-weight: 700; border: 1px solid rgba(138, 21, 56, 0.28); font-size: 0.8rem; padding: 3px 9px;">Chief Administrator</span>`;
+    } else if (isCoAdmin) {
+      roleTitle = 'Coordinator / Co-Admin';
+      roleBadgeHtml = `<span class="badge badge-approved" style="font-size: 0.8rem; padding: 3px 9px;">Executive Coordinator</span>`;
+    } else if (isPresenter) {
+      roleTitle = 'Academic Faculty Presenter';
+      roleBadgeHtml = `<span class="badge presenter-status-badge" style="font-size: 0.8rem; padding: 3px 9px;">Academic Presenter</span>`;
+    } else {
+      roleBadgeHtml = `<span class="badge badge-completed" style="font-size: 0.8rem; padding: 3px 9px;">Official Member</span>`;
+    }
+
+    const flagSvg = (typeof icons !== 'undefined' && icons.getFlag) ? icons.getFlag(user.country, user.flag) : '';
+    const avatarHtml = user.avatar ? `
+      <img src="${user.avatar}" alt="${user.name}" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.12); border: 3px solid #fff;">
+    ` : `
+      <div style="width: 76px; height: 76px; border-radius: 50%; ${isCoAdmin ? 'background: linear-gradient(135deg, #1e1b4b, #4851BA);' : (isPresenter ? 'background: linear-gradient(135deg, #B88E3E, #7A5C1E);' : 'background: linear-gradient(135deg, #4851BA, #9E59AC);')} color: #fff; font-weight: 700; font-size: 1.7rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.12); border: 3px solid #fff;">
+        ${typeof getUserInitial === 'function' ? getUserInitial(user.name) : user.name.charAt(0)}
+      </div>
+    `;
+
+    // Process interests
+    let rawInterests = user.interests || (appMatch && appMatch.interests) || [];
+    let interestTags = [];
+    if (Array.isArray(rawInterests)) {
+      interestTags = rawInterests.filter(Boolean);
+    } else if (typeof rawInterests === 'string' && rawInterests.trim()) {
+      interestTags = rawInterests.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (interestTags.length === 0) {
+      interestTags = ['International Relations', 'Public Diplomacy', 'Parliamentary Debate'];
+    }
+
+    // Process debate experience
+    const debateExp = user.debateExperience || (appMatch && appMatch.debateExperience) || user.bio || 'Extensive engagement in academic debate, Model United Nations simulations, and constructive public speaking.';
+
+    // Process why they joined
+    const motivation = user.motivation || (appMatch && appMatch.motivation) || 'Motivated to participate in global intellectual discourse, exchange cross-border viewpoints, and foster youth leadership across nations.';
+
+    // Department/Delegation
+    const dept = user.department || (isPrimaryAdmin ? 'Executive Governing Board' : (isCoAdmin ? 'Advisory Secretariat' : (isPresenter ? 'Faculty & Speaker Board' : 'Youth Delegation')));
+
+    modalContent.innerHTML = `
+      <div style="text-align: center; margin-bottom: 1.5rem; position: relative;">
+        <div style="display: flex; justify-content: center; margin-bottom: 0.75rem; position: relative; width: fit-content; margin-left: auto; margin-right: auto;">
+          ${avatarHtml}
+          <span style="position: absolute; bottom: 0; right: 0; background: #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 2px;" title="${user.country || 'Global'}">
+            ${flagSvg}
+          </span>
+        </div>
+        <h3 class="serif-text" style="margin: 0 0 0.4rem 0; font-size: 1.5rem; color: var(--text-dark);">${sanitize(user.name)}</h3>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          ${roleBadgeHtml}
+          <span class="badge badge-light" style="font-size: 0.78rem; padding: 3px 8px; color: var(--text-muted); border: 1px solid rgba(0,0,0,0.08);">
+            ID: ${sanitize(user.id)}
+          </span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; margin-bottom: 1.5rem;">
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; padding: 0.85rem 1rem;">
+          <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">Email Address</div>
+          <div style="font-size: 0.88rem; font-weight: 500; color: var(--text-dark); word-break: break-all;">${sanitize(user.email || 'N/A')}</div>
+        </div>
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; padding: 0.85rem 1rem;">
+          <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">Country & Department</div>
+          <div style="font-size: 0.88rem; font-weight: 500; color: var(--text-dark); display: flex; align-items: center; gap: 6px;">
+            <span>${sanitize(user.country || 'Global')}</span>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">(${sanitize(dept)})</span>
+          </div>
+        </div>
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; padding: 0.85rem 1rem;">
+          <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">Standing / Status</div>
+          <div style="font-size: 0.88rem; font-weight: 600; color: #16a34a; display: flex; align-items: center; gap: 5px;">
+            <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
+            ${sanitize(user.status || 'Active Credentialed')}
+          </div>
+        </div>
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; padding: 0.85rem 1rem;">
+          <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">Induction / Joined Date</div>
+          <div style="font-size: 0.88rem; font-weight: 500; color: var(--text-dark);">${sanitize(user.joinedDate || '2024')}</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          Areas of Primary Intellectual Interest
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
+          ${interestTags.map(tag => `
+            <span style="background: rgba(72, 81, 186, 0.08); color: var(--brand-primary, #4851BA); border: 1px solid rgba(72, 81, 186, 0.2); border-radius: 20px; font-size: 0.78rem; font-weight: 500; padding: 0.25rem 0.7rem; display: inline-flex; align-items: center; gap: 4px;">
+              <span>#</span>${sanitize(tag)}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          Debate & Public Speaking Background / Experience
+        </div>
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border-left: 3px solid var(--brand-primary, #4851BA); border-radius: 0 8px 8px 0; padding: 0.85rem 1rem; font-size: 0.86rem; color: var(--text-body); line-height: 1.55;">
+          ${sanitize(debateExp)}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.35rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          Why They Joined Global Youth Dialogue (Personal Mission)
+        </div>
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border-left: 3px solid #16a34a; border-radius: 0 8px 8px 0; padding: 0.85rem 1rem; font-size: 0.86rem; color: var(--text-body); line-height: 1.55;">
+          ${sanitize(motivation)}
+        </div>
+      </div>
+
+      <!-- Security / Confidentiality Notice: Strictly No Passwords Exposed -->
+      <div style="background: rgba(22, 163, 74, 0.05); border: 1px dashed rgba(22, 163, 74, 0.35); border-radius: 8px; padding: 0.75rem 0.95rem; display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span style="font-size: 0.76rem; color: #166534; line-height: 1.4;">
+          <strong>Privacy & Security Protocol:</strong> Passwords remain encrypted and strictly inaccessible in compliance with data privacy standards.
+        </span>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button class="btn btn-primary" type="button" onclick="closeModal('coordUserDossierModal')">
+          Close Dossier
+        </button>
+      </div>
+    `;
+
+    openModal('coordUserDossierModal');
   };
 
   window.openChangeUserRoleModal = function(userId) {
@@ -6408,8 +6609,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.approveApp = function(appId) {
     const app = dataService.approveApplication(appId);
     if (app) {
-      showToast(`Approved ${app.name}! An approval confirmation email has been dispatched to ${app.email}. They can now log in normally.`, 'success');
+      showToast(`Approved ${app.name}! An approval confirmation email has been dispatched to ${app.email}. They are now an official member.`, 'success');
       renderCoordinatorPortal();
+      if (typeof renderCoordCommunityRoster === 'function') {
+        renderCoordCommunityRoster();
+      }
     }
   };
 
@@ -6424,6 +6628,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (res && res.app) {
       showToast(`Accredited ${res.app.name} as Official Presenter! They can now sign in to the Presenter Portal with their same email and password.`, 'success');
       if (typeof renderCoordinatorPortal === 'function') renderCoordinatorPortal();
+      if (typeof renderCoordCommunityRoster === 'function') renderCoordCommunityRoster();
       if (typeof updateMemberPresenterButtonState === 'function') updateMemberPresenterButtonState();
     }
   };

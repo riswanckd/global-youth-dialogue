@@ -1538,24 +1538,35 @@ class DataService {
             id: 'usr_' + (app.id ? app.id.replace('app_', '') : Date.now().toString(36)),
             name: app.name,
             email: cleanEmail,
-            password: 'gyde2024',
+            password: app.password || 'gyde2024',
             role: 'Member',
             department: `Youth Delegation • ${app.country || 'Global'}`,
             country: app.country || 'Global',
             flag: app.flag || 'INT',
             bio: app.motivation || app.debateExperience || `Verified member representing ${app.country || 'Global'}.`,
             interests: app.interests || ['Global Affairs'],
+            debateExperience: app.debateExperience || '',
+            motivation: app.motivation || '',
             status: 'active',
             joinedDate: app.date || new Date().toISOString().split('T')[0]
           };
           targetDb.users.push(newUser);
         } else {
+          if (!existingUser.password && app.password) existingUser.password = app.password;
           if (!existingUser.country && app.country) existingUser.country = app.country;
           if (!existingUser.flag && app.flag) existingUser.flag = app.flag;
           if (!existingUser.bio && (app.motivation || app.debateExperience)) {
             existingUser.bio = app.motivation || app.debateExperience;
           }
-          if (!existingUser.interests && app.interests) existingUser.interests = app.interests;
+          if ((!existingUser.interests || existingUser.interests.length === 0) && app.interests) {
+            existingUser.interests = app.interests;
+          }
+          if (!existingUser.debateExperience && app.debateExperience) {
+            existingUser.debateExperience = app.debateExperience;
+          }
+          if (!existingUser.motivation && app.motivation) {
+            existingUser.motivation = app.motivation;
+          }
         }
       }
     });
@@ -1818,9 +1829,11 @@ class DataService {
               this.db.applications[idx] = { ...this.db.applications[idx], ...rApp, status: finalStatus };
             }
           });
+          this.syncCommunityUsers();
           this.saveDatabase();
           if (typeof renderCoordDashboardContent === 'function') renderCoordDashboardContent();
           if (typeof renderCoordApplicationsList === 'function') renderCoordApplicationsList();
+          if (typeof renderCoordCommunityRoster === 'function') renderCoordCommunityRoster();
           if (typeof window.checkApprovedApplicantNotice === 'function') window.checkApprovedApplicantNotice();
         }
       }
@@ -2164,6 +2177,8 @@ class DataService {
       flag: app.flag || 'INT',
       bio: app.motivation || app.debateExperience || `Verified member representing ${app.country || 'Global'}.`,
       interests: app.interests || ['Global Affairs'],
+      debateExperience: app.debateExperience || '',
+      motivation: app.motivation || '',
       status: 'active',
       joinedDate: app.date || new Date().toISOString().split('T')[0]
     };
