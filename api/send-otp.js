@@ -103,9 +103,74 @@ Official Platform: https://gydonline.vercel.app`;
   return { plainText, htmlBody };
 }
 
+function getApprovalEmailContent(name) {
+  const plainText = `Hello ${name || 'Member'},
+
+Congratulations! Your application for Community Membership in Global Youth Dialogue & Exchange (GYDE) has been officially approved by the Secretariat.
+
+You can now log in to the platform at https://gydonline.vercel.app using your registered email address and the password you set during your application.
+
+Welcome to our international community of youth debaters and scholars!
+
+---
+Global Youth Dialogue & Exchange (GYDE)
+Official Platform: https://gydonline.vercel.app`;
+
+  const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your GYDE Membership Application is Approved!</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; }
+    .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { background: linear-gradient(135deg, #064e3b, #047857); color: #ffffff; padding: 28px 20px; text-align: center; }
+    .header h2 { margin: 0 0 6px 0; font-size: 1.3rem; letter-spacing: 0.04em; font-weight: 700; }
+    .header p { margin: 0; font-size: 0.88rem; color: #a7f3d0; }
+    .content { padding: 30px 24px; text-align: left; }
+    .greeting { font-size: 1.05rem; color: #1e293b; margin-bottom: 14px; font-weight: 700; }
+    .text { font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 20px; }
+    .action-box { text-align: center; margin: 26px 0; }
+    .btn { display: inline-block; background: #047857; color: #ffffff !important; padding: 13px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; font-size: 0.78rem; color: #94a3b8; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h2>Global Youth Dialogue & Exchange</h2>
+      <p>Official Membership Approval</p>
+    </div>
+    <div class="content">
+      <div class="greeting">Dear ${name || 'Member'},</div>
+      <div class="text">
+        We are thrilled to inform you that your application for Community Membership has been <strong>approved</strong>!
+      </div>
+      <div class="text">
+        You can now sign in to your Member Portal using your registered email and the exact password you created when you submitted your membership application.
+      </div>
+      <div class="action-box">
+        <a href="https://gydonline.vercel.app" class="btn">Sign In to Member Portal &rarr;</a>
+      </div>
+      <div class="text" style="font-size: 0.88rem; color: #64748b;">
+        As a verified member, you can participate in weekly structured parliamentary dialogues, collaborate on academic research papers, and connect with fellow youth leaders across 14+ nations.
+      </div>
+    </div>
+    <div class="footer">
+      &copy; Global Youth Dialogue & Exchange (GYDE) &bull; International Community of Youth Debaters<br>
+      <a href="https://gydonline.vercel.app" style="color: #047857; text-decoration: none;">gydonline.vercel.app</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  return { plainText, htmlBody };
+}
+
 // 1. Send via nodemailer (Standard RFC 5322 MIME engine)
-async function sendViaNodemailer(toEmail, code, name, conf) {
-  const { plainText, htmlBody } = getEmailContent(code, name);
+async function sendViaNodemailer(toEmail, code, name, conf, isApproval = false) {
+  const { plainText, htmlBody } = isApproval ? getApprovalEmailContent(name) : getEmailContent(code, name);
   const fromName = conf.from_name || 'Global Youth Dialogue & Exchange (GYDE)';
   const fromEmail = conf.from_email || conf.smtp_user;
 
@@ -126,7 +191,9 @@ async function sendViaNodemailer(toEmail, code, name, conf) {
     from: `"${fromName}" <${fromEmail}>`,
     to: toEmail,
     replyTo: `"${fromName}" <${fromEmail}>`,
-    subject: `${code} is your GYDE Verification Code`,
+    subject: isApproval 
+      ? `Your GYDE Community Membership Application is Approved!` 
+      : `${code} is your GYDE Verification Code`,
     text: plainText,
     html: htmlBody,
     headers: {
@@ -142,14 +209,14 @@ async function sendViaNodemailer(toEmail, code, name, conf) {
 }
 
 // 2. Pure Node.js TLS fallback with full RFC 5322 headers
-function sendViaPureTLS(toEmail, code, name, conf) {
+function sendViaPureTLS(toEmail, code, name, conf, isApproval = false) {
   const user = conf.smtp_user;
   const pass = conf.smtp_pass;
   const host = conf.smtp_host || 'smtp.gmail.com';
   const port = 465;
   const fromName = conf.from_name || 'Global Youth Dialogue & Exchange (GYDE)';
   const fromEmail = conf.from_email || user;
-  const { plainText, htmlBody } = getEmailContent(code, name);
+  const { plainText, htmlBody } = isApproval ? getApprovalEmailContent(name) : getEmailContent(code, name);
 
   return new Promise((resolve, reject) => {
     const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' });
@@ -186,7 +253,9 @@ function sendViaPureTLS(toEmail, code, name, conf) {
         const boundary = '----=_Part_' + Date.now() + '_' + Math.random().toString(36).slice(2);
         const msgId = `<gyde-${Date.now()}-${Math.random().toString(36).slice(2)}@gmail.com>`;
         const dateStr = new Date().toUTCString();
-        const subject = `${code} is your GYDE Verification Code`;
+        const subject = isApproval 
+          ? `Your GYDE Community Membership Application is Approved!` 
+          : `${code} is your GYDE Verification Code`;
 
         const mimeMessage = [
           `Date: ${dateStr}`,
@@ -239,19 +308,19 @@ function sendViaPureTLS(toEmail, code, name, conf) {
   });
 }
 
-async function sendEmail(toEmail, code, name) {
+async function sendEmail(toEmail, code, name, isApproval = false) {
   const conf = getConfig();
   const cleanEmail = (toEmail || '').trim();
 
   if (nodemailer) {
     try {
-      return await sendViaNodemailer(cleanEmail, code, name, conf);
+      return await sendViaNodemailer(cleanEmail, code, name, conf, isApproval);
     } catch (err) {
       console.warn('Nodemailer failed, falling back to pure TLS:', err.message);
     }
   }
 
-  return await sendViaPureTLS(cleanEmail, code, name, conf);
+  return await sendViaPureTLS(cleanEmail, code, name, conf, isApproval);
 }
 
 module.exports = async function handler(req, res) {
@@ -276,25 +345,26 @@ module.exports = async function handler(req, res) {
     body = body || {};
 
     const email = (body.email || '').trim();
+    const isApproval = (body.action === 'approval' || body.type === 'approval');
     const code = (body.code || '').trim();
-    const name = (body.name || 'Applicant').trim();
+    const name = (body.name || (isApproval ? 'Member' : 'Applicant')).trim();
 
-    if (!email || !code) {
+    if (!email || (!isApproval && !code)) {
       return res.status(400).json({ error: 'Missing email or code parameter.' });
     }
 
-    const result = await sendEmail(email, code, name);
+    const result = await sendEmail(email, code, name, isApproval);
     return res.status(200).json({
       success: true,
       sent: true,
-      message: result.message || 'Verification email delivered successfully.'
+      message: result.message || (isApproval ? 'Approval notification email delivered.' : 'Verification email delivered successfully.')
     });
   } catch (err) {
-    console.error('Error sending OTP email:', err);
+    console.error('Error sending email:', err);
     return res.status(500).json({
       success: false,
       sent: false,
-      error: err.message || 'Failed to dispatch verification email.'
+      error: err.message || 'Failed to dispatch email.'
     });
   }
 };

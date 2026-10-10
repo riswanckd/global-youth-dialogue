@@ -28,21 +28,7 @@
 
 <body data-theme="light">
 
-  <!-- Top Banner for Approved Membership Applicants -->
-  <div id="approvedMemberBannerTop" style="display: none; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-bottom: 2px solid #10b981; padding: 0.75rem 1.25rem; color: #065f46; font-size: 0.92rem; text-align: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); z-index: 1000; position: relative;">
-    <div class="container" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-      <div style="display: flex; align-items: center; gap: 0.65rem; text-align: left;">
-        <span style="font-size: 1.4rem;">🎉</span>
-        <div>
-          <strong id="approvedMemberBannerTopName" style="color: #065f46; font-size: 0.96rem;">Your Membership Application is Approved!</strong>
-          <div style="font-size: 0.82rem; color: #047857;">Complete your registration to set your custom password and activate your official account.</div>
-        </div>
-      </div>
-      <button type="button" class="btn btn-primary btn-sm" id="btnTopCompleteSignup" style="font-weight: 700; padding: 0.45rem 1.1rem; white-space: nowrap;">
-        Complete Registration &rarr;
-      </button>
-    </div>
-  </div>
+
 
   <!-- =======================================================================
        GLOBAL SITE HEADER
@@ -1007,25 +993,6 @@
     <div class="auth-page-view">
       <div class="auth-page-card auth-card-member">
 
-        <!-- Approved Applicant Banner (shown when auto-redirect fires) -->
-        <div id="approvedApplicantBanner"
-          style="display:none; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-          <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-            <span style="display: flex; align-items: center; color: #047857; margin-top: 2px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79"></path><path d="M4 3h.01"></path><path d="M22 8h.01"></path><path d="M15 2h.01"></path><path d="M22 20h.01"></path><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38e-2a3 3 0 0 0-2.6 1.5 3 3 0 0 1-2.6 1.5H9.6a3 3 0 0 0-2.6 1.5L4.5 16"></path></svg></span>
-            <div>
-              <div style="font-weight: 700; color: #065f46; font-size: 0.95rem;">Your application has been approved!
-              </div>
-              <div style="font-size: 0.82rem; color: #047857; margin-top: 0.2rem;" id="approvedApplicantBannerMsg">
-                Complete your registration to activate your account.</div>
-              <button type="button" id="goToSignUpBtn" class="btn btn-primary btn-sm"
-                style="margin-top: 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
-                Complete Sign Up
-              </button>
-            </div>
-          </div>
-        </div>
-
         <div class="auth-card-top-badge">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1110,16 +1077,10 @@
 
 
         <div class="auth-card-footer">
-          <p>
+          <p style="text-align: center; font-size: 0.92rem; margin: 0.75rem 0 1.25rem;">
             <span>Don't have an approved account yet?</span>
             <a href="#" id="authToApplyLink"
-              style="color: var(--brand-green); font-weight: 600; margin-inline-start: 0.25rem;">Apply for
-              Membership</a>
-          </p>
-          <p style="margin-top: 0.5rem;">
-            <span>Approved member?</span>
-            <a href="#" id="authToSignUpLink"
-              style="color: var(--accent-gold); font-weight: 700; margin-inline-start: 0.25rem;">Register &rarr;</a>
+              style="color: var(--brand-green); font-weight: 700; margin-inline-start: 0.35rem;">Apply for membership</a>
           </p>
           <div class="auth-divider"><span>OR</span></div>
           <div class="auth-switch-links" style="justify-content: center;">
@@ -3994,14 +3955,10 @@
           Sign In
         </button>
 
-        <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+        <p style="text-align: center; font-size: 0.9rem; color: var(--text-muted); margin: 0.5rem 0 1rem;">
           <span data-i18n="authNoAccount">Don't have an approved account yet?</span>
-          <a href="#" id="switchApplyModalBtn" style="color: var(--brand-green); font-weight: 600;"
+          <a href="#" id="switchApplyModalBtn" style="color: var(--brand-green); font-weight: 700; margin-inline-start: 0.35rem;"
             data-i18n="btnJoinCommunity">Apply for membership</a>
-        </p>
-        <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-          <span>Approved member?</span>
-          <a href="#" id="modalToSignUpLink" style="color: var(--accent-gold, #f59e0b); font-weight: 700; margin-inline-start: 0.25rem;">Register &rarr;</a>
         </p>
       </form>
 
@@ -4009,77 +3966,173 @@
   </div>
 
   <!-- =======================================================================
-       MODAL 1B: SIGN UP / REGISTRATION MODAL (AFTER ADMIN APPROVAL + OTP)
+       MODAL: UNIFIED APPLICATION & REGISTRATION FLOW
+       "Apply for Community Membership" (Step 1 -> Step 2 -> Step 3 OTP)
        ======================================================================= -->
-  <div class="modal-backdrop" id="signupModal" style="display: none;">
-    <div class="modal-dialog" style="max-width: 520px;">
-      <button class="modal-close-btn" id="signupModalClose">&times;</button>
-      <div
-        style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; background: var(--presenter-subtle); color: var(--presenter-title); border: 1px solid var(--presenter-badge-border); border-radius: 999px; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.75rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        <span>Application Approved by Coordinators</span>
+  <div class="modal-backdrop" id="applyModal" style="display: none;">
+    <div class="modal-dialog" style="max-width: 580px; padding: 2rem 2.25rem;">
+      <button class="modal-close-btn" id="applyModalClose" aria-label="Close">&times;</button>
+
+      <!-- Modal Header -->
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <span class="badge" style="background: rgba(72, 81, 186, 0.1); color: var(--color-primary-1, #4851ba); font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.35rem; margin-bottom: 0.65rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          GYDE Community Registration
+        </span>
+        <h3 class="modal-title serif-text" style="font-size: 1.45rem; margin-bottom: 0.35rem;" data-i18n="applyModalTitle">Apply for Community Membership</h3>
+        <p class="modal-subtitle" style="font-size: 0.86rem; color: var(--text-muted); margin: 0 auto; max-width: 440px;" id="applyModalSubtitle">
+          Complete your application in 3 steps to join our international network of young debaters.
+        </p>
       </div>
-      <h3 class="modal-title serif-text">Complete Your Membership Registration</h3>
-      <p class="modal-subtitle" style="margin-bottom: 1.25rem;">
-        Welcome to GYD! Please verify your information, set a secure custom password, and verify via email OTP.
-      </p>
 
-      <!-- Step 1: User details and custom password -->
-      <form id="signupDetailsForm">
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label class="form-label" for="signupFirstName">First Name</label>
-            <input type="text" class="form-control" id="signupFirstName" placeholder="First Name" required>
+      <!-- Step Progress Stepper Bar -->
+      <div id="applyStepper" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; position: relative; padding: 0 0.5rem;">
+        <div style="position: absolute; top: 16px; left: 16%; right: 16%; height: 2px; background: var(--border-light, #e2e8f0); z-index: 1;">
+          <div id="applyProgressLine" style="height: 100%; width: 0%; background: var(--color-primary-1, #4851ba); transition: width 0.3s ease;"></div>
+        </div>
+
+        <!-- Step 1 Indicator -->
+        <div class="apply-step-item" id="applyStepIndicator1" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; z-index: 2;">
+          <div class="apply-step-circle active" id="applyStepCircle1" style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary-1, #4851ba); color: #fff; font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(72, 81, 186, 0.18);">1</div>
+          <span style="font-size: 0.76rem; font-weight: 700; color: var(--text-main);" id="applyStepLabel1">Basic Info</span>
+        </div>
+
+        <!-- Step 2 Indicator -->
+        <div class="apply-step-item" id="applyStepIndicator2" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; z-index: 2;">
+          <div class="apply-step-circle" id="applyStepCircle2" style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-surface, #fff); border: 2px solid var(--border-light, #cbd5e1); color: var(--text-muted); font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center;">2</div>
+          <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-muted);" id="applyStepLabel2">Details</span>
+        </div>
+
+        <!-- Step 3 Indicator -->
+        <div class="apply-step-item" id="applyStepIndicator3" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; z-index: 2;">
+          <div class="apply-step-circle" id="applyStepCircle3" style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-surface, #fff); border: 2px solid var(--border-light, #cbd5e1); color: var(--text-muted); font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center;">3</div>
+          <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-muted);" id="applyStepLabel3">OTP Verification</span>
+        </div>
+      </div>
+
+      <!-- STEP 1 CONTAINER: Basic Information -->
+      <div id="applyStep1Container">
+        <form id="applyStep1Form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="applyFirstName">First Name <span style="color: #dc2626;">*</span></label>
+              <input type="text" class="form-control" id="applyFirstName" placeholder="e.g. Tariq" required autocomplete="given-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="applyLastName">Last Name <span style="color: #dc2626;">*</span></label>
+              <input type="text" class="form-control" id="applyLastName" placeholder="e.g. Al-Mansoor" required autocomplete="family-name">
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="signupLastName">Last Name</label>
-            <input type="text" class="form-control" id="signupLastName" placeholder="Last Name" required>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="applyCountry">Country <span style="color: #dc2626;">*</span></label>
+              <input type="text" class="form-control" id="applyCountry" placeholder="e.g. Qatar, Pakistan, Kenya..." required autocomplete="country-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="applyEmail">Email Address <span style="color: #dc2626;">*</span></label>
+              <input type="email" class="form-control" id="applyEmail" placeholder="tariq@example.com" required autocomplete="email">
+            </div>
           </div>
-        </div>
 
-        <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label" for="signupCountry">Country / Chapter</label>
-            <input type="text" class="form-control" id="signupCountry" placeholder="e.g. Qatar, Kenya, Brazil" required>
+            <label class="form-label" for="applyPassword">Set Password <span style="color: #dc2626;">*</span></label>
+            <div style="position: relative;">
+              <input type="password" class="form-control" id="applyPassword" placeholder="Minimum 6 characters" minlength="6" required autocomplete="new-password">
+              <button type="button" class="btn-toggle-pw" onclick="window.toggleApplyPw('applyPassword')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; font-size: 0.9rem;" aria-label="Toggle password visibility">
+                👁
+              </button>
+            </div>
+            <span style="font-size: 0.76rem; color: var(--text-muted); margin-top: 3px; display: block;">You will use this password to sign in once your membership is approved.</span>
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="signupEmail">Email Address</label>
-            <input type="email" class="form-control" id="signupEmail" readonly
-              style="background: var(--bg-subtle, #f1f5f9); cursor: not-allowed;" required>
+            <label class="form-label" for="applyConfirmPassword">Confirm Password <span style="color: #dc2626;">*</span></label>
+            <div style="position: relative;">
+              <input type="password" class="form-control" id="applyConfirmPassword" placeholder="Re-enter password" minlength="6" required autocomplete="new-password">
+              <button type="button" class="btn-toggle-pw" onclick="window.toggleApplyPw('applyConfirmPassword')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; font-size: 0.9rem;" aria-label="Toggle password visibility">
+                👁
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label class="form-label" for="signupPassword">Create Custom Password</label>
-          <input type="password" class="form-control" id="signupPassword" placeholder="Minimum 6 characters"
-            minlength="6" required>
-        </div>
+          <!-- Step 1 Error Alert -->
+          <div id="applyStep1Error" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem;"></div>
 
-        <div class="form-group">
-          <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
-          <input type="password" class="form-control" id="signupConfirmPassword" placeholder="Re-enter password"
-            minlength="6" required>
-        </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; font-weight: 700;">
+            Next: Additional Details &rarr;
+          </button>
 
-        <div id="signupErrorAlert"
-          style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem;">
-        </div>
+          <p style="text-align: center; font-size: 0.86rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
+            <span>Already have an approved account?</span>
+            <a href="#" id="applyToSignInLink" style="color: var(--color-primary-1, #4851ba); font-weight: 700; margin-inline-start: 0.35rem;">Sign In &rarr;</a>
+          </p>
+        </form>
+      </div>
 
-        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-          Continue to Email Verification &rarr;
-        </button>
-      </form>
+      <!-- STEP 2 CONTAINER: Additional Details -->
+      <div id="applyStep2Container" style="display: none;">
+        <form id="applyStep2Form">
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 0.4rem;">
+              Areas of primary intellectual interest <span style="color: #dc2626;">*</span>
+            </label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.84rem; margin-bottom: 0.65rem;" id="applyInterestsGrid">
+              <label style="display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer;">
+                <input type="checkbox" name="applyInterest" value="Global Affairs"> Global Affairs
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer;">
+                <input type="checkbox" name="applyInterest" value="Technology & AI"> Technology & AI
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer;">
+                <input type="checkbox" name="applyInterest" value="Education & Knowledge"> Education
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer;">
+                <input type="checkbox" name="applyInterest" value="Environment & Climate"> Environment
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer;">
+                <input type="checkbox" name="applyInterest" value="Economy & Trade"> Economy
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer;">
+                <input type="checkbox" name="applyInterest" value="Governance & Society"> Governance & Society
+              </label>
+            </div>
+            <textarea class="form-control" id="applyInterestsCustom" rows="2" placeholder="Specify additional or primary areas of interest (e.g. Geopolitics, Artificial Intelligence Ethics, Climate Finance)..."></textarea>
+          </div>
 
-      <!-- Step 2: OTP Verification (hidden initially) -->
-      <div id="signupOtpStep" style="display: none; margin-top: 1rem;">
-        <div
-          style="background: rgba(72, 81, 186, 0.06); border: 1.5px solid rgba(72, 81, 186, 0.25); border-radius: 12px; padding: 1.25rem 1rem; margin-bottom: 1.25rem; text-align: center;">
-          <div style="display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%; background: rgba(72, 81, 186, 0.12); color: var(--color-primary-1, #4851ba); margin-bottom: 0.65rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div class="form-group">
+            <label class="form-label" for="applyDebateExp" style="font-weight: 700;">
+              Debate and public speaking background <span style="color: #dc2626;">*</span>
+            </label>
+            <textarea class="form-control" id="applyDebateExp" rows="3" placeholder="Describe your competitive debating, parliamentary, MUN, or public speaking background..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="applyMotivation" style="font-weight: 700;">
+              Why do you want to join Global Youth Dialogue? <span style="color: #dc2626;">*</span>
+            </label>
+            <textarea class="form-control" id="applyMotivation" rows="3" placeholder="Share your motivation to engage in cross-border youth dialogue and academic paper writing..." required></textarea>
+          </div>
+
+          <!-- Step 2 Error Alert -->
+          <div id="applyStep2Error" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem;"></div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button type="button" class="btn btn-outline btn-lg" id="applyStep2BackBtn" style="flex: 1;">
+              &larr; Back
+            </button>
+            <button type="submit" class="btn btn-primary btn-lg" style="flex: 2; font-weight: 700;">
+              Next: Verify Email &rarr;
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- STEP 3 CONTAINER: OTP Verification -->
+      <div id="applyStep3Container" style="display: none;">
+        <div style="background: rgba(72, 81, 186, 0.06); border: 1.5px solid rgba(72, 81, 186, 0.25); border-radius: 12px; padding: 1.25rem 1rem; margin-bottom: 1.25rem; text-align: center;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: rgba(72, 81, 186, 0.12); color: var(--color-primary-1, #4851ba); margin-bottom: 0.65rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect width="20" height="16" x="2" y="4" rx="2"></rect>
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
             </svg>
@@ -4088,116 +4141,81 @@
           <p style="font-size: 0.86rem; color: var(--text-muted, #64748b); margin: 0 0 0.5rem 0;">
             A 6-digit secure verification code has been dispatched to:
           </p>
-          <div style="display: inline-block; background: rgba(72, 81, 186, 0.1); padding: 0.35rem 0.95rem; border-radius: 999px; font-weight: 700; color: var(--color-primary-1, #4851ba); font-size: 0.92rem; margin-bottom: 0.75rem;">
-            <span id="otpRecipientEmail"></span>
+          <div style="display: inline-block; background: rgba(72, 81, 186, 0.1); padding: 0.35rem 0.95rem; border-radius: 999px; font-weight: 700; color: var(--color-primary-1, #4851ba); font-size: 0.92rem; margin-bottom: 0.65rem;">
+            <span id="applyOtpRecipientEmail"></span>
           </div>
           <p style="font-size: 0.8rem; color: var(--text-muted, #64748b); margin: 0; line-height: 1.45;">
-            Please open your mail inbox, copy the 6-digit code, and enter it below to verify your account.
-            <br><span style="font-size: 0.76rem; color: #94a3b8;">(If not received, please check your <strong>Spam / Junk</strong> folder)</span>
+            Please check your inbox, copy the 6-digit code, and enter it below to verify your account.
+            <br><span style="font-size: 0.76rem; color: #94a3b8;">(If not received, check your <strong>Spam / Junk</strong> folder)</span>
           </p>
         </div>
 
-        <form id="signupOtpForm">
+        <form id="applyStep3Form">
           <div class="form-group" style="text-align: center;">
-            <label class="form-label" for="signupOtpInput" style="font-weight: 700;">Enter 6-Digit Code</label>
-            <input type="text" class="form-control" id="signupOtpInput" maxlength="6" pattern="[0-9]{6}"
+            <label class="form-label" for="applyOtpInput" style="font-weight: 700;">Enter 6-Digit Code</label>
+            <input type="text" class="form-control" id="applyOtpInput" maxlength="6" pattern="[0-9]{6}"
               placeholder="000000"
-              style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em; font-family: monospace; max-width: 260px; margin: 0 auto;"
+              style="text-align: center; font-size: 1.6rem; letter-spacing: 0.35em; font-family: monospace; max-width: 260px; margin: 0 auto; font-weight: 700;"
               required autocomplete="one-time-code">
           </div>
 
-          <div id="otpErrorAlert"
-            style="display: none; padding: 0.75rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;">
-          </div>
+          <!-- Step 3 Error Alert -->
+          <div id="applyStep3Error" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #dc2626; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;"></div>
 
-          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 0.75rem;">
-            Verify OTP & Complete Membership
+          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; font-weight: 700; margin-bottom: 0.75rem;" id="applyStep3SubmitBtn">
+            Verify OTP & Submit Application &rarr;
           </button>
 
-          <div
-            style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-top: 0.5rem;">
-            <button type="button" class="btn btn-outline btn-sm" id="signupOtpBackBtn">&larr; Back to Details</button>
-            <button type="button" class="btn btn-outline btn-sm" id="signupOtpResendBtn">Resend Code</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-top: 0.5rem;">
+            <button type="button" class="btn btn-outline btn-sm" id="applyStep3BackBtn">&larr; Back to Details</button>
+            <button type="button" class="btn btn-outline btn-sm" id="applyStep3ResendBtn">Resend Code</button>
           </div>
         </form>
 
-        <div id="otpOfflineNotice"
-          style="margin-top: 1.15rem; padding: 0.75rem 0.85rem; border-radius: 8px; background: rgba(72, 81, 186, 0.05); border: 1px dashed rgba(72, 81, 186, 0.25); text-align: center;">
+        <div id="applyOtpRevealBox" style="margin-top: 1.15rem; padding: 0.75rem 0.85rem; border-radius: 8px; background: rgba(72, 81, 186, 0.05); border: 1px dashed rgba(72, 81, 186, 0.25); text-align: center;">
           <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 0.4rem 0;">
-            Email delayed by your mail provider or school filter?
+            Email delayed by your mail server or school filter?
           </p>
-          <button type="button" class="btn btn-outline btn-sm" id="btnRevealTestOtp"
+          <button type="button" class="btn btn-outline btn-sm" id="btnRevealApplyOtp"
             style="font-size: 0.78rem; padding: 0.35rem 0.75rem; color: var(--color-primary-1); border-color: rgba(72, 81, 186, 0.35); background: var(--bg-surface); font-weight: 600;">
             Click here to auto-fill verification code
           </button>
-          <div id="revealedTestOtp"
+          <div id="revealedApplyOtp"
             style="display: none; margin-top: 0.5rem; padding: 0.4rem; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 6px; font-family: monospace; font-size: 1.3rem; font-weight: 800; letter-spacing: 0.25em; color: var(--brand-green);">
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- =======================================================================
-       MODAL 2: MEMBERSHIP APPLICATION MODAL
-       ======================================================================= -->
-  <div class="modal-backdrop" id="applyModal">
-    <div class="modal-dialog">
-      <button class="modal-close-btn" id="applyModalClose">&times;</button>
-      <h3 class="modal-title serif-text" data-i18n="applyModalTitle">Apply for Community Membership</h3>
-      <p class="modal-subtitle" data-i18n="applyModalDesc">
-        Join an international network of young debaters. All applications are vetted by our founding coordinators.
-      </p>
-
-      <form id="membershipApplicationForm">
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label class="form-label" for="appFullName" data-i18n="formFullName">Full Name</label>
-            <input type="text" class="form-control" id="appFullName" placeholder="e.g. Fatima Al-Kuwari" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="appEmail" data-i18n="formEmail">Email Address</label>
-            <input type="email" class="form-control" id="appEmail" placeholder="fatima@school.qa" required>
-          </div>
+      <!-- STEP 4 CONTAINER: Success / Placed On Hold Confirmation -->
+      <div id="applyStep4SuccessContainer" style="display: none; text-align: center; padding: 1rem 0;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.12); color: #059669; margin-bottom: 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="appCountry" data-i18n="formCountry">Country of Residence /
-            Representation</label>
-          <input type="text" class="form-control" id="appCountry" placeholder="e.g. Qatar, Singapore, Canada, Kenya..."
-            required>
+        <h4 class="serif-text" style="font-size: 1.35rem; color: var(--text-main); margin: 0 0 0.5rem 0;">
+          Application Submitted & Email Verified!
+        </h4>
+        <div style="display: inline-block; background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 999px; padding: 0.35rem 0.95rem; font-size: 0.82rem; font-weight: 700; margin-bottom: 1.15rem;">
+          ⏳ Status: Awaiting Admin Approval
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Areas of Primary Intellectual Interest</label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;"
-            id="interestCheckboxes">
-            <label><input type="checkbox" name="interest" value="Global Affairs"> Global Affairs</label>
-            <label><input type="checkbox" name="interest" value="Technology & AI"> Technology & AI</label>
-            <label><input type="checkbox" name="interest" value="Education"> Education</label>
-            <label><input type="checkbox" name="interest" value="Environment"> Environment</label>
-            <label><input type="checkbox" name="interest" value="Economy"> Economy</label>
-            <label><input type="checkbox" name="interest" value="Governance & Society"> Governance & Society</label>
-          </div>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; max-width: 460px; margin: 0 auto 1.5rem auto;">
+          Thank you, <strong id="applySuccessApplicantName" style="color: var(--text-main);"></strong>! Your email (<span id="applySuccessApplicantEmail" style="color: var(--text-main); font-weight: 600;"></span>) has been verified.
+          <br><br>
+          Your application acts as an official proposal and has been placed <strong>on hold awaiting manual Admin approval</strong>.
+          <br><br>
+          Once an administrator reviews and approves your application, you will receive an <strong>email notification</strong> confirming your approval. You can then navigate to the <strong>Sign-In</strong> page and log in normally using the exact email and password you set.
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
+          <button type="button" class="btn btn-outline btn-lg" id="applySuccessDoneBtn" style="padding: 0.6rem 1.75rem; font-weight: 600;">
+            Return to Home
+          </button>
+          <button type="button" class="btn btn-primary btn-lg" id="applySuccessToSignInBtn" style="padding: 0.6rem 1.75rem; font-weight: 700;">
+            Go to Sign-In
+          </button>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="appDebateExp">Debate & Public Speaking Background</label>
-          <input type="text" class="form-control" id="appDebateExp"
-            placeholder="e.g. ISDC participant, high school debate team, youth parliament..." required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="appMotivation">Why do you want to join Global Youth Dialogue?</label>
-          <textarea class="form-control" id="appMotivation"
-            placeholder="Share your motivation to engage in cross-border dialogue and academic collaboration..."
-            required></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-          Submit Membership Application
-        </button>
-      </form>
+      </div>
     </div>
   </div>
 

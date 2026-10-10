@@ -231,6 +231,91 @@ function sendAdminNotification(app) {
   });
 }
 
+function sendApplicantApprovalNotification(app) {
+  const user = 'riswankckd@gmail.com';
+  const pass = 'avkfjotmlvwkavgv';
+  const host = 'smtp.gmail.com';
+  const port = 465;
+
+  return new Promise((resolve) => {
+    try {
+      if (!app || !app.email) return resolve(false);
+      const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' }, () => {});
+      socket.setEncoding('utf8');
+      let step = 0;
+
+      socket.on('data', (data) => {
+        const reply = data.toString();
+        if (step === 0 && reply.startsWith('220')) {
+          step = 1;
+          socket.write('EHLO gydonline.vercel.app\r\n');
+        } else if (step === 1 && reply.startsWith('250')) {
+          step = 2;
+          socket.write('AUTH LOGIN\r\n');
+        } else if (step === 2 && reply.startsWith('334')) {
+          step = 3;
+          socket.write(Buffer.from(user).toString('base64') + '\r\n');
+        } else if (step === 3 && reply.startsWith('334')) {
+          step = 4;
+          socket.write(Buffer.from(pass).toString('base64') + '\r\n');
+        } else if (step === 4 && reply.startsWith('235')) {
+          step = 5;
+          socket.write(`MAIL FROM:<${user}>\r\n`);
+        } else if (step === 5 && reply.startsWith('250')) {
+          step = 6;
+          socket.write(`RCPT TO:<${app.email}>\r\n`);
+        } else if (step === 6 && reply.startsWith('250')) {
+          step = 7;
+          socket.write('DATA\r\n');
+        } else if (step === 7 && reply.startsWith('354')) {
+          step = 8;
+          const subject = `Your GYDE Community Membership Application is Approved!`;
+          const body = [
+            `From: "Global Youth Dialogue & Exchange (GYDE)" <${user}>`,
+            `To: ${app.email}`,
+            `Subject: ${subject}`,
+            `MIME-Version: 1.0`,
+            `Content-Type: text/html; charset=UTF-8`,
+            '',
+            `<!DOCTYPE html><html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">`,
+            `<div style="max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">`,
+            `<div style="background: linear-gradient(135deg, #064e3b, #047857); color: #ffffff; padding: 26px 20px; text-align: center;">`,
+            `<h2 style="margin: 0 0 6px 0; font-size: 1.3rem;">Global Youth Dialogue & Exchange</h2>`,
+            `<p style="margin: 0; font-size: 0.88rem; color: #a7f3d0;">Official Membership Approval</p>`,
+            `</div>`,
+            `<div style="padding: 28px 24px;">`,
+            `<div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">Dear ${app.name || 'Member'},</div>`,
+            `<p style="font-size: 0.95rem; color: #475569; line-height: 1.6;">We are pleased to inform you that your application for Community Membership in Global Youth Dialogue & Exchange has been <strong>approved</strong>!</p>`,
+            `<p style="font-size: 0.95rem; color: #475569; line-height: 1.6;">You can now navigate to the Sign-In page and log in using your registered email and the exact password you created when you submitted your membership application.</p>`,
+            `<div style="text-align: center; margin: 26px 0;">`,
+            `<a href="https://gydonline.vercel.app" style="display: inline-block; background: #047857; color: #ffffff; padding: 12px 26px; border-radius: 8px; text-decoration: none; font-weight: 700;">Sign In to Member Portal &rarr;</a>`,
+            `</div>`,
+            `</div>`,
+            `<div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; font-size: 0.78rem; color: #94a3b8; text-align: center;">`,
+            `&copy; Global Youth Dialogue & Exchange (GYDE) &bull; <a href="https://gydonline.vercel.app" style="color: #047857; text-decoration: none;">gydonline.vercel.app</a>`,
+            `</div></div></body></html>`,
+            '',
+            '.'
+          ].join('\r\n') + '\r\n';
+          socket.write(body);
+        } else if (step === 8 && reply.startsWith('250')) {
+          step = 9;
+          socket.write('QUIT\r\n');
+          resolve(true);
+        } else if (reply.startsWith('5') || reply.startsWith('4')) {
+          socket.destroy();
+          resolve(false);
+        }
+      });
+
+      socket.on('error', () => resolve(false));
+      socket.setTimeout(10000, () => { socket.destroy(); resolve(false); });
+    } catch (e) {
+      resolve(false);
+    }
+  });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');
@@ -255,7 +340,6 @@ module.exports = async function handler(req, res) {
       body = body || {};
 
       // Handle Status Updates from Coordinator Dashboard (e.g. Approved / Rejected)
-      // Only treat as status update if explicitly requested via action, OR if it's an update without a new submission payload (no name provided)
       const isExplicitStatusUpdate = (body.action === 'updateStatus' || body.action === 'update');
       const isStatusOnlyUpdate = (!body.name && body.status && (body.id || body.email));
 
@@ -272,6 +356,12 @@ module.exports = async function handler(req, res) {
         if (match) {
           match.status = newStatus;
           persistApplications();
+
+          // If approved, notify applicant via email
+          if (newStatus === 'Approved') {
+            sendApplicantApprovalNotification(match).catch(() => {});
+          }
+
           return res.status(200).json({
             success: true,
             message: `Application status updated to "${newStatus}"`,
@@ -294,12 +384,14 @@ module.exports = async function handler(req, res) {
         id: body.id || ('app_' + Date.now().toString(36)),
         name,
         email,
+        password: body.password || '',
         country,
         flag: body.flag || 'INT',
         interests: Array.isArray(body.interests) ? body.interests : (body.interests ? [body.interests] : ['Global Affairs']),
         debateExperience: body.debateExperience || '',
         motivation: body.motivation || '',
         status: body.status || 'Pending',
+        emailVerified: body.emailVerified !== undefined ? body.emailVerified : true,
         date: body.date || new Date().toISOString().split('T')[0]
       };
 

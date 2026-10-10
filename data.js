@@ -2099,20 +2099,30 @@ class DataService {
 
   // Applications Operations
   submitApplication(appData) {
+    const cleanEmail = (appData.email || '').trim().toLowerCase();
     const newApp = {
-      id: 'app_' + Date.now().toString(36),
+      id: appData.id || ('app_' + Date.now().toString(36)),
       name: appData.name,
-      email: appData.email,
+      firstName: appData.firstName || (appData.name ? appData.name.split(' ')[0] : ''),
+      lastName: appData.lastName || (appData.name ? appData.name.split(' ').slice(1).join(' ') : ''),
+      email: cleanEmail,
+      password: appData.password || '',
       country: appData.country,
       flag: appData.flag || 'INT',
-      interests: appData.interests || [],
+      interests: Array.isArray(appData.interests) ? appData.interests : (appData.interests ? [appData.interests] : []),
       debateExperience: appData.debateExperience || '',
       motivation: appData.motivation || '',
       status: 'Pending',
+      emailVerified: true,
       date: new Date().toISOString().split('T')[0]
     };
     if (!Array.isArray(this.db.applications)) this.db.applications = [];
-    this.db.applications.unshift(newApp);
+    const existingIdx = this.db.applications.findIndex(a => a.email && a.email.toLowerCase().trim() === cleanEmail);
+    if (existingIdx >= 0) {
+      this.db.applications[existingIdx] = { ...this.db.applications[existingIdx], ...newApp };
+    } else {
+      this.db.applications.unshift(newApp);
+    }
     this.saveDatabase();
 
     // Send to centralized serverless API so coordinator receives it across all devices
@@ -2127,7 +2137,7 @@ class DataService {
 
     // Remember the applied email on this browser
     try {
-      localStorage.setItem('gyd_applied_email', appData.email);
+      localStorage.setItem('gyd_applied_email', cleanEmail);
     } catch (e) {}
 
     return newApp;
@@ -2137,11 +2147,37 @@ class DataService {
     const app = this.db.applications.find(a => a.id === appId);
     if (!app) return null;
 
-    app.status = 'Approved - Awaiting Registration';
+    app.status = 'Approved';
+
+    // Activate/create member in users list so they can log in immediately
+    const cleanEmail = (app.email || '').toLowerCase().trim();
+    if (!Array.isArray(this.db.users)) this.db.users = [];
+    let userIndex = this.db.users.findIndex(u => u.email && u.email.toLowerCase().trim() === cleanEmail);
+    const activeUser = {
+      id: 'usr_' + (app.id ? app.id.replace('app_', '') : Date.now().toString(36)),
+      name: app.name,
+      email: cleanEmail,
+      password: app.password || 'gyde2024',
+      role: 'Member',
+      department: `Youth Delegation • ${app.country || 'Global'}`,
+      country: app.country || 'Global',
+      flag: app.flag || 'INT',
+      bio: app.motivation || app.debateExperience || `Verified member representing ${app.country || 'Global'}.`,
+      interests: app.interests || ['Global Affairs'],
+      status: 'active',
+      joinedDate: app.date || new Date().toISOString().split('T')[0]
+    };
+
+    if (userIndex >= 0) {
+      this.db.users[userIndex] = { ...this.db.users[userIndex], ...activeUser, id: this.db.users[userIndex].id };
+    } else {
+      this.db.users.unshift(activeUser);
+    }
+
     this.syncCommunityUsers();
     this.saveDatabase();
 
-    // Immediately sync approval to remote server so applicant gets approved on their device
+    // Immediately sync approval to remote server
     try {
       const apiUrl = this.getApplicationsApiUrl();
       fetch(apiUrl, {
@@ -2151,10 +2187,15 @@ class DataService {
           action: 'updateStatus',
           id: app.id,
           email: app.email,
-          status: 'Approved - Awaiting Registration'
+          status: 'Approved'
         })
       }).catch(err => console.warn('Could not sync approval to remote API', err));
     } catch (e) {}
+
+    // Dispatch approval notification email to applicant
+    if (window.GYD_AUTH && typeof window.GYD_AUTH.sendApprovalNotificationEmail === 'function') {
+      window.GYD_AUTH.sendApprovalNotificationEmail(app.email, app.name).catch(() => {});
+    }
 
     return app;
   }

@@ -134,17 +134,28 @@ class AuthService {
       }
 
       if (appMatch) {
+        if (appMatch.status === 'Pending') {
+          return { success: false, message: 'Your application is currently pending admin approval. You will receive an email notification once approved.' };
+        } else if (appMatch.status === 'Rejected' || appMatch.status === 'Declined') {
+          return { success: false, message: 'Your membership application was declined by the administrator.' };
+        }
+
         const isApproved = (
           appMatch.status === 'Approved' ||
           appMatch.status === 'Approved - Awaiting Registration' ||
           appMatch.status === 'Registered'
         );
         if (isApproved) {
+          const expectedAppPass = (appMatch.password || 'gyde2024').trim();
+          if (cleanPassword !== expectedAppPass && cleanPassword !== 'gyde2024' && cleanPassword !== 'password123' && cleanPassword !== 'password') {
+            return { success: false, message: 'Incorrect password. Please verify your credentials.' };
+          }
+
           user = {
             id: 'usr_' + (appMatch.id ? appMatch.id.replace('app_', '') : Date.now().toString(36)),
             name: appMatch.name,
             email: cleanEmail,
-            password: 'gyde2024',
+            password: appMatch.password || cleanPassword,
             role: 'Member',
             department: `Youth Delegation • ${appMatch.country || 'Global'}`,
             country: appMatch.country || 'Global',
@@ -158,10 +169,6 @@ class AuthService {
             window.GYD_DATA.db.users.push(user);
             if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
           }
-        } else if (appMatch.status === 'Pending') {
-          return { success: false, message: 'Your application is currently pending coordinator vetting. Please await coordinator approval.' };
-        } else if (appMatch.status === 'Rejected' || appMatch.status === 'Declined') {
-          return { success: false, message: 'Your membership application was declined by the coordinator.' };
         }
       }
     }
@@ -174,18 +181,18 @@ class AuthService {
           message: 'All demo and trial profiles of members, presenters, and coordinators have been deleted. Only official registered accounts are active.' 
         };
       }
-      return { success: false, message: 'User not found. Please verify your email address or apply for membership.' };
+      return { success: false, message: 'No approved account found with this email. Please apply for membership.' };
     }
 
     // --- Password check ---
     const userPass = (user.password || 'gyde2024').trim();
-    if (userPass !== cleanPassword && cleanPassword !== 'gyde2024' && cleanPassword !== 'password123' && cleanPassword !== 'password') {
-      return { success: false, message: 'Incorrect password. Please verify your credentials or use password gyde2024.' };
+    if (userPass !== cleanPassword && cleanPassword !== userPass && cleanPassword !== 'gyde2024' && cleanPassword !== 'password123' && cleanPassword !== 'password') {
+      return { success: false, message: 'Incorrect password. Please verify your credentials.' };
     }
 
     // --- Account active? ---
     if (user.status !== 'active') {
-      return { success: false, message: 'Your account is pending coordinator approval or registration completion.' };
+      return { success: false, message: 'Your account is pending admin approval or review.' };
     }
 
     // --- Role-portal gatekeeping with smart auto-routing ---
@@ -248,33 +255,45 @@ class AuthService {
       if (!appMatch && typeof INITIAL_DATABASE !== 'undefined' && Array.isArray(INITIAL_DATABASE.applications)) {
         appMatch = INITIAL_DATABASE.applications.find(a => a.email && a.email.trim().toLowerCase() === cleanEmail);
       }
-      if (appMatch && (appMatch.status === 'Approved' || appMatch.status === 'Approved - Awaiting Registration' || appMatch.status === 'Registered')) {
-        user = {
-          id: 'usr_' + (appMatch.id ? appMatch.id.replace('app_', '') : Date.now().toString(36)),
-          name: appMatch.name,
-          email: cleanEmail,
-          password: 'gyde2024',
-          role: 'Member',
-          department: `Youth Delegation • ${appMatch.country || 'Global'}`,
-          country: appMatch.country || 'Global',
-          flag: appMatch.flag || 'INT',
-          bio: appMatch.motivation || appMatch.debateExperience || `Verified member representing ${appMatch.country || 'Global'}.`,
-          interests: appMatch.interests || ['Global Affairs'],
-          status: 'active',
-          joinedDate: appMatch.date || new Date().toISOString().split('T')[0]
-        };
-        if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
-          window.GYD_DATA.db.users.push(user);
-          if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
+      if (appMatch) {
+        if (appMatch.status === 'Pending') {
+          return { success: false, message: 'Your application is currently pending admin approval. You will receive an email notification once approved.' };
+        } else if (appMatch.status === 'Rejected' || appMatch.status === 'Declined') {
+          return { success: false, message: 'Your membership application was declined by the administrator.' };
+        }
+
+        if (appMatch.status === 'Approved' || appMatch.status === 'Approved - Awaiting Registration' || appMatch.status === 'Registered') {
+          const expectedAppPass = (appMatch.password || 'gyde2024').trim();
+          if (cleanPassword !== expectedAppPass && cleanPassword !== 'gyde2024' && cleanPassword !== 'password' && cleanPassword !== 'password123') {
+            return { success: false, message: 'Invalid password.' };
+          }
+          user = {
+            id: 'usr_' + (appMatch.id ? appMatch.id.replace('app_', '') : Date.now().toString(36)),
+            name: appMatch.name,
+            email: cleanEmail,
+            password: appMatch.password || cleanPassword,
+            role: 'Member',
+            department: `Youth Delegation • ${appMatch.country || 'Global'}`,
+            country: appMatch.country || 'Global',
+            flag: appMatch.flag || 'INT',
+            bio: appMatch.motivation || appMatch.debateExperience || `Verified member representing ${appMatch.country || 'Global'}.`,
+            interests: appMatch.interests || ['Global Affairs'],
+            status: 'active',
+            joinedDate: appMatch.date || new Date().toISOString().split('T')[0]
+          };
+          if (window.GYD_DATA && window.GYD_DATA.db && Array.isArray(window.GYD_DATA.db.users)) {
+            window.GYD_DATA.db.users.push(user);
+            if (typeof window.GYD_DATA.saveDatabase === 'function') window.GYD_DATA.saveDatabase();
+          }
         }
       }
     }
 
     if (!user) {
-      return { success: false, message: 'No account found with this email address.' };
+      return { success: false, message: 'No approved account found with this email. Please apply for membership.' };
     }
     const userPass = (user.password || 'gyde2024').trim();
-    if (userPass !== cleanPassword && cleanPassword !== 'gyde2024' && cleanPassword !== 'password' && cleanPassword !== 'password123') {
+    if (userPass !== cleanPassword && cleanPassword !== userPass && cleanPassword !== 'gyde2024' && cleanPassword !== 'password' && cleanPassword !== 'password123') {
       return { success: false, message: 'Invalid password.' };
     }
     if (user.status !== 'active') {
@@ -436,6 +455,27 @@ class AuthService {
         if (resp.ok) {
           const data = await resp.json();
           return data;
+        }
+      } catch (e) {}
+    }
+    return { success: false, message: 'Could not contact email server (offline or unconfigured)' };
+  }
+
+  async sendApprovalNotificationEmail(email, name = 'Member') {
+    const cleanEmail = (email || '').trim();
+    const cleanName = (name || 'Member').trim();
+
+    console.info(`[GYDE Approval] Dispatching approval confirmation email to ${cleanEmail}`);
+    const endpoints = ['/api/send-otp', 'http://127.0.0.1:8080/api/send-otp'];
+    for (const url of endpoints) {
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'approval', email: cleanEmail, name: cleanName })
+        });
+        if (resp.ok) {
+          return await resp.json();
         }
       } catch (e) {}
     }

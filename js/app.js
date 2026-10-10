@@ -253,17 +253,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Modal event listeners
   document.getElementById('headerLoginBtn')?.addEventListener('click', () => openModal('authModal'));
-  document.getElementById('headerJoinBtn')?.addEventListener('click', () => openModal('applyModal'));
-  document.getElementById('heroJoinBtn')?.addEventListener('click', () => openModal('applyModal'));
+  document.getElementById('headerJoinBtn')?.addEventListener('click', () => openUnifiedApplyModal());
+  document.getElementById('heroJoinBtn')?.addEventListener('click', () => openUnifiedApplyModal());
   document.getElementById('bannerLoginBtn')?.addEventListener('click', () => openModal('authModal'));
-  document.getElementById('bannerApplyBtn')?.addEventListener('click', () => openModal('applyModal'));
+  document.getElementById('bannerApplyBtn')?.addEventListener('click', () => openUnifiedApplyModal());
   document.getElementById('footerApplyLink')?.addEventListener('click', (e) => {
     e.preventDefault();
-    openModal('applyModal');
+    openUnifiedApplyModal();
+  });
+  document.getElementById('authToApplyLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openUnifiedApplyModal();
   });
 
   document.getElementById('authModalClose')?.addEventListener('click', () => closeModal('authModal'));
-  document.getElementById('signupModalClose')?.addEventListener('click', () => closeModal('signupModal'));
   document.getElementById('applyModalClose')?.addEventListener('click', () => closeModal('applyModal'));
   document.getElementById('sessionDetailClose')?.addEventListener('click', () => closeModal('sessionDetailModal'));
   document.getElementById('writingReaderClose')?.addEventListener('click', () => closeModal('writingReaderModal'));
@@ -276,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('switchApplyModalBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     closeModal('authModal');
-    openModal('applyModal');
+    openUnifiedApplyModal();
   });
 
   // Close modals when clicking backdrop
@@ -439,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.getElementById('mobileDrawerJoinBtn')?.addEventListener('click', () => {
           closeMobileDrawer();
-          openModal('applyModal');
+          openUnifiedApplyModal();
         });
       }
 
@@ -449,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="btn btn-primary btn-sm" id="headerJoinBtn">${joinText}</button>
         `;
         document.getElementById('headerBackToPublicBtn')?.addEventListener('click', () => navigateToPortal('public'));
-        document.getElementById('headerJoinBtn')?.addEventListener('click', () => openModal('applyModal'));
+        document.getElementById('headerJoinBtn')?.addEventListener('click', () => openUnifiedApplyModal());
         if (publicNav) publicNav.style.display = 'flex';
       } else {
         container.innerHTML = `
@@ -458,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         document.getElementById('headerLoginBtn')?.addEventListener('click', () => navigateToPortal('signin'));
-        document.getElementById('headerJoinBtn')?.addEventListener('click', () => openModal('applyModal'));
+        document.getElementById('headerJoinBtn')?.addEventListener('click', () => openUnifiedApplyModal());
         if (publicNav) publicNav.style.display = 'flex';
       }
     }
@@ -982,183 +985,239 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // -------------------------------------------------------------------------
-  // SIGN UP & OTP REGISTRATION FLOW (AFTER ADMIN APPROVAL)
+  // UNIFIED REGISTRATION FLOW: "Apply for Community Membership"
+  // Step 1: Basic Information (First Name, Last Name, Country, Email, Set Password, Confirm Password)
+  // Step 2: Additional Details (Areas of intellectual interest, Debate background, Why join GYD)
+  // Step 3: OTP Verification (Retrieves OTP from email and verifies on website)
+  // Admin Approval: Proposal placed on hold awaiting manual Admin approval.
   // -------------------------------------------------------------------------
-  let currentSignupData = null;
+  let unifiedApplyData = {
+    firstName: '',
+    lastName: '',
+    country: '',
+    email: '',
+    password: '',
+    interests: [],
+    debateExperience: '',
+    motivation: ''
+  };
 
-  function openSignupModal(pending) {
-    const fNameInput = document.getElementById('signupFirstName');
-    const lNameInput = document.getElementById('signupLastName');
-    const countryInput = document.getElementById('signupCountry');
-    const emailInput = document.getElementById('signupEmail');
-    const passInput = document.getElementById('signupPassword');
-    const confirmInput = document.getElementById('signupConfirmPassword');
-    const errorAlert = document.getElementById('signupErrorAlert');
+  window.toggleApplyPw = function(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+  };
 
-    if (fNameInput) fNameInput.value = pending.firstName || (pending.name ? pending.name.split(' ')[0] : '');
-    if (lNameInput) lNameInput.value = pending.lastName || (pending.name ? pending.name.split(' ').slice(1).join(' ') : '');
-    if (countryInput) countryInput.value = pending.country || '';
-    if (emailInput) emailInput.value = pending.email || '';
-    if (passInput) passInput.value = '';
-    if (confirmInput) confirmInput.value = '';
-    if (errorAlert) errorAlert.style.display = 'none';
+  function setApplyStepper(stepNumber) {
+    const circle1 = document.getElementById('applyStepCircle1');
+    const circle2 = document.getElementById('applyStepCircle2');
+    const circle3 = document.getElementById('applyStepCircle3');
+    const label1 = document.getElementById('applyStepLabel1');
+    const label2 = document.getElementById('applyStepLabel2');
+    const label3 = document.getElementById('applyStepLabel3');
+    const progressLine = document.getElementById('applyProgressLine');
 
-    const step1 = document.getElementById('signupDetailsForm');
-    const step2 = document.getElementById('signupOtpStep');
+    const circles = [circle1, circle2, circle3];
+    const labels = [label1, label2, label3];
+
+    circles.forEach((c, idx) => {
+      if (!c) return;
+      const num = idx + 1;
+      if (num < stepNumber) {
+        c.style.background = 'var(--brand-green, #047857)';
+        c.style.color = '#fff';
+        c.style.borderColor = 'var(--brand-green, #047857)';
+        c.style.boxShadow = 'none';
+        c.innerHTML = '✓';
+      } else if (num === stepNumber) {
+        c.style.background = 'var(--color-primary-1, #4851ba)';
+        c.style.color = '#fff';
+        c.style.borderColor = 'var(--color-primary-1, #4851ba)';
+        c.style.boxShadow = '0 0 0 4px rgba(72, 81, 186, 0.18)';
+        c.innerHTML = String(num);
+      } else {
+        c.style.background = 'var(--bg-surface, #fff)';
+        c.style.color = 'var(--text-muted)';
+        c.style.border = '2px solid var(--border-light, #cbd5e1)';
+        c.style.boxShadow = 'none';
+        c.innerHTML = String(num);
+      }
+    });
+
+    labels.forEach((l, idx) => {
+      if (!l) return;
+      const num = idx + 1;
+      l.style.fontWeight = num === stepNumber ? '700' : '600';
+      l.style.color = num === stepNumber ? 'var(--text-main)' : 'var(--text-muted)';
+    });
+
+    if (progressLine) {
+      if (stepNumber === 1) progressLine.style.width = '0%';
+      else if (stepNumber === 2) progressLine.style.width = '50%';
+      else if (stepNumber === 3) progressLine.style.width = '100%';
+    }
+  }
+
+  function openUnifiedApplyModal() {
+    closeModal('authModal');
+    const stepper = document.getElementById('applyStepper');
+    const step1 = document.getElementById('applyStep1Container');
+    const step2 = document.getElementById('applyStep2Container');
+    const step3 = document.getElementById('applyStep3Container');
+    const step4 = document.getElementById('applyStep4SuccessContainer');
+    const subtitle = document.getElementById('applyModalSubtitle');
+
+    if (stepper) stepper.style.display = 'flex';
     if (step1) step1.style.display = 'block';
     if (step2) step2.style.display = 'none';
+    if (step3) step3.style.display = 'none';
+    if (step4) step4.style.display = 'none';
+    if (subtitle) subtitle.textContent = 'Complete your application in 3 steps to join our international network of young debaters.';
 
-    openModal('signupModal');
-    showToast('Your membership application was approved! Please set your custom password.', 'success');
+    setApplyStepper(1);
+
+    // Reset error alerts
+    const err1 = document.getElementById('applyStep1Error');
+    const err2 = document.getElementById('applyStep2Error');
+    const err3 = document.getElementById('applyStep3Error');
+    if (err1) err1.style.display = 'none';
+    if (err2) err2.style.display = 'none';
+    if (err3) err3.style.display = 'none';
+
+    openModal('applyModal');
   }
 
-  async function handleApprovedApplicantClick() {
-    const banner = document.getElementById('approvedApplicantBanner');
-    let pending = authService.checkApprovedApplicant();
-    if (pending && pending.email) {
-      closeModal('authModal');
-      openSignupModal(pending);
-      return;
-    }
+  window.openUnifiedApplyModal = openUnifiedApplyModal;
+  window.openSignupModal = openUnifiedApplyModal;
+  window.checkApprovedVisitorRedirect = function() {};
+  window.checkApprovedApplicantNotice = function() {};
+  window.handleApprovedApplicantClick = openUnifiedApplyModal;
 
-    // Always sync remote applications before prompting to get the freshest approval status
-    if (dataService && typeof dataService.syncRemoteApplications === 'function') {
-      try { await dataService.syncRemoteApplications(); } catch (e) {}
-      pending = authService.checkApprovedApplicant();
-      if (pending && pending.email) {
-        closeModal('authModal');
-        openSignupModal(pending);
-        return;
-      }
-    }
-
-    // Check if the user is already registered in users list
-    const users = dataService ? (dataService.getUsers() || []) : [];
-    const appliedEmail = (function() {
-      try { return localStorage.getItem('gyd_applied_email'); } catch (e) { return null; }
-    })();
-
-    if (appliedEmail && users.some(u => u.email && u.email.toLowerCase().trim() === appliedEmail.toLowerCase().trim())) {
-      if (banner) banner.style.display = 'none';
-      showToast('You have already registered your account! Please sign in with your email and password.', 'success');
-      return;
-    }
-
-    // Prompt user for their applied email
-    const defaultVal = appliedEmail || '';
-    const emailPrompt = prompt('Please enter the email address used in your approved membership application:', defaultVal);
-    if (emailPrompt && emailPrompt.trim()) {
-      const email = emailPrompt.trim().toLowerCase();
-      const apps = dataService ? (dataService.getApplications() || []) : [];
-      const app = apps.find(a => a.email && a.email.toLowerCase().trim() === email);
-      const isAlreadyUser = users.some(u => u.email && u.email.toLowerCase().trim() === email);
-
-      if (isAlreadyUser || (app && app.status === 'Registered')) {
-        if (banner) banner.style.display = 'none';
-        showToast('Your membership is already registered! Please sign in with your email and password.', 'success');
-        return;
-      }
-
-      if (app) {
-        if (app.status === 'Approved' || app.status === 'Approved - Awaiting Registration') {
-          try { localStorage.setItem('gyd_applied_email', app.email); } catch (e) {}
-          authService.setPendingRegistration(app);
-          closeModal('authModal');
-          openSignupModal(app);
-        } else {
-          showToast(`Your application status is "${app.status}". A Coordinator must approve it first.`, 'warning');
-        }
-      } else {
-        showToast('No membership application found for this email. Please apply first.', 'error');
-      }
-    }
-  }
-
-  function checkApprovedApplicantNotice() {
-    const topBanner = document.getElementById('approvedMemberBannerTop');
-    const topName = document.getElementById('approvedMemberBannerTopName');
-    const signinBanner = document.getElementById('approvedApplicantBanner');
-    const signinMsg = document.getElementById('approvedApplicantBannerMsg');
-
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      if (topBanner) topBanner.style.display = 'none';
-      if (signinBanner) signinBanner.style.display = 'none';
-      return;
-    }
-
-    const pending = authService.checkApprovedApplicant();
-    if (pending && pending.email) {
-      if (topBanner) {
-        topBanner.style.display = 'block';
-        if (topName) {
-          topName.textContent = `Welcome ${pending.name || 'Member'}! Your Membership Application is Approved!`;
-        }
-      }
-      if (signinBanner) {
-        signinBanner.style.display = 'block';
-        if (signinMsg) {
-          signinMsg.textContent = `Welcome ${pending.name || pending.email}! Your application has been approved. Complete your registration to activate your account.`;
-        }
-      }
-    } else {
-      if (topBanner) topBanner.style.display = 'none';
-      if (signinBanner) signinBanner.style.display = 'none';
-    }
-  }
-
-  function checkApprovedVisitorRedirect() {
-    checkApprovedApplicantNotice();
-  }
-
-  window.openSignupModal = openSignupModal;
-  window.checkApprovedVisitorRedirect = checkApprovedVisitorRedirect;
-  window.checkApprovedApplicantNotice = checkApprovedApplicantNotice;
-  window.handleApprovedApplicantClick = handleApprovedApplicantClick;
-
-  document.getElementById('btnTopCompleteSignup')?.addEventListener('click', () => {
-    handleApprovedApplicantClick();
-  });
-
-  // Step 1: Submit Details & Custom Password
-  document.getElementById('signupDetailsForm')?.addEventListener('submit', (e) => {
+  // Step 1 Submission: Basic Information
+  document.getElementById('applyStep1Form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const firstName = document.getElementById('signupFirstName').value.trim();
-    const lastName = document.getElementById('signupLastName').value.trim();
-    const country = document.getElementById('signupCountry').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const confirmPassword = document.getElementById('signupConfirmPassword').value;
-    const errorAlert = document.getElementById('signupErrorAlert');
+    const firstName = (document.getElementById('applyFirstName')?.value || '').trim();
+    const lastName = (document.getElementById('applyLastName')?.value || '').trim();
+    const country = (document.getElementById('applyCountry')?.value || '').trim();
+    const email = (document.getElementById('applyEmail')?.value || '').trim().toLowerCase();
+    const password = document.getElementById('applyPassword')?.value || '';
+    const confirmPassword = document.getElementById('applyConfirmPassword')?.value || '';
+    const errorAlert = document.getElementById('applyStep1Error');
 
-    if (password.length < 6) {
+    const showError = (msg) => {
       if (errorAlert) {
-        errorAlert.textContent = 'Password must be at least 6 characters long.';
+        errorAlert.textContent = msg;
         errorAlert.style.display = 'block';
       }
+      showToast(msg, 'error');
+    };
+
+    if (!firstName || !lastName || !country || !email || !password || !confirmPassword) {
+      showError('Please fill out all required fields.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showError('Please enter a valid email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      showError('Password must be at least 6 characters long.');
       return;
     }
 
     if (password !== confirmPassword) {
-      if (errorAlert) {
-        errorAlert.textContent = 'Passwords do not match. Please re-enter.';
-        errorAlert.style.display = 'block';
-      }
+      showError('Passwords do not match. Please verify your confirmation password.');
+      return;
+    }
+
+    // Check if user is already registered in users list
+    const users = dataService ? (dataService.getUsers() || []) : [];
+    if (users.some(u => u.email && u.email.toLowerCase().trim() === email)) {
+      showError('An active member account with this email already exists. Please sign in instead.');
+      return;
+    }
+
+    // Check if application is already approved
+    const apps = dataService ? (dataService.getApplications() || []) : [];
+    const existingApp = apps.find(a => a.email && a.email.toLowerCase().trim() === email);
+    if (existingApp && (existingApp.status === 'Approved' || existingApp.status === 'Approved - Awaiting Registration')) {
+      showError('Your membership application is already approved! Please sign in with your email and password.');
       return;
     }
 
     if (errorAlert) errorAlert.style.display = 'none';
 
-    currentSignupData = { firstName, lastName, country, email, password };
+    unifiedApplyData.firstName = firstName;
+    unifiedApplyData.lastName = lastName;
+    unifiedApplyData.country = country;
+    unifiedApplyData.email = email;
+    unifiedApplyData.password = password;
 
-    // Generate secure OTP
-    const code = authService.generateOTP(email);
-    const recipientEl = document.getElementById('otpRecipientEmail');
-    const inputEl = document.getElementById('signupOtpInput');
-    const revealedEl = document.getElementById('revealedTestOtp');
-    const btnReveal = document.getElementById('btnRevealTestOtp');
+    // Transition to Step 2
+    document.getElementById('applyStep1Container').style.display = 'none';
+    document.getElementById('applyStep2Container').style.display = 'block';
+    setApplyStepper(2);
+  });
 
-    if (recipientEl) recipientEl.textContent = email;
+  // Step 2: Back Button
+  document.getElementById('applyStep2BackBtn')?.addEventListener('click', () => {
+    document.getElementById('applyStep2Container').style.display = 'none';
+    document.getElementById('applyStep1Container').style.display = 'block';
+    setApplyStepper(1);
+  });
+
+  // Step 2 Submission: Additional Details
+  document.getElementById('applyStep2Form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const errorAlert = document.getElementById('applyStep2Error');
+    const debateExp = (document.getElementById('applyDebateExp')?.value || '').trim();
+    const motivation = (document.getElementById('applyMotivation')?.value || '').trim();
+    const customInterests = (document.getElementById('applyInterestsCustom')?.value || '').trim();
+
+    const checkedBoxes = document.querySelectorAll('#applyInterestsGrid input:checked');
+    let interests = Array.from(checkedBoxes).map(cb => cb.value);
+    if (customInterests) {
+      interests.push(customInterests);
+    }
+    if (interests.length === 0) {
+      interests = ['Global Affairs'];
+    }
+
+    const showError = (msg) => {
+      if (errorAlert) {
+        errorAlert.textContent = msg;
+        errorAlert.style.display = 'block';
+      }
+      showToast(msg, 'error');
+    };
+
+    if (!debateExp) {
+      showError('Please outline your debate and public speaking background.');
+      return;
+    }
+
+    if (!motivation) {
+      showError('Please share why you want to join Global Youth Dialogue.');
+      return;
+    }
+
+    if (errorAlert) errorAlert.style.display = 'none';
+
+    unifiedApplyData.interests = interests;
+    unifiedApplyData.debateExperience = debateExp;
+    unifiedApplyData.motivation = motivation;
+
+    // Generate secure 6-digit OTP
+    const code = authService.generateOTP(unifiedApplyData.email);
+    const recipientEl = document.getElementById('applyOtpRecipientEmail');
+    const inputEl = document.getElementById('applyOtpInput');
+    const revealedEl = document.getElementById('revealedApplyOtp');
+    const btnReveal = document.getElementById('btnRevealApplyOtp');
+
+    if (recipientEl) recipientEl.textContent = unifiedApplyData.email;
     if (inputEl) inputEl.value = '';
     if (revealedEl) {
       revealedEl.textContent = '';
@@ -1174,40 +1233,42 @@ document.addEventListener('DOMContentLoaded', () => {
           inputEl.value = code;
           inputEl.focus();
         }
-        showToast('Verification code auto-filled! Click "Verify OTP & Complete Membership" to finish.', 'success');
+        showToast('Verification code auto-filled! Click "Verify OTP & Submit Application" to finish.', 'success');
       };
     }
 
-    // Switch to Step 2
-    document.getElementById('signupDetailsForm').style.display = 'none';
-    document.getElementById('signupOtpStep').style.display = 'block';
+    // Switch to Step 3
+    document.getElementById('applyStep2Container').style.display = 'none';
+    document.getElementById('applyStep3Container').style.display = 'block';
+    setApplyStepper(3);
     if (inputEl) inputEl.focus();
 
-    // Dispatch verification email to applicant's inbox
-    const applicantName = `${firstName} ${lastName}`.trim() || 'Applicant';
-    authService.sendOTPEmail(email, code, applicantName).then((res) => {
+    // Dispatch verification OTP email
+    const fullName = `${unifiedApplyData.firstName} ${unifiedApplyData.lastName}`.trim() || 'Applicant';
+    authService.sendOTPEmail(unifiedApplyData.email, code, fullName).then((res) => {
       if (res && res.sent) {
-        showToast(`Verification email sent to ${email}! Check inbox (or Spam/Junk folder).`, 'success');
+        showToast(`Verification code delivered to ${unifiedApplyData.email}! Check inbox or Spam.`, 'success');
       } else {
         showToast(`Verification code dispatched. Check inbox or use instant auto-fill below.`, 'normal');
       }
     });
   });
 
-  // Back button to details step
-  document.getElementById('signupOtpBackBtn')?.addEventListener('click', () => {
-    document.getElementById('signupOtpStep').style.display = 'none';
-    document.getElementById('signupDetailsForm').style.display = 'block';
+  // Step 3: Back Button
+  document.getElementById('applyStep3BackBtn')?.addEventListener('click', () => {
+    document.getElementById('applyStep3Container').style.display = 'none';
+    document.getElementById('applyStep2Container').style.display = 'block';
+    setApplyStepper(2);
   });
 
-  // Resend OTP button
-  document.getElementById('signupOtpResendBtn')?.addEventListener('click', () => {
-    if (!currentSignupData || !currentSignupData.email) return;
-    const code = authService.generateOTP(currentSignupData.email);
-    const applicantName = `${currentSignupData.firstName || ''} ${currentSignupData.lastName || ''}`.trim() || 'Applicant';
-    const revealedEl = document.getElementById('revealedTestOtp');
-    const btnReveal = document.getElementById('btnRevealTestOtp');
-    const inputEl = document.getElementById('signupOtpInput');
+  // Step 3: Resend Code
+  document.getElementById('applyStep3ResendBtn')?.addEventListener('click', () => {
+    if (!unifiedApplyData || !unifiedApplyData.email) return;
+    const code = authService.generateOTP(unifiedApplyData.email);
+    const fullName = `${unifiedApplyData.firstName} ${unifiedApplyData.lastName}`.trim() || 'Applicant';
+    const revealedEl = document.getElementById('revealedApplyOtp');
+    const btnReveal = document.getElementById('btnRevealApplyOtp');
+    const inputEl = document.getElementById('applyOtpInput');
 
     if (revealedEl) {
       revealedEl.textContent = '';
@@ -1223,101 +1284,94 @@ document.addEventListener('DOMContentLoaded', () => {
           inputEl.value = code;
           inputEl.focus();
         }
-        showToast('Verification code auto-filled! Click "Verify OTP & Complete Membership" to finish.', 'success');
+        showToast('Verification code auto-filled! Click "Verify OTP & Submit Application" to finish.', 'success');
       };
     }
 
-    authService.sendOTPEmail(currentSignupData.email, code, applicantName).then((res) => {
+    authService.sendOTPEmail(unifiedApplyData.email, code, fullName).then((res) => {
       if (res && res.sent) {
-        showToast(`New verification code delivered to ${currentSignupData.email}! Check inbox or spam.`, 'success');
+        showToast(`New verification code delivered to ${unifiedApplyData.email}! Check inbox or spam.`, 'success');
       } else {
         showToast(`New code generated. Check inbox or use instant auto-fill below.`, 'normal');
       }
     });
   });
 
-  // Step 2: OTP Verification & Final Registration
-  document.getElementById('signupOtpForm')?.addEventListener('submit', (e) => {
+  // Step 3: Verify OTP and Place Application on Hold (Awaiting Admin Approval)
+  document.getElementById('applyStep3Form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!currentSignupData) return;
+    const enteredCode = (document.getElementById('applyOtpInput')?.value || '').trim();
+    const errorAlert = document.getElementById('applyStep3Error');
+    if (errorAlert) errorAlert.style.display = 'none';
 
-    const enteredCode = document.getElementById('signupOtpInput').value.trim();
-    const otpErrAlert = document.getElementById('otpErrorAlert');
-    if (otpErrAlert) otpErrAlert.style.display = 'none';
-
-    const verifyRes = authService.verifyOTP(currentSignupData.email, enteredCode);
+    const verifyRes = authService.verifyOTP(unifiedApplyData.email, enteredCode);
     if (!verifyRes.valid) {
-      if (otpErrAlert) {
-        otpErrAlert.textContent = verifyRes.message || 'Invalid verification code.';
-        otpErrAlert.style.display = 'block';
+      if (errorAlert) {
+        errorAlert.textContent = verifyRes.message || 'Invalid verification code.';
+        errorAlert.style.display = 'block';
       }
       showToast(verifyRes.message || 'Invalid verification code.', 'error');
       return;
     }
 
-    // Register active Member in dataService
-    const newUser = dataService.registerUserFromSignup(currentSignupData);
-    closeModal('signupModal');
+    // Construct application proposal
+    const fullName = `${unifiedApplyData.firstName} ${unifiedApplyData.lastName}`.trim();
+    const appProposal = {
+      name: fullName,
+      firstName: unifiedApplyData.firstName,
+      lastName: unifiedApplyData.lastName,
+      email: unifiedApplyData.email,
+      password: unifiedApplyData.password,
+      country: unifiedApplyData.country,
+      flag: 'INT',
+      interests: unifiedApplyData.interests,
+      debateExperience: unifiedApplyData.debateExperience,
+      motivation: unifiedApplyData.motivation,
+      status: 'Pending', // Acts as proposal placed on hold awaiting manual Admin approval!
+      emailVerified: true
+    };
 
-    // Clean up all pending tokens and explicitly hide approved applicant banner
-    authService.clearPendingRegistration();
-    try { localStorage.removeItem('gyd_applied_email'); } catch (e) {}
-    const banner = document.getElementById('approvedApplicantBanner');
-    if (banner) banner.style.display = 'none';
+    // Submit to dataService (which saves locally and syncs to backend API)
+    dataService.submitApplication(appProposal);
 
-    // Automatically log in the newly activated member into the Member Portal
-    const loginRes = authService.login(newUser.email, currentSignupData.password, 'member');
-    if (loginRes.success) {
-      showToast(`Welcome to GYDE, ${newUser.name}! Your official membership is now active.`, 'success');
-      navigateToPortal('member');
-    } else {
-      showToast(`Membership activated for ${newUser.name}! Please sign in as Member with your email and password.`, 'success');
-      setTimeout(() => {
-        openModal('authModal');
-        const memberRadio = document.querySelector('input[name="authPortalRole"][value="member"]');
-        if (memberRadio) {
-          memberRadio.checked = true;
-          memberRadio.dispatchEvent(new Event('change'));
-        }
-        const emailInput = document.getElementById('loginEmail');
-        if (emailInput) emailInput.value = newUser.email;
-        const passInput = document.getElementById('loginPassword');
-        if (passInput) {
-          passInput.value = '';
-          passInput.focus();
-        }
-      }, 450);
-    }
+    // Transition to Step 4: Success / Placed On Hold confirmation
+    document.getElementById('applyStep3Container').style.display = 'none';
+    const stepper = document.getElementById('applyStepper');
+    if (stepper) stepper.style.display = 'none';
+
+    const nameEl = document.getElementById('applySuccessApplicantName');
+    const emailEl = document.getElementById('applySuccessApplicantEmail');
+    if (nameEl) nameEl.textContent = fullName;
+    if (emailEl) emailEl.textContent = unifiedApplyData.email;
+
+    const step4 = document.getElementById('applyStep4SuccessContainer');
+    if (step4) step4.style.display = 'block';
+
+    const subtitle = document.getElementById('applyModalSubtitle');
+    if (subtitle) subtitle.textContent = 'Email verified. Application submitted for Secretariat review.';
+
+    showToast('Application verified and submitted! Awaiting Admin approval.', 'success');
   });
 
-  // Membership Application Form Handler
-  document.getElementById('membershipApplicationForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('appFullName').value.trim();
-    const email = document.getElementById('appEmail').value.trim();
-    const country = document.getElementById('appCountry').value.trim();
-    const debateExp = document.getElementById('appDebateExp').value.trim();
-    const motivation = document.getElementById('appMotivation').value.trim();
-
-    const checkedBoxes = document.querySelectorAll('#interestCheckboxes input:checked');
-    const interests = Array.from(checkedBoxes).map(cb => cb.value);
-
-    dataService.submitApplication({
-      name,
-      email,
-      country,
-      flag: 'INT',
-      interests: interests.length ? interests : ['Global Affairs'],
-      debateExperience: debateExp,
-      motivation
-    });
-
+  // Step 4: Action Buttons
+  document.getElementById('applySuccessDoneBtn')?.addEventListener('click', () => {
     closeModal('applyModal');
-    const toastMsg = i18n.isRTL() 
-      ? 'تم استلام طلب عضويتك بنجاح وإرساله للمنسقين للمراجعة!' 
-      : 'Your membership application has been received and sent to coordinators for review!';
-    showToast(toastMsg, 'success');
-    e.target.reset();
+  });
+
+  document.getElementById('applySuccessToSignInBtn')?.addEventListener('click', () => {
+    closeModal('applyModal');
+    setTimeout(() => {
+      openModal('authModal');
+    }, 200);
+  });
+
+  // Link in Step 1: "Already have an account? Sign In"
+  document.getElementById('applyToSignInLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal('applyModal');
+    setTimeout(() => {
+      openModal('authModal');
+    }, 200);
   });
 
   // =========================================================================
@@ -6207,7 +6261,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.approveApp = function(appId) {
     const app = dataService.approveApplication(appId);
     if (app) {
-      showToast(`Approved ${app.name}! When they open the site, they will be automatically redirected to sign up and verify OTP.`, 'success');
+      showToast(`Approved ${app.name}! An approval confirmation email has been dispatched to ${app.email}. They can now log in normally.`, 'success');
       renderCoordinatorPortal();
     }
   };
