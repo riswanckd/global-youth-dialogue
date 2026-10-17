@@ -8,10 +8,12 @@ export const AdminProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ c
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFBFD] dark:bg-[#000000] text-black dark:text-white transition-colors">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-gyde-gold border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase">Authenticating Administrator Clearance...</p>
+          <div className="w-9 h-9 border-4 border-[#4950BA] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs text-[#4950BA] dark:text-[#A159AF] font-bold tracking-wider uppercase">
+            Authenticating Administrator Clearance...
+          </p>
         </div>
       </div>
     );
@@ -23,3 +25,4 @@ export const AdminProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ c
 
   return <>{children}</>;
 };
+
