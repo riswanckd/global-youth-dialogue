@@ -19,3 +19,4 @@ dist/
 build/
 .turbo/
 coverage/
+pnpm-lock.yaml
