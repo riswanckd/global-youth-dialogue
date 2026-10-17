@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { Publication } from '../types';
-import { BookOpen, Plus, Search, CheckCircle2, FileText } from 'lucide-react';
+import { BookOpen, Plus, Search, CheckCircle2, FileText, Clock, Lightbulb } from 'lucide-react';
 
 export const Publications: React.FC = () => {
   const queryClient = useQueryClient();
@@ -29,6 +29,9 @@ export const Publications: React.FC = () => {
     return p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
   });
 
+  const publishedCount = publications.filter((p) => p.status === 'published').length;
+  const reviewCount = publications.filter((p) => p.status !== 'published').length;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -39,6 +42,69 @@ export const Publications: React.FC = () => {
           <p className="text-sm text-slate-500 mt-1">
             {t('pubs.subtitle', 'Review, peer-assess, and publish delegate academic papers to the public digital repository.')}
           </p>
+        </div>
+      </div>
+
+      {/* KPI Cards Grid (2x2 on mobile, 4 in a row on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Total Papers */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {publications.length}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {t('dash.kpiAcademicPapers', 'Total Papers')}
+            </div>
+          </div>
+        </div>
+
+        {/* In Peer Review */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {reviewCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {translateStatus('in_review')}
+            </div>
+          </div>
+        </div>
+
+        {/* Published Online */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {publishedCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {t('pubs.publishedBadge', 'Published Online')}
+            </div>
+          </div>
+        </div>
+
+        {/* Disciplines */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              16
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {t('sessions.categoryLabel', 'Disciplines')}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { Feedback as FeedbackType } from '../types';
-import { MessageSquareQuote, Search, Star } from 'lucide-react';
+import { MessageSquareQuote, Search, Star, CheckCircle2, Calendar } from 'lucide-react';
 
 export const Feedback: React.FC = () => {
   const { t } = useAdminLanguage();
@@ -21,6 +21,16 @@ export const Feedback: React.FC = () => {
     return sessionTitle.toLowerCase().includes(q) || submitter.toLowerCase().includes(q);
   });
 
+  const avgScore = feedback.length > 0
+    ? (feedback.reduce((acc, f) => {
+        const r = f.ratings;
+        const subAvg = r ? (r.argumentation + r.evidence + r.delivery + r.engagement) / 4 : 5;
+        return acc + subAvg;
+      }, 0) / feedback.length).toFixed(1)
+    : '5.0';
+
+  const strengthsCount = feedback.filter((f) => f.strengths && f.strengths.length > 0).length;
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,6 +40,69 @@ export const Feedback: React.FC = () => {
         <p className="text-sm text-slate-500 mt-1">
           {t('fb.subtitle', 'Peer reflections and ratings on presentation clarity, argument strength, and floor debate rigor.')}
         </p>
+      </div>
+
+      {/* KPI Cards Grid (2x2 on mobile, 4 in a row on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Total Reviews */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <MessageSquareQuote className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {feedback.length}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {t('fb.title', 'Reviews')}
+            </div>
+          </div>
+        </div>
+
+        {/* Average Score */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {avgScore} / 5
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              Average Rating
+            </div>
+          </div>
+        </div>
+
+        {/* Commendations */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {strengthsCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              Commendations
+            </div>
+          </div>
+        </div>
+
+        {/* Debate Chambers */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              100%
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              Deliberation Rigor
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">

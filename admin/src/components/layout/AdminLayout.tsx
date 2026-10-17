@@ -128,10 +128,10 @@ export const AdminLayout: React.FC = () => {
       <header className="sticky top-0 z-40 w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
           {/* Left: Brand Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 -ml-2 rtl:-ml-0 rtl:-mr-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              className="lg:hidden p-1.5 -ml-1 rtl:-ml-0 rtl:-mr-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -140,7 +140,7 @@ export const AdminLayout: React.FC = () => {
               <img
                 src="/assets/images/gyde_official_logo.svg"
                 alt="GYDE Official Logo"
-                className="h-10 sm:h-11 w-auto object-contain dark:hidden"
+                className="h-8 sm:h-10 w-auto object-contain dark:hidden"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo.png';
                 }}
@@ -148,7 +148,7 @@ export const AdminLayout: React.FC = () => {
               <img
                 src="/assets/images/gyde_official_logo_dark.svg"
                 alt="GYDE Official Logo"
-                className="h-10 sm:h-11 w-auto object-contain hidden dark:block"
+                className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo_dark.png';
                 }}
@@ -157,8 +157,8 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search Pill */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Search Pill (Hidden on mobile) */}
             <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-xs text-slate-500 hover:border-slate-300 transition-colors">
               <Search className="w-3.5 h-3.5 text-slate-400" />
               <input
@@ -172,7 +172,7 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={toggleTheme}
               title={t('nav.lightDark', 'Toggle Light / Dark mode')}
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
@@ -181,7 +181,7 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={() => navigate('/notifications')}
               title={t('nav.notifications', 'Notifications')}
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
             >
               <Bell className="w-4 h-4" />
               <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
@@ -193,16 +193,17 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={toggleLanguage}
               title={t('nav.switchLanguage', 'Switch Language / تغيير اللغة')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shrink-0"
             >
-              <Globe className="w-3.5 h-3.5 text-slate-500" />
-              <span>{isArabic ? 'English' : 'العربية'}</span>
+              <Globe className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <span className="hidden sm:inline">{isArabic ? 'English' : 'العربية'}</span>
+              <span className="sm:hidden text-[11px] font-bold">{isArabic ? 'EN' : 'عربي'}</span>
             </button>
 
-            {/* Sign Out Button (Home Link removed as requested) */}
+            {/* Sign Out Button */}
             <button
               onClick={handleLogout}
-              className="px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
             >
               {t('nav.signOut', 'Sign Out')}
             </button>
