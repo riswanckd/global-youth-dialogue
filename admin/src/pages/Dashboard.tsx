@@ -95,6 +95,7 @@ export const Dashboard: React.FC = () => {
       )}
 
       {/* Page Header */}
+      <div>
         <h1
           style={{ fontFamily: "'Sora', sans-serif" }}
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight"
