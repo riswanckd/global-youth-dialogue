@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { DashboardStats } from '../types';
 import {
@@ -19,6 +20,7 @@ import { BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 const PALETTE = ['#4950BA', '#A159AF', '#10B981', '#F59E0B', '#3B82F6', '#EC4899'];
 
 export const Analytics: React.FC = () => {
+  const { t } = useAdminLanguage();
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['admin-stats'],
     queryFn: () => apiRequest<DashboardStats>('/admin/dashboard/stats').catch(() => null as any),
@@ -34,24 +36,32 @@ export const Analytics: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Analytics & Deliberations</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          {t('analytics.title', 'Platform Analytics & Deliberations')}
+        </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Real-time metrics on debate session attendance, geographic distribution, and paper citations.
+          {t('analytics.subtitle', 'Real-time metrics on debate session attendance, geographic distribution, and paper citations.')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Attendance trend chart */}
         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Monthly Chamber Attendance</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            {t('analytics.monthlyAttendance', 'Monthly Chamber Attendance')}
+          </h3>
           <div className="h-72 w-full flex items-center justify-center">
             {isLoading ? (
               <div className="text-xs text-slate-400">Loading trend analytics...</div>
             ) : sessionTrendData.length === 0 ? (
               <div className="text-center py-12 space-y-2">
                 <BarChart3 className="w-8 h-8 mx-auto text-slate-400 opacity-50" />
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">No session attendance data recorded yet.</p>
-                <p className="text-[11px] text-slate-400">Sessions held will reflect attendance trends automatically here.</p>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  {t('analytics.noAttendance', 'No session attendance data recorded yet.')}
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {t('analytics.noAttendanceDesc', 'Sessions held will reflect attendance trends automatically here.')}
+                </p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -69,7 +79,9 @@ export const Analytics: React.FC = () => {
 
         {/* Geographic / Discipline distribution pie chart */}
         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Applicant Geographic Distribution</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            {t('analytics.countryDistribution', 'Delegation Distribution by Nation')}
+          </h3>
           <div className="h-72 w-full flex items-center justify-center">
             {isLoading ? (
               <div className="text-xs text-slate-400">Loading distribution...</div>

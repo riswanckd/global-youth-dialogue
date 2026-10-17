@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { Feedback as FeedbackType } from '../types';
 import { MessageSquareQuote, Search, Star } from 'lucide-react';
 
 export const Feedback: React.FC = () => {
+  const { t } = useAdminLanguage();
   const [search, setSearch] = useState('');
 
   const { data: feedback = [], isLoading } = useQuery<FeedbackType[]>({
@@ -22,22 +24,24 @@ export const Feedback: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Delegate Reviews & Feedback</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          {t('fb.title', 'Delegate Reviews & Feedback')}
+        </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Peer reflections and ratings on presentation clarity, argument strength, and floor debate rigor.
+          {t('fb.subtitle', 'Peer reflections and ratings on presentation clarity, argument strength, and floor debate rigor.')}
         </p>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="p-4 border-b border-slate-200 dark:border-slate-800">
           <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
             <input
               type="text"
-              placeholder="Search feedback by session or member..."
+              placeholder={t('fb.searchPlaceholder', 'Search feedback by session or member...')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
             />
           </div>
         </div>
@@ -47,7 +51,9 @@ export const Feedback: React.FC = () => {
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-slate-500 space-y-2">
             <MessageSquareQuote className="w-8 h-8 mx-auto text-slate-400" />
-            <p className="font-semibold text-sm">No peer reviews found.</p>
+            <p className="font-semibold text-sm">
+              {t('fb.noFb', 'No peer reviews found.')}
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -74,16 +80,16 @@ export const Feedback: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-xs text-slate-600 dark:text-slate-300">
-                    <strong>Strengths:</strong> {item.strengths || 'N/A'}
+                    <strong>{t('fb.strengths', 'Strengths')}:</strong> {item.strengths || 'N/A'}
                   </div>
                   {item.improvements && (
                     <div className="text-xs text-slate-500 dark:text-slate-400">
-                      <strong>Improvements:</strong> {item.improvements}
+                      <strong>{t('fb.improvements', 'Areas for Growth')}:</strong> {item.improvements}
                     </div>
                   )}
                   <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
                     <div>
-                      Review by: <strong className="text-slate-600 dark:text-slate-300">{item.submittedBy?.name || 'Anonymous'}</strong> ({item.submittedBy?.country || 'Global'})
+                      Review by: <strong className="text-slate-600 dark:text-slate-300">{item.submittedBy?.name || 'Anonymous'}</strong> ({item.submittedBy?.country || t('dash.global', 'Global')})
                     </div>
                     <div>{new Date(item.createdAt).toLocaleDateString()}</div>
                   </div>

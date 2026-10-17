@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { useAdminLanguage } from '../../context/AdminLanguageContext';
 import { apiRequest } from '../../utils/api';
 import {
   LayoutDashboard,
@@ -29,12 +30,12 @@ import {
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
+  const { isArabic, toggleLanguage, t, translateRole } = useAdminLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isArabic, setIsArabic] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteSuccessToast, setDeleteSuccessToast] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -55,13 +56,6 @@ export const AdminLayout: React.FC = () => {
       document.documentElement.setAttribute('data-theme', 'light');
       document.documentElement.classList.remove('dark');
     }
-  };
-
-  const toggleLanguage = () => {
-    const nextAr = !isArabic;
-    setIsArabic(nextAr);
-    document.documentElement.setAttribute('dir', nextAr ? 'rtl' : 'ltr');
-    document.documentElement.setAttribute('lang', nextAr ? 'ar' : 'en');
   };
 
   const handleLogout = async () => {
@@ -101,24 +95,24 @@ export const AdminLayout: React.FC = () => {
   };
 
   const navItems = [
-    { label: 'Programme Overview', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'The Community', path: '/users', icon: Users },
-    { label: 'Topic Lifecycle Pipeline', path: '/topics/pipeline', icon: GitBranch },
-    { label: 'Topic Bank', path: '/topics', icon: BookOpen },
-    { label: 'Session Management', path: '/sessions', icon: Mic },
-    { label: 'Academic Writing Studio', path: '/publications', icon: FileText },
-    { label: 'Delegate Feedback Analysis', path: '/feedback', icon: MessageSquareQuote },
-    { label: 'Pending Applications', path: '/applications', icon: UserCheck },
-    { label: 'ISDC7 Coordinator Team', path: '/users?role=COORDINATOR', icon: Award },
-    { label: 'Country Chapters', path: '/analytics', icon: Globe },
-    { label: 'Media & PR Studio', path: '/settings', icon: Share2 },
-    { label: 'Coordinator Profile', path: '/settings', icon: User },
+    { label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
+    { label: t('menu.community', 'The Community'), path: '/users', icon: Users },
+    { label: t('menu.pipeline', 'Topic Lifecycle Pipeline'), path: '/topics/pipeline', icon: GitBranch },
+    { label: t('menu.topicBank', 'Topic Bank'), path: '/topics', icon: BookOpen },
+    { label: t('menu.sessions', 'Session Management'), path: '/sessions', icon: Mic },
+    { label: t('menu.writingStudio', 'Academic Writing Studio'), path: '/publications', icon: FileText },
+    { label: t('menu.feedbackAnalysis', 'Delegate Feedback Analysis'), path: '/feedback', icon: MessageSquareQuote },
+    { label: t('menu.pendingApps', 'Pending Applications'), path: '/applications', icon: UserCheck },
+    { label: t('menu.coordinatorTeam', 'ISDC7 Coordinator Team'), path: '/users?role=COORDINATOR', icon: Award },
+    { label: t('menu.countryChapters', 'Country Chapters'), path: '/analytics', icon: Globe },
+    { label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/settings', icon: Share2 },
+    { label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/settings', icon: User },
   ];
 
-  const displayName = user?.name || 'Mubashir CP';
-  const displayRole = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
-    ? 'Founding Coordinator (India)'
-    : (user?.role || 'Founding Coordinator (India)');
+  const displayName = user?.name || t('nav.defaultName', 'Mubashir CP');
+  const displayRole = user?.role
+    ? translateRole(user.role)
+    : t('nav.defaultRole', 'Founding Coordinator (India)');
   const avatarLetter = (displayName[0] || 'M').toUpperCase();
 
   return (
@@ -126,18 +120,18 @@ export const AdminLayout: React.FC = () => {
       {/* Toast Notification */}
       {deleteSuccessToast && (
         <div className="fixed top-20 right-6 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
-          <span>All trial and demo data have been cleared successfully.</span>
+          <span>{t('deleteModal.toastSuccess', 'All trial and demo data have been cleared successfully.')}</span>
         </div>
       )}
 
-      {/* TOP NAVBAR (Exact design from screenshot) */}
+      {/* TOP NAVBAR */}
       <header className="sticky top-0 z-40 w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
           {/* Left: Brand Logo */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              className="lg:hidden p-2 -ml-2 rtl:-ml-0 rtl:-mr-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -148,7 +142,6 @@ export const AdminLayout: React.FC = () => {
                 alt="GYDE Official Logo"
                 className="h-10 sm:h-11 w-auto object-contain dark:hidden"
                 onError={(e) => {
-                  // Fallback if svg is missing or errored
                   (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo.png';
                 }}
               />
@@ -170,7 +163,7 @@ export const AdminLayout: React.FC = () => {
               <Search className="w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search"
+                placeholder={t('nav.searchPlaceholder', 'Search...')}
                 className="bg-transparent border-none outline-none text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 w-24 lg:w-32"
               />
             </div>
@@ -178,7 +171,7 @@ export const AdminLayout: React.FC = () => {
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleTheme}
-              title="Toggle Light / Dark mode"
+              title={t('nav.lightDark', 'Toggle Light / Dark mode')}
               className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
@@ -187,11 +180,11 @@ export const AdminLayout: React.FC = () => {
             {/* Notification Bell */}
             <button
               onClick={() => navigate('/notifications')}
-              title="Notifications"
+              title={t('nav.notifications', 'Notifications')}
               className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                 4
               </span>
             </button>
@@ -199,29 +192,19 @@ export const AdminLayout: React.FC = () => {
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
-              title="Switch Language / تغيير اللغة"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              title={t('nav.switchLanguage', 'Switch Language / تغيير اللغة')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
               <Globe className="w-3.5 h-3.5 text-slate-500" />
               <span>{isArabic ? 'English' : 'العربية'}</span>
             </button>
 
-            {/* Home Link */}
-            <a
-              href="http://localhost:5173"
-              target="_blank"
-              rel="noreferrer"
-              className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              Home
-            </a>
-
-            {/* Sign Out Button */}
+            {/* Sign Out Button (Home Link removed as requested) */}
             <button
               onClick={handleLogout}
               className="px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
-              Sign Out
+              {t('nav.signOut', 'Sign Out')}
             </button>
           </div>
         </div>
@@ -233,14 +216,14 @@ export const AdminLayout: React.FC = () => {
         <aside
           className={`
             fixed lg:sticky top-[72px] z-30 lg:z-10
-            h-[calc(100vh-72px)] w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800
+            h-[calc(100vh-72px)] w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
             flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200
-            ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+            ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
           `}
         >
           {/* Upper Sidebar: Profile Card & Menu */}
           <div className="flex flex-col flex-1 overflow-y-auto space-y-3">
-            {/* User Profile Card (Exact screenshot style) */}
+            {/* User Profile Card */}
             <div className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-slate-800/50 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
                 {avatarLetter}
@@ -288,7 +271,7 @@ export const AdminLayout: React.FC = () => {
               className="w-full rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-rose-100/60 dark:hover:bg-rose-900/30 transition-colors"
             >
               <Trash2 className="w-4 h-4 text-rose-500 shrink-0" />
-              <span>Delete Trial Data</span>
+              <span>{t('menu.deleteTrialData', 'Delete Trial Data')}</span>
             </button>
 
             <button
@@ -296,7 +279,7 @@ export const AdminLayout: React.FC = () => {
               className="w-full rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               <LogOut className="w-4 h-4 text-slate-500 shrink-0" />
-              <span>Sign Out</span>
+              <span>{t('nav.signOut', 'Sign Out')}</span>
             </button>
           </div>
         </aside>
@@ -324,10 +307,10 @@ export const AdminLayout: React.FC = () => {
             </div>
             <div className="text-center space-y-1">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Delete All Trial & Demo Data?
+                {t('deleteModal.title', 'Delete All Trial & Demo Data?')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                This action will wipe trial submissions, applicant evaluations, demo session drafts, and local test cookies. Primary administrator accounts remain preserved.
+                {t('deleteModal.desc', 'This action will wipe trial submissions, applicant evaluations, demo session drafts, and local test cookies. Primary administrator accounts remain preserved.')}
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
@@ -336,7 +319,7 @@ export const AdminLayout: React.FC = () => {
                 onClick={() => setDeleteModalOpen(false)}
                 className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               >
-                Cancel
+                {t('deleteModal.cancel', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -347,10 +330,10 @@ export const AdminLayout: React.FC = () => {
                 {isDeleting ? (
                   <>
                     <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Purging Data...</span>
+                    <span>{t('deleteModal.purging', 'Purging Data...')}</span>
                   </>
                 ) : (
-                  <span>Confirm Delete</span>
+                  <span>{t('deleteModal.confirm', 'Confirm Delete')}</span>
                 )}
               </button>
             </div>
@@ -360,3 +343,4 @@ export const AdminLayout: React.FC = () => {
     </div>
   );
 };
+

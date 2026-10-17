@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminAuthProvider } from './context/AdminAuthContext';
+import { AdminLanguageProvider } from './context/AdminLanguageContext';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { AdminProtectedRoute } from './components/layout/AdminProtectedRoute';
 
@@ -29,36 +30,39 @@ const queryClient = new QueryClient({
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AdminAuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+      <AdminLanguageProvider>
+        <AdminAuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            <Route
-              path="/"
-              element={
-                <AdminProtectedRoute>
-                  <AdminLayout />
-                </AdminProtectedRoute>
-              }
-            >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="applications" element={<Applications />} />
-              <Route path="users" element={<Users />} />
-              <Route path="sessions" element={<Sessions />} />
-              <Route path="topics/pipeline" element={<Topics />} />
-              <Route path="feedback" element={<Feedback />} />
-              <Route path="publications" element={<Publications />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="audit-logs" element={<AuditLogs />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
+              <Route
+                path="/"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminLayout />
+                  </AdminProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="applications" element={<Applications />} />
+                <Route path="users" element={<Users />} />
+                <Route path="sessions" element={<Sessions />} />
+                <Route path="topics/pipeline" element={<Topics />} />
+                <Route path="feedback" element={<Feedback />} />
+                <Route path="publications" element={<Publications />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="audit-logs" element={<AuditLogs />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
 
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </AdminAuthProvider>
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </AdminAuthProvider>
+      </AdminLanguageProvider>
     </QueryClientProvider>
   );
 };
+

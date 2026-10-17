@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { DashboardStats, Application } from '../types';
 import {
@@ -27,6 +28,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { openDeleteTrialModal } = useOutletContext<OutletContextType>() || {};
+  const { t } = useAdminLanguage();
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -57,10 +59,14 @@ export const Dashboard: React.FC = () => {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-      showToast(vars.status === 'approved' ? 'Application approved successfully.' : 'Application declined.');
+      showToast(
+        vars.status === 'approved'
+          ? t('dash.appApprovedToast', 'Application approved successfully.')
+          : t('dash.appDeclinedToast', 'Application declined.')
+      );
     },
     onError: () => {
-      showToast('Action processed locally.');
+      showToast(t('dash.localProcessed', 'Action processed locally.'));
     },
   });
 
@@ -87,10 +93,10 @@ export const Dashboard: React.FC = () => {
           style={{ fontFamily: "'Sora', sans-serif" }}
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight"
         >
-          Coordinator Workspace
+          {t('dash.title', 'Coordinator Workspace')}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-normal">
-          Restricted Programme &amp; Academic Administration (Qatar ISDC7 Founding Secretariat)
+          {t('dash.subtitle', 'Restricted Programme & Academic Administration (Qatar ISDC7 Founding Secretariat)')}
         </p>
 
         {/* Action Button Strip directly below title */}
@@ -101,7 +107,7 @@ export const Dashboard: React.FC = () => {
             className="px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
           >
             <Bell className="w-3.5 h-3.5 text-slate-500" />
-            <span>Notifications</span>
+            <span>{t('dash.notificationsBtn', 'Notifications')}</span>
           </button>
 
           {/* Create Session (black pill) */}
@@ -110,7 +116,7 @@ export const Dashboard: React.FC = () => {
             className="px-4 py-1.5 rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-sm transition-colors"
           >
             <Mic className="w-3.5 h-3.5" />
-            <span>Create Session</span>
+            <span>{t('dash.createSessionBtn', 'Create Session')}</span>
           </button>
 
           {/* + Add Topic (indigo pill) */}
@@ -119,7 +125,7 @@ export const Dashboard: React.FC = () => {
             className="px-4 py-1.5 rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Topic</span>
+            <span>{t('dash.addTopicBtn', 'Add Topic')}</span>
           </button>
 
           {/* Delete Trial Data (red outline pill) */}
@@ -128,7 +134,7 @@ export const Dashboard: React.FC = () => {
             className="px-3.5 py-1.5 rounded-full border border-rose-300 dark:border-rose-900 bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/40 shadow-sm transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-            <span>Delete Trial Data</span>
+            <span>{t('dash.deleteTrialBtn', 'Delete Trial Data')}</span>
           </button>
         </div>
       </div>
@@ -145,10 +151,11 @@ export const Dashboard: React.FC = () => {
               {activeMembersCount}
             </div>
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-              Active Members
+              {t('dash.kpiActiveMembers', 'Active Members')}
             </div>
           </div>
         </div>
+
 
         {/* Card 2: Pending Applications */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex items-center gap-4">
@@ -160,7 +167,7 @@ export const Dashboard: React.FC = () => {
               {pendingAppsCount}
             </div>
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-              Pending Applications
+              {t('dash.kpiPendingApps', 'Pending Applications')}
             </div>
           </div>
         </div>
@@ -175,7 +182,7 @@ export const Dashboard: React.FC = () => {
               {topicLibraryCount}
             </div>
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-              Topic Library
+              {t('dash.kpiTopicLibrary', 'Topic Library')}
             </div>
           </div>
         </div>
@@ -190,7 +197,7 @@ export const Dashboard: React.FC = () => {
               {academicPapersCount}
             </div>
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-              Academic Papers
+              {t('dash.kpiAcademicPapers', 'Academic Papers')}
             </div>
           </div>
         </div>
@@ -202,13 +209,13 @@ export const Dashboard: React.FC = () => {
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Pending Membership Applications
+              {t('dash.pendingHeader', 'Pending Membership Applications')}
             </h2>
             <Link
               to="/applications"
               className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
             >
-              Manage All
+              {t('dash.manageAll', 'Manage All')}
             </Link>
           </div>
 
@@ -217,10 +224,10 @@ export const Dashboard: React.FC = () => {
               <div className="py-12 text-center rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-800">
                 <Mail className="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60" />
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  No pending membership applications.
+                  {t('dash.noPending', 'No pending membership applications.')}
                 </p>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  New submissions from prospective youth debaters will appear here for review.
+                  {t('dash.noPendingDesc', 'New submissions from prospective youth debaters will appear here for review.')}
                 </p>
               </div>
             ) : (
@@ -231,10 +238,10 @@ export const Dashboard: React.FC = () => {
                 >
                   <div>
                     <div className="text-sm font-bold text-slate-900 dark:text-white">
-                      {app.applicantName} ({app.country || 'Global'})
+                      {app.applicantName} ({app.country || t('dash.global', 'Global')})
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      {app.organization || app.experience || 'Applicant'}
+                      {app.organization || app.experience || t('dash.applicantFallback', 'Applicant')}
                     </div>
                     {app.motivation && (
                       <div className="text-xs text-slate-600 dark:text-slate-300 italic mt-1 font-serif">
@@ -250,7 +257,7 @@ export const Dashboard: React.FC = () => {
                       className="px-4 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
                     >
                       <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                      <span>Approve</span>
+                      <span>{t('dash.approve', 'Approve')}</span>
                     </button>
                     <button
                       onClick={() => updateAppMutation.mutate({ id: app.id, status: 'rejected' })}
@@ -258,7 +265,7 @@ export const Dashboard: React.FC = () => {
                       className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
                     >
                       <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                      <span>Decline</span>
+                      <span>{t('dash.decline', 'Decline')}</span>
                     </button>
                   </div>
                 </div>
@@ -270,7 +277,7 @@ export const Dashboard: React.FC = () => {
         {/* Right: Coordinator Actions */}
         <div className="lg:col-span-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
           <h2 className="text-base font-bold text-slate-900 dark:text-white">
-            Coordinator Actions
+            {t('dash.coordinatorActions', 'Coordinator Actions')}
           </h2>
 
           <div className="space-y-2.5">
@@ -279,7 +286,7 @@ export const Dashboard: React.FC = () => {
               className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-3 transition-all"
             >
               <Mic className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
-              <span>Create New Session</span>
+              <span>{t('dash.actionCreateSession', 'Create New Session')}</span>
             </Link>
 
             <Link
@@ -287,7 +294,7 @@ export const Dashboard: React.FC = () => {
               className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-3 transition-all"
             >
               <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
-              <span>Draft Academic Summary</span>
+              <span>{t('dash.actionDraftSummary', 'Draft Academic Summary')}</span>
             </Link>
 
             <Link
@@ -295,15 +302,15 @@ export const Dashboard: React.FC = () => {
               className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-3 transition-all"
             >
               <MessageSquareQuote className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
-              <span>Inspect Feedback Reviews</span>
+              <span>{t('dash.actionInspectFeedback', 'Inspect Feedback Reviews')}</span>
             </Link>
 
             <button
-              onClick={() => showToast('Announcement composer opened.')}
-              className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-3 transition-all text-left"
+              onClick={() => showToast(t('dash.announcementToast', 'Announcement composer opened.'))}
+              className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-3 transition-all text-left rtl:text-right"
             >
               <Volume2 className="w-4 h-4 text-slate-600 dark:text-slate-400 shrink-0" />
-              <span>Post Community Announcement</span>
+              <span>{t('dash.actionPostAnnouncement', 'Post Community Announcement')}</span>
             </button>
           </div>
         </div>
