@@ -17,6 +17,8 @@ router.use(requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN));
 
 router.get('/dashboard/stats', adminController.getDashboardStats);
 router.get('/audit-logs', adminController.getAuditLogs);
+router.delete('/trial-data', adminController.purgeTrialData);
+router.post('/trial-data', adminController.purgeTrialData);
 
 // Mount resource routers under /admin to serve admin web client
 router.use('/users', userRoutes);

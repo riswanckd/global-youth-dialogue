@@ -9,7 +9,8 @@ import {
   UserCheck,
   UserX,
   KeyRound,
-  Filter
+  Filter,
+  Trash2,
 } from 'lucide-react';
 
 export const Users: React.FC = () => {
@@ -41,6 +42,20 @@ export const Users: React.FC = () => {
         body: JSON.stringify({ status }),
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }),
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (targetUser: User) => {
+      await apiRequest(`/admin/users/${targetUser.id}`, { method: 'DELETE' }).catch(() => {});
+      await apiRequest('/api/applications', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deleteUser', email: targetUser.email, id: targetUser.id }),
+      }).catch(() => {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    },
   });
 
   const filtered = users.filter((u) => {
@@ -158,21 +173,38 @@ export const Users: React.FC = () => {
                       {new Date(u.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() =>
-                          toggleStatusMutation.mutate({
-                            id: u.id,
-                            status: u.status === 'active' ? 'suspended' : 'active',
-                          })
-                        }
-                        className={`px-2.5 py-1 text-xs font-semibold rounded ${
-                          u.status === 'active'
-                            ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300'
-                            : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300'
-                        }`}
-                      >
-                        {u.status === 'active' ? 'Suspend' : 'Activate'}
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() =>
+                            toggleStatusMutation.mutate({
+                              id: u.id,
+                              status: u.status === 'active' ? 'suspended' : 'active',
+                            })
+                          }
+                          className={`px-2.5 py-1 text-xs font-semibold rounded ${
+                            u.status === 'active'
+                              ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300'
+                              : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300'
+                          }`}
+                        >
+                          {u.status === 'active' ? 'Suspend' : 'Activate'}
+                        </button>
+                        {u.role !== 'SUPER_ADMIN' && u.email !== '3681mubashircp@gmail.com' && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Permanently delete user "${u.name}" (${u.email})?`)) {
+                                deleteUserMutation.mutate(u);
+                              }
+                            }}
+                            disabled={deleteUserMutation.isPending}
+                            className="px-2 py-1 text-xs font-semibold rounded bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-900 transition-colors flex items-center gap-1"
+                            title="Delete user permanently"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
