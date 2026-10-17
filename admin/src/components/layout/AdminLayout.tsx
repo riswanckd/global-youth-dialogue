@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { apiRequest } from '../../utils/api';
 import {
   LayoutDashboard,
   Users,
@@ -29,11 +31,13 @@ export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isArabic, setIsArabic] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteSuccessToast, setDeleteSuccessToast] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
@@ -65,18 +69,35 @@ export const AdminLayout: React.FC = () => {
     navigate('/login');
   };
 
-  const handleDeleteTrialData = () => {
+  const handleDeleteTrialData = async () => {
+    setIsDeleting(true);
     try {
-      localStorage.removeItem('gyd_applied_email');
-      localStorage.removeItem('gyd_pending_registration');
-      localStorage.removeItem('gyd_otp_session');
-      localStorage.removeItem('gyd_user_votes');
-      localStorage.removeItem('gyd_ballot_votes');
-      localStorage.removeItem('gyd_deleted_community_emails');
-    } catch {}
-    setDeleteModalOpen(false);
-    setDeleteSuccessToast(true);
-    setTimeout(() => setDeleteSuccessToast(false), 4000);
+      // 1. Wipe backend database trial records (users, applications, topics, sessions)
+      await apiRequest('/admin/trial-data', { method: 'DELETE' }).catch(() => {});
+      // 2. Wipe serverless applications.json store
+      await apiRequest('/api/applications', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'clearTrialData' }),
+      }).catch(() => {});
+
+      // 3. Clear local storage caches
+      try {
+        localStorage.removeItem('gyd_applied_email');
+        localStorage.removeItem('gyd_pending_registration');
+        localStorage.removeItem('gyd_otp_session');
+        localStorage.removeItem('gyd_user_votes');
+        localStorage.removeItem('gyd_ballot_votes');
+        localStorage.removeItem('gyd_deleted_community_emails');
+      } catch {}
+
+      // 4. Invalidate all React Query caches to instantly reflect empty state
+      await queryClient.invalidateQueries();
+    } finally {
+      setIsDeleting(false);
+      setDeleteModalOpen(false);
+      setDeleteSuccessToast(true);
+      setTimeout(() => setDeleteSuccessToast(false), 4000);
+    }
   };
 
   const navItems = [
@@ -320,9 +341,17 @@ export const AdminLayout: React.FC = () => {
               <button
                 type="button"
                 onClick={handleDeleteTrialData}
-                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-sm transition-colors"
+                disabled={isDeleting}
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-xs font-bold text-white shadow-sm transition-colors flex items-center justify-center gap-1.5"
               >
-                Confirm Delete
+                {isDeleting ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Purging Data...</span>
+                  </>
+                ) : (
+                  <span>Confirm Delete</span>
+                )}
               </button>
             </div>
           </div>

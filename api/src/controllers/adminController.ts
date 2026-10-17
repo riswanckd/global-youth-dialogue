@@ -109,3 +109,26 @@ export async function getAuditLogs(req: Request, res: Response, next: NextFuncti
     next(err);
   }
 }
+
+export async function purgeTrialData(_req: Request, res: Response, next: NextFunction) {
+  try {
+    // Delete all users except Super Administrator(s)
+    const deleteResult = await User.deleteMany({
+      role: { $ne: ROLES.SUPER_ADMIN },
+      email: { $nin: ['3681mubashircp@gmail.com'] },
+    });
+
+    await Application.deleteMany({});
+    await Topic.deleteMany({});
+    await DialogueSession.deleteMany({});
+    await Publication.deleteMany({});
+
+    return sendSuccess(
+      res,
+      { deletedUsers: deleteResult.deletedCount },
+      'All trial records, test users, and demo data have been permanently wiped from the database.'
+    );
+  } catch (err) {
+    next(err);
+  }
+}
