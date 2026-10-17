@@ -10,11 +10,10 @@ import {
   Globe2,
   Moon,
   Sun,
-  Sparkles,
 } from 'lucide-react';
 
 export const Login: React.FC = () => {
-  const { login, instantCoordinatorLogin } = useAdminAuth();
+  const { login } = useAdminAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
@@ -58,31 +57,26 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleInstantCoordinatorAccess = () => {
-    instantCoordinatorLogin();
-    navigate(redirect);
-  };
-
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 overflow-hidden font-sans transition-colors duration-300 bg-[#F7FAF9] dark:bg-[#071824] text-slate-800 dark:text-slate-100">
+    <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 overflow-hidden font-sans transition-colors duration-300 bg-[#FAFBFD] dark:bg-[#000000] text-black dark:text-white">
       {/* Theme Toggle in Top-Right Corner */}
       <div className="absolute top-5 right-5 z-20">
         <button
           onClick={toggleTheme}
           title="Toggle Light / Dark mode"
-          className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 shadow-sm flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+          className="w-10 h-10 rounded-full border border-slate-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 shadow-sm flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-all"
         >
-          {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+          {isDarkMode ? <Sun className="w-4 h-4 text-[#A159AF]" /> : <Moon className="w-4 h-4 text-[#4950BA]" />}
         </button>
       </div>
 
-      {/* Dynamic Ambient Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#0E4D3C]/15 dark:bg-[#0E4D3C]/35 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#B88E3E]/15 dark:bg-[#B88E3E]/20 blur-[130px] pointer-events-none" />
+      {/* Dynamic Ambient Glows (#4950BA and #A159AF) */}
+      <div className="absolute top-[-10%] left-[-10%] w-[520px] h-[520px] rounded-full bg-[#4950BA]/15 dark:bg-[#4950BA]/25 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[520px] h-[520px] rounded-full bg-[#A159AF]/15 dark:bg-[#A159AF]/25 blur-[130px] pointer-events-none" />
 
       {/* Subtle Pattern Grid */}
       <div
-        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04] pointer-events-none"
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
         style={{
           backgroundImage: `radial-gradient(currentColor 1px, transparent 1px)`,
           backgroundSize: '24px 24px',
@@ -91,12 +85,12 @@ export const Login: React.FC = () => {
 
       <div className="relative z-10 max-w-md w-full">
         {/* Main Card */}
-        <div className="bg-white/95 dark:bg-[#0b2131]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-700/60 rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_-15px_rgba(14,77,60,0.12)] dark:shadow-[0_25px_70px_rgba(0,0,0,0.55)] space-y-6">
+        <div className="bg-white/95 dark:bg-[#0c0d14]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-neutral-800 rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_-15px_rgba(73,80,186,0.15)] dark:shadow-[0_25px_70px_rgba(0,0,0,0.85)] space-y-6">
           {/* Header Brand & Badges */}
           <div className="text-center space-y-3">
             {/* Top Secretariat Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0E4D3C]/10 dark:bg-[#0E4D3C]/80 border border-emerald-600/20 dark:border-emerald-500/30 text-[11px] font-semibold text-[#0E4D3C] dark:text-emerald-300 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#4950BA]/10 dark:bg-[#4950BA]/20 border border-[#4950BA]/20 dark:border-[#4950BA]/40 text-[11px] font-semibold text-[#4950BA] dark:text-[#A159AF] shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A159AF] animate-pulse" />
               <span>Qatar ISDC7 Founding Secretariat</span>
             </div>
 
@@ -122,19 +116,23 @@ export const Login: React.FC = () => {
 
             {/* Title & Bilingual Subtitle */}
             <div className="space-y-1 pt-1">
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {/* Coordinator Workspace heading strictly using Sora font */}
+              <h1
+                style={{ fontFamily: "'Sora', sans-serif" }}
+                className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight"
+              >
                 Coordinator Workspace
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 font-medium">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                 Restricted Programme &amp; Academic Administration
               </p>
-              <p className="text-[11px] text-[#B88E3E] dark:text-[#E6C875] font-arabic font-semibold pt-0.5">
+              <p className="text-[11px] text-[#A159AF] font-arabic font-semibold pt-0.5">
                 بوابة الأمانة العامة وإدارة الحوار الدولي
               </p>
             </div>
           </div>
 
-          {/* Form (Clean, without exposed demo credentials) */}
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 pt-1">
             {error && (
               <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800/80 flex items-center gap-2.5 text-rose-700 dark:text-rose-200 text-xs">
@@ -155,7 +153,7 @@ export const Login: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="coordinator@thegyde.org"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4D3C] dark:focus:ring-[#B88E3E] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-900/90 text-black dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#4950BA] focus:border-[#4950BA] transition-all"
                 />
               </div>
             </div>
@@ -172,7 +170,7 @@ export const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 text-slate-900 dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0E4D3C] dark:focus:ring-[#B88E3E] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-900/90 text-black dark:text-white placeholder:text-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#4950BA] focus:border-[#4950BA] transition-all"
                 />
               </div>
             </div>
@@ -180,40 +178,28 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#0E4D3C] to-[#136750] hover:from-[#0b3e30] hover:to-[#0f5441] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99]"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#4950BA] via-[#6e53b2] to-[#A159AF] hover:from-[#3e44a0] hover:to-[#8f4da0] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(73,80,186,0.35)] transition-all active:scale-[0.99]"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>{loading ? 'Authenticating Secretariat...' : 'Authenticate Secretariat Clearance'}</span>
             </button>
           </form>
 
-          {/* Discreet Quick Clearance Access (No exposed demo passwords or accounts) */}
-          <div className="text-center pt-1">
-            <button
-              type="button"
-              onClick={handleInstantCoordinatorAccess}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0E4D3C] dark:text-[#E6C875] hover:underline transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Fast Clearance Access (Secretariat)</span>
-            </button>
-          </div>
-
           {/* Footer Navigation & Status */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div className="pt-3 border-t border-slate-100 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
             <a
               href="https://gydonline.vercel.app"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors"
+              className="hover:text-black dark:hover:text-white flex items-center gap-1 transition-colors"
             >
-              <Globe2 className="w-3.5 h-3.5 text-[#B88E3E]" />
+              <Globe2 className="w-3.5 h-3.5 text-[#4950BA]" />
               <span>Return to Public Portal</span>
               <ExternalLink className="w-3 h-3 text-slate-400" />
             </a>
 
-            <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="flex items-center gap-1.5 text-[11px] text-[#4950BA] dark:text-[#A159AF] font-medium">
+              <span className="w-2 h-2 rounded-full bg-[#4950BA] dark:bg-[#A159AF] animate-pulse" />
               <span>Secretariat Node Active</span>
             </div>
           </div>
