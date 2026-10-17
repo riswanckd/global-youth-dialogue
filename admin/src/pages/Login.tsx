@@ -91,10 +91,10 @@ export const Login: React.FC = () => {
         <div className="bg-white/95 dark:bg-[#0c0d14]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-neutral-800 rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_-15px_rgba(73,80,186,0.15)] dark:shadow-[0_25px_70px_rgba(0,0,0,0.85)] space-y-6">
           {/* Header Brand & Badges */}
           <div className="text-center space-y-3">
-            {/* Top Secretariat Pill Badge */}
+            {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#4950BA]/10 dark:bg-[#4950BA]/20 border border-[#4950BA]/20 dark:border-[#4950BA]/40 text-[11px] font-semibold text-[#4950BA] dark:text-[#A159AF] shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-[#A159AF] animate-pulse" />
-              <span>Qatar ISDC7 Founding Secretariat</span>
+              <span>GYDE Admin Portal</span>
             </div>
 
             {/* Official Logo */}
