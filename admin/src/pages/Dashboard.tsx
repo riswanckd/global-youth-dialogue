@@ -99,42 +99,42 @@ export const Dashboard: React.FC = () => {
           {t('dash.subtitle', 'Restricted Programme & Academic Administration (Qatar ISDC7 Founding Secretariat)')}
         </p>
 
-        {/* Action Button Strip directly below title */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-1 scrollbar-none no-scrollbar flex-nowrap sm:flex-wrap mt-3.5">
+        {/* Action Buttons: 2x2 grid on mobile, row on desktop */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-2.5 mt-3.5">
           {/* Notifications button */}
           <button
             onClick={() => navigate('/notifications')}
-            className="shrink-0 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs"
           >
-            <Bell className="w-3.5 h-3.5 text-slate-500" />
-            <span>{t('dash.notificationsBtn', 'Notifications')}</span>
+            <Bell className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="truncate">{t('dash.notificationsBtn', 'Notifications')}</span>
           </button>
 
           {/* Create Session (black pill) */}
           <button
             onClick={() => navigate('/sessions')}
-            className="shrink-0 px-4 py-1.5 rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-sm transition-colors"
+            className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-xs transition-all"
           >
-            <Mic className="w-3.5 h-3.5" />
-            <span>{t('dash.createSessionBtn', 'Create Session')}</span>
+            <Mic className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{t('dash.createSessionBtn', 'Create Session')}</span>
           </button>
 
           {/* + Add Topic (indigo pill) */}
           <button
             onClick={() => navigate('/topics/pipeline')}
-            className="shrink-0 px-4 py-1.5 rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+            className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{t('dash.addTopicBtn', 'Add Topic')}</span>
+            <Plus className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{t('dash.addTopicBtn', 'Add Topic')}</span>
           </button>
 
           {/* Delete Trial Data (red outline pill) */}
           <button
             onClick={() => openDeleteTrialModal && openDeleteTrialModal()}
-            className="shrink-0 px-3.5 py-1.5 rounded-full border border-rose-300 dark:border-rose-900 bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/40 shadow-sm transition-colors"
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-rose-300 dark:border-rose-900 bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/40 shadow-xs transition-all"
           >
-            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-            <span>{t('dash.deleteTrialBtn', 'Delete Trial Data')}</span>
+            <Trash2 className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+            <span className="truncate">{t('dash.deleteTrialBtn', 'Delete Trial Data')}</span>
           </button>
         </div>
       </div>
