@@ -1,6 +1,5 @@
-# Ignore sub-projects from root Vercel deployment
+# Ignore admin sub-project from main site deployment
 admin/
-web/
 
 # Ignore backend source directory so Vercel doesn't create 20+ serverless functions (Hobby plan limit is 12)
 api/src/
