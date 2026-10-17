@@ -1,0 +1,16 @@
+# Ignore sub-projects from root Vercel deployment
+admin/
+web/
+
+# Ignore backend source directory so Vercel doesn't create 20+ serverless functions (Hobby plan limit is 12)
+api/src/
+api/api/
+api/node_modules/
+api/tsconfig.json
+api/pnpm-lock.yaml
+
+# Local & temporary files
+server.py
+__pycache__/
+.env
+email_config.json
