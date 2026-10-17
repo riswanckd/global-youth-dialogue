@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../utils/api';
+import { DashboardStats } from '../types';
 import {
   BarChart,
   Bar,
@@ -13,25 +14,23 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 
-const DEMO_ACTIVITY = [
-  { month: 'May', sessions: 4, attendees: 48 },
-  { month: 'Jun', sessions: 4, attendees: 52 },
-  { month: 'Jul', sessions: 5, attendees: 61 },
-  { month: 'Aug', sessions: 4, attendees: 58 },
-  { month: 'Sep', sessions: 4, attendees: 64 },
-  { month: 'Oct', sessions: 5, attendees: 72 },
-];
-
-const DISCIPLINE_DISTRIBUTION = [
-  { name: 'Technology & AI', value: 35, color: '#4851BA' },
-  { name: 'Geopolitics', value: 25, color: '#9E59AC' },
-  { name: 'Climate Policy', value: 20, color: '#10B981' },
-  { name: 'Education', value: 12, color: '#F59E0B' },
-  { name: 'Civil Society', value: 8, color: '#6366F1' },
-];
+const PALETTE = ['#4950BA', '#A159AF', '#10B981', '#F59E0B', '#3B82F6', '#EC4899'];
 
 export const Analytics: React.FC = () => {
+  const { data: stats, isLoading } = useQuery<DashboardStats>({
+    queryKey: ['admin-stats'],
+    queryFn: () => apiRequest<DashboardStats>('/admin/dashboard/stats').catch(() => null as any),
+  });
+
+  const sessionTrendData = stats?.sessionsTrend || [];
+  const countryData = (stats?.applicationsByCountry || []).map((item, index) => ({
+    name: item.country,
+    value: item.count,
+    color: PALETTE[index % PALETTE.length],
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,50 +44,72 @@ export const Analytics: React.FC = () => {
         {/* Attendance trend chart */}
         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">Monthly Chamber Attendance</h3>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={DEMO_ACTIVITY}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="month" fontSize={12} />
-                <YAxis fontSize={12} />
-                <Tooltip />
-                <Bar dataKey="attendees" fill="#4851BA" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-72 w-full flex items-center justify-center">
+            {isLoading ? (
+              <div className="text-xs text-slate-400">Loading trend analytics...</div>
+            ) : sessionTrendData.length === 0 ? (
+              <div className="text-center py-12 space-y-2">
+                <BarChart3 className="w-8 h-8 mx-auto text-slate-400 opacity-50" />
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">No session attendance data recorded yet.</p>
+                <p className="text-[11px] text-slate-400">Sessions held will reflect attendance trends automatically here.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sessionTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis dataKey="month" fontSize={12} />
+                  <YAxis fontSize={12} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#4950BA" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
-        {/* Discipline distribution pie chart */}
+        {/* Geographic / Discipline distribution pie chart */}
         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Topic Disciplines Breakdown</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Applicant Geographic Distribution</h3>
           <div className="h-72 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={DISCIPLINE_DISTRIBUTION}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {DISCIPLINE_DISTRIBUTION.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-wrap justify-center gap-4 text-xs">
-            {DISCIPLINE_DISTRIBUTION.map((d) => (
-              <div key={d.name} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
-                <span className="text-slate-600 dark:text-slate-300">{d.name} ({d.value}%)</span>
+            {isLoading ? (
+              <div className="text-xs text-slate-400">Loading distribution...</div>
+            ) : countryData.length === 0 ? (
+              <div className="text-center py-12 space-y-2">
+                <PieChartIcon className="w-8 h-8 mx-auto text-slate-400 opacity-50" />
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">No geographic distribution data recorded yet.</p>
+                <p className="text-[11px] text-slate-400">Applicant country ratios will appear here as members apply.</p>
               </div>
-            ))}
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={countryData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {countryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
+          {countryData.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-4 text-xs">
+              {countryData.map((d) => (
+                <div key={d.name} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
+                  <span className="text-slate-600 dark:text-slate-300">{d.name} ({d.value})</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -46,14 +46,22 @@ export async function getDashboardStats(_req: Request, res: Response, next: Next
       count: item.count,
     }));
 
-    // Generate monthly session metrics
-    const sessionsTrend = [
-      { month: 'Jun', count: 4 },
-      { month: 'Jul', count: 6 },
-      { month: 'Aug', count: 8 },
-      { month: 'Sep', count: 12 },
-      { month: 'Oct', count: Math.max(14, upcomingSessions + completedSessions) },
-    ];
+    // Aggregate real monthly session metrics
+    const sessionsTrendRaw = await DialogueSession.aggregate([
+      { $match: { scheduledAt: { $exists: true, $ne: null } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%b', date: '$scheduledAt' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $limit: 6 },
+    ]).catch(() => []);
+
+    const sessionsTrend = sessionsTrendRaw.map((s: any) => ({
+      month: s._id || 'Session',
+      count: s.count || 0,
+    }));
 
     return sendSuccess(res, {
       totalMembers,

@@ -25,7 +25,7 @@ export const Sessions: React.FC = () => {
     description: '',
     scheduledAt: '',
     durationMinutes: 90,
-    meetingUrl: 'https://meet.google.com/gyde-dialogue-room',
+    meetingUrl: '',
   });
 
   const { data: sessions = [], isLoading } = useQuery<DialogueSession[]>({
@@ -48,7 +48,7 @@ export const Sessions: React.FC = () => {
         description: '',
         scheduledAt: '',
         durationMinutes: 90,
-        meetingUrl: 'https://meet.google.com/gyde-dialogue-room',
+        meetingUrl: '',
       });
     },
   });

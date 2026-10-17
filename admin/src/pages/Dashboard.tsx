@@ -64,26 +64,13 @@ export const Dashboard: React.FC = () => {
     },
   });
 
-  const activeMembersCount = stats?.totalMembers ?? 16;
-  const pendingAppsCount = stats?.pendingApplications ?? (applications.length > 0 ? applications.length : 1);
+  const activeMembersCount = stats?.totalMembers ?? 0;
+  const pendingAppsCount = stats?.pendingApplications ?? applications.length;
   const topicLibraryCount = stats?.topicsInReview ?? 0;
   const academicPapersCount = stats?.publishedPapers ?? 0;
 
-  // Pending application to display (fallback to screenshot's "hello hai (India)" if no applications returned yet)
-  const displayApplications = applications.length > 0 ? applications : [
-    {
-      id: 'demo-app-1',
-      applicantName: 'hello hai',
-      email: 'hello@hai.com',
-      country: 'India',
-      organization: 'hj',
-      experience: 'hj',
-      motivation: 'hj',
-      areasOfInterest: ['Global Diplomacy', 'Academic Research'],
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    } as Application,
-  ];
+  // Real pending applications from API
+  const displayApplications = applications;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -226,45 +213,57 @@ export const Dashboard: React.FC = () => {
           </div>
 
           <div className="space-y-3 pt-1">
-            {displayApplications.map((app) => (
-              <div
-                key={app.id}
-                className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">
-                    {app.applicantName} ({app.country || 'Global'})
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    {app.organization || app.experience || 'Applicant'}
-                  </div>
-                  {app.motivation && (
-                    <div className="text-xs text-slate-600 dark:text-slate-300 italic mt-1 font-serif">
-                      &quot;{app.motivation}&quot;
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => updateAppMutation.mutate({ id: app.id, status: 'approved' })}
-                    disabled={updateAppMutation.isPending}
-                    className="px-4 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
-                  >
-                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>Approve</span>
-                  </button>
-                  <button
-                    onClick={() => updateAppMutation.mutate({ id: app.id, status: 'rejected' })}
-                    disabled={updateAppMutation.isPending}
-                    className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
-                  >
-                    <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>Decline</span>
-                  </button>
-                </div>
+            {displayApplications.length === 0 ? (
+              <div className="py-12 text-center rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-800">
+                <Mail className="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60" />
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  No pending membership applications.
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  New submissions from prospective youth debaters will appear here for review.
+                </p>
               </div>
-            ))}
+            ) : (
+              displayApplications.map((app) => (
+                <div
+                  key={app.id}
+                  className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">
+                      {app.applicantName} ({app.country || 'Global'})
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {app.organization || app.experience || 'Applicant'}
+                    </div>
+                    {app.motivation && (
+                      <div className="text-xs text-slate-600 dark:text-slate-300 italic mt-1 font-serif">
+                        &quot;{app.motivation}&quot;
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => updateAppMutation.mutate({ id: app.id, status: 'approved' })}
+                      disabled={updateAppMutation.isPending}
+                      className="px-4 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                    >
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Approve</span>
+                    </button>
+                    <button
+                      onClick={() => updateAppMutation.mutate({ id: app.id, status: 'rejected' })}
+                      disabled={updateAppMutation.isPending}
+                      className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                    >
+                      <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Decline</span>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
