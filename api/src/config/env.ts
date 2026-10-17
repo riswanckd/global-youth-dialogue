@@ -18,6 +18,13 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16).default('gyde_dev_secret_key_change_in_production_min_32_chars'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   COOKIE_SECRET: z.string().min(16).default('gyde_cookie_secret_dev_key_32_chars_minimum'),
+
+  // Cloudflare Email Sending Configuration
+  CLOUDFLARE_API_TOKEN: z.string().optional().default(''),
+  CLOUDFLARE_ACCOUNT_ID: z.string().optional().default(''),
+  CLOUDFLARE_FROM_EMAIL: z.string().optional().default(''),
+
+  // SMTP Email Configuration (Nodemailer fallback)
   SMTP_HOST: z.string().default('smtp.gmail.com'),
   SMTP_PORT: z.string().default('465').transform((v) => parseInt(v, 10)),
   SMTP_SECURE: z.string().default('true').transform((v) => v === 'true'),

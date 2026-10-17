@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
-import { apiRequest } from '../utils/api';
+import { apiRequest, setStoredAdminToken, removeStoredAdminToken } from '../utils/api';
 
 interface AdminAuthContextType {
   user: User | null;
@@ -27,9 +27,11 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (roleUpper === 'ADMIN' || roleUpper === 'SUPER_ADMIN') {
         setUser(u);
       } else {
+        removeStoredAdminToken();
         setUser(null);
       }
     } catch {
+      removeStoredAdminToken();
       setUser(null);
     } finally {
       setLoading(false);
@@ -41,7 +43,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await apiRequest<{ user: User }>('/auth/login', {
+    const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -49,7 +51,11 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const roleUpper = u.role?.toUpperCase();
     if (roleUpper !== 'ADMIN' && roleUpper !== 'SUPER_ADMIN') {
       await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
+      removeStoredAdminToken();
       throw new Error('Access denied. The Admin Panel is strictly restricted to platform administrators.');
+    }
+    if (res.token) {
+      setStoredAdminToken(res.token);
     }
     setUser(u);
   };
@@ -58,6 +64,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       await apiRequest('/auth/logout', { method: 'POST' });
     } finally {
+      removeStoredAdminToken();
       setUser(null);
     }
   };

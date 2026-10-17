@@ -14,10 +14,12 @@ declare global {
 
 export async function authenticate(req: Request, _res: Response, next: NextFunction) {
   try {
-    let token = req.cookies?.token;
+    let token: string | undefined;
 
-    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+    if (req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies?.token) {
+      token = req.cookies.token;
     }
 
     if (!token) {
@@ -41,9 +43,11 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
 
 export async function optionalAuthenticate(req: Request, _res: Response, next: NextFunction) {
   try {
-    let token = req.cookies?.token;
-    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+    let token: string | undefined;
+    if (req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies?.token) {
+      token = req.cookies.token;
     }
     if (token) {
       const payload = verifyToken(token);

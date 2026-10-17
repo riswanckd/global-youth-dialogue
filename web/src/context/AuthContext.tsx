@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
-import { apiRequest } from '../utils/api';
+import { apiRequest, setStoredToken, removeStoredToken } from '../utils/api';
 
 interface AuthContextType {
   user: User | null;
@@ -26,11 +26,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await apiRequest<{ user: User }>('/auth/me');
       if (res.user?.role === 'admin' || res.user?.role === 'super_admin') {
         await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
+        removeStoredToken();
         setUser(null);
         return;
       }
       setUser(res.user);
     } catch {
+      removeStoredToken();
       setUser(null);
     } finally {
       setLoading(false);
@@ -42,27 +44,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await apiRequest<{ user: User }>('/auth/login', {
+    const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
 
     if (res.user.role === 'admin' || res.user.role === 'super_admin') {
       await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
+      removeStoredToken();
       setUser(null);
       throw new Error(
         'Administrator accounts cannot sign in to the Member Website. Please use the Admin Portal.'
       );
     }
 
+    if (res.token) {
+      setStoredToken(res.token);
+    }
     setUser(res.user);
   };
 
   const register = async (data: any) => {
-    const res = await apiRequest<{ user: User }>('/auth/register', {
+    const res = await apiRequest<{ user: User; token?: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    if (res.token) {
+      setStoredToken(res.token);
+    }
     setUser(res.user);
   };
 
@@ -70,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await apiRequest('/auth/logout', { method: 'POST' });
     } finally {
+      removeStoredToken();
       setUser(null);
     }
   };

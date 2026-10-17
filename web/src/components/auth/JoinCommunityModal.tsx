@@ -48,7 +48,6 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
   // Step 3 Fields (OTP)
   const [otp, setOtp] = useState('');
-  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // UI state
@@ -106,17 +105,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
     setLoading(true);
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`;
-      const res = await apiRequest<{ devOtp?: string }>('/auth/send-otp', {
+      await apiRequest('/auth/send-otp', {
         method: 'POST',
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           name: fullName,
         }),
       });
-
-      if (res?.devOtp) {
-        setDevOtp(res.devOtp);
-      }
 
       setStep(3);
       setResendCooldown(60);
@@ -143,17 +138,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`;
-      const res = await apiRequest<{ devOtp?: string }>('/auth/send-otp', {
+      await apiRequest('/auth/send-otp', {
         method: 'POST',
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           name: fullName,
         }),
       });
-
-      if (res?.devOtp) {
-        setDevOtp(res.devOtp);
-      }
 
       setResendCooldown(60);
       const interval = setInterval(() => {
@@ -942,40 +933,6 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     <strong style={{ color: '#0f172a' }}>{email}</strong>
                   </p>
                 </div>
-
-                {devOtp && (
-                  <div
-                    style={{
-                      background: '#f0fdf4',
-                      border: '1px dashed #22c55e',
-                      borderRadius: '10px',
-                      padding: '0.65rem 0.85rem',
-                      marginBottom: '1.25rem',
-                      textAlign: 'center',
-                      fontSize: '0.85rem',
-                      color: '#15803d',
-                    }}
-                  >
-                    <strong>Dev Code:</strong> <span style={{ letterSpacing: '2px', fontWeight: 800 }}>{devOtp}</span>
-                    <button
-                      type="button"
-                      onClick={() => setOtp(devOtp)}
-                      style={{
-                        marginLeft: '0.75rem',
-                        padding: '0.2rem 0.5rem',
-                        fontSize: '0.75rem',
-                        background: '#22c55e',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Autofill Code
-                    </button>
-                  </div>
-                )}
 
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem', textAlign: 'center' }}>

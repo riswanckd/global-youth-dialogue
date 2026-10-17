@@ -53,8 +53,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     `;
 
     await sendEmail({ to: normalizedEmail, subject, text, html });
-    const devOtp = env.NODE_ENV !== 'production' ? rawOtp : undefined;
-    return sendSuccess(res, { devOtp }, 'Verification code dispatched to your email address');
+    return sendSuccess(res, null, 'Verification code dispatched to your email address');
   } catch (err) {
     next(err);
   }
@@ -267,7 +266,8 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
         expiresAt,
       });
 
-      const resetUrl = `http://localhost:5173/reset-password?token=${rawToken}`;
+      const frontendOrigin = env.WEB_ORIGIN || 'https://global-youth-dialogue-web.vercel.app';
+      const resetUrl = `${frontendOrigin.replace(/\/+$/, '')}/reset-password?token=${rawToken}`;
       const subject = 'GYDE Password Reset Request';
       const text = `Hello ${user.name},\n\nYou requested a password reset for your GYDE account. Use this token: ${rawToken}\n\nOr click: ${resetUrl}\n\nValid for 1 hour.`;
       const html = `

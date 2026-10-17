@@ -46,22 +46,50 @@ export class ApiError extends Error {
   }
 }
 
+export const TOKEN_STORAGE_KEY = 'gyde_token';
+
+export function getStoredToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token: string | null): void {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+    }
+  } catch {}
+}
+
+export function removeStoredToken(): void {
+  try {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  } catch {}
+}
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  const headers: HeadersInit = {
+  const token = getStoredToken();
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Client-App': 'web',
-    ...(options.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   const config: RequestInit = {
     ...options,
     headers,
-    credentials: 'include', // Send HTTP-only session cookie
+    credentials: 'include', // Send HTTP-only session cookie if available
   };
 
   let response: Response;
@@ -76,6 +104,10 @@ export async function apiRequest<T = any>(
     data = await response.json();
   } catch {
     data = null;
+  }
+
+  if (response.status === 401) {
+    removeStoredToken();
   }
 
   if (!response.ok) {

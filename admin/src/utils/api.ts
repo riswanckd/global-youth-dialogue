@@ -46,16 +46,44 @@ export class ApiError extends Error {
   }
 }
 
+export const ADMIN_TOKEN_KEY = 'gyde_admin_token';
+
+export function getStoredAdminToken(): string | null {
+  try {
+    return localStorage.getItem(ADMIN_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredAdminToken(token: string | null): void {
+  try {
+    if (token) {
+      localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+    }
+  } catch {}
+}
+
+export function removeStoredAdminToken(): void {
+  try {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+  } catch {}
+}
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  const headers: HeadersInit = {
+  const token = getStoredAdminToken();
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-client-app': 'admin',
-    ...(options.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   const config: RequestInit = {
@@ -76,6 +104,10 @@ export async function apiRequest<T = any>(
     data = await response.json();
   } catch {
     data = null;
+  }
+
+  if (response.status === 401) {
+    removeStoredAdminToken();
   }
 
   if (!response.ok) {
