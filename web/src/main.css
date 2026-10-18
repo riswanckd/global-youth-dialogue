@@ -686,6 +686,10 @@ body.rtl-mode .brand-sub {
   color: #FFFFFF;
 }
 
+.mobile-auth-btn-wrapper {
+  display: none !important;
+}
+
 /* User Role Badge in Header */
 .user-badge {
   display: inline-flex;
@@ -4960,9 +4964,55 @@ body.rtl-mode .mobile-nav-drawer {
     border: none !important;
     outline: none !important;
   }
-  .header-actions { gap: 0.65rem !important; flex-shrink: 0 !important; align-items: center !important; }
+  .header-actions { gap: 0.55rem !important; flex-shrink: 0 !important; align-items: center !important; }
+  .mobile-auth-btn-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  .mobile-header-signin-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    padding: 0.38rem 0.8rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    border: 1.5px solid var(--color-primary-1, #4851BA) !important;
+    background: rgba(72, 81, 186, 0.08) !important;
+    color: var(--color-primary-1, #4851BA) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    line-height: 1 !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    box-shadow: 0 1px 3px rgba(72, 81, 186, 0.1) !important;
+  }
+  .mobile-header-signin-btn:hover {
+    background: var(--color-primary-1, #4851BA) !important;
+    color: #ffffff !important;
+  }
+  .mobile-header-signin-btn.member-active {
+    background: var(--brand-gradient, linear-gradient(135deg, #4851BA 0%, #9E59AC 100%)) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 2px 8px rgba(72, 81, 186, 0.35) !important;
+  }
+  [data-theme="dark"] .mobile-header-signin-btn {
+    border-color: rgba(165, 180, 252, 0.45) !important;
+    background: rgba(129, 140, 248, 0.14) !important;
+    color: #c7d2fe !important;
+  }
+  [data-theme="dark"] .mobile-header-signin-btn:hover {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] .mobile-header-signin-btn.member-active {
+    background: var(--brand-gradient, linear-gradient(135deg, #4851BA 0%, #9E59AC 100%)) !important;
+    color: #ffffff !important;
+  }
   .container, .container-wide { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
-  .brand-logo-img { height: 38px !important; max-width: 155px !important; }
+  .brand-logo-img { height: 38px !important; max-width: 145px !important; }
 
   /* Hero Section (Concept A: Luxe Light Mode) */
   .hero-section {
