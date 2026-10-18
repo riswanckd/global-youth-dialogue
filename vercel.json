@@ -13,7 +13,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://global-youth-dialogue-api.vercel.app/api/:path*"
+      "destination": "https://gyde-api.vercel.app/api/:path*"
     },
     {
       "source": "/(.*)",
