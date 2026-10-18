@@ -265,17 +265,25 @@ export const EditTopicModal: React.FC<EditTopicModalProps> = ({
 
           <div className="form-group" style={{ marginBottom: '0.85rem' }}>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.3rem' }}>
-              {isArabic ? 'صيغة الجلسة المقترحة' : 'Activity Format'}
+              {isArabic ? 'شكل النشاط الحواري المقترح' : 'Proposed Activity Format'}
             </label>
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#fff' }}
             >
-              <option value="Academic Discussion / Policy Roundtable">Academic Discussion / Policy Roundtable</option>
-              <option value="Oxford Parliamentary Debate">Oxford Parliamentary Debate</option>
-              <option value="Topic Presentation & Research Briefing">Topic Presentation & Research Briefing</option>
-              <option value="Academic Workshop / Resolution Drafting">Academic Workshop / Resolution Drafting</option>
+              <option value="Topic Presentation">
+                {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
+              </option>
+              <option value="Structural Debate">
+                {isArabic ? 'مناظرة هيكلية (فريقان وأعضاؤهما)' : 'Structural Debate (2 teams and their members)'}
+              </option>
+              <option value="Discussion">
+                {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}
+              </option>
+              <option value="Guest Talks">
+                {isArabic ? 'حوارات الضيوف (اسم الضيف، النبذة والصورة)' : 'Guest Talks (guest name, bio, image)'}
+              </option>
             </select>
           </div>
 

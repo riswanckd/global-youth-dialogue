@@ -41,6 +41,8 @@ export interface DialogueSession {
     name: string;
     role?: string;
     country?: string;
+    bio?: string;
+    avatar?: string;
   }>;
   propositionTeam?: string[];
   oppositionTeam?: string[];

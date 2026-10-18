@@ -23,6 +23,8 @@ export interface IDialogueSession extends Document {
     name: string;
     role?: string;
     country?: string;
+    bio?: string;
+    avatar?: string;
   }>;
   propositionTeam?: string[];
   oppositionTeam?: string[];
@@ -69,6 +71,8 @@ const DialogueSessionSchema = new Schema<IDialogueSession>(
         name: { type: String, required: true },
         role: { type: String, default: 'Speaker' },
         country: { type: String, default: '' },
+        bio: { type: String, default: '' },
+        avatar: { type: String, default: '' },
       },
     ],
     propositionTeam: [{ type: String }],
