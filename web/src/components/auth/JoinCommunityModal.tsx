@@ -66,7 +66,6 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
   // Step 3 Fields (OTP)
   const [otp, setOtp] = useState('');
-  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // UI state
@@ -145,17 +144,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
     setLoading(true);
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`;
-      const res = await apiRequest<{ devOtp?: string }>('/auth/send-otp', {
+      await apiRequest('/auth/send-otp', {
         method: 'POST',
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           name: fullName,
         }),
       });
-
-      if (res?.devOtp) {
-        setDevOtp(res.devOtp);
-      }
 
       setStep(3);
       setResendCooldown(60);
@@ -182,17 +177,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`;
-      const res = await apiRequest<{ devOtp?: string }>('/auth/send-otp', {
+      await apiRequest('/auth/send-otp', {
         method: 'POST',
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           name: fullName,
         }),
       });
-
-      if (res?.devOtp) {
-        setDevOtp(res.devOtp);
-      }
 
       setResendCooldown(60);
       const interval = setInterval(() => {
@@ -1195,41 +1186,6 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     <strong style={{ color: textHeading }}>{email}</strong>
                   </p>
                 </div>
-
-                {devOtp && (
-                  <div
-                    style={{
-                      background: isDark ? 'rgba(34, 197, 94, 0.12)' : '#f0fdf4',
-                      border: '1px dashed #22c55e',
-                      borderRadius: '10px',
-                      padding: '0.65rem 0.85rem',
-                      marginBottom: '1.25rem',
-                      textAlign: 'center',
-                      fontSize: '0.85rem',
-                      color: isDark ? '#4ade80' : '#15803d',
-                    }}
-                  >
-                    <span>{isArabic ? 'رمز التحقق المعتمد:' : 'Verification Code:'} </span>
-                    <strong style={{ letterSpacing: '3px', fontSize: '1.15rem', color: isDark ? '#86efac' : '#166534', margin: '0 4px' }}>{devOtp}</strong>
-                    <button
-                      type="button"
-                      onClick={() => setOtp(devOtp)}
-                      style={{
-                        marginLeft: '0.75rem',
-                        padding: '0.25rem 0.65rem',
-                        fontSize: '0.78rem',
-                        background: '#22c55e',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {isArabic ? 'إدراج الرمز' : 'Autofill Code'}
-                    </button>
-                  </div>
-                )}
 
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem', textAlign: 'center' }}>
