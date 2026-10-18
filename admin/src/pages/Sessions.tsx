@@ -160,7 +160,7 @@ export const Sessions: React.FC = () => {
           className="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>{t('sessions.scheduleBtn', 'Schedule Session')}</span>
+          <span>{t('sessions.scheduleBtn', 'Schedule Sessions')}</span>
         </button>
       </div>
 
@@ -488,7 +488,7 @@ export const Sessions: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {t('sessions.modalTitle', 'Schedule Session')}
+                  {t('sessions.modalTitle', 'Schedule Sessions')}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   {isArabic
