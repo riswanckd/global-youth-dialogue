@@ -241,13 +241,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
         className="modal-dialog"
         style={{
           background: '#ffffff',
-          borderRadius: '24px',
+          borderRadius: '20px',
           width: '100%',
-          maxWidth: '540px',
+          maxWidth: '450px',
           maxHeight: '94vh',
           overflowY: 'auto',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          padding: '2rem 2.25rem',
+          padding: '1.5rem 1.5rem',
           position: 'relative',
         }}
       >
@@ -256,11 +256,11 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '1.25rem',
-            right: '1.25rem',
+            top: '1rem',
+            right: '1rem',
             background: 'transparent',
             border: 'none',
-            fontSize: '1.5rem',
+            fontSize: '1.35rem',
             cursor: 'pointer',
             color: '#64748b',
             lineHeight: 1,
@@ -272,40 +272,41 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
         </button>
 
         {success ? (
-          <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+          <div style={{ textAlign: 'center', padding: '1.25rem 0' }}>
             <div
               style={{
-                width: '64px',
-                height: '64px',
+                width: '52px',
+                height: '52px',
                 borderRadius: '50%',
                 background: 'rgba(72, 81, 186, 0.12)',
                 color: '#4851BA',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.25rem',
+                margin: '0 auto 1rem',
               }}
             >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
-            <h2 className="serif-text" style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.65rem' }}>
+            <h2 className="serif-text" style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.45rem' }}>
               {isArabic ? 'تم التحقق وتقديم طلبك بنجاح!' : 'Application Submitted!'}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '0.925rem', lineHeight: 1.55, marginBottom: '1.75rem' }}>
+            <p style={{ color: '#64748b', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
               {isArabic
                 ? 'تم التحقق من بريدك الإلكتروني بنجاح وتسجيل طلبك في سجل المراجعة. ستقوم الأمانة بإشعارك عند اعتماد العضوية.'
                 : 'Your email has been verified and your community application is now queued for secretariat review. You can log in once approved.'}
             </p>
             <button
               onClick={handleSignInRedirect}
-              className="btn btn-primary btn-lg"
+              className="btn btn-primary"
               style={{
                 width: '100%',
-                padding: '0.8rem 1.5rem',
-                borderRadius: '12px',
+                padding: '0.65rem 1.25rem',
+                borderRadius: '10px',
                 fontWeight: 600,
+                fontSize: '0.85rem',
                 background: '#4851BA',
                 color: '#ffffff',
                 border: 'none',
@@ -318,21 +319,21 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
         ) : (
           <>
             {/* Top Badge */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
               <span
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.45rem',
-                  padding: '0.35rem 0.85rem',
+                  gap: '0.35rem',
+                  padding: '0.22rem 0.65rem',
                   borderRadius: '999px',
                   background: 'rgba(72, 81, 186, 0.08)',
                   color: '#4851BA',
-                  fontSize: '0.82rem',
+                  fontSize: '0.72rem',
                   fontWeight: 600,
                 }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                   <circle cx="9" cy="7" r="4"></circle>
                   <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -346,23 +347,24 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             <h2
               className="serif-text"
               style={{
-                fontSize: '1.65rem',
+                fontSize: '1.25rem',
                 fontWeight: 700,
                 color: '#0f172a',
                 textAlign: 'center',
-                margin: '0 0 0.4rem 0',
+                margin: '0 0 0.25rem 0',
+                lineHeight: 1.3,
               }}
             >
               {isArabic ? 'طلب العضوية في المجتمع الدولي' : 'Apply for Community Membership'}
             </h2>
             <p
               style={{
-                fontSize: '0.88rem',
+                fontSize: '0.78rem',
                 color: '#64748b',
                 textAlign: 'center',
-                margin: '0 auto 1.5rem auto',
-                lineHeight: 1.45,
-                maxWidth: '420px',
+                margin: '0 auto 1.15rem auto',
+                lineHeight: 1.4,
+                maxWidth: '380px',
               }}
             >
               {isArabic
@@ -376,18 +378,18 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '1.75rem',
+                marginBottom: '1.15rem',
                 position: 'relative',
-                padding: '0 1rem',
+                padding: '0 0.75rem',
               }}
             >
               {/* Stepper Connecting Lines */}
               <div
                 style={{
                   position: 'absolute',
-                  top: '16px',
-                  left: '45px',
-                  right: '45px',
+                  top: '13px',
+                  left: '38px',
+                  right: '38px',
                   height: '2px',
                   background: '#e2e8f0',
                   zIndex: 1,
@@ -407,17 +409,17 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
                 <div
                   style={{
-                    width: '32px',
-                    height: '32px',
+                    width: '26px',
+                    height: '26px',
                     borderRadius: '50%',
                     background: step >= 1 ? '#4851BA' : '#f1f5f9',
                     color: step >= 1 ? '#ffffff' : '#64748b',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.875rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
-                    boxShadow: step === 1 ? '0 0 0 4px rgba(72, 81, 186, 0.15)' : 'none',
+                    boxShadow: step === 1 ? '0 0 0 3px rgba(72, 81, 186, 0.15)' : 'none',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -425,10 +427,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 </div>
                 <span
                   style={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.68rem',
                     fontWeight: step === 1 ? 700 : 500,
                     color: step === 1 ? '#0f172a' : '#64748b',
-                    marginTop: '0.35rem',
+                    marginTop: '0.25rem',
                   }}
                 >
                   {isArabic ? 'المعلومات الأساسية' : 'Basic Info'}
@@ -439,8 +441,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
                 <div
                   style={{
-                    width: '32px',
-                    height: '32px',
+                    width: '26px',
+                    height: '26px',
                     borderRadius: '50%',
                     background: step >= 2 ? '#4851BA' : '#ffffff',
                     border: step >= 2 ? 'none' : '2px solid #cbd5e1',
@@ -448,9 +450,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.875rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
-                    boxShadow: step === 2 ? '0 0 0 4px rgba(72, 81, 186, 0.15)' : 'none',
+                    boxShadow: step === 2 ? '0 0 0 3px rgba(72, 81, 186, 0.15)' : 'none',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -458,13 +460,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 </div>
                 <span
                   style={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.68rem',
                     fontWeight: step === 2 ? 700 : 500,
                     color: step === 2 ? '#0f172a' : '#64748b',
-                    marginTop: '0.35rem',
+                    marginTop: '0.25rem',
                   }}
                 >
-                  {isArabic ? 'التفاصيل والاهتمامات' : 'Details'}
+                  {isArabic ? 'التفاصيل' : 'Details'}
                 </span>
               </div>
 
@@ -472,18 +474,18 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
                 <div
                   style={{
-                    width: '32px',
-                    height: '32px',
+                    width: '26px',
+                    height: '26px',
                     borderRadius: '50%',
                     background: step === 3 ? '#4851BA' : '#ffffff',
-                    border: step === 3 ? 'none' : '2px solid #cbd5e1',
+                    border: step >= 3 ? 'none' : '2px solid #cbd5e1',
                     color: step === 3 ? '#ffffff' : '#64748b',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.875rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
-                    boxShadow: step === 3 ? '0 0 0 4px rgba(72, 81, 186, 0.15)' : 'none',
+                    boxShadow: step === 3 ? '0 0 0 3px rgba(72, 81, 186, 0.15)' : 'none',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -491,13 +493,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 </div>
                 <span
                   style={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.68rem',
                     fontWeight: step === 3 ? 700 : 500,
                     color: step === 3 ? '#0f172a' : '#64748b',
-                    marginTop: '0.35rem',
+                    marginTop: '0.25rem',
                   }}
                 >
-                  {isArabic ? 'التحقق من البريد' : 'OTP Verification'}
+                  {isArabic ? 'التحقق' : 'OTP Verification'}
                 </span>
               </div>
             </div>
@@ -520,12 +522,13 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
               </div>
             )}
 
-            {/* Step 1 Form: Basic Info */}
+            {/* Step 1 Form: Basic Info (1x6 Grid Format with Clean Refined Typography) */}
             {step === 1 && (
               <form onSubmit={handleNextToDetails}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '0.85rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.65rem', marginBottom: '1rem' }}>
+                  {/* 1. First Name */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
                       {isArabic ? 'الاسم الأول' : 'First Name'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -536,10 +539,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onChange={(e) => setFirstName(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.55rem 0.75rem',
                         border: '1.5px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '0.9rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
                         background: '#f8fafc',
                         outline: 'none',
                         transition: 'border-color 0.2s',
@@ -548,8 +551,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
                     />
                   </div>
+
+                  {/* 2. Last Name */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
                       {isArabic ? 'اسم العائلة' : 'Last Name'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -560,10 +565,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onChange={(e) => setLastName(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.55rem 0.75rem',
                         border: '1.5px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '0.9rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
                         background: '#f8fafc',
                         outline: 'none',
                       }}
@@ -571,11 +576,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
                     />
                   </div>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '0.85rem' }}>
+                  {/* 3. Country */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
                       {isArabic ? 'الدولة' : 'Country'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <select
@@ -584,10 +588,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onChange={(e) => setCountry(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.55rem 0.75rem',
                         border: '1.5px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '0.9rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
                         background: '#f8fafc',
                         outline: 'none',
                       }}
@@ -599,8 +603,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       ))}
                     </select>
                   </div>
+
+                  {/* 4. Email Address */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
                       {isArabic ? 'البريد الإلكتروني' : 'Email Address'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -611,10 +617,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onChange={(e) => setEmail(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '0.65rem 0.85rem',
+                        padding: '0.55rem 0.75rem',
                         border: '1.5px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '0.9rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
                         background: '#f8fafc',
                         outline: 'none',
                       }}
@@ -622,129 +628,133 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
                     />
                   </div>
-                </div>
 
-                <div style={{ marginBottom: '0.85rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
-                    {isArabic ? 'تعيين كلمة المرور' : 'Set Password'} <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      minLength={6}
-                      placeholder="Minimum 6 characters"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.65rem 2.5rem 0.65rem 0.85rem',
-                        border: '1.5px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '0.9rem',
-                        background: '#f8fafc',
-                        outline: 'none',
-                      }}
-                      onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                      onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: 'absolute',
-                        right: '0.75rem',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#94a3b8',
-                        padding: '0.2rem',
-                      }}
-                    >
-                      {showPassword ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                          <circle cx="12" cy="7" r="3"></circle>
-                        </svg>
-                      ) : (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                          <line x1="1" y1="1" x2="23" y2="23"></line>
-                        </svg>
-                      )}
-                    </button>
+                  {/* 5. Set Password */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                      {isArabic ? 'تعيين كلمة المرور' : 'Set Password'} <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        minLength={6}
+                        placeholder="Minimum 6 characters"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 2.2rem 0.55rem 0.75rem',
+                          border: '1.5px solid #e2e8f0',
+                          borderRadius: '8px',
+                          fontSize: '0.82rem',
+                          background: '#f8fafc',
+                          outline: 'none',
+                        }}
+                        onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
+                        onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '0.65rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#94a3b8',
+                          padding: '0.2rem',
+                        }}
+                        aria-label="Toggle password visibility"
+                      >
+                        {showPassword ? (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="7" r="3"></circle>
+                          </svg>
+                        ) : (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    <span style={{ display: 'block', fontSize: '0.7rem', color: '#64748b', marginTop: '0.2rem' }}>
+                      {isArabic
+                        ? 'ستستخدم كلمة المرور هذه لتسجيل الدخول بمجرد اعتماد عضويتك.'
+                        : 'You will use this password to sign in once your membership is approved.'}
+                    </span>
                   </div>
-                  <span style={{ display: 'block', fontSize: '0.76rem', color: '#64748b', marginTop: '0.25rem' }}>
-                    {isArabic
-                      ? 'ستستخدم كلمة المرور هذه لتسجيل الدخول بمجرد اعتماد عضويتك.'
-                      : 'You will use this password to sign in once your membership is approved.'}
-                  </span>
-                </div>
 
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
-                    {isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'} <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Re-enter password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.65rem 2.5rem 0.65rem 0.85rem',
-                        border: '1.5px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '0.9rem',
-                        background: '#f8fafc',
-                        outline: 'none',
-                      }}
-                      onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                      onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      style={{
-                        position: 'absolute',
-                        right: '0.75rem',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#94a3b8',
-                        padding: '0.2rem',
-                      }}
-                    >
-                      {showConfirmPassword ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                          <circle cx="12" cy="7" r="3"></circle>
-                        </svg>
-                      ) : (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                          <line x1="1" y1="1" x2="23" y2="23"></line>
-                        </svg>
-                      )}
-                    </button>
+                  {/* 6. Confirm Password */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                      {isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'} <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        required
+                        placeholder="Re-enter password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 2.2rem 0.55rem 0.75rem',
+                          border: '1.5px solid #e2e8f0',
+                          borderRadius: '8px',
+                          fontSize: '0.82rem',
+                          background: '#f8fafc',
+                          outline: 'none',
+                        }}
+                        onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
+                        onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '0.65rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#94a3b8',
+                          padding: '0.2rem',
+                        }}
+                        aria-label="Toggle confirm password visibility"
+                      >
+                        {showConfirmPassword ? (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="7" r="3"></circle>
+                          </svg>
+                        ) : (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="btn btn-primary btn-lg"
+                  className="btn btn-primary"
                   style={{
                     width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '12px',
+                    padding: '0.65rem 1rem',
+                    borderRadius: '10px',
                     fontWeight: 600,
-                    fontSize: '0.95rem',
+                    fontSize: '0.86rem',
                     background: '#4851BA',
                     color: '#ffffff',
                     border: 'none',
@@ -752,14 +762,14 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem',
+                    gap: '0.45rem',
                   }}
                 >
                   <span>{isArabic ? 'التالي: التفاصيل الإضافية' : 'Next: Additional Details'}</span>
                   <span>&rarr;</span>
                 </button>
 
-                <div style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.85rem', color: '#64748b' }}>
+                <div style={{ textAlign: 'center', marginTop: '0.85rem', fontSize: '0.78rem', color: '#64748b' }}>
                   <span>{isArabic ? 'هل لديك حساب معتمد بالفعل؟' : 'Already have an approved account?'}</span>{' '}
                   <button
                     type="button"
@@ -771,6 +781,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       fontWeight: 700,
                       cursor: 'pointer',
                       padding: 0,
+                      fontSize: '0.78rem',
                     }}
                   >
                     {isArabic ? 'تسجيل الدخول &larr;' : 'Sign In &rarr;'}
