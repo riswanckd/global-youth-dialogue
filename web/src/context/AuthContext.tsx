@@ -49,6 +49,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(demoMember);
         return;
       }
+      if (stored === 'demo_presenter_jwt_token') {
+        const demoPresenter: User = {
+          id: 'demo-presenter-layla',
+          name: 'Dr. Layla Al-Mansouri',
+          email: 'presenter@thegyde.in',
+          role: 'PRESENTER',
+          status: 'active',
+          emailVerified: true,
+          country: 'Qatar',
+          organization: 'Georgetown University Qatar / ISDC7',
+          bio: 'Keynote Orator & International Dialogue Fellow.',
+          createdAt: new Date().toISOString(),
+        };
+        setUser(demoPresenter);
+        return;
+      }
       removeStoredToken();
       setUser(null);
     } finally {
@@ -85,7 +101,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (
         cleanEmail === 'debater.demo@thegyde.in' ||
         cleanEmail === 'member@thegyde.in' ||
-        cleanEmail === 'demo@thegyde.in'
+        cleanEmail === 'demo@thegyde.in' ||
+        cleanEmail === 'member@gyde.org' ||
+        cleanEmail === 'demo@gyde.org'
       ) {
         const demoMember: User = {
           id: 'demo-member-kofi',
@@ -101,6 +119,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         setStoredToken('demo_member_jwt_token');
         setUser(demoMember);
+        return;
+      }
+      if (
+        cleanEmail === 'presenter.demo@thegyde.in' ||
+        cleanEmail === 'presenter@thegyde.in' ||
+        cleanEmail === 'presenter@gyde.org'
+      ) {
+        const demoPresenter: User = {
+          id: 'demo-presenter-layla',
+          name: 'Dr. Layla Al-Mansouri',
+          email: cleanEmail,
+          role: 'PRESENTER',
+          status: 'active',
+          emailVerified: true,
+          country: 'Qatar',
+          organization: 'Georgetown University Qatar / ISDC7',
+          bio: 'Keynote Orator & International Dialogue Fellow.',
+          createdAt: new Date().toISOString(),
+        };
+        setStoredToken('demo_presenter_jwt_token');
+        setUser(demoPresenter);
         return;
       }
       throw err;

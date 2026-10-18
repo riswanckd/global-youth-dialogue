@@ -3,8 +3,27 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Navbar } from './Navbar';
 import { ApplyPresenterModal } from '../portal/ApplyPresenterModal';
+import {
+  LayoutDashboard,
+  Mic,
+  FileText,
+  MessageSquareQuote,
+  BookOpen,
+  Lightbulb,
+  Award,
+  User,
+  LogOut,
+  Search,
+  Moon,
+  Sun,
+  Bell,
+  Menu,
+  X,
+  Globe,
+  Shield,
+  ShieldCheck,
+} from 'lucide-react';
 
 export const PortalLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -13,6 +32,7 @@ export const PortalLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [presenterModalOpen, setPresenterModalOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -20,240 +40,247 @@ export const PortalLayout: React.FC = () => {
     navigate('/');
   };
 
+  const isPresenter = user?.role === 'PRESENTER';
+
   const navItems = [
     {
-      label: isArabic ? 'لوحة العضو' : 'Member Dashboard',
+      label: isPresenter
+        ? (isArabic ? 'لوحة المتحدث' : 'Presenter Dashboard')
+        : (isArabic ? 'لوحة العضو' : 'Member Dashboard'),
       path: '/portal',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="7" height="9"></rect>
-          <rect x="14" y="3" width="7" height="5"></rect>
-          <rect x="14" y="12" width="7" height="9"></rect>
-          <rect x="3" y="16" width="7" height="5"></rect>
-        </svg>
-      )
+      exact: true,
+      icon: LayoutDashboard,
     },
     {
-      label: isArabic ? 'الجلسات والأرشيف' : 'Sessions',
+      label: isArabic ? 'الجلسات والأرشيف' : 'Sessions & Chambers',
       path: '/portal/sessions',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-      )
+      icon: Mic,
     },
     {
       label: isArabic ? 'الأوراق البحثية' : 'Academic Writings',
       path: '/portal/publications',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-      )
+      icon: FileText,
     },
     {
       label: isArabic ? 'تقديم التقييم' : 'Submit Feedback',
       path: '/portal/feedback',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 20h9"></path>
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-        </svg>
-      )
+      icon: MessageSquareQuote,
     },
     {
-      label: isArabic ? 'بنك المواضيع الأكاديمي' : 'Topic Bank',
+      label: isArabic ? 'بنك المواضيع' : 'Topic Bank',
       path: '/portal/topic-bank',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-        </svg>
-      )
+      icon: BookOpen,
     },
     {
       label: isArabic ? 'اقتراح موضوع' : 'Suggest a Topic',
       path: '/portal/suggest-topic',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 18h6"></path>
-          <path d="M10 22h4"></path>
-          <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5h6.18z"></path>
-        </svg>
-      )
+      icon: Lightbulb,
     },
     {
       label: isArabic ? 'مسيرتي والأوسمة' : 'My Journey & Badges',
       path: '/portal/journey',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="8" r="6"></circle>
-          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
-        </svg>
-      )
+      icon: Award,
     },
     {
       label: isArabic ? 'الملف الشخصي' : 'My Profile & Settings',
       path: '/portal/profile',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      )
-    }
+      icon: User,
+    },
   ];
 
+  const displayName = user?.name || (isArabic ? 'عضو معتمد' : 'Kofi Mensah');
+  const roleLabel = isPresenter
+    ? (isArabic ? 'متحدث رسمي معتمد' : 'PRESENTER')
+    : (user?.role || (isArabic ? 'عضو' : 'MEMBER'));
+  const delegationText = user?.country
+    ? `${roleLabel} • ${user.country}`
+    : `${roleLabel} • ${isArabic ? 'دولي' : 'Global'}`;
+  const avatarLetter = (displayName[0] || 'M').toUpperCase();
+
   return (
-    <div className="portal-app" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
-      <div className="portal-wrapper">
-        {/* Member Sidebar Navigation */}
-        <aside className="portal-sidebar">
-          {/* User Profile Card in Sidebar */}
-          <div className="portal-user-card" id="memberSidebarProfile">
-            <div className="portal-user-avatar">
-              {user?.name?.slice(0, 1).toUpperCase() || 'M'}
-            </div>
-            <div className="portal-user-info">
-              <div className="portal-user-name">
-                {user?.name || 'Member'}
-              </div>
-              <div className="portal-user-role">
-                <span>{user?.role || 'Member'}</span>
-                <span>•</span>
-                <span>{user?.country || 'Global'}</span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
+      {/* TOP WORKSPACE NAVBAR (Mirroring Admin Portal Design) */}
+      <header className="sticky top-0 z-40 w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
+          {/* Left: Brand Logo & Mobile Trigger */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-1.5 -ml-1 rtl:-ml-0 rtl:-mr-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              aria-label="Toggle Navigation"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <Link to="/portal" className="flex items-center gap-2">
+              <img
+                src="/assets/images/gyde_official_logo.svg"
+                alt="GYDE Official Logo"
+                className="h-8 sm:h-10 w-auto object-contain dark:hidden"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo.png';
+                }}
+              />
+              <img
+                src="/assets/images/gyde_official_logo_dark.svg"
+                alt="GYDE Official Logo"
+                className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo_dark.png';
+                }}
+              />
+            </Link>
           </div>
 
-          <ul className="sidebar-menu">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    className={`sidebar-item-btn ${isActive ? 'active' : ''}`}
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <span className="sidebar-item-icon">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Search Pill (Hidden on mobile) */}
+            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-xs text-slate-500 hover:border-slate-300 transition-colors">
+              <Search className="w-3.5 h-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder={isArabic ? 'بحث...' : 'Search...'}
+                className="bg-transparent border-none outline-none text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 w-24 lg:w-32"
+              />
+            </div>
 
-            {/* Participation Certificate (Soon) */}
-            <li>
-              <div
-                className="sidebar-item-btn"
-                style={{
-                  opacity: 0.65,
-                  cursor: 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.65rem 0.85rem',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <span className="sidebar-item-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="4" width="18" height="16" rx="2"></rect>
-                      <line x1="7" y1="8" x2="17" y2="8"></line>
-                      <line x1="7" y1="12" x2="17" y2="12"></line>
-                      <line x1="7" y1="16" x2="13" y2="16"></line>
-                    </svg>
-                  </span>
-                  <span style={{ fontSize: '0.88rem' }}>{isArabic ? 'شهادة المشاركة' : 'Participation Certificate'}</span>
-                </div>
-                <span
-                  style={{
-                    fontSize: '0.65rem',
-                    fontWeight: 700,
-                    padding: '0.15rem 0.45rem',
-                    borderRadius: '999px',
-                    background: '#f1f5f9',
-                    color: '#64748b',
-                  }}
-                >
-                  Soon
-                </span>
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              title={isArabic ? 'تبديل المظهر' : 'Toggle Light / Dark mode'}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+            </button>
+
+            {/* Notification Bell */}
+            <Link
+              to="/portal/sessions"
+              title={isArabic ? 'الإشعارات' : 'Notifications'}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+                2
+              </span>
+            </Link>
+
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              title={isArabic ? 'Switch Language' : 'تغيير اللغة'}
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shrink-0"
+            >
+              <Globe className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <span className="hidden sm:inline">{isArabic ? 'English' : 'العربية'}</span>
+              <span className="sm:hidden text-[11px] font-bold">{isArabic ? 'EN' : 'عربي'}</span>
+            </button>
+
+            {/* Sign Out Button */}
+            <button
+              onClick={handleLogout}
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+            >
+              {isArabic ? 'خروج' : 'Sign Out'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* BODY WITH LEFT MENU BAR & MAIN CONTENT */}
+      <div className="flex-1 flex max-w-[1600px] w-full mx-auto">
+        {/* LEFT MENU BAR (SIDEBAR) */}
+        <aside
+          className={`
+            fixed lg:sticky top-[72px] z-30 lg:z-10
+            h-[calc(100vh-72px)] w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
+            flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200
+            ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
+          `}
+        >
+          {/* Upper Sidebar: Profile Card & Menu */}
+          <div className="flex flex-col flex-1 overflow-y-auto space-y-3">
+            {/* User Profile Card (Exact Admin Style) */}
+            <div className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-slate-800/50 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
+                {avatarLetter}
               </div>
-            </li>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                  {displayName}
+                </div>
+                <div className="text-[11px] text-slate-400 font-normal truncate">
+                  {delegationText}
+                </div>
+              </div>
+            </div>
 
-            {/* Request to be Presenter Button (Triggers ApplyPresenterModal) */}
-            <li style={{ marginTop: '0.75rem', padding: '0 0.25rem' }}>
+            {/* Navigation Menu List (Exact Admin Pill Style) */}
+            <nav className="space-y-0.5">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = item.exact
+                  ? location.pathname === item.path
+                  : location.pathname === item.path ||
+                    (item.path !== '/portal' && location.pathname.startsWith(item.path));
+
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-colors ${
+                      isActive
+                        ? 'bg-[#f1f5f9] dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white font-medium'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Lower Sidebar: Action & Sign Out */}
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            {!isPresenter ? (
               <button
                 type="button"
                 onClick={() => setPresenterModalOpen(true)}
-                className="btn-be-presenter"
-                style={{
-                  width: '100%',
-                  background: '#000000',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '999px',
-                  padding: '0.65rem 1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                  transition: 'opacity 0.2s',
-                }}
+                className="w-full rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/40 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/30 transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                  <line x1="12" x2="12" y1="19" y2="22"></line>
-                </svg>
-                <span>{isArabic ? 'طلب الاعتماد كمتحدث' : 'Request to be Presenter'}</span>
+                <Shield className="w-4 h-4 text-indigo-500 shrink-0" />
+                <span className="truncate">{isArabic ? 'طلب الاعتماد كمتحدث' : 'Request to be Presenter'}</span>
               </button>
-            </li>
-          </ul>
+            ) : (
+              <div className="w-full rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span className="truncate">{isArabic ? 'متحدث رسمي معتمد' : 'Accredited Presenter'}</span>
+              </div>
+            )}
 
-          {/* Sidebar Controls & Bottom */}
-          <div className="sidebar-bottom">
             <button
               onClick={handleLogout}
-              className="btn btn-outline btn-sm"
-              id="memberLogoutBtn"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: '#dc2626',
-                border: '1px solid #fee2e2',
-                background: '#fff',
-                padding: '0.55rem 0.85rem',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
+              <LogOut className="w-4 h-4 text-slate-500 shrink-0" />
               <span>{isArabic ? 'تسجيل الخروج' : 'Sign Out'}</span>
             </button>
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <main className="portal-content" id="memberContentArea">
-          <Outlet />
+        {/* Mobile Backdrop */}
+        {mobileMenuOpen && (
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 z-20 bg-slate-950/40 backdrop-blur-sm lg:hidden"
+          />
+        )}
+
+        {/* MAIN CONTENT AREA */}
+        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <Outlet context={{ openPresenterModal: () => setPresenterModalOpen(true) }} />
         </main>
       </div>
 
