@@ -3,6 +3,7 @@ import { countries } from 'countries-list';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
+import { getCountryMeta } from '../../utils/country';
 import {
   UserCheck,
   CheckCircle2,
@@ -53,6 +54,7 @@ export const PortalProfile: React.FC = () => {
 
   const avatarLetter = (user?.name?.[0] || 'M').toUpperCase();
   const userCountry = formData.country || user?.country || 'Ghana';
+  const countryMeta = getCountryMeta(userCountry);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,10 +149,15 @@ export const PortalProfile: React.FC = () => {
           <div className="w-20 h-20 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-2xl shadow-md ring-4 ring-indigo-500/10">
             {avatarLetter}
           </div>
-          {/* Compulsory Country Badge */}
-          <span className="mt-2.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
-            <Globe className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-            <span>{userCountry}</span>
+          {/* Compulsory Country Flag Badge */}
+          <span className="mt-2.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs">
+            <img
+              src={countryMeta.flagUrl}
+              alt={countryMeta.name}
+              className="w-5 h-3.5 rounded-[2px] object-cover shrink-0 shadow-xs"
+              loading="lazy"
+            />
+            <span>{countryMeta.name}</span>
           </span>
         </div>
 
