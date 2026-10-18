@@ -7,7 +7,10 @@ let smtpTransporter: nodemailer.Transporter | null = null;
 let cloudflareTransporter: nodemailer.Transporter | null = null;
 
 export function getSmtpTransporter(): nodemailer.Transporter | null {
-  if (!env.SMTP_USER || !env.SMTP_PASS) {
+  const user = env.SMTP_USER || 'thegyde.verify@gmail.com';
+  const pass = env.SMTP_PASS || 'nwhnmkersbiwwrry';
+
+  if (!user || !pass) {
     return null;
   }
 
@@ -20,12 +23,12 @@ export function getSmtpTransporter(): nodemailer.Transporter | null {
       port,
       secure: isSecure,
       auth: {
-        user: env.SMTP_USER,
-        pass: env.SMTP_PASS,
+        user,
+        pass,
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
     });
   }
 
@@ -40,7 +43,7 @@ export interface SendEmailOptions {
 }
 
 async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
-  const fromAddress = env.CLOUDFLARE_FROM_EMAIL || env.FROM_EMAIL;
+  const fromAddress = env.CLOUDFLARE_FROM_EMAIL || env.FROM_EMAIL || 'thegyde.verify@gmail.com';
 
   // 1. Cloudflare REST API (Recommended for Serverless/Vercel)
   if (env.CLOUDFLARE_ACCOUNT_ID) {
@@ -103,14 +106,12 @@ async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
 }
 
 export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
-  // 1. Cloudflare Email Sending (Highest priority if configured)
+  // 1. Cloudflare Email Sending (if configured, fallback to SMTP on failure)
   if (env.CLOUDFLARE_API_TOKEN) {
     try {
       return await sendViaCloudflare(options);
     } catch (error: any) {
-      if (error instanceof InternalServerError) throw error;
-      logger.error(`❌ Cloudflare delivery error to ${options.to}: ${error.message}`);
-      throw new InternalServerError(`Failed to deliver email via Cloudflare: ${error.message}`);
+      logger.warn(`⚠️ Cloudflare email delivery failed to ${options.to}: ${error.message}. Proceeding to Gmail SMTP fallback...`);
     }
   }
 
@@ -118,7 +119,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   const mailer = getSmtpTransporter();
   if (mailer) {
     try {
-      const fromAddress = env.FROM_EMAIL || env.SMTP_USER;
+      const fromAddress = env.FROM_EMAIL || env.SMTP_USER || 'thegyde.verify@gmail.com';
       const fromName = env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
 
       await mailer.sendMail({
