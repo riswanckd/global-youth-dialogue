@@ -312,7 +312,22 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
 };
 
 const CATEGORIES_AR: Record<string, string> = {
+  'Geopolitics & International Relations': 'الجيوسياسية والعلاقات الدولية',
   'Technology & AI Ethics': 'أخلاقيات التكنولوجيا والذكاء الاصطناعي',
+  'Education & Future of Learning': 'التعليم ومستقبل التعلم',
+  'Climate, Environment & Energy': 'المناخ والبيئة والاستدامة',
+  'Economy, Trade & Labor': 'الاقتصاد والتجارة والعمل',
+  'Governance, Law & Human Rights': 'الحوكمة والقانون وحقوق الإنسان',
+  'Culture, Identity & Global Media': 'الثقافة والهوية والإعلام العالمي',
+  'Public Health, Bioethics & Science': 'الصحة العامة والأخلاقيات الحيوية والعلوم',
+  'Space Governance & Astro-Politics': 'حوكمة الفضاء الخارجي والسياسات الفضائية',
+  'Cybersecurity & Digital Sovereignty': 'الأمن السيبراني والسيادة الرقمية',
+  'Youth Leadership & Future Generations': 'القيادة الشبابية والمشاركة المدنية',
+  'Peacebuilding, Disarmament & Humanitarian Law': 'بناء السلام ونزع السلاح والقانون الإنساني',
+  'Synthetic Biology & Genetic Horizons': 'البيولوجيا التركيبية والآفاق الجينية',
+  'Food Sovereignty & Ocean Ecosystems': 'السيادة الغذائية ونظم المحيطات',
+  'Philosophy, Epistemology & Applied Ethics': 'الفلسفة ونظرية المعرفة والأخلاقيات التطبيقية',
+  'Urban Futures & Smart Habitats': 'مستقبل المدن الذكية والعمران والإسكان',
   'International Relations': 'العلاقات الدولية والدبلوماسية',
   'Global Economics': 'الاقتصاد والتجارة العالمية',
   'Philosophy & Human Rights': 'الفلسفة وحقوق الإنسان',

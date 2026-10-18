@@ -185,6 +185,182 @@ export const CATEGORIES: TopicCategory[] = [
       'التأمين الصحي الخاص مقابل نظم التغطية الشاملة',
       'مقاومة المضادات الحيوية والأمن الحيوي العالمي'
     ]
+  },
+  {
+    id: 'space',
+    name: 'Space Governance & Astro-Politics',
+    nameAr: 'حوكمة الفضاء الخارجي والسياسات الفضائية',
+    icon: 'rocket',
+    description: 'Orbital debris accountability, lunar territory extraction treaties, commercial satellite constellations, and the demilitarization of outer space.',
+    descriptionAr: 'تنظيم الحطام الفضائي، معاهدات استغلال الموارد القمرية، شبكات الأقمار التجارية، ومنع عسكرة الفضاء الخارجي.',
+    subTopics: [
+      'Militarization of Earth Orbit & Anti-Satellite Weapons',
+      'Private Mega-Constellations vs Global Astronomy',
+      'Lunar Resource Extraction & The Artemis Accords',
+      'Asteroid Mining Property Rights under International Law',
+      'Orbital Space Debris Liability & Active Removal Treaties'
+    ],
+    subTopicsAr: [
+      'عسكرة المدار الأرضي وأسلحة استهداف الأقمار الصناعية',
+      'شبكات الأقمار التجارية العملاقة وأثرها على الرصد الفلكي',
+      'استغلال موارد القمر واتفاقات أرتميس الدولية',
+      'حقوق ملكية تعدين الكويكبات في القانون الدولي',
+      'المسؤولية القانونية عن الحطام الفضائي ومعاهدات إزالته'
+    ]
+  },
+  {
+    id: 'cybersecurity',
+    name: 'Cybersecurity & Digital Sovereignty',
+    nameAr: 'الأمن السيبراني والسيادة الرقمية',
+    icon: 'lock',
+    description: 'Critical infrastructure defense, state-sponsored cyber offensives, quantum encryption shifts, submarine data cables, and cyber treaty norms.',
+    descriptionAr: 'حماية البنى التحتية الحيوية، الهجمات السيبرانية الحكومية، التشفير الكمي، كابلات البيانات البحرية، ومعايير القانون السيبراني الدولي.',
+    subTopics: [
+      'State-Sponsored Cyber Warfare & Digital Geneva Conventions',
+      'Protection of Submarine Internet Cables & Data Highways',
+      'Quantum Decryption & Post-Quantum Cryptographic Standards',
+      'Cross-Border Ransomware & Multilateral Police Jurisdiction',
+      'Sovereign Cloud Architectures vs Global Tech Monopolies'
+    ],
+    subTopicsAr: [
+      'الحروب السيبرانية برعاية الدول واتفاقيات جنيف الرقمية',
+      'حماية كابلات الإنترنت البحرية وطرق نقل البيانات العالمية',
+      'فك التشفير الكمي ومعايير الأمان ما بعد الحوسبة الكمومية',
+      'برمجيات الفدية العابرة للحدود والتعاون الشرطي الدولي',
+      'بنى السحابة الرقمية السيادية مقابل احتكار الشركات الكبرى'
+    ]
+  },
+  {
+    id: 'youth',
+    name: 'Youth Leadership & Future Generations',
+    nameAr: 'القيادة الشبابية والمشاركة المدنية',
+    icon: 'users',
+    description: 'Intergenerational justice, institutional representation for unborn generations, youth parliamentary quotas, and student civil activism.',
+    descriptionAr: 'العدالة بين الأجيال، التمثيل المؤسسي للأجيال القادمة، كوتة المقاعد البرلمانية للشباب، ونشاط المجتمع المدني الطلابي.',
+    subTopics: [
+      'Constitutional Rights & Guardianship for Future Generations',
+      'Youth Parliamentary Quotas & Age-Neutral Candidacy Laws',
+      'Student Union Protections in Transitional Democracies',
+      'Participatory Budgeting & Citizen Assemblies for Youth',
+      'Digital Civic Mobilization vs Traditional Political Partisanship'
+    ],
+    subTopicsAr: [
+      'الحقوق الدستورية والوصاية القانونية على حقوق الأجيال القادمة',
+      'كوتة المقاعد البرلمانية للشباب وتخفيض سن الترشح السياسي',
+      'حماية الاتحادات الطلابية في الديمقراطيات الناشئة',
+      'الموازنات التشاركية والجمعيات المدنية الشبابية',
+      'التعبئة المدنية الرقمية مقابل التحزب السياسي التقليدي'
+    ]
+  },
+  {
+    id: 'peace-security',
+    name: 'Peacebuilding, Disarmament & Humanitarian Law',
+    nameAr: 'بناء السلام ونزع السلاح والقانون الإنساني',
+    icon: 'scale',
+    description: 'Mediation in asymmetric wars, civilian protection in urban conflicts, small arms non-proliferation, truth commissions, and refugee reintegration.',
+    descriptionAr: 'الوساطة في النزاعات غير المتكافئة، حماية المدنيين في الحروب، نزع السلاح، لجان الحقيقة والعدالة الانتقالية، وإعادة إدماج اللاجئين.',
+    subTopics: [
+      'International Criminal Court (ICC) Enforcement & Universal Jurisdiction',
+      'Civilian Protection Protocols in Dense Urban Warfare',
+      'Truth, Reconciliation & Restorative Justice Frameworks Post-Conflict',
+      'Small Arms Proliferation & Illicit Border Arms Trade',
+      'Youth, Peace and Security (UNSCR 2250) in Peace Treaties'
+    ],
+    subTopicsAr: [
+      'صلاحيات المحكمة الجنائية الدولية وإنفاذ الولاية القضائية العالمية',
+      'بروتوكولات حماية المدنيين في مناطق القتال الحضري المكتظة',
+      'لجان الحقيقة والمصالحة وأطر العدالة الانتقالية بعد الحروب',
+      'انتشار الأسلحة الخفيفة ومكافحة التجارة غير المشروعة عبر الحدود',
+      'تطبيق قرار مجلس الأمن 2250 حول الشباب والسلام في معاهدات الهدنة'
+    ]
+  },
+  {
+    id: 'biotech',
+    name: 'Synthetic Biology & Genetic Horizons',
+    nameAr: 'البيولوجيا التركيبية والآفاق الجينية',
+    icon: 'dna',
+    description: 'De-extinction technologies, gene drive ecosystems, synthetic pathogens biosecurity, human enhancement boundaries, and bio-foundry equity.',
+    descriptionAr: 'تقنيات استعادة الكائنات المنقرضة، المحركات الجينية البيئية، أمن العوامل الممرضة التركيبية، حدود التعزيز البشري، وعدالة التكنولوجيا الحيوية.',
+    subTopics: [
+      'Gene Drive Deployment for Wild Vector Pest Eradication',
+      'De-Extinction of Keystone Species: Ecological Restoration or Hazard',
+      'Direct-to-Consumer Genetic Profiling & Insurance Discrimination',
+      'Open-Source Genomic Research & Decentralized Medicine Synthesis',
+      'Laboratory Biosafety Standards & Dual-Use Pathogen Research'
+    ],
+    subTopicsAr: [
+      'إطلاق تقنيات المحركات الجينية للقضاء على الآقلات الحيوية في البرية',
+      'إعادة إحياء الكائنات المنقرضة: استعادة بيئية أم مخاطرة غير محسوبة',
+      'التحليل الجيني المباشر للمستهلك والتمييز في عقود التأمين',
+      'أبحاث الجينوم مفتوحة المصدر وتصنيع الأدوية اللامركزي',
+      'معايير السلامة البيولوجية وأبحاث العوامل الممرضة مزدوجة الاستخدام'
+    ]
+  },
+  {
+    id: 'food-oceans',
+    name: 'Food Sovereignty & Ocean Ecosystems',
+    nameAr: 'السيادة الغذائية ونظم المحيطات',
+    icon: 'anchor',
+    description: 'High seas marine treaty compliance, deep sea seabed mining moratoriums, cellular agriculture, smallholder farmer subsidies, and global grain supply shocks.',
+    descriptionAr: 'معاهدات أعالي البحار، تجميد تعدين قاع المحيطات، الزراعة الخلوية، دعم صغار المزارعين، وصدمات سلاسل الحبوب العالمية.',
+    subTopics: [
+      'Deep-Sea Bed Mining Moratorium in International Waters',
+      'Cellular Agriculture & Lab-Grown Protein Regulatory Standards',
+      'Water-Intensive Export Crops vs Domestic Food Security in Arid Lands',
+      'High Seas Biodiversity Treaty Enforcement & Marine Protected Areas',
+      'Regenerative Farming Subsidies vs Monoculture Industrial Agriculture'
+    ],
+    subTopicsAr: [
+      'المطالبة بتجميد تعدين قاع المحيطات في المياه الدولية',
+      'معايير تنظيم اللحوم المزروعة مخبرياً والبروتينات الخلوية',
+      'محاصيل التصدير المستهلكة للمياه مقابل الاكتفاء الذاتي في المناطق الجافة',
+      'إنفاذ معاهدة التنوع البيولوجي في أعالي البحار والمحميات البحرية',
+      'دعم الزراعة التجديدية مقابل الزراعات الصناعية أحادية المحصول'
+    ]
+  },
+  {
+    id: 'philosophy',
+    name: 'Philosophy, Epistemology & Applied Ethics',
+    nameAr: 'الفلسفة ونظرية المعرفة والأخلاقيات التطبيقية',
+    icon: 'compass',
+    description: 'Epistemic injustice, moral realism vs relativism, the ethics of post-humanism, animal consciousness rights, and the role of doubt in democratic discourse.',
+    descriptionAr: 'العدالة المعرفية، الواقعية الأخلاقية مقابل النسبية، أخلاقيات ما بعد الإنسانية، حقوق ووعي الحيوان، وأهمية الشك في الحوار الديمقراطي.',
+    subTopics: [
+      'Sentience & Legal Personhood Criteria for Non-Human Species',
+      'Epistemic Injustice & The Validation of Non-Western Epistemologies',
+      'Solar Radiation Management & The Ethics of Global Climate Geoengineering',
+      'Moral Boundaries of Transhumanism & Cognitive Neuro-Enhancements',
+      'The Value of Intellectual Humility and Philosophical Scepticism in Public Discourse'
+    ],
+    subTopicsAr: [
+      'معايير الوعي والشخصية القانونية للأنواع الحية غير البشرية',
+      'العدالة المعرفية والاعتراف بالنظريات الفكرية غير الغربية',
+      'أخلاقيات الهندسة الجيولوجية وحجب أشعة الشمس لمكافحة الاحترار',
+      'الحدود الأخلاقية لحركة ما بعد الإنسانية والتعزيزات العصبية الإدراكية',
+      'أهمية التواضع الفكري والشك الفلسفي البناء في النقاش العام'
+    ]
+  },
+  {
+    id: 'urban-futures',
+    name: 'Urban Futures & Smart Habitats',
+    nameAr: 'مستقبل المدن الذكية والعمران والإسكان',
+    icon: 'building-2',
+    description: '15-minute cities, public housing decommodification, algorithmic traffic surveillance, climate-resilient architecture, and rural-urban migration.',
+    descriptionAr: 'مدن الـ 15 دقيقة، إلغاء تسليع الإسكان العام، المراقبة الخوارزمية الحضرية، العمارة المقاومة للمناخ، وحركة النزوح الريفي الحضري.',
+    subTopics: [
+      'Social Housing Decommodification vs Real Estate Speculation',
+      'The 15-Minute City Model: Neighborhood Equity vs Spatial Segregation',
+      'Algorithmic Surveillance, Facial Recognition & Civil Space in Smart Cities',
+      'Sponge Cities & Extreme Rainfall Urban Drainage Engineering',
+      'Polycentric Urban Development to Mitigate Megacity Strain'
+    ],
+    subTopicsAr: [
+      'إلغاء تسليع الإسكان الاجتماعي والحد من المضاربات العقارية',
+      'نموذج "مدينة الـ 15 دقيقة": عدالة الوصول للخدمات مقابل العزل المكاني',
+      'المراقبة الخوارزمية وتقنيات التعرف على الوجوه في الفضاءات العامة',
+      'المدن الإسفنجية وهندسة امتصاص السيول الحضرية في المناخات المتطرفة',
+      'التطوير الحضري متعدد المراكز لتخفيف الضغط عن المدن العملاقة'
+    ]
   }
 ];
 
