@@ -177,9 +177,17 @@ export const Sessions: React.FC = () => {
               <div key={session.id} className="session-card-preview">
                 <div className="session-lock-tag">
                   {session.status === 'Upcoming' ? (
-                    <span style={{ color: 'var(--color-primary-1)', fontWeight: 600 }}>● {isArabic ? 'قادمة' : 'Upcoming'}</span>
+                    <span style={{ color: 'var(--color-primary-1)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }}></span>
+                      {isArabic ? 'قادمة' : 'Upcoming'}
+                    </span>
                   ) : (
-                    <span style={{ color: 'var(--text-muted)' }}>✓ {isArabic ? 'منعقدة' : 'Archived'}</span>
+                    <span style={{ color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      {isArabic ? 'منعقدة' : 'Archived'}
+                    </span>
                   )}
                 </div>
 
@@ -190,8 +198,22 @@ export const Sessions: React.FC = () => {
                 <h4>{session.title}</h4>
 
                 <div className="session-meta-row">
-                  <div>📅 {session.date}</div>
-                  <div>👤 {session.presenterName} ({session.presenterCountry})</div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>{session.date}</span>
+                  </div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>{session.presenterName} ({session.presenterCountry})</span>
+                  </div>
                 </div>
 
                 {session.summary && (

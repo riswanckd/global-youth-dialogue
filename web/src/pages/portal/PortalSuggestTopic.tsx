@@ -264,7 +264,7 @@ export const PortalSuggestTopic: React.FC = () => {
                     </optgroup>
                   );
                 })}
-                <option value="custom">✨ {isArabic ? 'اقتراح موضوع مخصص جديد (غير مدرج)...' : '✨ Propose Custom Topic (Others)...'}</option>
+                <option value="custom">{isArabic ? '+ اقتراح موضوع مخصص جديد (غير مدرج)...' : '+ Propose Custom Topic (Others)...'}</option>
               </select>
             </div>
 
@@ -469,7 +469,12 @@ export const PortalSuggestTopic: React.FC = () => {
                     gap: '0.4rem',
                   }}
                 >
-                  <span>🎤</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                  </svg>
                   <span>
                     {isArabic
                       ? 'أنا مهتم بتقديم هذا الموضوع كمتحدث رئيسي في الجلسة'
@@ -630,12 +635,23 @@ export const PortalSuggestTopic: React.FC = () => {
                               )}
                               {t.interestedToPresent && (
                                 <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '999px', background: 'rgba(158, 89, 172, 0.15)', color: '#9E59AC', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                                  🎤 Speaker Volunteer
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                  </svg>
+                                  <span>Speaker Volunteer</span>
                                 </span>
                               )}
                               {isAssignedToMe && (
-                                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '999px', background: 'rgba(72, 81, 186, 0.15)', color: '#4851BA' }}>
-                                  🎯 {isArabic ? 'مكلف لك' : 'Assigned to You'}
+                                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '999px', background: 'rgba(72, 81, 186, 0.15)', color: '#4851BA', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <circle cx="12" cy="12" r="6"></circle>
+                                    <circle cx="12" cy="12" r="2"></circle>
+                                  </svg>
+                                  <span>{isArabic ? 'مكلف لك' : 'Assigned to You'}</span>
                                 </span>
                               )}
                             </div>
@@ -668,7 +684,9 @@ export const PortalSuggestTopic: React.FC = () => {
                                 }}
                                 title="Edit & curate topic as Coordinator"
                               >
-                                <span>✏️</span>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                </svg>
                                 <span>{isArabic ? 'تعديل' : 'Edit / Review'}</span>
                               </button>
                             )}
@@ -683,10 +701,16 @@ export const PortalSuggestTopic: React.FC = () => {
                                 fontWeight: 700,
                                 cursor: 'pointer',
                                 color: '#4851BA',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
                               }}
                               title="Upvote motion"
                             >
-                              ▲ {t.upvotesCount || 0}
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                              </svg>
+                              <span>{t.upvotesCount || 0}</span>
                             </button>
                             <span
                               style={{

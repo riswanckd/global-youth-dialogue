@@ -12,7 +12,8 @@ import {
   Clock,
   ShieldCheck,
   AlertCircle,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react';
 
 export const Applications: React.FC = () => {
@@ -346,9 +347,10 @@ export const Applications: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedApp(null)}
-                className="text-slate-400 hover:text-slate-600 text-lg font-bold"
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                aria-label="Close"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
