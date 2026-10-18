@@ -193,7 +193,7 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'sessions.durationLabel': { en: 'Duration (Minutes)', ar: 'المدة (بالدقائق)' },
   'sessions.meetingUrlLabel': { en: 'Virtual Meeting URL (Zoom / Google Meet)', ar: 'رابط قاعة الاجتماع (Zoom / Meet)' },
   'sessions.cancelBtn': { en: 'Cancel', ar: 'إلغاء' },
-  'sessions.createBtn': { en: 'Publish Session Chamber', ar: 'اعتماد وجدولة الجلسة' },
+  'sessions.createBtn': { en: 'Publish Session', ar: 'اعتماد ونشر الجلسة' },
   'sessions.joinChamber': { en: 'Join Chamber', ar: 'دخول القاعة' },
   'sessions.live': { en: 'Live Now', ar: 'جارية الآن' },
   'sessions.scheduled': { en: 'Scheduled', ar: 'مجدولة' },

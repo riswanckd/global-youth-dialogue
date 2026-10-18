@@ -1260,7 +1260,7 @@ export const Sessions: React.FC = () => {
                   disabled={createMutation.isPending}
                   className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
                 >
-                  {createMutation.isPending ? 'Scheduling...' : t('sessions.createBtn', 'Publish Session Chamber')}
+                  {createMutation.isPending ? 'Scheduling...' : t('sessions.createBtn', 'Publish Session')}
                 </button>
               </div>
             </form>
