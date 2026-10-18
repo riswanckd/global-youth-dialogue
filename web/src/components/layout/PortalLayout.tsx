@@ -92,16 +92,14 @@ export const PortalLayout: React.FC = () => {
   const roleLabel = isPresenter
     ? (isArabic ? 'متحدث رسمي معتمد' : 'PRESENTER')
     : (user?.role || (isArabic ? 'عضو' : 'MEMBER'));
-  const delegationText = user?.country
-    ? `${roleLabel} • ${user.country}`
-    : `${roleLabel} • ${isArabic ? 'دولي' : 'Global'}`;
   const avatarLetter = (displayName[0] || 'M').toUpperCase();
+  const userCountry = user?.country || 'Ghana';
 
   return (
     <div className="min-h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
       {/* TOP WORKSPACE NAVBAR (Mirroring Admin Portal Design) */}
       <header className="sticky top-0 z-40 w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
+        <div className="w-full px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
           {/* Left: Brand Logo & Mobile Trigger */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
@@ -175,41 +173,51 @@ export const PortalLayout: React.FC = () => {
               <span className="sm:hidden text-[11px] font-bold">{isArabic ? 'EN' : 'عربي'}</span>
             </button>
 
-            {/* Sign Out Button */}
+            {/* Sign Out Button (with red color effect/shade) */}
             <button
               onClick={handleLogout}
-              className="px-2.5 sm:px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-full border border-rose-200/90 dark:border-rose-900/60 bg-rose-50/70 hover:bg-rose-100 dark:bg-rose-950/35 dark:hover:bg-rose-950/55 text-[11px] sm:text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs transition-colors shrink-0 flex items-center gap-1"
             >
-              {isArabic ? 'خروج' : 'Sign Out'}
+              <LogOut className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span>{isArabic ? 'خروج' : 'Sign Out'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* BODY WITH LEFT MENU BAR & MAIN CONTENT */}
-      <div className="flex-1 flex max-w-[1600px] w-full mx-auto">
-        {/* LEFT MENU BAR (SIDEBAR) */}
+      {/* BODY WITH FIXED LEFT MENU BAR & SCROLLABLE MAIN CONTENT */}
+      <div className="flex-1 flex w-full relative">
+        {/* FIXED LEFT MENU BAR (SIDEBAR) */}
         <aside
           className={`
-            fixed lg:sticky top-[72px] z-30 lg:z-10
-            h-[calc(100vh-72px)] w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
-            flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200
+            fixed top-[72px] bottom-0 left-0 rtl:left-auto rtl:right-0
+            w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
+            z-30 flex flex-col justify-between py-4 px-3 transition-transform duration-200
             ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
           `}
         >
           {/* Upper Sidebar: Profile Card & Menu */}
           <div className="flex flex-col flex-1 overflow-y-auto space-y-3">
-            {/* User Profile Card (Exact Admin Style) */}
-            <div className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-slate-800/50 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
-                {avatarLetter}
+            {/* User Profile Card with Compulsory Country Badge Under Avatar */}
+            <div className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-slate-800/50 flex items-center gap-3">
+              <div className="flex flex-col items-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-indigo-500/20">
+                  {avatarLetter}
+                </div>
+                {/* Compulsory Country Badge directly under the Profile Picture */}
+                <span className="mt-1.5 px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 text-[10px] font-extrabold uppercase tracking-wider text-center max-w-[62px] truncate">
+                  {userCountry}
+                </span>
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-bold text-xs text-slate-900 dark:text-white truncate">
                   {displayName}
                 </div>
-                <div className="text-[11px] text-slate-400 font-normal truncate">
-                  {delegationText}
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
+                  {roleLabel}
+                </div>
+                <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                  {user?.organization || 'Debate Society'}
                 </div>
               </div>
             </div>
@@ -242,7 +250,7 @@ export const PortalLayout: React.FC = () => {
             </nav>
           </div>
 
-          {/* Lower Sidebar: Action & Sign Out */}
+          {/* Lower Sidebar: Action & Sign Out Button with Red Color Effect/Shade */}
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
             {!isPresenter ? (
               <button
@@ -260,11 +268,12 @@ export const PortalLayout: React.FC = () => {
               </div>
             )}
 
+            {/* Red color effect/shade for sign out button */}
             <button
               onClick={handleLogout}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="w-full rounded-xl border border-rose-200/90 dark:border-rose-900/60 bg-rose-50/70 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2.5 px-3 py-2.5 shadow-xs hover:shadow-sm transition-all"
             >
-              <LogOut className="w-4 h-4 text-slate-500 shrink-0" />
+              <LogOut className="w-4 h-4 text-rose-500 shrink-0" />
               <span>{isArabic ? 'تسجيل الخروج' : 'Sign Out'}</span>
             </button>
           </div>
@@ -278,8 +287,8 @@ export const PortalLayout: React.FC = () => {
           />
         )}
 
-        {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        {/* MAIN CONTENT AREA (Offset by fixed sidebar width on desktop) */}
+        <main className="flex-1 min-w-0 lg:ml-64 rtl:lg:ml-0 rtl:lg:mr-64 p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-72px)]">
           <Outlet context={{ openPresenterModal: () => setPresenterModalOpen(true) }} />
         </main>
       </div>
