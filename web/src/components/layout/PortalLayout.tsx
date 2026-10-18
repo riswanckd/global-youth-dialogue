@@ -96,9 +96,9 @@ export const PortalLayout: React.FC = () => {
   const userCountry = user?.country || 'Ghana';
 
   return (
-    <div className="min-h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
+    <div className="h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans overflow-hidden">
       {/* TOP WORKSPACE NAVBAR (Mirroring Admin Portal Design) */}
-      <header className="sticky top-0 z-40 w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <header className="shrink-0 z-40 w-full h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="w-full px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
           {/* Left: Brand Logo & Mobile Trigger */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -185,19 +185,19 @@ export const PortalLayout: React.FC = () => {
         </div>
       </header>
 
-      {/* BODY WITH FIXED LEFT MENU BAR & SCROLLABLE MAIN CONTENT */}
-      <div className="flex-1 flex w-full relative">
-        {/* FIXED LEFT MENU BAR (SIDEBAR) */}
+      {/* BODY WITH FIXED UNMOVING LEFT MENU BAR & SCROLLABLE MAIN CONTENT */}
+      <div className="flex-1 flex w-full overflow-hidden relative">
+        {/* FIXED UNMOVING LEFT MENU BAR (SIDEBAR) */}
         <aside
           className={`
-            fixed top-[72px] bottom-0 left-0 rtl:left-auto rtl:right-0
-            w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
-            z-30 flex flex-col justify-between py-4 px-3 transition-transform duration-200
+            fixed lg:static top-[72px] bottom-0 left-0 rtl:left-auto rtl:right-0 z-30 lg:z-10
+            h-[calc(100vh-72px)] lg:h-full w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
+            flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200 select-none
             ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
           `}
         >
           {/* Upper Sidebar: Profile Card & Menu */}
-          <div className="flex flex-col flex-1 overflow-y-auto space-y-3">
+          <div className="flex flex-col flex-1 overflow-y-auto space-y-3 overscroll-contain no-scrollbar">
             {/* User Profile Card with Compulsory Country Badge Under Avatar */}
             <div className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-slate-800/50 flex items-center gap-3">
               <div className="flex flex-col items-center shrink-0">
@@ -287,8 +287,8 @@ export const PortalLayout: React.FC = () => {
           />
         )}
 
-        {/* MAIN CONTENT AREA (Offset by fixed sidebar width on desktop) */}
-        <main className="flex-1 min-w-0 lg:ml-64 rtl:lg:ml-0 rtl:lg:mr-64 p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-72px)]">
+        {/* MAIN CONTENT AREA */}
+        <main className="flex-1 min-w-0 h-full p-4 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
           <Outlet context={{ openPresenterModal: () => setPresenterModalOpen(true) }} />
         </main>
       </div>
