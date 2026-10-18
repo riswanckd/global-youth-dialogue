@@ -236,8 +236,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
           password,
           country,
           organization: organization.trim(),
-          experience: experience.trim() || 'Debate delegate applicant',
-          motivation: motivation.trim() || 'Desire to contribute to international youth debate & exchange.',
+          experience: experience.trim() || 'Youth fellow applicant',
+          motivation: motivation.trim() || 'Desire to contribute to international youth dialogue & academic exchange.',
           areasOfInterest,
           preferredLanguages: ['English'],
         }),
@@ -420,8 +420,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
               }}
             >
               {isArabic
-                ? 'أكمل طلبك في 3 خطوات بسيطة للانضمام إلى شبكتنا الدولية من المناظرين الشباب.'
-                : 'Complete your application in 3 steps to join our international network of young debaters.'}
+                ? 'أكمل طلبك في 3 خطوات بسيطة للانضمام إلى شبكتنا الدولية من المفكرين والباحثين الشباب.'
+                : 'Complete your application in 3 steps to join our international network of young thinkers and fellows.'}
             </p>
 
             {/* 3-Step Stepper Header */}
@@ -865,7 +865,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Qatar Debate Alumni, Harvard Model UN, etc."
+                    placeholder="e.g. Model UN, Academic Forums, Youth Parliament, etc."
                     value={organization}
                     onChange={(e) => setOrganization(e.target.value)}
                     style={{
@@ -1057,17 +1057,17 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   <span style={{ display: 'block', fontSize: '0.7rem', color: textMuted, marginTop: '0.3rem' }}>
                     {isArabic
                       ? 'يمكنك اختيار مجالات مقترحة أعلاه أو كتابة مجالات مخصصة تهمك.'
-                      : 'Select from recommended spheres above or add your own custom debate interests.'}
+                      : 'Select from recommended spheres above or add your own custom dialogue and research interests.'}
                   </span>
                 </div>
 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem' }}>
-                    {isArabic ? 'الخبرة التنافسية أو الخطابية السابقة' : 'Past Debate or Public Speaking Experience'}
+                    {isArabic ? 'الخبرة السابقة في الحوار أو الخطابة أو البحث' : 'Past Dialogue, Public Speaking, or Research Experience'}
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="e.g. Participated in Qatar ISDC7, WSDC, local school debate tournaments..."
+                    placeholder="e.g. Participated in international youth conferences, Model UN, academic research symposiums..."
                     value={experience}
                     onChange={(e) => setExperience(e.target.value)}
                     style={{

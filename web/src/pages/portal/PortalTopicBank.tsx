@@ -40,8 +40,8 @@ export const PortalTopicBank: React.FC = () => {
           </h2>
           <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted, #64748b)', fontSize: '0.95rem' }}>
             {isArabic
-              ? 'مواضيع وبحوث دولية منتقاة بعناية وجاهزة للحوارات المنظمة والعروض والمناظرات.'
-              : 'Curated international research themes and subtopics ready for structured dialogue, presentations, and debates.'}
+              ? 'مواضيع وبحوث دولية منتقاة بعناية وجاهزة للحوارات المنظمة والعروض والتبادل الفكري.'
+              : 'Curated international research themes and subtopics ready for structured dialogue, presentations, and collaborative exchanges.'}
           </p>
         </div>
 

@@ -175,7 +175,7 @@ export const PortalProfile: React.FC = () => {
             {user?.email || 'delegate@thegyde.in'}
           </div>
           <div className="text-xs font-medium text-slate-700 dark:text-slate-300 pt-1">
-            {formData.organization || user?.organization || 'University of Ghana Debate Society'}
+            {formData.organization || user?.organization || 'University Academic Forum'}
           </div>
         </div>
       </div>
@@ -190,7 +190,7 @@ export const PortalProfile: React.FC = () => {
             {isArabic ? 'معلومات العضو والتفويض' : 'Delegation Dossier Information'}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            {isArabic ? 'البيانات المعروضة على مسؤولي الجلسات ومراجعي الأوراق' : 'Public details visible to chamber moderators and peer debaters.'}
+            {isArabic ? 'البيانات المعروضة على مسؤولي الجلسات ومراجعي الأوراق' : 'Public details visible to chamber moderators and peer fellows.'}
           </p>
         </div>
 
@@ -256,14 +256,14 @@ export const PortalProfile: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {isArabic ? 'الجامعة أو المؤسسة الأكاديمية' : 'University or Debate Society'}
+              {isArabic ? 'الجامعة أو المؤسسة الأكاديمية' : 'University or Academic Institution'}
             </label>
             <input
               type="text"
               value={formData.organization}
               onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
               className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="e.g. University of Ghana Debate Society"
+              placeholder="e.g. University of Oxford, Youth Forum..."
             />
           </div>
         </div>
@@ -277,7 +277,7 @@ export const PortalProfile: React.FC = () => {
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Share your competitive debate background or research interests..."
+            placeholder="Share your academic background or research and dialogue interests..."
           />
         </div>
 

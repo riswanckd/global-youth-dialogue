@@ -35,10 +35,10 @@ export const PortalSessions: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="serif-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            {isArabic ? 'جلسات ومناظرات الحوار' : 'Dialogue Sessions & Chambers'}
+            {isArabic ? 'جلسات ومنتديات الحوار' : 'Dialogue Sessions & Forums'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
-            {isArabic ? 'جدول الجلسات البرلمانية المباشرة ومسودات القضايا' : 'Scheduled live parliamentary sessions and debate chamber briefings'}
+            {isArabic ? 'جدول الجلسات المباشرة ومسودات القضايا الحوارية' : 'Scheduled live dialogue sessions and forum briefings'}
           </p>
         </div>
 

@@ -67,7 +67,7 @@ export const PortalSessionDetail: React.FC = () => {
       <div className="bg-white dark:bg-gyde-canvas-cardDark rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-emerald-50 dark:bg-emerald-950 text-gyde-green border border-emerald-200 dark:border-emerald-800">
-            {session.category} • {session.format || 'Parliamentary Debate'}
+            {session.category} • {session.format || 'Structured Dialogue'}
           </span>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <Clock className="w-4 h-4" />
@@ -81,7 +81,7 @@ export const PortalSessionDetail: React.FC = () => {
 
         {session.motion && (
           <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border-l-4 border-gyde-gold rounded-r-xl text-sm font-semibold text-amber-950 dark:text-amber-200">
-            <strong>Debate Motion:</strong> "{session.motion}"
+            <strong>Dialogue Theme / Resolution:</strong> "{session.motion}"
           </div>
         )}
 
@@ -91,7 +91,7 @@ export const PortalSessionDetail: React.FC = () => {
 
         {session.meetingUrl && (
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-xs text-slate-500">Confidential Chamber Link:</span>
+            <span className="text-xs text-slate-500">Chamber Meeting Link:</span>
             <a
               href={session.meetingUrl}
               target="_blank"
@@ -111,13 +111,13 @@ export const PortalSessionDetail: React.FC = () => {
         {/* Proposition */}
         <div className="bg-white dark:bg-gyde-canvas-cardDark p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
           <h3 className="font-serif text-lg font-bold text-emerald-700 dark:text-emerald-400">
-            Proposition Team (Government)
+            Perspective Group 1 (Lead Presenters)
           </h3>
           <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-            {session.propositionTeam?.map((debater, i) => (
+            {session.propositionTeam?.map((speaker, i) => (
               <li key={i} className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span>{debater}</span>
+                <span>{speaker}</span>
               </li>
             )) || <li className="text-slate-400 italic">Speakers will be assigned shortly</li>}
           </ul>
@@ -126,13 +126,13 @@ export const PortalSessionDetail: React.FC = () => {
         {/* Opposition */}
         <div className="bg-white dark:bg-gyde-canvas-cardDark p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
           <h3 className="font-serif text-lg font-bold text-rose-700 dark:text-rose-400">
-            Opposition Team (Loyal Opposition)
+            Perspective Group 2 (Discussants & Counter-Views)
           </h3>
           <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-            {session.oppositionTeam?.map((debater, i) => (
+            {session.oppositionTeam?.map((speaker, i) => (
               <li key={i} className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                <span>{debater}</span>
+                <span>{speaker}</span>
               </li>
             )) || <li className="text-slate-400 italic">Speakers will be assigned shortly</li>}
           </ul>

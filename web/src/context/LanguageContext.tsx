@@ -26,18 +26,18 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'nav.login': { en: 'Sign In', ar: 'تسجيل الدخول' },
   'nav.logout': { en: 'Sign Out', ar: 'تسجيل الخروج' },
 
-  'hero.tagline': { en: 'Young minds. Different countries. One conversation.', ar: 'عقول شابة. دول مختلفة. حوار واحد.' },
+  'hero.tagline': { en: 'Where young minds meet the world.', ar: 'حيث تلتقي العقول الشابة بالعالم.' },
   'hero.subtitle': {
-    en: 'An international academic debate and dialogue platform connecting youth scholars across 14+ nations for bi-weekly parliamentary debates and peer-reviewed research.',
-    ar: 'منصة دولية للمناظرات والحوار الفكري تجمع نخبة من الشباب والباحثين من أكثر من 14 دولة في مناظرات برلمانية منتظمة وأبحاث محكمة.'
+    en: 'A youth-led international community where young minds and thinkers explore global issues, exchange perspectives and develop well-reasoned ideas through structured dialogue.',
+    ar: 'مجتمع دولي يقوده الشباب، حيث يستكشف المفكرون والعقول الشابة القضايا العالمية، ويتبادلون الرؤى ويطورون أفكاراً محكمة عبر الحوار المنظم.'
   },
   'hero.ctaApply': { en: 'Apply for Membership', ar: 'تقديم طلب الانضمام' },
   'hero.ctaExplore': { en: 'Explore Topic Bank', ar: 'استكشاف بنك المواضيع' },
 
-  'cycle.title': { en: 'The 5-Stage Dialogue Cycle', ar: 'دورة الحوار الخماسية' },
-  'topics.title': { en: 'Eight Curated Debate Disciplines', ar: 'ثمانية محاور نقاشية تخصصية' },
+  'cycle.title': { en: 'The Dialogue Cycle', ar: 'دورة الحوار' },
+  'topics.title': { en: 'Curated Academic Disciplines', ar: 'المحاور المعرفية التخصصية' },
   'publications.title': { en: 'Academic Youth Research & Papers', ar: 'الأبحاث والأوراق الأكاديمية المحكمة' },
-  'qatar.badge': { en: 'Founded by Debaters of Qatar ISDC7 Championship', ar: 'تأسست بمبادرة مناظري بطولة قطر الدولية لمناظرات المدارس' },
+  'qatar.badge': { en: 'Founded by Delegates of Qatar ISDC7 Championship', ar: 'تأسست بمبادرة مشاركي بطولة قطر الدولية لمناظرات المدارس' },
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

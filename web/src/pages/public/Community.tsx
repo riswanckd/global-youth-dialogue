@@ -9,10 +9,10 @@ export const Community: React.FC = () => {
       <section className="impact-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">{isArabic ? 'انطلق أبعد من قاعة المناظرة' : 'Grow Beyond the Debate Room'}</span>
+            <span className="section-tag">{isArabic ? 'انطلق إلى آفاق فكرية أوسع' : 'Expand Your Intellectual Horizons'}</span>
             <h2 className="section-title serif-text">{isArabic ? 'أثرنا في الشباب والمجتمع' : 'Our Impact'}</h2>
             <p className="section-desc">
-              {isArabic ? 'تطوير مستمر يمتد لما بعد قاعة المناظرة.' : 'Grow beyond the debate room.'}
+              {isArabic ? 'تطوير مستمر يمتد لآفاق عالمية واسعة.' : 'Empowering youth through structured academic dialogue and intellectual growth.'}
             </p>
           </div>
 

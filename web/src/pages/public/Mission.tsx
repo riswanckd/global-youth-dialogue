@@ -17,8 +17,8 @@ export const Mission: React.FC = () => {
         </h1>
         <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-300">
           {isArabic
-            ? 'تمكين الجيل القادم من القادة والمفكرين بالمهارات الجدلية والقدرة على فهم وجهات النظر العالمية المتعددة.'
-            : 'Empowering future diplomats, researchers, and global problem solvers through structured debate, deep mutual listening, and scholarly documentation.'}
+            ? 'تمكين الجيل القادم من القادة والمفكرين بمهارات الحوار والبحث والقدرة على فهم وجهات النظر العالمية المتعددة.'
+            : 'Empowering future diplomats, researchers, and global problem solvers through structured dialogue, deep mutual listening, and scholarly documentation.'}
         </p>
       </div>
 
@@ -33,8 +33,8 @@ export const Mission: React.FC = () => {
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             {isArabic
-              ? 'توفير فضاء دولي آمن ومحايد يتيح للمناظرين والباحثين الشباب من جميع أنحاء العالم تفكيك أكثر القضايا تعقيداً بالمنطق الرصين والأدلة، وبناء صداقات عابرة للحدود تساهم في إحلال التفاهم الإنساني وتجاوز الاستقطاب السياسي.'
-              : 'To establish a dedicated, non-partisan international chamber where youth scholars disassemble complex global crises using empirical evidence and parliamentary inquiry, fostering transnational empathy beyond geopolitical boundaries.'}
+              ? 'توفير فضاء دولي آمن ومحايد يتيح للمفكرين والباحثين الشباب من جميع أنحاء العالم تفكيك أكثر القضايا تعقيداً بالمنطق الرصين والأدلة، وبناء صداقات عابرة للحدود تساهم في إحلال التفاهم الإنساني وتجاوز الاستقطاب السياسي.'
+              : 'To establish a dedicated, non-partisan international chamber where youth scholars disassemble complex global crises using empirical evidence and structured inquiry, fostering transnational empathy beyond geopolitical boundaries.'}
           </p>
         </div>
 
@@ -48,8 +48,8 @@ export const Mission: React.FC = () => {
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             {isArabic
-              ? 'أن نكون المنصة الشبابية المرجعية عالمياً في مجال المناظرات البرلمانية وإنتاج الأوراق البحثية، التي تسهم توصياتها في إثراء صانعي السياسات الدولية والمؤسسات الأكاديمية برؤى جيل المستقبل.'
-              : 'To stand as the premier global youth-led parliamentary dialogue assembly and research repository, whose synthesized policy papers inform international academic institutions and multilateral forums.'}
+              ? 'أن نكون المنصة الشبابية المرجعية عالمياً في مجال الحوار الفكري المنظم وإنتاج الأوراق البحثية، التي تسهم توصياتها في إثراء صانعي السياسات الدولية والمؤسسات الأكاديمية برؤى جيل المستقبل.'
+              : 'To stand as the premier global youth-led academic dialogue forum and research repository, whose synthesized policy papers inform international academic institutions and multilateral forums.'}
           </p>
         </div>
       </div>
@@ -62,11 +62,11 @@ export const Mission: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-700 dark:text-slate-300">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-gyde-green dark:text-emerald-400 shrink-0 mt-0.5" />
-            <span>{isArabic ? 'عقد مناظرات برلمانية محكمة كل أسبوعين عبر الإنترنت.' : 'Host bi-weekly moderated parliamentary debates connecting vetted delegates.'}</span>
+            <span>{isArabic ? 'عقد جلسات حوار فكرية محكمة كل أسبوعين عبر الإنترنت.' : 'Host bi-weekly moderated academic dialogues connecting vetted delegates.'}</span>
           </div>
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-gyde-green dark:text-emerald-400 shrink-0 mt-0.5" />
-            <span>{isArabic ? 'نشر أوراق بحثية أكاديمية ناتجة عن كل حوار تنافسي.' : 'Synthesize debate findings into published academic research papers.'}</span>
+            <span>{isArabic ? 'نشر أوراق بحثية أكاديمية ناتجة عن كل حوار ومنتدى فكري.' : 'Synthesize dialogue findings into published academic research papers.'}</span>
           </div>
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-gyde-green dark:text-emerald-400 shrink-0 mt-0.5" />
@@ -74,7 +74,7 @@ export const Mission: React.FC = () => {
           </div>
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-gyde-green dark:text-emerald-400 shrink-0 mt-0.5" />
-            <span>{isArabic ? 'توسيع الشراكات مع أندية المناظرات الجامعية والمدارس في أكثر من 30 دولة.' : 'Expand partnerships with university debate societies across 30+ nations.'}</span>
+            <span>{isArabic ? 'توسيع الشراكات مع المنتديات والأندية الأكاديمية في أكثر من 30 دولة.' : 'Expand partnerships with academic youth societies and institutions across 30+ nations.'}</span>
           </div>
         </div>
       </div>

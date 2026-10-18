@@ -13,8 +13,8 @@ export const About: React.FC = () => {
             <h2 className="section-title serif-text">{isArabic ? 'عن المشروع والشبكة' : 'About the Project'}</h2>
             <p className="section-desc">
               {isArabic
-                ? 'من لقاء في بطولة دولية للمناظرات إلى شبكة فكرية شبابية عالمية دائمة ومستقلة.'
-                : 'From an international debate championship meeting to a lasting global youth intellectual network.'}
+                ? 'من ملتقى شبابي دولي إلى شبكة فكرية شبابية عالمية دائمة ومستقلة.'
+                : 'From an international youth forum to a lasting global youth intellectual network.'}
             </p>
           </div>
 
@@ -31,13 +31,13 @@ export const About: React.FC = () => {
             <h3 className="serif-text">{isArabic ? 'قصة النشأة' : 'Our Origin Story'}</h3>
             <p>
               {isArabic
-                ? 'التقى شباب ومناظرون من دول مختلفة في بطولة دولية للمناظرات، واكتشفوا شغفاً مشتركاً بالحوار العميق والتبادل الفكري الهادف.'
-                : 'Young debaters from different countries met at an international debate championship and discovered a shared passion for deep, substantive exchange.'}
+                ? 'التقى شباب ومفكرون من دول مختلفة في ملتقى دولي، واكتشفوا شغفاً مشتركاً بالحوار العميق والتبادل الفكري الهادف.'
+                : 'Young scholars and thinkers from different countries met at an international gathering and discovered a shared passion for deep, substantive exchange.'}
             </p>
             <p>
               {isArabic
-                ? 'على الرغم من انتهاء البطولة، أدرك المشاركون القيمة البالغة للاستمرار في النقاش معاً، وبحث الشؤون الدولية، والاستفادة من وجهات النظر الثقافية المتعددة، وتوفير منصات للمفكرين الشباب الآخرين.'
-                : 'Although the tournament concluded, delegates realized the urgent value of continuing to debate together, critically examine global affairs, learn from divergent cultural perspectives, and create platforms for other young thinkers.'}
+                ? 'على الرغم من اختتام الملتقى، أدرك المشاركون القيمة البالغة للاستمرار في الحوار المنظم معاً، وبحث الشؤون الدولية، والاستفادة من وجهات النظر الثقافية المتعددة، وتوفير منصات للمفكرين الشباب الآخرين.'
+                : 'Although the gathering concluded, delegates realized the urgent value of continuing structured dialogue, critically examining global affairs, learning from divergent cultural perspectives, and creating platforms for other young thinkers.'}
             </p>
             <p>
               {isArabic
@@ -105,8 +105,8 @@ export const About: React.FC = () => {
               <div className="triad-word serif-text">{isArabic ? 'ابتكر' : 'Create'}</div>
               <p className="triad-desc">
                 {isArabic
-                  ? 'تحويل المناظرات إلى معرفة أكاديمية، ورؤى سياساتية، وتعاون شبابي مستدام.'
-                  : 'Turn debates into academic knowledge, policy insights, and long-term youth collaboration.'}
+                  ? 'تحويل الحوارات إلى معرفة أكاديمية، ورؤى سياساتية، وتعاون شبابي مستدام.'
+                  : 'Turn dialogues into academic knowledge, policy insights, and long-term youth collaboration.'}
               </p>
             </div>
           </div>

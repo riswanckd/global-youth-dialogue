@@ -124,8 +124,8 @@ export const Sessions: React.FC = () => {
             <h2 className="section-title serif-text">{isArabic ? 'الجلسات والأوراق الأكاديمية' : 'Sessions & Academic Writings'}</h2>
             <p className="section-desc">
               {isArabic
-                ? 'استكشف جلسات الحوار الشبابي الدولي، وجداول أعمال المناظرات القادمة، والمداولات الأكاديمية المؤرشفة والمفتوحة للجميع.'
-                : 'Explore our international youth dialogue sessions, upcoming debate agendas, panel discussions, and archived proceedings open for everyone.'}
+                ? 'استكشف جلسات الحوار الشبابي الدولي، وجداول أعمال الحوارات القادمة، والمداولات الأكاديمية المؤرشفة والمفتوحة للجميع.'
+                : 'Explore our international youth dialogue sessions, upcoming dialogue agendas, panel discussions, and archived proceedings open for everyone.'}
             </p>
           </div>
 

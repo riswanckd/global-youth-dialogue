@@ -16,8 +16,8 @@ export const Footer: React.FC = () => {
             </div>
             <p>
               {isArabic
-                ? 'مجتمع دولي شبابي مستقل يربط نخبة المناظرين الشباب والباحثين لمناقشة القضايا العالمية وتطوير الأفكار من خلال جلسات حوار برلمانية أسبوعية وأوراق بحثية أكاديمية.'
-                : 'An independent youth-led international community connecting young debaters to explore global issues and develop ideas through structured weekly dialogue and academic research.'}
+                ? 'مجتمع دولي شبابي مستقل يربط نخبة المفكرين والباحثين الشباب لمناقشة القضايا العالمية وتطوير الأفكار من خلال جلسات حوار فكرية أسبوعية وأوراق بحثية أكاديمية.'
+                : 'An independent youth-led international community connecting young thinkers and fellows to explore global issues and develop ideas through structured weekly dialogue and academic research.'}
             </p>
           </div>
           <div className="footer-col">

@@ -42,8 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: 'active',
           emailVerified: true,
           country: 'Ghana',
-          organization: 'University of Ghana Debate Society',
-          bio: 'Competitive debater, Qatar ISDC7 participant.',
+          organization: 'University of Ghana Youth Forum',
+          bio: 'Youth fellow and academic researcher, Qatar ISDC7 participant.',
           createdAt: new Date().toISOString(),
         };
         setUser(demoMember);
@@ -113,8 +113,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: 'active',
           emailVerified: true,
           country: 'Ghana',
-          organization: 'University of Ghana Debate Society',
-          bio: 'Competitive debater, Qatar ISDC7 participant.',
+          organization: 'University of Ghana Youth Forum',
+          bio: 'Youth fellow and academic researcher, Qatar ISDC7 participant.',
           createdAt: new Date().toISOString(),
         };
         setStoredToken('demo_member_jwt_token');

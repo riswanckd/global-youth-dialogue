@@ -67,10 +67,10 @@ export const PortalTopics: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="serif-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            {isArabic ? 'مسار القضايا والمقترحات' : 'Topic Proposals & Motion Pipeline'}
+            {isArabic ? 'مسار القضايا والمقترحات الحوارية' : 'Topic Proposals & Dialogue Pipeline'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
-            {isArabic ? 'اطرح قضايا نقاشية جديدة وتابع تقدمها في مسار دورة الحوار الخماسية' : 'Submit debate motions and track their progression through review to scheduling.'}
+            {isArabic ? 'اطرح موضوعات حوارية جديدة وتابع تقدمها في مسار دورة الحوار' : 'Submit dialogue topics and track their progression through review to scheduling.'}
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export const PortalTopics: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white font-bold text-xs shadow transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>{showForm ? 'Cancel' : 'Propose New Motion'}</span>
+          <span>{showForm ? 'Cancel' : 'Propose New Topic'}</span>
         </button>
       </div>
 
@@ -88,7 +88,7 @@ export const PortalTopics: React.FC = () => {
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gyde-canvas-cardDark rounded-2xl p-6 sm:p-8 border-2 border-gyde-green/30 shadow-sm space-y-4">
           <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-gyde-gold" />
-            <span>Submit a Motion Proposal</span>
+            <span>Submit a Dialogue Topic Proposal</span>
           </h3>
 
           {error && (
@@ -100,7 +100,7 @@ export const PortalTopics: React.FC = () => {
 
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
-              Motion Title / Debate Resolution *
+              Topic Title / Dialogue Theme *
             </label>
             <input
               type="text"
