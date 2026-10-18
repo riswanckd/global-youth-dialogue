@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { ApplyPresenterModal } from '../portal/ApplyPresenterModal';
+import { getCountryMeta } from '../../utils/country';
 import {
   LayoutDashboard,
   Mic,
@@ -94,6 +95,7 @@ export const PortalLayout: React.FC = () => {
     : (user?.role || (isArabic ? 'عضو' : 'MEMBER'));
   const avatarLetter = (displayName[0] || 'M').toUpperCase();
   const userCountry = user?.country || 'Ghana';
+  const countryMeta = getCountryMeta(userCountry);
 
   return (
     <div className="h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans overflow-hidden">
@@ -204,10 +206,21 @@ export const PortalLayout: React.FC = () => {
                 <div className="w-10 h-10 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-indigo-500/20">
                   {avatarLetter}
                 </div>
-                {/* Compulsory Country Badge directly under the Profile Picture */}
-                <span className="mt-1.5 px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 text-[10px] font-extrabold uppercase tracking-wider text-center max-w-[62px] truncate">
-                  {userCountry}
-                </span>
+                {/* Compulsory Country Flag Badge directly under the Profile Picture */}
+                <div
+                  title={countryMeta.name}
+                  className="mt-1.5 px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 shadow-xs flex items-center justify-center gap-1.5 max-w-[72px]"
+                >
+                  <img
+                    src={countryMeta.flagUrl}
+                    alt={countryMeta.name}
+                    className="w-4 h-2.5 rounded-[2px] object-cover shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+                    loading="lazy"
+                  />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider truncate">
+                    {countryMeta.name}
+                  </span>
+                </div>
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-bold text-xs text-slate-900 dark:text-white truncate">
