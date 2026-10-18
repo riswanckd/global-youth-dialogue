@@ -4871,7 +4871,8 @@ body.rtl-mode .mobile-nav-drawer {
 @media (max-width: 992px) {
   .brand-sub { display: none !important; }
   .main-nav { display: none !important; }
-  .mobile-menu-btn { display: inline-flex !important; }
+  .mobile-menu-btn,
+  #mobileMenuToggleBtn { display: none !important; }
   #headerNotifBtn { display: none !important; }
   
   .categories-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem; }
@@ -4941,20 +4942,9 @@ body.rtl-mode .mobile-nav-drawer {
   #headerSearchBtn { display: none !important; }
   .header-inner { padding: 0 0.85rem; height: 54px; gap: 0.5rem; }
   .search-btn-label { display: none !important; }
-  .mobile-menu-btn {
-    display: inline-flex !important;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--bg-surface, #ffffff);
-    border: 1px solid var(--border-light, rgba(72, 81, 186, 0.16));
-    align-items: center;
-    justify-content: center;
-    order: 10;
-    transition: transform 0.2s ease;
-  }
-  .mobile-menu-btn:active {
-    transform: scale(0.92);
+  .mobile-menu-btn,
+  #mobileMenuToggleBtn {
+    display: none !important;
   }
   .header-actions { gap: 0.4rem; flex-shrink: 1; align-items: center; }
   .container, .container-wide { padding-left: 1rem !important; padding-right: 1rem !important; }
@@ -5323,10 +5313,11 @@ body.rtl-mode .mobile-nav-drawer {
     justify-content: center !important;
     padding: 14px 10px !important;
     background: var(--bg-surface, #ffffff) !important;
-    border: 1px solid var(--border-light, rgba(72, 81, 186, 0.12)) !important;
+    border: none !important;
+    outline: none !important;
     border-radius: 16px !important;
     text-align: center !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
     box-sizing: border-box !important;
   }
   .metric-item:not(:last-child)::after {
@@ -5355,7 +5346,8 @@ body.rtl-mode .mobile-nav-drawer {
   }
   [data-theme="dark"] .metric-item {
     background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
+    border: none !important;
+    outline: none !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
   }
   [data-theme="dark"] .metric-number-animated {
@@ -5526,12 +5518,13 @@ body.rtl-mode .mobile-nav-drawer {
     padding-top: 0.2rem !important;
   }
 
-  /* Box 1 (About): Solid Royal Indigo Gradient */
+  /* Box 1 (About): Solid Royal Indigo Gradient - borderless */
   .highlight-feature-card[data-public-nav="about"] {
     background: linear-gradient(145deg, #4851BA 0%, #6366f1 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 8px 20px rgba(72, 81, 186, 0.28) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border: none !important;
+    outline: none !important;
   }
   .highlight-feature-card[data-public-nav="about"] h3,
   .highlight-feature-card[data-public-nav="about"] p,
@@ -5543,15 +5536,17 @@ body.rtl-mode .mobile-nav-drawer {
     color: #ffffff !important;
   }
 
-  /* Box 2 (Topics): Distinct Glass Card */
+  /* Box 2 (Topics): Distinct Glass Card - borderless */
   .highlight-feature-card[data-public-nav="topics"] {
     background: var(--bg-surface, #ffffff) !important;
-    border: 1.5px solid rgba(168, 85, 247, 0.35) !important;
+    border: none !important;
+    outline: none !important;
     box-shadow: 0 8px 24px rgba(158, 89, 172, 0.16) !important;
   }
   [data-theme="dark"] .highlight-feature-card[data-public-nav="topics"] {
     background: #141624 !important;
-    border: 1.5px solid rgba(168, 85, 247, 0.4) !important;
+    border: none !important;
+    outline: none !important;
     color: #ffffff !important;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6) !important;
   }
@@ -5569,12 +5564,13 @@ body.rtl-mode .mobile-nav-drawer {
     color: #a855f7 !important;
   }
 
-  /* Box 3 (Impact): Filled Royal Purple Gradient on Mobile */
+  /* Box 3 (Impact): Filled Royal Purple Gradient on Mobile - borderless */
   .highlight-feature-card[data-public-nav="impact"] {
     background: linear-gradient(145deg, #9E59AC 0%, #7B3392 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 8px 20px rgba(158, 89, 172, 0.32) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    outline: none !important;
   }
   .highlight-feature-card[data-public-nav="impact"] h3,
   .highlight-feature-card[data-public-nav="impact"] p,
@@ -5584,6 +5580,17 @@ body.rtl-mode .mobile-nav-drawer {
   .highlight-feature-card[data-public-nav="impact"] .feature-icon-badge {
     background: rgba(255, 255, 255, 0.22) !important;
     color: #ffffff !important;
+  }
+
+  /* Universal Mobile Borderless Cards & Boxes */
+  .home-highlights-grid > .highlight-feature-card,
+  .home-highlights-grid > .highlight-sunburst-card-wrap,
+  .highlight-sunburst-card-wrap .highlight-feature-card,
+  .home-upcoming-container,
+  .floating-countdown-card,
+  .countdown-box {
+    border: none !important;
+    outline: none !important;
   }
 
   /* Public Mobile Bottom Tab Bar & Quick Sheet */
@@ -6391,7 +6398,7 @@ body.rtl-mode .mobile-nav-drawer {
   #themeToggleIcon svg { width: 14px; height: 14px; }
   .header-inner { gap: 0.2rem; height: 44px; padding: 0 0.45rem; }
   .header-actions { gap: 0.2rem; flex-shrink: 0; }
-  .mobile-menu-btn { width: 26px; height: 26px; }
+  .mobile-menu-btn, #mobileMenuToggleBtn { display: none !important; }
 
   /* Hero Section Small Mobile */
   .hero-section { padding: 1.25rem 0 0.9rem; }
@@ -6512,7 +6519,7 @@ body.rtl-mode .mobile-nav-drawer {
   .brand-title { font-size: 0.72rem; }
   .brand-icon-wrapper { width: 24px; height: 24px; font-size: 0.66rem; }
   .btn-lang { padding: 0.12rem 0.2rem; font-size: 0.62rem; }
-  .mobile-menu-btn { width: 26px; height: 26px; }
+  .mobile-menu-btn, #mobileMenuToggleBtn { display: none !important; }
   .mobile-tab-btn span:last-child { font-size: 0.52rem; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
   .metric-item { padding: 10px 6px !important; }
