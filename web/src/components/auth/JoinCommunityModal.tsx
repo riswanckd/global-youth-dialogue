@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { countries } from 'countries-list';
 import { useLanguage } from '../../context/LanguageContext';
@@ -59,6 +59,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
   // Step 2 Fields
   const [organization, setOrganization] = useState('');
   const [areasOfInterest, setAreasOfInterest] = useState<string[]>([CATEGORIES[0]?.name || 'Geopolitics & International Relations']);
+  const [customInterestInput, setCustomInterestInput] = useState('');
+  const customInputRef = useRef<HTMLInputElement>(null);
   const [experience, setExperience] = useState('');
   const [motivation, setMotivation] = useState('');
 
@@ -77,6 +79,19 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
     setAreasOfInterest((prev) =>
       prev.includes(catName) ? prev.filter((c) => c !== catName) : [...prev, catName]
     );
+  };
+
+  const handleAddCustomInterest = () => {
+    const trimmed = customInterestInput.trim();
+    if (!trimmed) return;
+    if (!areasOfInterest.includes(trimmed)) {
+      setAreasOfInterest((prev) => [...prev, trimmed]);
+    }
+    setCustomInterestInput('');
+  };
+
+  const handleRemoveInterest = (interestName: string) => {
+    setAreasOfInterest((prev) => prev.filter((item) => item !== interestName));
   };
 
   // Step 1 -> Step 2 validation
@@ -113,7 +128,15 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    if (areasOfInterest.length === 0) {
+    let currentInterests = [...areasOfInterest];
+    const pendingTrimmed = customInterestInput.trim();
+    if (pendingTrimmed && !currentInterests.includes(pendingTrimmed)) {
+      currentInterests = [...currentInterests, pendingTrimmed];
+      setAreasOfInterest(currentInterests);
+      setCustomInterestInput('');
+    }
+
+    if (currentInterests.length === 0) {
       setError(isArabic ? 'يرجى اختيار مجال اهتمام واحد على الأقل.' : 'Please select at least one area of interest.');
       return;
     }
@@ -860,11 +883,19 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   />
                 </div>
 
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.45rem' }}>
-                    {isArabic ? 'المجالات الأكاديمية ومحاور النقاش المفضلة' : 'Primary Academic Spheres of Interest'} <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', maxHeight: '140px', overflowY: 'auto', padding: '0.25rem 0' }}>
+                <div style={{ marginBottom: '1.1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel }}>
+                      {isArabic ? 'المجالات الأكاديمية ومحاور النقاش المفضلة' : 'Primary Academic Spheres of Interest'} <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <span style={{ fontSize: '0.72rem', color: textMuted }}>
+                      {areasOfInterest.length} {isArabic ? 'محدد' : 'selected'}
+                    </span>
+                  </div>
+
+                  {/* Pills Container */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', maxHeight: '160px', overflowY: 'auto', padding: '0.25rem 0' }}>
+                    {/* Preset categories */}
                     {CATEGORIES.map((cat) => {
                       const isSelected = areasOfInterest.includes(cat.name);
                       return (
@@ -896,7 +927,138 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                         </button>
                       );
                     })}
+
+                    {/* Custom interests tags added by user */}
+                    {areasOfInterest
+                      .filter((interest) => !CATEGORIES.some((cat) => cat.name === interest))
+                      .map((customCat) => (
+                        <span
+                          key={customCat}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            padding: '0.35rem 0.65rem',
+                            borderRadius: '999px',
+                            fontSize: '0.76rem',
+                            fontWeight: 700,
+                            background: isDark ? '#6366f1' : '#4851BA',
+                            color: '#ffffff',
+                            border: `1px solid ${isDark ? '#818cf8' : '#4851BA'}`,
+                            boxShadow: isDark ? '0 2px 8px rgba(99, 102, 241, 0.3)' : '0 1px 3px rgba(72, 81, 186, 0.2)',
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          <span>{customCat}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveInterest(customCat)}
+                            aria-label={`Remove ${customCat}`}
+                            title={isArabic ? 'إزالة' : 'Remove'}
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.25)',
+                              border: 'none',
+                              borderRadius: '50%',
+                              cursor: 'pointer',
+                              width: '16px',
+                              height: '16px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#ffffff',
+                              fontSize: '0.75rem',
+                              lineHeight: 1,
+                              padding: 0,
+                              marginLeft: '2px',
+                              marginRight: '2px',
+                            }}
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
+
+                    {/* Quick Trigger pill to focus custom input */}
+                    <button
+                      type="button"
+                      onClick={() => customInputRef.current?.focus()}
+                      style={{
+                        padding: '0.35rem 0.65rem',
+                        borderRadius: '999px',
+                        fontSize: '0.76rem',
+                        fontWeight: 600,
+                        background: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(72, 81, 186, 0.08)',
+                        color: isDark ? '#a5b4fc' : '#4851BA',
+                        border: `1px dashed ${isDark ? '#6366f1' : '#4851BA'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <span style={{ marginInlineEnd: '4px' }}>+</span>
+                      {isArabic ? 'مجال آخر / مخصص...' : 'Other / Custom Interest...'}
+                    </button>
                   </div>
+
+                  {/* Custom interest text input & Add button */}
+                  <div style={{ marginTop: '0.65rem', display: 'flex', gap: '0.45rem', alignItems: 'center' }}>
+                    <input
+                      ref={customInputRef}
+                      type="text"
+                      placeholder={
+                        isArabic
+                          ? 'أو اكتب مجال اهتمام مخصص واضغط إضافة (مثال: قانون الفضاء، الفلسفة الأخلاقية...)'
+                          : 'Or type custom/other interest (e.g. Space Law, Bioethics, Human Rights...)'
+                      }
+                      value={customInterestInput}
+                      onChange={(e) => setCustomInterestInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomInterest();
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '0.52rem 0.75rem',
+                        border: borderInput,
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
+                        background: bgInput,
+                        color: textInput,
+                        outline: 'none',
+                        transition: 'border-color 0.2s',
+                      }}
+                      onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                      onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomInterest}
+                      disabled={!customInterestInput.trim()}
+                      style={{
+                        padding: '0.52rem 0.95rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        background: customInterestInput.trim() ? (isDark ? '#6366f1' : '#4851BA') : (isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'),
+                        color: customInterestInput.trim() ? '#ffffff' : (isDark ? '#64748b' : '#94a3b8'),
+                        border: 'none',
+                        cursor: customInterestInput.trim() ? 'pointer' : 'not-allowed',
+                        transition: 'all 0.15s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      + {isArabic ? 'إضافة' : 'Add'}
+                    </button>
+                  </div>
+                  <span style={{ display: 'block', fontSize: '0.7rem', color: textMuted, marginTop: '0.3rem' }}>
+                    {isArabic
+                      ? 'يمكنك اختيار مجالات مقترحة أعلاه أو كتابة مجالات مخصصة تهمك.'
+                      : 'Select from recommended spheres above or add your own custom debate interests.'}
+                  </span>
                 </div>
 
                 <div style={{ marginBottom: '1rem' }}>
