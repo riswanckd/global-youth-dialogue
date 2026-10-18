@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { apiRequest } from '../../utils/api';
 import { Publication } from '../../types';
+import { JoinCommunityModal } from '../../components/auth/JoinCommunityModal';
 
 const DEMO_PUBLICATIONS: Publication[] = [
   {
@@ -67,7 +69,12 @@ const DEMO_PUBLICATIONS: Publication[] = [
 
 export const Publications: React.FC = () => {
   const { isArabic } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const [accessModalOpen, setAccessModalOpen] = useState(false);
+  const [selectedPaper, setSelectedPaper] = useState<Publication | null>(null);
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
 
   const { data: apiPubs = [] } = useQuery<Publication[]>({
     queryKey: ['publications', search],
@@ -84,6 +91,15 @@ export const Publications: React.FC = () => {
       authorName.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  const handleReadPaperClick = (pub: Publication) => {
+    if (isAuthenticated) {
+      navigate(`/publications/${pub.slug || pub.id}`);
+    } else {
+      setSelectedPaper(pub);
+      setAccessModalOpen(true);
+    }
+  };
 
   return (
     <div className="container" style={{ padding: '3.5rem 1rem' }}>
@@ -144,14 +160,218 @@ export const Publications: React.FC = () => {
                   </svg>
                   <span><strong>{author.name}</strong> ({author.country})</span>
                 </div>
-                <Link to={`/publications/${pub.id}`} className="btn btn-outline btn-sm">
-                  {isArabic ? 'قراءة الورقة' : 'Read Paper'} &rarr;
-                </Link>
+                <button
+                  type="button"
+                  onClick={() => handleReadPaperClick(pub)}
+                  className="btn btn-outline btn-sm"
+                  style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <span>{isArabic ? 'قراءة الورقة' : 'Read Paper'}</span> &rarr;
+                </button>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Member-Access Restriction Pop-up Modal */}
+      {accessModalOpen && selectedPaper && (
+        <div
+          className="modal-backdrop"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: 'rgba(9, 13, 22, 0.72)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+          }}
+          onClick={() => setAccessModalOpen(false)}
+        >
+          <div
+            className="card-panel"
+            style={{
+              maxWidth: '480px',
+              width: '100%',
+              background: 'var(--bg-surface, #ffffff)',
+              color: 'var(--text-main, #0f172a)',
+              borderRadius: '24px',
+              padding: '2.25rem 2rem',
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.35)',
+              position: 'relative',
+              border: '1px solid var(--border-medium, rgba(72, 81, 186, 0.15))',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Modal Button */}
+            <button
+              onClick={() => setAccessModalOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '1.25rem',
+                insetInlineEnd: '1.25rem',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted, #64748b)',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              aria-label="Close"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Lock Icon & Badge */}
+            <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+              <div
+                style={{
+                  width: '58px',
+                  height: '58px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(72, 81, 186, 0.15), rgba(158, 89, 172, 0.2))',
+                  color: 'var(--brand-primary, #4851BA)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem',
+                }}
+              >
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.8px',
+                  color: 'var(--brand-primary, #4851BA)',
+                  background: 'rgba(72, 81, 186, 0.08)',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '999px',
+                  display: 'inline-block',
+                }}
+              >
+                {isArabic ? 'محتوى أكاديمي محكم مخصص للأعضاء' : 'Members-Only Academic Research'}
+              </span>
+
+              <h2
+                className="serif-text"
+                style={{
+                  fontSize: '1.45rem',
+                  fontWeight: 700,
+                  marginTop: '0.75rem',
+                  marginBottom: '0.5rem',
+                  lineHeight: '1.3',
+                  color: 'var(--text-main)',
+                }}
+              >
+                {isArabic ? 'يرجى تسجيل الدخول أو الانضمام لقراءة الورقة' : 'Sign In or Apply to Read Paper'}
+              </h2>
+
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.55', margin: 0 }}>
+                {isArabic
+                  ? 'الأوراق الأكاديمية الكاملة المنبثقة عن جلسات الحوار مخصصة حصرياً لأعضاء منتدى الحوار الدولي المعتمدين.'
+                  : 'Full academic monographs and debate briefing dossiers are peer-reviewed research papers reserved for verified GYDE community members.'}
+              </p>
+            </div>
+
+            {/* Target Paper Box */}
+            <div
+              style={{
+                padding: '0.85rem 1rem',
+                borderRadius: '12px',
+                background: 'var(--bg-subtle, rgba(72, 81, 186, 0.05))',
+                border: '1px solid var(--border-light, rgba(72, 81, 186, 0.12))',
+                marginBottom: '1.5rem',
+              }}
+            >
+              <div style={{ fontSize: '0.72rem', color: 'var(--brand-primary, #4851BA)', fontWeight: 700, marginBottom: '3px' }}>
+                {selectedPaper.category}
+              </div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)', lineHeight: '1.35' }}>
+                "{isArabic && selectedPaper.titleAr ? selectedPaper.titleAr : selectedPaper.title}"
+              </div>
+            </div>
+
+            {/* Dual CTAs: Registered Member vs New User */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  setAccessModalOpen(false);
+                  navigate(`/login?redirect=/publications/${selectedPaper.slug || selectedPaper.id}`);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  padding: '0.8rem',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '0.92rem',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>{isArabic ? 'عضو مسجل؟ تسجيل الدخول' : 'Registered Member? Sign In'}</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => {
+                  setAccessModalOpen(false);
+                  setJoinModalOpen(true);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  padding: '0.8rem',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '0.92rem',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <line x1="19" y1="8" x2="19" y2="14"></line>
+                  <line x1="22" y1="11" x2="16" y2="11"></line>
+                </svg>
+                <span>{isArabic ? 'مستخدم جديد؟ تقديم طلب العضوية' : 'New User? Apply for Membership'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3-Step Membership Application Modal */}
+      <JoinCommunityModal
+        isOpen={joinModalOpen}
+        onClose={() => setJoinModalOpen(false)}
+      />
     </div>
   );
 };
