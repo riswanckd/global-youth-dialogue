@@ -3,6 +3,7 @@ import { Topic } from '../models/Topic';
 import { sendSuccess } from '../utils/response';
 import { NotFoundError, BadRequestError, ForbiddenError } from '../utils/errors';
 import { logAuditEvent } from '../utils/audit';
+import { ROLES } from '../constants/roles';
 
 function slugify(text: string): string {
   return text
@@ -173,6 +174,7 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
       sources,
       isCustom,
       interestedToPresent,
+      status: requestedStatus,
     } = req.body;
     let baseSlug = slugify(title);
     if (!baseSlug) baseSlug = `topic-${Date.now()}`;
@@ -184,6 +186,9 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
       slug = `${baseSlug}-${counter}`;
       counter++;
     }
+
+    const isStaff = req.user && [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.COORDINATOR].includes(req.user.role as any);
+    const finalStatus = isStaff && requestedStatus ? requestedStatus : (isStaff ? 'approved' : 'proposed');
 
     const topic = await Topic.create({
       title,
@@ -200,7 +205,7 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
       sources: sources || '',
       isCustom: Boolean(isCustom),
       interestedToPresent: Boolean(interestedToPresent),
-      status: 'proposed',
+      status: finalStatus,
       proposedBy: req.user
         ? {
             userId: req.user._id,
@@ -213,7 +218,7 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
 
     if (req.user) {
       await logAuditEvent({
-        action: 'TOPIC_PROPOSED',
+        action: isStaff ? 'TOPIC_CREATED' : 'TOPIC_PROPOSED',
         performedBy: {
           userId: req.user._id,
           name: req.user.name,
@@ -222,13 +227,18 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
         },
         targetType: 'topic',
         targetId: topic._id.toString(),
-        details: { title: topic.title, category: topic.category },
+        details: { title: topic.title, category: topic.category, status: finalStatus },
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       });
     }
 
-    return sendSuccess(res, topic, 'Motion proposed into the dialogue pipeline', 201);
+    return sendSuccess(
+      res,
+      topic,
+      isStaff ? 'Motion registered into Topic Bank successfully' : 'Motion proposed into the dialogue pipeline',
+      201
+    );
   } catch (err) {
     next(err);
   }
