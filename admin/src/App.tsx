@@ -49,6 +49,7 @@ export const App: React.FC = () => {
                 <Route path="applications" element={<Applications />} />
                 <Route path="users" element={<Users />} />
                 <Route path="sessions" element={<Sessions />} />
+                <Route path="topics" element={<Topics />} />
                 <Route path="topics/pipeline" element={<Topics />} />
                 <Route path="feedback" element={<Feedback />} />
                 <Route path="publications" element={<Publications />} />

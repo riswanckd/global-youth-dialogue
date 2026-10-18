@@ -121,7 +121,7 @@ export const Dashboard: React.FC = () => {
 
           {/* + Add Topic (indigo pill) */}
           <button
-            onClick={() => navigate('/topics/pipeline')}
+            onClick={() => navigate('/topics?add=true')}
             className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
           >
             <Plus className="w-3.5 h-3.5 shrink-0" />

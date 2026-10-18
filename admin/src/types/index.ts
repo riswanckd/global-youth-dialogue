@@ -87,6 +87,11 @@ export interface Topic {
     name: string;
   };
   status: 'proposed' | 'reviewing' | 'shortlisted' | 'approved' | 'scheduled' | 'completed' | 'rejected';
+  motion?: string;
+  format?: string;
+  regionalPerspective?: string;
+  sources?: string;
+  isCustom?: boolean;
   reviewNotes?: string;
   createdAt: string;
 }

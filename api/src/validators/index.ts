@@ -130,6 +130,7 @@ export const createTopicSchema = z.object({
   sources: z.string().optional(),
   isCustom: z.boolean().optional(),
   interestedToPresent: z.boolean().optional(),
+  status: z.string().optional(),
 });
 
 export const updateTopicStatusSchema = z.object({
