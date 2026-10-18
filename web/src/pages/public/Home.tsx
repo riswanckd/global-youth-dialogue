@@ -36,10 +36,10 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const now = new Date().getTime();
-    let target = localStorage.getItem('gyde_next_debate_time');
+    let target = localStorage.getItem('gyde_next_dialogue_time') || localStorage.getItem('gyde_next_debate_time');
     if (!target || parseInt(target) <= now) {
       target = String(now + 3 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 28 * 60 * 1000);
-      localStorage.setItem('gyde_next_debate_time', target);
+      localStorage.setItem('gyde_next_dialogue_time', target);
     }
 
     const timer = setInterval(() => {
@@ -47,7 +47,7 @@ export const Home: React.FC = () => {
       let diff = parseInt(target!) - current;
       if (diff <= 0) {
         target = String(current + 7 * 24 * 60 * 60 * 1000);
-        localStorage.setItem('gyde_next_debate_time', target);
+        localStorage.setItem('gyde_next_dialogue_time', target);
         diff = parseInt(target) - current;
       }
 
@@ -80,31 +80,31 @@ export const Home: React.FC = () => {
             <div className="hero-content">
               <div className="hero-eyebrow mobile-pill-tag">
                 <span className="pill-dash"></span>
-                <span>{isArabic ? '14+ دولة • مجتمع فكري واحد' : '14+ Countries • One Community'}</span>
+                <span>{isArabic ? 'مجتمع الحوار الشبابي العالمي' : 'GLOBAL YOUTH DIALOGUE COMMUNITY'}</span>
               </div>
 
               <h1 className="hero-title serif-text">
                 {isArabic ? (
                   <>
-                    عقول شابة. <span className="gradient-accent-text">حوار عالمي واحد.</span>
+                    حيث تلتقي العقول الشابة <span className="gradient-accent-text">بالعالم.</span>
                   </>
                 ) : (
                   <>
-                    Young minds. <span className="gradient-accent-text">One global conversation.</span>
+                    Where young minds <span className="gradient-accent-text">meet the world.</span>
                   </>
                 )}
               </h1>
 
               <div className="hero-subtitle-lead">
                 {isArabic
-                  ? 'منتدى أكاديمي ومناظرات شبابي دولي يربط نخبة المفكرين والباحثين حول العالم'
-                  : 'International Youth Academic & Debate Forum Connecting Global Thinkers'}
+                  ? 'منتدى الحوار والأكاديميا الشبابي الدولي'
+                  : 'Global Youth Academic & Dialogue Forum'}
               </div>
 
               <p className="hero-subtext">
                 {isArabic
-                  ? 'مجتمع يقوده الشباب يناقش فيه المفكرون الصاعدون القضايا المعقدة، ويتبادلون الرؤى المتنوعة، ويصيغون الحوار الفكري عبر أكثر من 14 دولة.'
-                  : 'A youth-led community where emerging thinkers debate complex ideas, exchange perspectives, and shape global dialogue across 14+ nations.'}
+                  ? 'مجتمع دولي يقوده الشباب، حيث يستكشف المفكرون والعقول الشابة القضايا العالمية، ويتبادلون الرؤى ويطورون أفكاراً محكمة عبر الحوار المنظم.'
+                  : 'A youth-led international community where young minds and thinkers explore global issues, exchange perspectives and develop well-reasoned ideas through structured dialogue.'}
               </p>
 
               <div className="hero-actions">
@@ -124,11 +124,11 @@ export const Home: React.FC = () => {
                 </div>
                 <div className="hero-meta-item">
                   <span className="hero-meta-diamond">&#9670;</span>
-                  <span>{isArabic ? 'مناظرات برلمانية أسبوعية' : 'Weekly Structured Debates'}</span>
+                  <span>{isArabic ? 'حوارات فكرية أسبوعية منظمة' : 'Weekly Structured Dialogues'}</span>
                 </div>
                 <div className="hero-meta-item">
                   <span className="hero-meta-diamond">&#9670;</span>
-                  <span>{isArabic ? '60+ مناظراً وباحثاً شاباً' : '60+ Active Youth Debaters'}</span>
+                  <span>{isArabic ? '60+ مفكراً وباحثاً شاباً' : '60+ Active Youth Fellows'}</span>
                 </div>
                 <div className="hero-meta-item">
                   <span className="hero-meta-diamond">&#9670;</span>
@@ -154,7 +154,7 @@ export const Home: React.FC = () => {
               <div className="hero-collage-grid">
                 {/* Main Keynote Speaker Card */}
                 <div className="collage-main-card">
-                  <img src="/assets/images/delegate_floor_speech.jpg" alt="Youth delegate delivering keynote debate speech" className="collage-main-img" />
+                  <img src="/assets/images/delegate_floor_speech.jpg" alt="Youth delegate delivering keynote address" className="collage-main-img" />
                   <div className="collage-badge-tag">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -203,7 +203,7 @@ export const Home: React.FC = () => {
           <div className="countdown-label-wrap">
             <div className="countdown-radar-tag">
               <span className="radar-dot"></span>
-              <span>{isArabic ? 'الجلسة البرلمانية القادمة' : 'Next Global Dialogue Debate'}</span>
+              <span>{isArabic ? 'جلسة الحوار القادمة' : 'Next Global Dialogue Forum'}</span>
             </div>
             <h4 className="countdown-topic-title">
               {isArabic ? 'السيادة التكنولوجية للذكاء الاصطناعي وحقوق الإنسان الدولية' : 'AI Sovereignty & International Human Rights'}
@@ -252,13 +252,13 @@ export const Home: React.FC = () => {
           <div className="marquee-item"><span className="marquee-star">&#10022;</span> Oxford</div>
           <div className="marquee-item"><span className="marquee-star">&#10022;</span> New Delhi</div>
           <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> Weekly Live Parliamentary Motions
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> Weekly Structured Dialogue Sessions
           </div>
           <div className="marquee-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> 100% Youth-Researched Papers
           </div>
           <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> 60+ International Debaters
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> 60+ International Fellows & Thinkers
           </div>
           <div className="marquee-item"><span className="marquee-star">&#10022;</span> Washington D.C.</div>
           {/* Loop duplicates */}
@@ -283,8 +283,8 @@ export const Home: React.FC = () => {
               <div className="metric-item-bar" style={{ width: '100%' }}></div>
             </div>
             <div className="metric-item">
-              <div className="metric-number-animated" id="statDebatersNum">60+</div>
-              <div className="metric-label">{isArabic ? 'مناظراً وباحثاً شاباً' : 'Youth Debaters'}</div>
+              <div className="metric-number-animated" id="statFellowsNum">60+</div>
+              <div className="metric-label">{isArabic ? 'مفكراً وباحثاً شاباً' : 'Youth Fellows & Thinkers'}</div>
               <div className="metric-item-bar" style={{ width: '100%' }}></div>
             </div>
             <div className="metric-item">
@@ -308,12 +308,12 @@ export const Home: React.FC = () => {
             <div className="home-upcoming-title-wrap">
               <span className="section-tag">{isArabic ? 'الجلسة القادمة المجدولة' : 'Next Scheduled Dialogue'}</span>
               <h2 className="serif-text home-upcoming-main-title">
-                {isArabic ? 'جلسة الحوار البرلماني القادمة' : 'Upcoming Dialogue Session'}
+                {isArabic ? 'جلسة الحوار القادمة' : 'Upcoming Dialogue Session'}
               </h2>
               <p className="home-upcoming-sub">
                 {isArabic
-                  ? 'انضم إلى حوارنا الدولي الأسبوعي المنظم مع متحدثين يمثلون أكثر من 14 دولة.'
-                  : 'Join our weekly structured international dialogue with debaters representing over 14 countries.'}
+                  ? 'انضم إلى حوارنا الدولي الأسبوعي المنظم مع مشاركين يمثلون أكثر من 14 دولة.'
+                  : 'Join our weekly structured international dialogue with participants representing over 14 countries.'}
               </p>
             </div>
             <Link to="/sessions" className="btn btn-outline btn-sm home-upcoming-all-btn">
@@ -393,8 +393,8 @@ export const Home: React.FC = () => {
               <h3 className="serif-text">{isArabic ? 'عن المبادرة والنشأة' : 'About the Movement'}</h3>
               <p>
                 {isArabic
-                  ? 'أسسها أصدقاء ومناظرون التقوا في بطولة دولية لتحويل المناظرة التنافسية إلى شبكة أكاديمية عالمية دائمة.'
-                  : 'Founded by friends who met at an international debate championship to turn competitive debate into a permanent global academic network.'}
+                  ? 'أسسها شباب ومفكرون التقوا في محافل دولية لبناء شبكة أكاديمية حوارية عالمية دائمة.'
+                  : 'Founded by young scholars who met at an international forum to build a lasting global academic dialogue network.'}
               </p>
               <span className="feature-learn-more">
                 <span>{isArabic ? 'معرفة المزيد' : 'Learn More'}</span> &rarr;
@@ -438,8 +438,8 @@ export const Home: React.FC = () => {
               <h3 className="serif-text">{isArabic ? 'أثرنا في الشباب' : 'Our Impact'}</h3>
               <p>
                 {isArabic
-                  ? 'انطلق أبعد من قاعة المناظرة: طور مهاراتك في البحث الرصين، الخطابة، الكتابة الأكاديمية، والقيادة الدولية.'
-                  : 'Grow beyond the debate room: develop rigorous research, public speaking, academic writing, and international leadership.'}
+                  ? 'تطوير مستمر يمتد لآفاق واسعة: بناء مهارات البحث الرصين، الخطابة، الصياغة الأكاديمية، والقيادة الدولية.'
+                  : 'Cultivate global perspectives: develop rigorous research, public discourse, academic writing, and international leadership.'}
               </p>
               <span className="feature-learn-more">
                 <span>{isArabic ? 'اكتشف الأثر' : 'Discover Impact'}</span> &rarr;

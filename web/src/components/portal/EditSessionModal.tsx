@@ -21,7 +21,7 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
   const [title, setTitle] = useState('');
   const [motion, setMotion] = useState('');
   const [description, setDescription] = useState('');
-  const [format, setFormat] = useState('Structured Parliamentary Debate');
+  const [format, setFormat] = useState('Structured Academic Dialogue');
   const [meetingUrl, setMeetingUrl] = useState('');
   const [recordingUrl, setRecordingUrl] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(90);
@@ -163,8 +163,8 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
         </h3>
         <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
           {isArabic
-            ? 'بصفتك منسقاً، يمكنك تحديث رابط غرفة اللقاء المباشر، صيغة المناظرة، والأسئلة التوجيهية.'
-            : 'As an authorized coordinator, update the live meeting chamber link, debate motion, schedule, and briefings.'}
+            ? 'بصفتك منسقاً، يمكنك تحديث رابط غرفة اللقاء المباشر، موضوع الجلسة الحوارية، والأسئلة التوجيهية.'
+            : 'As an authorized coordinator, update the live meeting chamber link, dialogue theme, schedule, and briefings.'}
         </p>
 
         {error && (
@@ -189,13 +189,13 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
 
           <div className="form-group" style={{ marginBottom: '0.85rem' }}>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.3rem' }}>
-              {isArabic ? 'صيغة القضية / المناظرة' : 'Debate Motion'}
+              {isArabic ? 'موضوع الحوار / القضية' : 'Dialogue Theme / Topic'}
             </label>
             <input
               type="text"
               value={motion}
               onChange={(e) => setMotion(e.target.value)}
-              placeholder="e.g. This House would abolish the veto power..."
+              placeholder="e.g. Towards multilateral cooperation on global climate governance..."
               style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
             />
           </div>
@@ -230,7 +230,7 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
                   {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
                 </option>
                 <option value="Structural Debate">
-                  {isArabic ? 'مناظرة هيكلية (فريقان وأعضاؤهما)' : 'Structural Debate (2 teams and their members)'}
+                  {isArabic ? 'حوار منظم (فريقان وأعضاؤهما)' : 'Structured Dialogue (2 teams and their members)'}
                 </option>
                 <option value="Discussion">
                   {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}

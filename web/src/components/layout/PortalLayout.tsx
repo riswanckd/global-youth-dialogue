@@ -230,7 +230,7 @@ export const PortalLayout: React.FC = () => {
                   {roleLabel}
                 </div>
                 <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                  {user?.organization || 'Debate Society'}
+                  {user?.organization || 'Academic Forum'}
                 </div>
               </div>
             </div>

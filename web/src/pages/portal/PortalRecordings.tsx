@@ -19,12 +19,12 @@ export const PortalRecordings: React.FC = () => {
     <div className="space-y-8">
       <div>
         <h1 className="serif-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-          {isArabic ? 'أرشيف التسجيلات الخاصة' : 'Confidential Debate Video Archive'}
+          {isArabic ? 'أرشيف تسجيلات الجلسات' : 'Dialogue Sessions Video Archive'}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500">
           {isArabic
-            ? 'تسجيلات فيديو غير مدرجة ومتاحة حصرياً للأعضاء المعتمدين لمراجعة الأداء والتحليل'
-            : 'Unlisted video recordings of completed parliamentary sessions for research review and speaker development.'}
+            ? 'تسجيلات فيديو غير مدرجة ومتاحة حصرياً للأعضاء المعتمدين لمراجعة الأداء والتحليل الأكاديمي'
+            : 'Unlisted video recordings of completed dialogue sessions for research review and speaker development.'}
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export const PortalRecordings: React.FC = () => {
         <div className="p-12 text-center bg-white dark:bg-gyde-canvas-cardDark rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
           <Video className="w-8 h-8 text-slate-400 mx-auto" />
           <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">No recordings uploaded yet</h3>
-          <p className="text-xs text-slate-500">Recordings are posted within 24 hours after a debate concludes.</p>
+          <p className="text-xs text-slate-500">Recordings are posted within 24 hours after a session concludes.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

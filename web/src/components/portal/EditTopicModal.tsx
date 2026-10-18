@@ -218,13 +218,13 @@ export const EditTopicModal: React.FC<EditTopicModalProps> = ({
 
           <div className="form-group" style={{ marginBottom: '0.85rem' }}>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.3rem' }}>
-              {isArabic ? 'صيغة القضية البرلمانية (Motion)' : 'Debate Motion ("This House Would...")'}
+              {isArabic ? 'صيغة القضية أو الموضوع الحواري' : 'Dialogue Topic / Theme Title'}
             </label>
             <input
               type="text"
               value={motion}
               onChange={(e) => setMotion(e.target.value)}
-              placeholder="e.g. This House would establish a binding treaty on AI governance..."
+              placeholder="e.g. Multilateral frameworks for international AI governance..."
               style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
             />
           </div>
@@ -276,7 +276,7 @@ export const EditTopicModal: React.FC<EditTopicModalProps> = ({
                 {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
               </option>
               <option value="Structural Debate">
-                {isArabic ? 'مناظرة هيكلية (فريقان وأعضاؤهما)' : 'Structural Debate (2 teams and their members)'}
+                {isArabic ? 'حوار منظم (فريقان وأعضاؤهما)' : 'Structured Dialogue (2 teams and their members)'}
               </option>
               <option value="Discussion">
                 {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}

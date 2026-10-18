@@ -172,8 +172,8 @@ export const Topics: React.FC = () => {
             <h2 className="section-title serif-text">{isArabic ? 'محاور النقاش والمواضيع' : 'Topic Categories'}</h2>
             <p className="section-desc">
               {isArabic
-                ? 'فضاءات معرفية متعددة التخصصات يناقش فيها المناظرون الشباب العلاقات الدولية والتكنولوجيا والمجتمعات الإنسانية.'
-                : 'Multidisciplinary arenas where youth debaters examine international relations, technologies, and human societies.'}
+                ? 'فضاءات معرفية متعددة التخصصات يستكشف فيها المفكرون والشباب العلاقات الدولية والتكنولوجيا والمجتمعات الإنسانية.'
+                : 'Multidisciplinary arenas where youth thinkers and fellows explore international relations, technologies, and human societies.'}
             </p>
           </div>
 

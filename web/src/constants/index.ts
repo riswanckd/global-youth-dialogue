@@ -369,35 +369,35 @@ export const DIALOGUE_STAGES = [
     number: '01',
     title: 'Select',
     titleAr: 'الاختيار',
-    desc: 'Topics are nominated by member debaters and selected through academic consensus on contemporary relevance.',
-    descAr: 'ترشيح القضايا من قبل الأعضاء واختيارها بالتوافق الأكاديمي بناءً على راهنيتها وأهميتها الدولية.'
+    desc: 'Topics are nominated by member fellows and selected through academic consensus on contemporary relevance.',
+    descAr: 'ترشيح القضايا من قبل الأعضاء والمفكرين واختيارها بالتوافق الأكاديمي بناءً على راهنيتها وأهميتها الدولية.'
   },
   {
     number: '02',
     title: 'Prepare',
     titleAr: 'التحضير',
-    desc: 'Speakers receive verified briefing dossiers, scholarly readings, and case study frameworks prior to the debate.',
-    descAr: 'تزويد المتحدثين بملفات إحاطة موثقة وقراءات أكاديمية وأطر لدراسة الحالة قبل موعد المناظرة.'
+    desc: 'Speakers receive verified briefing dossiers, scholarly readings, and case study frameworks prior to the dialogue session.',
+    descAr: 'تزويد المتحدثين بملفات إحاطة موثقة وقراءات أكاديمية وأطر لدراسة الحالة قبل موعد الجلسة الحوارية.'
   },
   {
     number: '03',
     title: 'Discuss',
-    titleAr: 'الحوار والمناظرة',
-    desc: 'Structured Oxford-style parliamentary debates and multilateral roundtables held live every two weeks.',
-    descAr: 'مناظرات برلمانية منظمة وحلقات نقاشية متعددة الأطراف تعقد مباشرة عبر الإنترنت كل أسبوعين.'
+    titleAr: 'الحوار الفكري',
+    desc: 'Structured academic dialogues and multilateral roundtables held live every two weeks.',
+    descAr: 'جلسات حوارية أكاديمية منظمة وحلقات نقاشية متعددة الأطراف تعقد مباشرة عبر الإنترنت كل أسبوعين.'
   },
   {
     number: '04',
     title: 'Reflect',
     titleAr: 'التقييم والملاحظات',
     desc: 'Audience delegates and peers submit qualitative feedback on argument strength, evidence quality, and counter-framing.',
-    descAr: 'تقديم تقييمات نوعية وملاحظات بناءة حول متانة الحجج وكفاءة الأدلة وأسلوب التفنيد.'
+    descAr: 'تقديم تقييمات نوعية وملاحظات بناءة حول متانة الحجج وكفاءة الأدلة وأسلوب الطرح.'
   },
   {
     number: '05',
     title: 'Document',
     titleAr: 'التوثيق والنشر',
-    desc: 'Debate insights are synthesized into 8-part peer-reviewed academic papers published in our permanent research repository.',
+    desc: 'Dialogue insights are synthesized into 8-part peer-reviewed academic papers published in our permanent research repository.',
     descAr: 'صياغة مخرجات الحوار في أوراق بحثية أكاديمية محكمة من 8 أقسام ونشرها في المكتبة الدائمة.'
   }
 ];

@@ -98,11 +98,11 @@ export const PortalDashboard: React.FC = () => {
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-normal">
           {isPresenter
             ? (isArabic
-                ? 'متحدث رسمي معتمد • إلقاء الكلمات الافتتاحية وإدارة أوراق المناظرات البرلمانية'
+                ? 'متحدث رسمي معتمد • إلقاء الكلمات الافتتاحية وإدارة أوراق الحوار الأكاديمي'
                 : 'Accredited Keynote Speaker & Floor Orator (Global Youth Dialogue Secretariat)')
             : (isArabic
-                ? 'عضوية معتمدة تم التحقق منها • المشاركة في المناظرات الافتراضية والتصويت والتقييم'
-                : 'Verified Academic Debater & Floor Delegate (Qatar ISDC7 Founding Framework)')}
+                ? 'عضوية معتمدة تم التحقق منها • المشاركة في الحوارات الافتراضية والتصويت والتقييم'
+                : 'Verified Academic Fellow & Floor Delegate (Global Youth Dialogue Framework)')}
         </p>
 
         {/* Action Buttons: 2x2 grid on mobile, row on desktop (Exact Admin Style) */}
@@ -227,10 +227,10 @@ export const PortalDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                  {isArabic ? 'الجلسات البرلمانية وغرف المناظرة' : 'Active Debate Chambers & Scheduled Sessions'}
+                  {isArabic ? 'جلسات ومنتديات الحوار المجدولة' : 'Active Dialogue Forums & Scheduled Sessions'}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {isArabic ? 'الجلسات المجدولة ومسودات القضايا المطروحة للنقاش' : 'Live chamber clearances and debate motion briefings'}
+                  {isArabic ? 'الجلسات المجدولة ومسودات القضايا المطروحة للنقاش' : 'Live forum schedules and dialogue briefings'}
                 </p>
               </div>
               <Link
@@ -247,7 +247,7 @@ export const PortalDashboard: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
-                      {isArabic ? 'جلسة برلمانية قادمة' : 'Next Scheduled Chamber'}
+                      {isArabic ? 'جلسة حوارية قادمة' : 'Next Scheduled Session'}
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -261,7 +261,7 @@ export const PortalDashboard: React.FC = () => {
                   </h3>
                   {nextSession.motion && (
                     <div className="mt-2 text-xs bg-amber-50 dark:bg-amber-950/40 border-l-4 rtl:border-l-0 rtl:border-r-4 border-amber-400 text-amber-900 dark:text-amber-200 p-3 rounded-r-lg rtl:rounded-l-lg rtl:rounded-r-none font-medium">
-                      <strong>{isArabic ? 'القضية المطروحة:' : 'Debate Motion:'}</strong> &quot;{nextSession.motion}&quot;
+                      <strong>{isArabic ? 'موضوع الحوار:' : 'Dialogue Theme:'}</strong> &quot;{nextSession.motion}&quot;
                     </div>
                   )}
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 line-clamp-2">
@@ -272,7 +272,7 @@ export const PortalDashboard: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
                   <div className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{nextSession.presenters?.map((p) => p.name).join(', ') || 'Assigned Debaters'}</span>
+                    <span>{nextSession.presenters?.map((p) => p.name).join(', ') || 'Assigned Fellows'}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -405,7 +405,7 @@ export const PortalDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span className="text-slate-400">{isArabic ? 'المؤسسة:' : 'Institution:'}</span>
                 <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[180px]">
-                  {user?.organization || 'Debate Society'}
+                  {user?.organization || 'Academic Forum'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -475,7 +475,7 @@ export const PortalDashboard: React.FC = () => {
                   <Lightbulb className="w-4 h-4" />
                 </div>
                 <span className="line-clamp-2 leading-snug">
-                  {isArabic ? 'اقتراح موضوع مناظرة' : 'Propose Debate Topic'}
+                  {isArabic ? 'اقتراح موضوع حوار' : 'Propose Dialogue Topic'}
                 </span>
               </Link>
             </div>
@@ -484,7 +484,7 @@ export const PortalDashboard: React.FC = () => {
           {/* Card 3: Chamber Notices */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3 sm:space-y-4">
             <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              {isArabic ? 'التنبيهات البرلمانية' : 'Chamber Notices'}
+              {isArabic ? 'تنبيهات منتدى الحوار' : 'Dialogue Forum Notices'}
             </h2>
 
             <div className="space-y-3">
@@ -494,11 +494,11 @@ export const PortalDashboard: React.FC = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-bold text-slate-900 dark:text-white">
-                    {isArabic ? 'جلسة الأحد القادمة مباشرة' : 'Upcoming Debate Motion Ready'}
+                    {isArabic ? 'جلسة الأحد القادمة مباشرة' : 'Upcoming Dialogue Session Ready'}
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">
                     {isArabic
-                      ? 'تتوفر مذكرات المناظرة والأوراق التمهيدية للأعضاء.'
+                      ? 'تتوفر مذكرات الحوار والأوراق التمهيدية للأعضاء.'
                       : 'Dossier and research briefings uploaded for preparation.'}
                   </div>
                 </div>

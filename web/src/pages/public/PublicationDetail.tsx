@@ -136,8 +136,8 @@ export const PublicationDetail: React.FC = () => {
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                   {isArabic
-                    ? 'الأوراق الأكاديمية الكاملة المنشورة من مناظراتنا محفوظة حصرياً لأعضاء وممثلي مجتمع الحوار المعتمدين.'
-                    : 'Full 8-section research monographs, methodologies, and debate policy frameworks are reserved for registered members.'}
+                    ? 'الأوراق الأكاديمية الكاملة المنشورة من جلساتنا محفوظة حصرياً لأعضاء وممثلي مجتمع الحوار المعتمدين.'
+                    : 'Full 8-section research monographs, methodologies, and dialogue policy frameworks are reserved for registered members.'}
                 </p>
               </div>
 

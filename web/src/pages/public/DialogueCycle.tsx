@@ -9,12 +9,12 @@ export const DialogueCycle: React.FC = () => {
       <section className="process-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">{isArabic ? 'دورة الحوار البرلماني' : 'The Dialogue Cycle'}</span>
+            <span className="section-tag">{isArabic ? 'دورة الحوار الفكري والأكاديمي' : 'The Dialogue Cycle'}</span>
             <h2 className="section-title serif-text">{isArabic ? 'كيف يعمل البرنامج' : 'How the Programme Works'}</h2>
             <p className="section-desc">
               {isArabic
-                ? 'دورة بصرية من 6 مراحل تحول الحوار الشفهي والمناظرة إلى بحث رصين، وأوراق أكاديمية، ومعرفة موثقة.'
-                : 'A visual 6-stage cycle converting spoken dialogue and debate into rigorous research, academic papers, and documented knowledge.'}
+                ? 'دورة بصرية من 6 مراحل تحول الحوار الفكري والاستكشاف المعرفي إلى بحث رصين، وأوراق أكاديمية، ومعرفة موثقة.'
+                : 'A visual 6-stage cycle converting structured dialogue and collaborative exchange into rigorous research, academic papers, and documented knowledge.'}
             </p>
           </div>
 
@@ -45,8 +45,8 @@ export const DialogueCycle: React.FC = () => {
               <h4>{isArabic ? '03 — المناقشة (DISCUSS)' : '03 — DISCUSS'}</h4>
               <p>
                 {isArabic
-                  ? 'يجتمع المجتمع افتراضياً للحوار المنظم، وعرض المتحدث، ومناظرة برلمانية مفتوحة لجميع الأعضاء.'
-                  : 'The community convenes online for structured dialogue, speaker presentation, and open parliamentary floor debate.'}
+                  ? 'يجتمع المجتمع افتراضياً للحوار المنظم، وعرض المتحدث، وحوار مفتوح وتبادل للرؤى بين جميع الأعضاء.'
+                  : 'The community convenes online for structured dialogue, speaker presentation, and open collaborative discussion.'}
               </p>
             </div>
             {/* Step 4 */}

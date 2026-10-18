@@ -363,7 +363,7 @@ export const PortalSuggestTopic: React.FC = () => {
                   {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
                 </option>
                 <option value="Structural Debate">
-                  {isArabic ? 'مناظرة هيكلية (فريقان وأعضاؤهما)' : 'Structural Debate (2 teams and their members)'}
+                  {isArabic ? 'حوار منظم (فريقان ومحاور نقاشية)' : 'Structured Dialogue (2 teams and their members)'}
                 </option>
                 <option value="Discussion">
                   {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}
@@ -374,21 +374,21 @@ export const PortalSuggestTopic: React.FC = () => {
               </select>
             </div>
 
-            {/* Suggested Debate Motion (Optional) */}
+            {/* Suggested Dialogue Resolution or Theme (Optional) */}
             <div className="form-group" style={{ marginBottom: '1rem' }}>
               <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
-                {isArabic ? 'صيغة القضية أو المناظرة المقترحة (اختياري)' : 'Suggested Debate Motion (Optional)'}
+                {isArabic ? 'صيغة القضية أو الموضوع المقترح (اختياري)' : 'Suggested Dialogue Theme or Resolution (Optional)'}
               </label>
               <input
                 type="text"
                 className="form-control"
                 value={motion}
                 onChange={(e) => setMotion(e.target.value)}
-                placeholder="e.g. This House would ban autonomous lethal weapons systems..."
+                placeholder="e.g. Multilateral governance mechanisms for autonomous technologies..."
                 style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
               />
               <span style={{ display: 'block', fontSize: '0.78rem', color: '#64748b', marginTop: '0.25rem' }}>
-                {isArabic ? 'استخدم صيغ المناظرات البرلمانية المعتمدة (يرى هذا المجلس أن...)' : 'Use standard parliamentary debate formulation (This House would...)'}
+                {isArabic ? 'اقتراح عنوان محدد أو صياغة واضحة لصلب الموضوع الحواري' : 'Provide a focused resolution or core thematic question for discussion'}
               </span>
             </div>
 
@@ -592,7 +592,7 @@ export const PortalSuggestTopic: React.FC = () => {
             ) : topics.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: '#64748b' }}>
                 <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600 }}>{isArabic ? 'لا توجد مقترحات حالية' : 'No topics proposed yet'}</p>
-                <p style={{ fontSize: '0.85rem', margin: 0 }}>{isArabic ? 'كن أول من يقترح موضوعاً لجلسات الحوار الدولية القادمة!' : 'Be the first delegate to submit a debate topic for the upcoming sessions!'}</p>
+                <p style={{ fontSize: '0.85rem', margin: 0 }}>{isArabic ? 'كن أول من يقترح موضوعاً لجلسات الحوار الدولية القادمة!' : 'Be the first fellow to submit a dialogue topic for upcoming sessions!'}</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

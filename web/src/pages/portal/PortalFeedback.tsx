@@ -42,7 +42,7 @@ export const PortalFeedback: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.sessionId) {
-      setError('Please select a debate session to evaluate');
+      setError('Please select a dialogue session to evaluate');
       return;
     }
     setLoading(true);

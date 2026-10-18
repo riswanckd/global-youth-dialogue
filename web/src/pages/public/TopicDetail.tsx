@@ -47,7 +47,7 @@ export const TopicDetail: React.FC = () => {
 
       <div className="bg-white dark:bg-gyde-canvas-cardDark rounded-2xl p-8 border border-slate-200 dark:border-slate-800 space-y-6">
         <h2 className="serif-heading text-2xl font-bold text-slate-900 dark:text-white">
-          {isArabic ? 'القضايا والمحاور الفرعية المعتمدة' : 'Curated Debate Motions & Subtopics'}
+          {isArabic ? 'المحاور والقضايا الحوارية المعتمدة' : 'Curated Dialogue Themes & Subtopics'}
         </h2>
         <div className="grid grid-cols-1 gap-4">
           {(isArabic ? category.subTopicsAr : category.subTopics).map((st, i) => (
@@ -64,15 +64,15 @@ export const TopicDetail: React.FC = () => {
         <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
             {isArabic
-              ? 'هل ترغب في طرح قضية جديدة ضمن هذا المحور؟'
-              : 'Interested in debating or submitting research on this track?'}
+              ? 'هل ترغب في طرح موضوع حواري جديد ضمن هذا المحور؟'
+              : 'Interested in discussing or submitting research on this track?'}
           </p>
           <Link
             to="/apply"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white text-sm font-semibold transition-colors"
           >
             <Lightbulb className="w-4 h-4 text-gyde-gold" />
-            <span>{isArabic ? 'تقديم طلب للمناظرة' : 'Apply for this Track'}</span>
+            <span>{isArabic ? 'تقديم طلب للمشاركة' : 'Apply for this Track'}</span>
           </Link>
         </div>
       </div>

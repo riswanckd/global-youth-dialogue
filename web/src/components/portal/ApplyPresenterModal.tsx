@@ -318,7 +318,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
 
           <div className="form-group" style={{ marginBottom: '1rem' }}>
             <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
-              {isArabic ? 'الخلفية الأكاديمية والخطابية' : 'Academic, Public Speaking, or Debate Background'}
+              {isArabic ? 'الخلفية الأكاديمية والخطابية والحوارية' : 'Academic, Public Speaking, or Dialogue Background'}
             </label>
             <textarea
               className="form-control"
@@ -326,7 +326,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
               required
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
-              placeholder="Detail past tournaments (e.g. ISDC7, WSDC, university debating), published youth essays, or research briefings you have delivered..."
+              placeholder="Detail past conferences, model UN, youth forums, published youth essays, or research briefings you have delivered..."
               style={{
                 width: '100%',
                 padding: '0.6rem 0.85rem',
@@ -379,7 +379,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
                   {isArabic ? 'عرض موضوع (مقدم عرض رئيسي)' : 'Topic Presentation (Presenter / Keynote)'}
                 </option>
                 <option value="Structural Debate (Debater / Team Member)">
-                  {isArabic ? 'مناظرة هيكلية (عضو فريق / متناظر)' : 'Structural Debate (Debater / Team Member)'}
+                  {isArabic ? 'حوار منظم (عضو فريق / متحدث مشارك)' : 'Structured Dialogue (Team Member / Panelist)'}
                 </option>
                 <option value="Discussion (Key Speaker / Panellist)">
                   {isArabic ? 'جلسة نقاشية (متحدث رئيسي / عضو حلقة)' : 'Discussion (Key Speaker / Panellist)'}

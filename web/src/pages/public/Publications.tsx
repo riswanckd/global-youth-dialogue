@@ -18,7 +18,7 @@ const DEMO_PUBLICATIONS: Publication[] = [
       {
         name: 'Mubashir CP',
         country: 'India',
-        role: 'Coordinator & Debater'
+        role: 'Coordinator & Fellow'
       }
     ],
     category: 'Technology & AI Ethics',
@@ -110,8 +110,8 @@ export const Publications: React.FC = () => {
         </h1>
         <p className="section-desc" style={{ maxWidth: '680px', margin: '0 auto' }}>
           {isArabic
-            ? 'أوراق بحثية من ثمانية أقسام منهجية تصاغ بعد كل مناظرة وتخضع للتحكيم الأكاديمي بواسطة الهيئة الاستشارية.'
-            : '8-part structured academic papers synthesized directly from bi-weekly parliamentary debates, peer-reviewed by our research secretariat.'}
+            ? 'أوراق بحثية من ثمانية أقسام منهجية تصاغ بعد كل جلسة حوارية وتخضع للتحكيم الأكاديمي بواسطة الهيئة الاستشارية.'
+            : '8-part structured academic papers synthesized directly from bi-weekly academic dialogues, peer-reviewed by our research secretariat.'}
         </p>
       </div>
 
@@ -284,7 +284,7 @@ export const Publications: React.FC = () => {
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.55', margin: 0 }}>
                 {isArabic
                   ? 'الأوراق الأكاديمية الكاملة المنبثقة عن جلسات الحوار مخصصة حصرياً لأعضاء منتدى الحوار الدولي المعتمدين.'
-                  : 'Full academic monographs and debate briefing dossiers are peer-reviewed research papers reserved for verified GYDE community members.'}
+                  : 'Full academic monographs and dialogue briefing dossiers are peer-reviewed research papers reserved for verified GYDE community members.'}
               </p>
             </div>
 

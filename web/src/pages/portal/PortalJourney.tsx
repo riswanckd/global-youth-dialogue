@@ -10,7 +10,7 @@ export const PortalJourney: React.FC = () => {
 
   // Stats calculation based on user record / defaults matching legacy experience
   const dialoguesAttended = 2;
-  const debatesSpoken = isPresenter ? 3 : 1;
+  const sessionsSpoken = isPresenter ? 3 : 1;
   const papersAuthored = 0;
   const communityScore = 92;
 
@@ -36,7 +36,7 @@ export const PortalJourney: React.FC = () => {
       desc: isArabic
         ? 'قدم خطابات افتتاحية أو تفنيدية رئيسية في 3 جلسات حوار دولية فأكثر'
         : 'Delivered principal constructive or rebuttal speeches in 3+ international sessions',
-      unlocked: debatesSpoken >= 3,
+      unlocked: sessionsSpoken >= 3,
       progress: isPresenter ? '100%' : '33%',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,8 +65,8 @@ export const PortalJourney: React.FC = () => {
       id: 'agenda_setter',
       title: isArabic ? 'صانع أجندة الحوار' : 'Dialogue Agenda Setter',
       desc: isArabic
-        ? 'اقترح قضايا ومحاور نقاش معتمدة تتناول أولويات الحوكمة العالمية'
-        : 'Suggested approved debate motions tackling high-priority global governance issues',
+        ? 'اقترح قضايا ومحاور حوارية معتمدة تتناول أولويات الحوكمة العالمية'
+        : 'Suggested approved dialogue topics tackling high-priority global governance issues',
       unlocked: false,
       progress: '33%',
       icon: (
@@ -104,8 +104,8 @@ export const PortalJourney: React.FC = () => {
           </h2>
           <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted, #64748b)', fontSize: '0.95rem' }}>
             {isArabic
-              ? 'سجلك في المناظرات الأكاديمية ومساهماتك والتقدير الدولي المحقق.'
-              : 'Your academic debate track record, contributions, and international recognition.'}
+              ? 'سجلك في الحوارات الأكاديمية ومساهماتك والتقدير الدولي المحقق.'
+              : 'Your academic dialogue track record, contributions, and international recognition.'}
           </p>
         </div>
       </div>
@@ -118,8 +118,8 @@ export const PortalJourney: React.FC = () => {
         </div>
 
         <div className="analytics-stat-card">
-          <div className="analytics-stat-num">{debatesSpoken}</div>
-          <div className="analytics-stat-label">{isArabic ? 'مناظرات تم التحدث فيها' : 'Debates Spoken'}</div>
+          <div className="analytics-stat-num">{sessionsSpoken}</div>
+          <div className="analytics-stat-label">{isArabic ? 'جلسات حوار تم التحدث فيها' : 'Sessions Spoken'}</div>
         </div>
 
         <div className="analytics-stat-card">
@@ -140,7 +140,7 @@ export const PortalJourney: React.FC = () => {
             {isArabic ? 'أوسمة الحوار الشرفية' : 'Honorary Dialogue Badges'}
           </h4>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #64748b)' }}>
-            {isArabic ? 'تقدير التميز في المناظرات والمساهمات الأكاديمية' : 'Recognizing debate mastery and academic contributions'}
+            {isArabic ? 'تقدير التميز في الحوار والمساهمات الأكاديمية' : 'Recognizing dialogue excellence and academic contributions'}
           </span>
         </div>
 

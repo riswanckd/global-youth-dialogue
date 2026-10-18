@@ -38,7 +38,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'الشهادات المصغرة والمنصات الرقمية كبديل للشهادة الجامعية التقليدية',
         'توريق قروض الطلاب وأثرها على الحراك الاجتماعي والاقتصادي'
       ],
-      recommendedFormats: ['Roundtable Discussion', 'Formal Debate', 'Policy Presentation'],
+      recommendedFormats: ['Roundtable Discussion', 'Structured Dialogue', 'Policy Presentation'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-05-15'
@@ -64,7 +64,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'صناعة الدروس الخصوصية التجارية وتعميق الفجوة التعليمية',
         'مراعاة التنوع العصبي وأطر التقييم المعرفي العادل'
       ],
-      recommendedFormats: ['Formal Debate', 'Academic Workshop', 'Topic Presentation'],
+      recommendedFormats: ['Structured Dialogue', 'Academic Workshop', 'Topic Presentation'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-05-20'
@@ -118,7 +118,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'القيمة النفسية والاجتماعية للعمل مقابل الضمان المعيشي المجرد',
         'الأدلة التجريبية لبرامج الدخل الأساسي في كينيا وفنلندا وألاسكا'
       ],
-      recommendedFormats: ['Formal Debate', 'Panel Discussion', 'Roundtable'],
+      recommendedFormats: ['Structured Dialogue', 'Panel Discussion', 'Roundtable'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-06-10'
@@ -170,7 +170,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'النقابات العمالية الرقمية وسوابق المفاوضات الجماعية للمنصات',
         'قوانين مكافحة الاحتكار مقابل حماية حقوق التنظيم النقابي لعمال التطبيقات'
       ],
-      recommendedFormats: ['Panel Discussion', 'Formal Debate', 'Policy Workshop'],
+      recommendedFormats: ['Panel Discussion', 'Structured Dialogue', 'Policy Workshop'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-06-25'
@@ -198,7 +198,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'تقييد استخدام الفيتو في جرائم الإبادة والجرائم ضد الإنسانية',
         'البدائل الإقليمية المتعددة (بريكس+، مجلس التعاون، رابطة آسيان)'
       ],
-      recommendedFormats: ['Formal Debate', 'Diplomatic Roundtable', 'Topic Presentation'],
+      recommendedFormats: ['Structured Dialogue', 'Diplomatic Roundtable', 'Topic Presentation'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-07-01'
@@ -250,7 +250,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'تحفظ البنوك الدولية وإعاقة وصول المساعدات والأدوية الإنسانية',
         'بناء شبكات تجارية مستقلة ومحصنة ضد العقوبات المالية'
       ],
-      recommendedFormats: ['Formal Debate', 'Policy Discussion', 'Academic Paper Colloquium'],
+      recommendedFormats: ['Structured Dialogue', 'Policy Discussion', 'Academic Paper Colloquium'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-07-15'
@@ -278,7 +278,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'التحكيم الأكاديمي المؤتمت: بين الكفاءة والافتقار إلى الحكم الإنساني',
         'نماذج الأبحاث مفتوحة المصدر مقابل احتكار المختبرات التجارية الكبرى'
       ],
-      recommendedFormats: ['Academic Workshop', 'Presentation & Q&A', 'Formal Debate'],
+      recommendedFormats: ['Academic Workshop', 'Presentation & Q&A', 'Structured Dialogue'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-07-20'
@@ -304,7 +304,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'مخاطر انتشار أسراب الطائرات المسيرة التجارية رخيصة التكلفة',
         'الجمود الدبلوماسي في اجتماعات جنيف لاتفاقية الأسلحة التقليدية'
       ],
-      recommendedFormats: ['Formal Debate', 'Policy Roundtable', 'Topic Presentation'],
+      recommendedFormats: ['Structured Dialogue', 'Policy Roundtable', 'Topic Presentation'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-07-28'
@@ -332,7 +332,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'المسارات القضائية أمام محكمة العدل الدولية والآراء الاستشارية الملزمة',
         'قنوات التمويل المباشر للمجتمعات الأصلية وسكان الجزر المهددة بالزوال'
       ],
-      recommendedFormats: ['Policy Roundtable', 'Formal Debate', 'Academic Presentation'],
+      recommendedFormats: ['Policy Roundtable', 'Structured Dialogue', 'Academic Presentation'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-08-05'
@@ -386,7 +386,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'الاتساق الدستوري: المقارنة بين سن التجنيد والضرائب والأهلية الانتخابية',
         'تخصيص حصص تمثيلية للشباب (كوتا) في البرلمانات والمجالس المحلية'
       ],
-      recommendedFormats: ['Formal Debate', 'Panel Discussion', 'Youth Assembly'],
+      recommendedFormats: ['Structured Dialogue', 'Panel Discussion', 'Youth Assembly'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-08-20'
@@ -414,7 +414,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'الممرات الإنسانية الآمنة والتوزيع العادل للمسؤوليات بين الدول',
         'حق العمل والكرامة الإنسانية والاندماج المجتمعي للاجئين'
       ],
-      recommendedFormats: ['Roundtable Discussion', 'Formal Debate', 'Academic Paper Session'],
+      recommendedFormats: ['Roundtable Discussion', 'Structured Dialogue', 'Academic Paper Session'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-08-28'
@@ -442,7 +442,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'معاهدات الوقف المؤقت الدولية وفرض الرقابة الأخلاقية على الأبحاث',
         'رؤى الثقافات والشعوب المتنوعة حول حرمة وقدسية الجسد البشري'
       ],
-      recommendedFormats: ['Academic Debate', 'Topic Presentation', 'Bioethics Seminar'],
+      recommendedFormats: ['Structured Dialogue', 'Topic Presentation', 'Bioethics Seminar'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-09-05'
@@ -498,7 +498,7 @@ export const TOPIC_BANK: TopicBankItem[] = [
         'المعاهدات الثنائية واتفاقية اليونسكو 1970 ومحدودية الإلزام القانوني',
         'المسح ثلاثي الأبعاد والنسخ الرقمية: هل تشكل بديلاً مقبولاً عن الإرجاع الفعلي؟'
       ],
-      recommendedFormats: ['Formal Debate', 'Topic Presentation', 'Policy Roundtable'],
+      recommendedFormats: ['Structured Dialogue', 'Topic Presentation', 'Policy Roundtable'],
       isCustom: false,
       addedBy: 'Academic Advisory Board',
       dateAdded: '2024-09-20'
