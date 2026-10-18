@@ -375,10 +375,18 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
                   background: 'var(--bg-card, #ffffff)',
                 }}
               >
-                <option value="15-min Keynote Briefing (Opening Research)">15-min Keynote Briefing (Opening Research)</option>
-                <option value="30-min Comprehensive Masterclass">30-min Comprehensive Masterclass</option>
-                <option value="10-min Lightning Debate Opener">10-min Lightning Debate Opener</option>
-                <option value="Interactive Policy Roundtable Lead">Interactive Policy Roundtable Lead</option>
+                <option value="Topic Presentation (Presenter / Keynote)">
+                  {isArabic ? 'عرض موضوع (مقدم عرض رئيسي)' : 'Topic Presentation (Presenter / Keynote)'}
+                </option>
+                <option value="Structural Debate (Debater / Team Member)">
+                  {isArabic ? 'مناظرة هيكلية (عضو فريق / متناظر)' : 'Structural Debate (Debater / Team Member)'}
+                </option>
+                <option value="Discussion (Key Speaker / Panellist)">
+                  {isArabic ? 'جلسة نقاشية (متحدث رئيسي / عضو حلقة)' : 'Discussion (Key Speaker / Panellist)'}
+                </option>
+                <option value="Guest Talks (Guest Speaker / Special Keynote)">
+                  {isArabic ? 'حوارات الضيوف (ضيف شرف / متحدث خاص)' : 'Guest Talks (Guest Speaker / Special Keynote)'}
+                </option>
               </select>
             </div>
           </div>

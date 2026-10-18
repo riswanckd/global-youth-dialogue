@@ -13,22 +13,39 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  X
+  X,
+  Presentation,
+  MessageSquare,
+  Sparkles,
+  Trash2,
+  User,
+  Shield,
+  Layers,
+  Image as ImageIcon
 } from 'lucide-react';
 
 export const Sessions: React.FC = () => {
   const queryClient = useQueryClient();
-  const { t, translateCategory, translateStatus } = useAdminLanguage();
+  const { t, translateCategory, translateStatus, isArabic } = useAdminLanguage();
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Technology & AI Ethics',
+    sessionCategory: 'Topic Presentation' as 'Topic Presentation' | 'Structural Debate' | 'Discussion' | 'Guest Talks',
+    academicSphere: 'Technology & AI Ethics',
     description: '',
     scheduledAt: '',
     durationMinutes: 90,
     meetingUrl: '',
+    moderator: '',
+    presenters: [{ name: '', country: '', bio: '' }],
+    team1Members: [''],
+    team2Members: [''],
+    keySpeakers: [''],
+    guestName: '',
+    guestBio: '',
+    guestImage: '',
   });
 
   const { data: sessions = [], isLoading } = useQuery<DialogueSession[]>({
@@ -36,23 +53,85 @@ export const Sessions: React.FC = () => {
     queryFn: () => apiRequest<DialogueSession[]>('/admin/sessions'),
   });
 
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      sessionCategory: 'Topic Presentation',
+      academicSphere: 'Technology & AI Ethics',
+      description: '',
+      scheduledAt: '',
+      durationMinutes: 90,
+      meetingUrl: '',
+      moderator: '',
+      presenters: [{ name: '', country: '', bio: '' }],
+      team1Members: [''],
+      team2Members: [''],
+      keySpeakers: [''],
+      guestName: '',
+      guestBio: '',
+      guestImage: '',
+    });
+  };
+
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) =>
-      apiRequest('/admin/sessions', {
+    mutationFn: (data: typeof formData) => {
+      const payload: any = {
+        title: data.title,
+        category: data.academicSphere,
+        format: data.sessionCategory,
+        description: data.description,
+        scheduledAt: data.scheduledAt,
+        durationMinutes: Number(data.durationMinutes) || 90,
+        meetingUrl: data.meetingUrl,
+      };
+
+      if (data.sessionCategory === 'Topic Presentation') {
+        payload.moderator = data.moderator.trim();
+        payload.presenters = data.presenters
+          .filter((p) => p.name.trim())
+          .map((p) => ({
+            name: p.name.trim(),
+            role: 'Presenter',
+            country: p.country?.trim() || '',
+            bio: p.bio?.trim() || '',
+          }));
+      } else if (data.sessionCategory === 'Structural Debate') {
+        payload.moderator = data.moderator.trim();
+        payload.propositionTeam = data.team1Members.map((m) => m.trim()).filter(Boolean);
+        payload.oppositionTeam = data.team2Members.map((m) => m.trim()).filter(Boolean);
+        payload.presenters = [
+          ...payload.propositionTeam.map((name: string) => ({ name, role: 'Proposition Team' })),
+          ...payload.oppositionTeam.map((name: string) => ({ name, role: 'Opposition Team' })),
+        ];
+      } else if (data.sessionCategory === 'Discussion') {
+        payload.moderator = data.moderator.trim();
+        payload.presenters = data.keySpeakers
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((name) => ({ name, role: 'Key Speaker' }));
+      } else if (data.sessionCategory === 'Guest Talks') {
+        payload.moderator = data.moderator.trim();
+        if (data.guestName.trim()) {
+          payload.presenters = [
+            {
+              name: data.guestName.trim(),
+              role: 'Guest Speaker',
+              bio: data.guestBio.trim(),
+              avatar: data.guestImage.trim(),
+            },
+          ];
+        }
+      }
+
+      return apiRequest('/admin/sessions', {
         method: 'POST',
-        body: JSON.stringify(data),
-      }),
+        body: JSON.stringify(payload),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
       setShowCreateModal(false);
-      setFormData({
-        title: '',
-        category: 'Technology & AI Ethics',
-        description: '',
-        scheduledAt: '',
-        durationMinutes: 90,
-        meetingUrl: '',
-      });
+      resetForm();
     },
   });
 
@@ -187,97 +266,242 @@ export const Sessions: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs text-slate-700 dark:text-slate-200">
-                  {filtered.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white">{s.title}</div>
-                        <div className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
-                          {translateCategory(s.category)}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div>{new Date(s.scheduledAt).toLocaleDateString()}</div>
-                        <div className="text-[11px] text-slate-500">{new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({s.durationMinutes}m)</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800">
-                          {translateStatus(s.status)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        {s.meetingUrl ? (
-                          <a href={s.meetingUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:underline">
-                            <Video className="w-3.5 h-3.5" />
-                            <span>{t('sessions.joinChamber', 'Join Chamber')}</span>
-                          </a>
-                        ) : (
-                          <span className="text-slate-400 text-xs">Unassigned</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 text-right rtl:text-left">
-                        <button className="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200">
-                          {t('apps.colActions', 'Edit')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {filtered.map((s) => {
+                    const sessionCat = s.format || 'Topic Presentation';
+                    return (
+                      <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-slate-900 dark:text-white">{s.title}</div>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                              sessionCat === 'Topic Presentation'
+                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400'
+                                : sessionCat === 'Structural Debate'
+                                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
+                                : sessionCat === 'Discussion'
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
+                                : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400'
+                            }`}>
+                              {sessionCat === 'Topic Presentation' && <Presentation className="w-3 h-3" />}
+                              {sessionCat === 'Structural Debate' && <Users className="w-3 h-3" />}
+                              {sessionCat === 'Discussion' && <MessageSquare className="w-3 h-3" />}
+                              {sessionCat === 'Guest Talks' && <Sparkles className="w-3 h-3" />}
+                              <span>{translateCategory(sessionCat)}</span>
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-medium">
+                              • {translateCategory(s.category)}
+                            </span>
+                          </div>
+
+                          {/* Dynamic participant summary */}
+                          <div className="mt-1.5 text-[11px] text-slate-600 dark:text-slate-400 space-y-0.5">
+                            {sessionCat === 'Topic Presentation' && (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.presenters && s.presenters.length > 0 && (
+                                  <span><strong className="text-slate-700 dark:text-slate-300">Presenter(s):</strong> {s.presenters.map((p) => p.name).join(', ')}</span>
+                                )}
+                              </div>
+                            )}
+
+                            {sessionCat === 'Structural Debate' && (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.propositionTeam && s.propositionTeam.length > 0 && (
+                                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">
+                                    Team 1 ({s.propositionTeam.length}): {s.propositionTeam.join(', ')}
+                                  </span>
+                                )}
+                                {s.oppositionTeam && s.oppositionTeam.length > 0 && (
+                                  <span className="text-amber-600 dark:text-amber-400 font-medium">
+                                    vs Team 2 ({s.oppositionTeam.length}): {s.oppositionTeam.join(', ')}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            {sessionCat === 'Discussion' && (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.presenters && s.presenters.length > 0 && (
+                                  <span><strong className="text-slate-700 dark:text-slate-300">Speakers:</strong> {s.presenters.map((p) => p.name).join(', ')}</span>
+                                )}
+                              </div>
+                            )}
+
+                            {sessionCat === 'Guest Talks' && (
+                              <div className="flex items-center gap-2">
+                                {s.presenters && s.presenters[0] && (
+                                  <div className="flex items-center gap-1.5">
+                                    {s.presenters[0].avatar ? (
+                                      <img src={s.presenters[0].avatar} alt="" className="w-4 h-4 rounded-full object-cover" />
+                                    ) : (
+                                      <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                                    )}
+                                    <span className="font-semibold text-purple-700 dark:text-purple-300">
+                                      Guest: {s.presenters[0].name}
+                                    </span>
+                                    {s.presenters[0].bio && (
+                                      <span className="text-slate-400 truncate max-w-xs">({s.presenters[0].bio})</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div>{new Date(s.scheduledAt).toLocaleDateString()}</div>
+                          <div className="text-[11px] text-slate-500">{new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({s.durationMinutes}m)</div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800">
+                            {translateStatus(s.status)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {s.meetingUrl ? (
+                            <a href={s.meetingUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:underline">
+                              <Video className="w-3.5 h-3.5" />
+                              <span>{t('sessions.joinChamber', 'Join Chamber')}</span>
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-xs">Unassigned</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-right rtl:text-left">
+                          <button className="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200">
+                            {t('apps.colActions', 'Edit')}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile Responsive Cards */}
             <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 p-3 space-y-3">
-              {filtered.map((s) => (
-                <div
-                  key={s.id}
-                  className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2.5 shadow-xs"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
-                        {s.title}
-                      </h4>
-                      <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
-                        {translateCategory(s.category)}
+              {filtered.map((s) => {
+                const sessionCat = s.format || 'Topic Presentation';
+                return (
+                  <div
+                    key={s.id}
+                    className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2.5 shadow-xs"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
+                          {s.title}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                            sessionCat === 'Topic Presentation'
+                              ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400'
+                              : sessionCat === 'Structural Debate'
+                              ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
+                              : sessionCat === 'Discussion'
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
+                              : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400'
+                          }`}>
+                            <span>{translateCategory(sessionCat)}</span>
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-medium">
+                            {translateCategory(s.category)}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 shrink-0">
+                        {translateStatus(s.status)}
                       </span>
                     </div>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 shrink-0">
-                      {translateStatus(s.status)}
-                    </span>
-                  </div>
 
-                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                    <span>{new Date(s.scheduledAt).toLocaleDateString()} at {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    <span>{s.durationMinutes}m</span>
-                  </div>
+                    {/* Participant summary for mobile card */}
+                    <div className="text-xs text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-slate-900/60 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                      {sessionCat === 'Topic Presentation' && (
+                        <div className="space-y-0.5">
+                          {s.moderator && <div><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</div>}
+                          {s.presenters && s.presenters.length > 0 && (
+                            <div><strong className="text-slate-700 dark:text-slate-300">Presenters:</strong> {s.presenters.map((p) => p.name).join(', ')}</div>
+                          )}
+                        </div>
+                      )}
+                      {sessionCat === 'Structural Debate' && (
+                        <div className="space-y-1">
+                          {s.propositionTeam && s.propositionTeam.length > 0 && (
+                            <div className="text-indigo-600 dark:text-indigo-400 font-medium">Team 1: {s.propositionTeam.join(', ')}</div>
+                          )}
+                          {s.oppositionTeam && s.oppositionTeam.length > 0 && (
+                            <div className="text-amber-600 dark:text-amber-400 font-medium">Team 2: {s.oppositionTeam.join(', ')}</div>
+                          )}
+                        </div>
+                      )}
+                      {sessionCat === 'Discussion' && (
+                        <div className="space-y-0.5">
+                          {s.moderator && <div><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</div>}
+                          {s.presenters && s.presenters.length > 0 && (
+                            <div><strong className="text-slate-700 dark:text-slate-300">Speakers:</strong> {s.presenters.map((p) => p.name).join(', ')}</div>
+                          )}
+                        </div>
+                      )}
+                      {sessionCat === 'Guest Talks' && s.presenters && s.presenters[0] && (
+                        <div className="flex items-center gap-2">
+                          {s.presenters[0].avatar && (
+                            <img src={s.presenters[0].avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
+                          )}
+                          <span className="font-bold text-purple-700 dark:text-purple-300">
+                            Guest: {s.presenters[0].name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                  {s.meetingUrl && (
-                    <a
-                      href={s.meetingUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                    >
-                      <Video className="w-3.5 h-3.5" />
-                      <span>{t('sessions.joinChamber', 'Join Debate Chamber')}</span>
-                    </a>
-                  )}
-                </div>
-              ))}
+                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                      <span>{new Date(s.scheduledAt).toLocaleDateString()} at {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span>{s.durationMinutes}m</span>
+                    </div>
+
+                    {s.meetingUrl && (
+                      <a
+                        href={s.meetingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                        <span>{t('sessions.joinChamber', 'Join Debate Chamber')}</span>
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
       </div>
 
-      {/* Create Modal */}
+      {/* Create Modal with Category Specific Dynamic Fields */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-4 sm:p-6 space-y-4 shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                {t('sessions.modalTitle', 'Schedule Parliamentary Debate Session')}
-              </h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Close">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  {t('sessions.modalTitle', 'Schedule Parliamentary Debate Session')}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Select a session category to configure specific participants, moderators, and team rosters.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  resetForm();
+                }}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                aria-label="Close"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -289,28 +513,483 @@ export const Sessions: React.FC = () => {
               }}
               className="space-y-4"
             >
+              {/* Category Selection Cards */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
+                  {t('sessions.categoryLabel', 'Session Category')} *
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {/* Topic Presentation */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Topic Presentation' })}
+                    className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
+                      formData.sessionCategory === 'Topic Presentation'
+                        ? 'border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-500/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <Presentation className="w-4 h-4 mb-1" />
+                      {formData.sessionCategory === 'Topic Presentation' && (
+                        <div className="w-2 h-2 rounded-full bg-indigo-600" />
+                      )}
+                    </div>
+                    <div className="font-bold text-xs leading-tight">Topic Presentation</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator & Presenter(s)</div>
+                  </button>
+
+                  {/* Structural Debate */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Structural Debate' })}
+                    className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
+                      formData.sessionCategory === 'Structural Debate'
+                        ? 'border-amber-600 bg-amber-50/70 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <Users className="w-4 h-4 mb-1" />
+                      {formData.sessionCategory === 'Structural Debate' && (
+                        <div className="w-2 h-2 rounded-full bg-amber-600" />
+                      )}
+                    </div>
+                    <div className="font-bold text-xs leading-tight">Structural Debate</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">2 Teams & Members</div>
+                  </button>
+
+                  {/* Discussion */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Discussion' })}
+                    className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
+                      formData.sessionCategory === 'Discussion'
+                        ? 'border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <MessageSquare className="w-4 h-4 mb-1" />
+                      {formData.sessionCategory === 'Discussion' && (
+                        <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                      )}
+                    </div>
+                    <div className="font-bold text-xs leading-tight">Discussion</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator & Key Speakers</div>
+                  </button>
+
+                  {/* Guest Talks */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Guest Talks' })}
+                    className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
+                      formData.sessionCategory === 'Guest Talks'
+                        ? 'border-purple-600 bg-purple-50/70 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 ring-2 ring-purple-500/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <Sparkles className="w-4 h-4 mb-1" />
+                      {formData.sessionCategory === 'Guest Talks' && (
+                        <div className="w-2 h-2 rounded-full bg-purple-600" />
+                      )}
+                    </div>
+                    <div className="font-bold text-xs leading-tight">Guest Talks</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Guest, Bio & Photo</div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Title / Motion */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {t('sessions.motionLabel', 'Session Motion / Title')}
+                  {t('sessions.motionLabel', 'Session Motion / Title')} *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. AI Sovereignty & Civil Liberties"
+                  placeholder="e.g. AI Sovereignty & Civil Liberties in the Global South"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full mt-1 p-2 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                  className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                 />
               </div>
 
+              {/* Dynamic Participants Section Based on Selected Category */}
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
+                {/* 1. TOPIC PRESENTATION */}
+                {formData.sessionCategory === 'Topic Presentation' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
+                      <Presentation className="w-4 h-4" />
+                      <span>Topic Presentation Configuration (Moderator and Presenter - 1 or more)</span>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        {t('sessions.moderator', 'Session Moderator')}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={t('sessions.moderatorPlaceholder', 'e.g. Dr. Tariq Al-Mansoor')}
+                        value={formData.moderator}
+                        onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
+                        className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          {t('sessions.presentersLabel', 'Presenter(s) (1 or more)')} *
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              presenters: [...formData.presenters, { name: '', country: '', bio: '' }],
+                            })
+                          }
+                          className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>{t('sessions.addPresenter', '+ Add Presenter')}</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {formData.presenters.map((pres, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              required={idx === 0}
+                              placeholder={`Presenter ${idx + 1} Name *`}
+                              value={pres.name}
+                              onChange={(e) => {
+                                const newP = [...formData.presenters];
+                                newP[idx].name = e.target.value;
+                                setFormData({ ...formData, presenters: newP });
+                              }}
+                              className="flex-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Country (optional)"
+                              value={pres.country}
+                              onChange={(e) => {
+                                const newP = [...formData.presenters];
+                                newP[idx].country = e.target.value;
+                                setFormData({ ...formData, presenters: newP });
+                              }}
+                              className="w-28 sm:w-36 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                            />
+                            {formData.presenters.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newP = formData.presenters.filter((_, i) => i !== idx);
+                                  setFormData({ ...formData, presenters: newP });
+                                }}
+                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
+                                title="Remove Presenter"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. STRUCTURAL DEBATE */}
+                {formData.sessionCategory === 'Structural Debate' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
+                      <Users className="w-4 h-4" />
+                      <span>Structural Debate Configuration (2 Teams and their Members)</span>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        Chamber President / Moderator (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Session Speaker / Adjudicator Name"
+                        value={formData.moderator}
+                        onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
+                        className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      {/* Team 1 / Proposition */}
+                      <div className="p-2.5 rounded-lg border border-indigo-200 dark:border-indigo-900/60 bg-white dark:bg-slate-800/80 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-indigo-700 dark:text-indigo-400">
+                            Team 1 (Proposition)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData({ ...formData, team1Members: [...formData.team1Members, ''] })
+                            }
+                            className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                          >
+                            + Add Member
+                          </button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {formData.team1Members.map((member, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                placeholder={`Member ${idx + 1}`}
+                                value={member}
+                                onChange={(e) => {
+                                  const updated = [...formData.team1Members];
+                                  updated[idx] = e.target.value;
+                                  setFormData({ ...formData, team1Members: updated });
+                                }}
+                                className="w-full p-1.5 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                              />
+                              {formData.team1Members.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      team1Members: formData.team1Members.filter((_, i) => i !== idx),
+                                    });
+                                  }}
+                                  className="text-rose-500 hover:text-rose-700 p-1"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Team 2 / Opposition */}
+                      <div className="p-2.5 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-white dark:bg-slate-800/80 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-amber-700 dark:text-amber-400">
+                            Team 2 (Opposition)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData({ ...formData, team2Members: [...formData.team2Members, ''] })
+                            }
+                            className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                          >
+                            + Add Member
+                          </button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {formData.team2Members.map((member, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                placeholder={`Member ${idx + 1}`}
+                                value={member}
+                                onChange={(e) => {
+                                  const updated = [...formData.team2Members];
+                                  updated[idx] = e.target.value;
+                                  setFormData({ ...formData, team2Members: updated });
+                                }}
+                                className="w-full p-1.5 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+                              />
+                              {formData.team2Members.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      team2Members: formData.team2Members.filter((_, i) => i !== idx),
+                                    });
+                                  }}
+                                  className="text-rose-500 hover:text-rose-700 p-1"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. DISCUSSION */}
+                {formData.sessionCategory === 'Discussion' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Discussion Configuration (Moderator, and Key Speakers - if any)</span>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        {t('sessions.moderator', 'Session Moderator')} *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Elena Rostova (Discussion Chair)"
+                        value={formData.moderator}
+                        onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
+                        className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          {t('sessions.speakersLabel', 'Key Speakers (if any)')}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData({ ...formData, keySpeakers: [...formData.keySpeakers, ''] })
+                          }
+                          className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>{t('sessions.addSpeaker', '+ Add Speaker')}</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {formData.keySpeakers.map((speaker, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              placeholder={`Key Speaker ${idx + 1} Name`}
+                              value={speaker}
+                              onChange={(e) => {
+                                const updated = [...formData.keySpeakers];
+                                updated[idx] = e.target.value;
+                                setFormData({ ...formData, keySpeakers: updated });
+                              }}
+                              className="flex-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                            />
+                            {formData.keySpeakers.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    keySpeakers: formData.keySpeakers.filter((_, i) => i !== idx),
+                                  });
+                                }}
+                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. GUEST TALKS */}
+                {formData.sessionCategory === 'Guest Talks' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Guest Talks Configuration (Guest Name, Bio, Image)</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                          {t('sessions.guestName', 'Guest Name')} *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Prof. Michael Sandel"
+                          value={formData.guestName}
+                          onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
+                          className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                          Host / Moderator (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Mubashir CP"
+                          value={formData.moderator}
+                          onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
+                          className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        {t('sessions.guestBio', 'Guest Biography & Credentials')} *
+                      </label>
+                      <textarea
+                        rows={2}
+                        required
+                        placeholder="e.g. Professor of Government at Harvard University, author of 'Justice'..."
+                        value={formData.guestBio}
+                        onChange={(e) => setFormData({ ...formData, guestBio: e.target.value })}
+                        className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        {t('sessions.guestImage', 'Guest Image / Photo URL')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="url"
+                          placeholder="https://images.unsplash.com/... or https://..."
+                          value={formData.guestImage}
+                          onChange={(e) => setFormData({ ...formData, guestImage: e.target.value })}
+                          className="flex-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                        />
+                        {formData.guestImage && (
+                          <img
+                            src={formData.guestImage}
+                            alt="Guest Preview"
+                            className="w-8 h-8 rounded-full object-cover border border-slate-300 shrink-0"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Academic Discipline */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {t('sessions.categoryLabel', 'Academic Discipline Category')}
+                  {t('sessions.academicSphere', 'Academic Discipline / Sphere')}
                 </label>
                 <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full mt-1 p-2 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                  value={formData.academicSphere}
+                  onChange={(e) => setFormData({ ...formData, academicSphere: e.target.value })}
+                  className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                 >
                   <option value="Technology & AI Ethics">{translateCategory('Technology & AI Ethics')}</option>
                   <option value="International Relations">{translateCategory('International Relations')}</option>
@@ -323,57 +1002,65 @@ export const Sessions: React.FC = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {t('sessions.dateLabel', 'Scheduled Date & Time (UTC)')}
-                </label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={formData.scheduledAt}
-                  onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
-                  className="w-full mt-1 p-2 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                />
+              {/* Date & URL Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {t('sessions.dateLabel', 'Scheduled Date & Time (UTC)')} *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={formData.scheduledAt}
+                    onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
+                    className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {t('sessions.meetingUrlLabel', 'Virtual Meeting URL (Zoom / Google Meet)')} *
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://meet.google.com/... or Zoom"
+                    value={formData.meetingUrl}
+                    onChange={(e) => setFormData({ ...formData, meetingUrl: e.target.value })}
+                    className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {t('sessions.meetingUrlLabel', 'Virtual Meeting URL (Zoom / Google Meet)')}
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.meetingUrl}
-                  onChange={(e) => setFormData({ ...formData, meetingUrl: e.target.value })}
-                  className="w-full mt-1 p-2 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                />
-              </div>
-
+              {/* Description */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('sessions.descLabel', 'Motion Description & Rules of Engagement')}
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Summary of proposition and opposition arguments..."
-                  className="w-full mt-1 p-2 text-xs rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                  placeholder="Summary of proposition, core dilemmas, or guest talk overview..."
+                  className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    resetForm();
+                  }}
+                  className="px-3.5 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-medium"
                 >
                   {t('sessions.cancelBtn', 'Cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded shadow-sm"
+                  className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
                 >
                   {createMutation.isPending ? 'Scheduling...' : t('sessions.createBtn', 'Publish Session Chamber')}
                 </button>

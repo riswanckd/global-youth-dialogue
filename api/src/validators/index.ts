@@ -96,6 +96,8 @@ export const createSessionSchema = z.object({
         name: z.string().min(1),
         role: z.string().optional(),
         country: z.string().optional(),
+        bio: z.string().optional(),
+        avatar: z.string().optional(),
       })
     )
     .default([]),

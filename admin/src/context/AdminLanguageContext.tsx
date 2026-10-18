@@ -187,7 +187,6 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'sessions.noSessions': { en: 'No parliamentary sessions found.', ar: 'لا توجد جلسات مناظرة مسجلة.' },
   'sessions.modalTitle': { en: 'Schedule Parliamentary Debate Session', ar: 'جدولة جلسة مناظرة برلمانية' },
   'sessions.motionLabel': { en: 'Session Motion / Title', ar: 'قضية الجلسة / العنوان' },
-  'sessions.categoryLabel': { en: 'Academic Discipline Category', ar: 'المجال التخصصي والمعرفي' },
   'sessions.descLabel': { en: 'Motion Description & Rules of Engagement', ar: 'الوصف ومحددات المناظرة' },
   'sessions.dateLabel': { en: 'Scheduled Date & Time (UTC)', ar: 'الموعد المحدد (توقيت UTC)' },
   'sessions.durationLabel': { en: 'Duration (Minutes)', ar: 'المدة (بالدقائق)' },
@@ -198,6 +197,21 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'sessions.live': { en: 'Live Now', ar: 'جارية الآن' },
   'sessions.scheduled': { en: 'Scheduled', ar: 'مجدولة' },
   'sessions.completed': { en: 'Completed', ar: 'منتهية' },
+  'sessions.categoryLabel': { en: 'Session Category', ar: 'فئة ونوع الجلسة' },
+  'sessions.academicSphere': { en: 'Academic Discipline / Sphere', ar: 'المجال المعرفي الأكاديمي' },
+  'sessions.moderator': { en: 'Session Moderator', ar: 'مدير الجلسة' },
+  'sessions.moderatorPlaceholder': { en: 'Full name of session moderator...', ar: 'اسم مدير الجلسة الكامل...' },
+  'sessions.presentersLabel': { en: 'Presenter(s) (1 or more)', ar: 'مقدم(و) العرض (1 أو أكثر)' },
+  'sessions.addPresenter': { en: '+ Add Presenter', ar: '+ إضافة مقدم عرض' },
+  'sessions.team1Label': { en: 'Team 1 / Proposition Members', ar: 'الفريق الأول / أعضاء فريق الموالاة' },
+  'sessions.team2Label': { en: 'Team 2 / Opposition Members', ar: 'الفريق الثاني / أعضاء فريق المعارضة' },
+  'sessions.teamMemberPlaceholder': { en: 'Enter member name...', ar: 'أدخل اسم العضو...' },
+  'sessions.addMember': { en: '+ Add Member', ar: '+ إضافة عضو' },
+  'sessions.speakersLabel': { en: 'Key Speakers (if any)', ar: 'المتحدثون الرئيسيون (إن وجدوا)' },
+  'sessions.addSpeaker': { en: '+ Add Speaker', ar: '+ إضافة متحدث' },
+  'sessions.guestName': { en: 'Guest Name', ar: 'اسم الضيف' },
+  'sessions.guestBio': { en: 'Guest Biography / Credentials', ar: 'النبذة التعريفية عن الضيف' },
+  'sessions.guestImage': { en: 'Guest Photo / Image URL', ar: 'رابط صورة الضيف' },
 
   // Topics Page
   'topics.title': { en: 'Topic Pipeline & Proposals', ar: 'مسار ومقترحات القضايا' },
@@ -335,6 +349,10 @@ const CATEGORIES_AR: Record<string, string> = {
   'Biomedical Ethics': 'الأخلاقيات الطبية والحيوية',
   'Education Reform': 'تطوير التعليم والمعرفة',
   'Media & Information Integrity': 'الإعلام ونزاهة المعلومات',
+  'Topic Presentation': 'عرض موضوع',
+  'Structural Debate': 'مناظرة هيكلية',
+  'Discussion': 'جلسة نقاشية',
+  'Guest Talks': 'حوارات الضيوف',
 };
 
 const ROLES_AR: Record<string, string> = {
