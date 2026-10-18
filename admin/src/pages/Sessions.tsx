@@ -12,7 +12,8 @@ import {
   Users,
   CheckCircle2,
   Clock,
-  XCircle
+  XCircle,
+  X
 } from 'lucide-react';
 
 export const Sessions: React.FC = () => {
@@ -276,7 +277,9 @@ export const Sessions: React.FC = () => {
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                 {t('sessions.modalTitle', 'Schedule Parliamentary Debate Session')}
               </h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Close">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <form

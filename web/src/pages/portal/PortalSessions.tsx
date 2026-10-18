@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
 import { DialogueSession } from '../../types';
 import { EditSessionModal } from '../../components/portal/EditSessionModal';
-import { Calendar, Video, ExternalLink, ArrowRight, Clock, Users, Shield, Edit3 } from 'lucide-react';
+import { Calendar, Video, ExternalLink, ArrowRight, Clock, Users, Shield, Edit3, Target } from 'lucide-react';
 
 export const PortalSessions: React.FC = () => {
   const { user, isCoordinator } = useAuth();
@@ -115,8 +115,9 @@ export const PortalSessions: React.FC = () => {
                     {session.category}
                   </span>
                   {isCoordinator && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                      🎯 {isArabic ? 'جلسة منسقة' : 'Coordinator Assigned'}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                      <Target className="w-3 h-3" />
+                      <span>{isArabic ? 'جلسة منسقة' : 'Coordinator Assigned'}</span>
                     </span>
                   )}
                 </div>

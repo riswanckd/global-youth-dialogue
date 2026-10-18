@@ -137,8 +137,12 @@ export const Publications: React.FC = () => {
               </p>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-body)' }}>
-                  <strong>👤 {author.name}</strong> ({author.country})
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-body)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span><strong>{author.name}</strong> ({author.country})</span>
                 </div>
                 <Link to={`/publications/${pub.id}`} className="btn btn-outline btn-sm">
                   {isArabic ? 'قراءة الورقة' : 'Read Paper'} &rarr;
