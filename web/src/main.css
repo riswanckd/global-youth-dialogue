@@ -4946,6 +4946,13 @@ body.rtl-mode .mobile-nav-drawer {
   #mobileMenuToggleBtn {
     display: none !important;
   }
+  .btn-lang,
+  .header-control-btn,
+  #themeToggleBtn,
+  .mobile-pill-tag {
+    border: none !important;
+    outline: none !important;
+  }
   .header-actions { gap: 0.4rem; flex-shrink: 1; align-items: center; }
   .container, .container-wide { padding-left: 1rem !important; padding-right: 1rem !important; }
   .brand-logo-img { height: 32px !important; max-width: 140px !important; }
@@ -5156,7 +5163,8 @@ body.rtl-mode .mobile-nav-drawer {
   .floating-countdown-card {
     background: #090d16 !important;
     color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    outline: none !important;
     border-radius: 22px !important;
     padding: 22px 20px !important;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28) !important;
@@ -5208,7 +5216,8 @@ body.rtl-mode .mobile-nav-drawer {
   }
   .countdown-box {
     background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border: none !important;
+    outline: none !important;
     border-radius: 10px !important;
     min-width: 48px !important;
     padding: 0.35rem 0.45rem !important;
@@ -5586,9 +5595,17 @@ body.rtl-mode .mobile-nav-drawer {
   .home-highlights-grid > .highlight-feature-card,
   .home-highlights-grid > .highlight-sunburst-card-wrap,
   .highlight-sunburst-card-wrap .highlight-feature-card,
+  .highlight-feature-card,
   .home-upcoming-container,
   .floating-countdown-card,
-  .countdown-box {
+  .countdown-box,
+  .metric-item,
+  .metrics-grid,
+  .hero-meta-item,
+  .mobile-pill-tag,
+  .btn-lang,
+  .header-control-btn,
+  #themeToggleBtn {
     border: none !important;
     outline: none !important;
   }
