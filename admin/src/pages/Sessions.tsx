@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
-import { DialogueSession } from '../types';
+import { DialogueSession, Topic } from '../types';
 import {
   Calendar,
   Plus,
@@ -21,8 +21,35 @@ import {
   User,
   Shield,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  BookOpen
 } from 'lucide-react';
+
+const SPHERES = [
+  'Geopolitics & International Relations',
+  'Technology & AI Ethics',
+  'Education & Future of Learning',
+  'Climate, Environment & Energy',
+  'Economy, Trade & Labor',
+  'Governance, Law & Human Rights',
+  'Culture, Identity & Global Media',
+  'Public Health, Bioethics & Science',
+  'Space Governance & Astro-Politics',
+  'Cybersecurity & Digital Sovereignty',
+  'Youth Leadership & Future Generations',
+  'Peacebuilding, Disarmament & Humanitarian Law',
+  'Synthetic Biology & Genetic Horizons',
+  'Food Sovereignty & Ocean Ecosystems',
+  'Philosophy, Epistemology & Applied Ethics',
+  'Urban Futures & Smart Habitats',
+  'International Relations',
+  'Global Economics',
+  'Philosophy & Human Rights',
+  'Environmental Policy',
+  'Biomedical Ethics',
+  'Education Reform',
+  'Media & Information Integrity',
+];
 
 export const Sessions: React.FC = () => {
   const queryClient = useQueryClient();
@@ -53,7 +80,94 @@ export const Sessions: React.FC = () => {
     queryFn: () => apiRequest<DialogueSession[]>('/admin/sessions'),
   });
 
+  const { data: topics = [] } = useQuery<Topic[]>({
+    queryKey: ['admin-topics'],
+    queryFn: () => apiRequest<Topic[]>('/admin/topics'),
+  });
+
+  const [selectedTopicId, setSelectedTopicId] = useState<string>('');
+  const [showAddTopicModal, setShowAddTopicModal] = useState<boolean>(false);
+  const [topicCreateSuccess, setTopicCreateSuccess] = useState<string>('');
+  const [topicCreateError, setTopicCreateError] = useState<string>('');
+
+  const [newTopicForm, setNewTopicForm] = useState({
+    title: '',
+    motion: '',
+    category: 'Technology & AI Ethics',
+    format: 'Topic Presentation',
+    description: '',
+    regionalPerspective: '',
+    status: 'approved',
+  });
+
+  const createTopicMutation = useMutation({
+    mutationFn: (topicData: typeof newTopicForm) =>
+      apiRequest<Topic>('/admin/topics', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...topicData,
+          motion: topicData.motion.trim() || undefined,
+          regionalPerspective: topicData.regionalPerspective.trim() || undefined,
+        }),
+      }),
+    onSuccess: async (createdTopic: any) => {
+      await queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
+      const tId = createdTopic?.id || createdTopic?._id;
+      if (tId) setSelectedTopicId(tId);
+      setFormData((prev) => ({
+        ...prev,
+        title: createdTopic?.title || newTopicForm.title,
+        academicSphere: createdTopic?.category || newTopicForm.category,
+        description: createdTopic?.description || newTopicForm.description,
+        sessionCategory: ['Topic Presentation', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(createdTopic?.format)
+          ? (createdTopic.format as any)
+          : prev.sessionCategory,
+      }));
+      setTopicCreateSuccess(t('sessions.topicAddedSuccess', 'New topic created and selected for this session!'));
+      setTimeout(() => {
+        setShowAddTopicModal(false);
+        setTopicCreateSuccess('');
+        setNewTopicForm({
+          title: '',
+          motion: '',
+          category: 'Technology & AI Ethics',
+          format: 'Topic Presentation',
+          description: '',
+          regionalPerspective: '',
+          status: 'approved',
+        });
+      }, 700);
+    },
+    onError: (err: any) => {
+      setTopicCreateError(err?.message || 'Failed to add topic to bank.');
+    },
+  });
+
+  const handleTopicSelect = (topicId: string) => {
+    setSelectedTopicId(topicId);
+    if (!topicId || topicId === 'custom') {
+      return;
+    }
+    const found = topics.find((t) => ((t as any).id || (t as any)._id) === topicId);
+    if (found) {
+      setFormData((prev) => ({
+        ...prev,
+        title: found.title,
+        academicSphere: found.category || prev.academicSphere,
+        description: found.description || prev.description,
+        sessionCategory: (['Topic Presentation', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(found.format as any)
+          ? found.format
+          : prev.sessionCategory) as any,
+      }));
+    }
+  };
+
+  const selectedTopic = topics.find((t) => ((t as any).id || (t as any)._id) === selectedTopicId);
+
   const resetForm = () => {
+    setSelectedTopicId('');
+    setTopicCreateSuccess('');
+    setTopicCreateError('');
     setFormData({
       title: '',
       sessionCategory: 'Topic Presentation',
@@ -622,6 +736,72 @@ export const Sessions: React.FC = () => {
                 </div>
               </div>
 
+              {/* Topic Bank Dropdown & Add Topic Button */}
+              <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <span>{t('sessions.chooseTopic', 'Select Topic from Topic Bank')}</span>
+                    <span className="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">
+                      ({topics.length} {t('sessions.availableTopics', 'available')})
+                    </span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewTopicForm({
+                        title: '',
+                        motion: '',
+                        category: formData.academicSphere || 'Technology & AI Ethics',
+                        format: formData.sessionCategory || 'Topic Presentation',
+                        description: '',
+                        regionalPerspective: '',
+                        status: 'approved',
+                      });
+                      setTopicCreateError('');
+                      setTopicCreateSuccess('');
+                      setShowAddTopicModal(true);
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>{t('sessions.addNewTopicBtn', '+ Add New Topic')}</span>
+                  </button>
+                </div>
+
+                <select
+                  value={selectedTopicId}
+                  onChange={(e) => handleTopicSelect(e.target.value)}
+                  className="w-full p-2 text-xs rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="">{t('sessions.chooseTopicPlaceholder', '-- Select an Approved Topic from Bank --')}</option>
+                  <option value="custom">{t('sessions.customTopicOption', '✎ Custom Topic / Type Title Manually')}</option>
+                  {topics.map((tItem) => {
+                    const tId = (tItem as any).id || (tItem as any)._id;
+                    return (
+                      <option key={tId} value={tId}>
+                        {tItem.title} — [{translateCategory(tItem.category)}]
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {selectedTopic && (
+                  <div className="text-[11px] text-indigo-800 dark:text-indigo-300 bg-white/80 dark:bg-slate-900/60 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900/50 space-y-1">
+                    {selectedTopic.motion && (
+                      <div className="italic font-medium text-slate-700 dark:text-slate-300">
+                        "{selectedTopic.motion}"
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">{translateCategory(selectedTopic.category)}</span>
+                      {selectedTopic.format && <span>• {translateCategory(selectedTopic.format)}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Title / Motion */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -1012,14 +1192,11 @@ export const Sessions: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, academicSphere: e.target.value })}
                   className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                 >
-                  <option value="Technology & AI Ethics">{translateCategory('Technology & AI Ethics')}</option>
-                  <option value="International Relations">{translateCategory('International Relations')}</option>
-                  <option value="Global Economics">{translateCategory('Global Economics')}</option>
-                  <option value="Philosophy & Human Rights">{translateCategory('Philosophy & Human Rights')}</option>
-                  <option value="Environmental Policy">{translateCategory('Environmental Policy')}</option>
-                  <option value="Biomedical Ethics">{translateCategory('Biomedical Ethics')}</option>
-                  <option value="Education Reform">{translateCategory('Education Reform')}</option>
-                  <option value="Media & Information Integrity">{translateCategory('Media & Information Integrity')}</option>
+                  {SPHERES.map((sphere) => (
+                    <option key={sphere} value={sphere}>
+                      {translateCategory(sphere)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -1084,6 +1261,169 @@ export const Sessions: React.FC = () => {
                   className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
                 >
                   {createMutation.isPending ? 'Scheduling...' : t('sessions.createBtn', 'Publish Session Chamber')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Add Topic to Bank Sub-Modal */}
+      {showAddTopicModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-4 sm:p-5 space-y-3.5 shadow-2xl my-auto max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                    {t('topics.addModalTitle', 'Add New Topic to Bank')}
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    {isArabic
+                      ? 'أضف موضوعاً جديداً إلى بنك المواضيع وسيتم اختياره فوراً لهذه الجلسة.'
+                      : 'Add topic to Topic Bank and auto-select it for this session.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddTopicModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {topicCreateSuccess && (
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2 font-medium">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{topicCreateSuccess}</span>
+              </div>
+            )}
+            {topicCreateError && (
+              <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2 font-medium">
+                <XCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{topicCreateError}</span>
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setTopicCreateError('');
+                if (!newTopicForm.title.trim() || !newTopicForm.description.trim()) {
+                  setTopicCreateError('Title and description are required.');
+                  return;
+                }
+                createTopicMutation.mutate(newTopicForm);
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  {t('topics.titleInputLabel', 'Topic Title')} *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Geopolitics of Critical Mineral Supply Chains"
+                  value={newTopicForm.title}
+                  onChange={(e) => setNewTopicForm({ ...newTopicForm, title: e.target.value })}
+                  className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  {t('topics.motionInputLabel', 'Suggested Debate Motion')}
+                </label>
+                <input
+                  type="text"
+                  placeholder="This House Believes That..."
+                  value={newTopicForm.motion}
+                  onChange={(e) => setNewTopicForm({ ...newTopicForm, motion: e.target.value })}
+                  className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-[11px]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    {t('topics.categoryInputLabel', 'Core Discipline / Sphere')} *
+                  </label>
+                  <select
+                    value={newTopicForm.category}
+                    onChange={(e) => setNewTopicForm({ ...newTopicForm, category: e.target.value })}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  >
+                    {SPHERES.map((sphere) => (
+                      <option key={sphere} value={sphere}>
+                        {translateCategory(sphere)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    {t('topics.formatInputLabel', 'Proposed Activity Format')}
+                  </label>
+                  <select
+                    value={newTopicForm.format}
+                    onChange={(e) => setNewTopicForm({ ...newTopicForm, format: e.target.value })}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  >
+                    <option value="Topic Presentation">{translateCategory('Topic Presentation')}</option>
+                    <option value="Structural Debate">{translateCategory('Structural Debate')}</option>
+                    <option value="Discussion">{translateCategory('Discussion')}</option>
+                    <option value="Guest Talks">{translateCategory('Guest Talks')}</option>
+                    <option value="Academic Discussion / Policy Roundtable">{translateCategory('Academic Discussion / Policy Roundtable')}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  {t('topics.descriptionInputLabel', 'Academic Rationale & Description')} *
+                </label>
+                <textarea
+                  required
+                  rows={2}
+                  placeholder="Context, core dilemma, background information..."
+                  value={newTopicForm.description}
+                  onChange={(e) => setNewTopicForm({ ...newTopicForm, description: e.target.value })}
+                  className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTopicModal(false)}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  {t('topics.cancelBtn', 'Cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={createTopicMutation.isPending}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {createTopicMutation.isPending ? (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                      <span>{t('topics.savingBtn', 'Adding Topic...')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Add & Select for Session</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

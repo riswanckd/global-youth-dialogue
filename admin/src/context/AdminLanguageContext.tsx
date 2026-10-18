@@ -213,6 +213,12 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'sessions.guestName': { en: 'Guest Name', ar: 'اسم الضيف' },
   'sessions.guestBio': { en: 'Guest Biography / Credentials', ar: 'النبذة التعريفية عن الضيف' },
   'sessions.guestImage': { en: 'Guest Photo / Image URL', ar: 'رابط صورة الضيف' },
+  'sessions.chooseTopic': { en: 'Select Topic from Topic Bank', ar: 'اختر موضوعاً من بنك المواضيع' },
+  'sessions.chooseTopicPlaceholder': { en: '-- Select an Approved Topic from Bank --', ar: '-- اختر موضوعاً معتمداً من القائمة --' },
+  'sessions.customTopicOption': { en: '✎ Custom Topic / Type Title Manually', ar: '✎ موضوع مخصص / كتابة العنوان يدوياً' },
+  'sessions.addNewTopicBtn': { en: '+ Add New Topic', ar: '+ إضافة موضوع جديد' },
+  'sessions.availableTopics': { en: 'available', ar: 'متاح' },
+  'sessions.topicAddedSuccess': { en: 'New topic created and selected for this session!', ar: 'تم إنشاء الموضوع الجديد واختياره لهذه الجلسة بنجاح!' },
 
   // Topics Page
   'topics.title': { en: 'Topic Pipeline & Proposals', ar: 'مسار ومقترحات القضايا' },
