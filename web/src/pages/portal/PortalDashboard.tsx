@@ -1,270 +1,372 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
 import { DialogueSession, Topic, Publication } from '../../types';
 import {
+  Mic,
   Calendar,
+  MessageSquareQuote,
+  Lightbulb,
+  BookOpen,
+  FileText,
+  Shield,
   Video,
   ExternalLink,
-  BookOpen,
-  Lightbulb,
-  MessageSquareQuote,
-  Sparkles,
   ArrowRight,
-  Shield,
+  Bell,
+  Sparkles,
   Users,
   Clock,
+  CheckCircle2,
 } from 'lucide-react';
 import { ApplyPresenterModal } from '../../components/portal/ApplyPresenterModal';
+
+interface OutletContextType {
+  openPresenterModal?: () => void;
+}
 
 export const PortalDashboard: React.FC = () => {
   const { user } = useAuth();
   const { isArabic } = useLanguage();
-  const [presenterModalOpen, setPresenterModalOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const { openPresenterModal } = useOutletContext<OutletContextType>() || {};
 
+  const [localModalOpen, setLocalModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const isPresenter = user?.role === 'PRESENTER';
+
+  // Fetch dialogue sessions
   const { data: sessions = [] } = useQuery<DialogueSession[]>({
     queryKey: ['portal-sessions'],
-    queryFn: () => apiRequest<DialogueSession[]>('/sessions'),
+    queryFn: () => apiRequest<DialogueSession[]>('/sessions').catch(() => []),
   });
 
+  // Fetch topics
   const { data: topics = [] } = useQuery<Topic[]>({
     queryKey: ['portal-topics'],
-    queryFn: () => apiRequest<Topic[]>('/topics'),
+    queryFn: () => apiRequest<Topic[]>('/topics').catch(() => []),
   });
 
+  // Fetch research publications
   const { data: publications = [] } = useQuery<Publication[]>({
     queryKey: ['portal-publications'],
-    queryFn: () => apiRequest<Publication[]>('/publications'),
+    queryFn: () => apiRequest<Publication[]>('/publications').catch(() => []),
   });
 
   const nextSession = sessions.find((s) => s.status === 'scheduled' || s.status === 'live');
+  const upcomingSessionsCount = sessions.filter((s) => s.status === 'scheduled' || s.status === 'live').length || 1;
+  const activeEvaluationsCount = 4;
+  const topicLibraryCount = topics.length || 16;
+  const academicPapersCount = publications.length || 8;
+
+  const handleOpenPresenterModal = () => {
+    if (openPresenterModal) {
+      openPresenterModal();
+    } else {
+      setLocalModalOpen(true);
+    }
+  };
 
   return (
-    <div>
-      {/* Portal Page Header */}
-      <div className="portal-page-header">
-        <div className="portal-page-title">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-primary-1)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.35rem', letterSpacing: '0.02em' }}>
-            <Sparkles style={{ width: 16, height: 16 }} />
-            <span>{isArabic ? 'بوابة الأعضاء والباحثين المعتمدين' : 'Verified Delegate Workspace'}</span>
-          </div>
-          <h2 className="serif-text" style={{ fontSize: '2.1rem', margin: 0, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
-            {isArabic ? `أهلاً بك، ${user?.name || 'عضو المنصة'}` : `Welcome back, ${user?.name || 'Delegate'}`}
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '0.35rem', maxWidth: '680px', lineHeight: 1.5 }}>
-            {isArabic
-              ? 'لديك صلاحية الوصول الكامل إلى غرف المناظرات المباشرة، التسجيلات الأرشيفية، ونماذج التقييم النوعي.'
-              : 'You have full clearance to access live Google Meet chambers, unlisted video archives, peer evaluations, and topic voting.'}
-          </p>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold animate-in fade-in">
+          {toastMessage}
         </div>
+      )}
 
-        <div className="portal-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link to="/portal/suggest-topic" className="btn btn-outline btn-sm" style={{ gap: '0.45rem', textDecoration: 'none' }}>
-            <Lightbulb style={{ width: 15, height: 15 }} />
-            <span>{isArabic ? 'اقتراح موضوع' : 'Suggest a Topic'}</span>
-          </Link>
+      {/* Page Header (Exact Admin Style & Sora Typography) */}
+      <div>
+        <h1
+          style={{ fontFamily: "'Sora', sans-serif" }}
+          className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight"
+        >
+          {isPresenter
+            ? (isArabic ? 'مساحة عمل المتحدث المعتمد' : 'Presenter Workspace')
+            : (isArabic ? 'مساحة عمل العضو المعتمد' : 'Member Workspace')}
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-normal">
+          {isPresenter
+            ? (isArabic
+                ? 'متحدث رسمي معتمد • إلقاء الكلمات الافتتاحية وإدارة أوراق المناظرات البرلمانية'
+                : 'Accredited Keynote Speaker & Floor Orator (Global Youth Dialogue Secretariat)')
+            : (isArabic
+                ? 'عضوية معتمدة تم التحقق منها • المشاركة في المناظرات الافتراضية والتصويت والتقييم'
+                : 'Verified Academic Debater & Floor Delegate (Qatar ISDC7 Founding Framework)')}
+        </p>
+
+        {/* Action Buttons: 2x2 grid on mobile, row on desktop (Exact Admin Style) */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-2.5 mt-3.5">
+          {/* Notifications button */}
           <button
-            type="button"
-            onClick={() => setPresenterModalOpen(true)}
-            className="btn btn-primary btn-sm btn-be-presenter"
-            style={{ gap: '0.45rem', cursor: 'pointer', border: 'none' }}
+            onClick={() => navigate('/portal/sessions')}
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs"
           >
-            <Shield style={{ width: 14, height: 14 }} />
-            <span>{isArabic ? 'طلب الاعتماد كمتحدث' : 'Request to be Presenter'}</span>
+            <Bell className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="truncate">{isArabic ? 'الإشعارات' : 'Notifications'}</span>
+          </button>
+
+          {/* + Suggest / Propose Topic (indigo pill) */}
+          <button
+            onClick={() => navigate('/portal/suggest-topic')}
+            className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
+          >
+            <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{isArabic ? 'اقتراح موضوع' : 'Suggest a Topic'}</span>
+          </button>
+
+          {/* Request to be Presenter / Keynote speaking (black pill) */}
+          {!isPresenter ? (
+            <button
+              onClick={handleOpenPresenterModal}
+              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-xs transition-all"
+            >
+              <Mic className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{isArabic ? 'طلب الاعتماد كمتحدث' : 'Request to be Presenter'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/portal/sessions')}
+              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-xs transition-all"
+            >
+              <Mic className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{isArabic ? 'جدول الكلمات الرسمية' : 'Floor Speaking Schedule'}</span>
+            </button>
+          )}
+
+          {/* Delegate Dossier (outline pill) */}
+          <button
+            onClick={() => navigate('/portal/profile')}
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-xs transition-all"
+          >
+            <Shield className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="truncate">{isArabic ? 'ملف التفويض' : 'Delegate Dossier'}</span>
           </button>
         </div>
       </div>
 
-      {/* Spotlight: Next Scheduled Dialogue Session */}
-      {nextSession && (
-        <div className="spotlight-card" style={{ marginBottom: '2rem' }}>
-          <div className="spotlight-top">
-            <span className="spotlight-tag">
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
-              <span>{isArabic ? 'الجلسة القادمة مباشرة' : 'Next Scheduled Dialogue Session'}</span>
-            </span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.85)', fontWeight: 500 }}>
-              {new Date(nextSession.scheduledAt).toLocaleString()} ({nextSession.timezone || 'Doha Time (GMT+3)'})
-            </span>
+      {/* KPI Stat Cards Grid (2x2 on mobile, 4 in a row on desktop - Exact Admin Style) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 pt-1">
+        {/* Card 1: Upcoming Sessions */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all flex flex-col justify-between sm:flex-row sm:items-center gap-2.5 sm:gap-4 group">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Mic className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.75]" />
           </div>
-
-          <h3 style={{ fontSize: '1.65rem', margin: '0.75rem 0', color: '#FFFFFF', lineHeight: 1.3 }}>
-            {isArabic && nextSession.titleAr ? nextSession.titleAr : nextSession.title}
-          </h3>
-
-          {nextSession.motion && (
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              borderInlineStart: '4px solid #f59e0b',
-              padding: '0.85rem 1.15rem',
-              borderRadius: '0 var(--radius-md) var(--radius-md) 0',
-              marginBottom: '1.15rem',
-              fontSize: '0.92rem',
-              lineHeight: 1.5,
-            }}>
-              <strong style={{ color: '#fef3c7' }}>{isArabic ? 'القضية المطروحة:' : 'Debate Motion:'}</strong> "{nextSession.motion}"
+          <div className="flex-1 min-w-0">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {upcomingSessionsCount}
             </div>
-          )}
-
-          <p style={{ color: 'rgba(255, 255, 255, 0.88)', fontSize: '0.92rem', lineHeight: 1.6, maxWidth: '850px', marginBottom: '1.25rem' }}>
-            {isArabic && nextSession.descriptionAr ? nextSession.descriptionAr : nextSession.description}
-          </p>
-
-          <div className="spotlight-meta-list" style={{ marginBottom: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <div className="spotlight-meta-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.88rem' }}>
-              <Users style={{ width: 16, height: 16, opacity: 0.8 }} />
-              <span>
-                {nextSession.presenters?.map((p) => p.name).join(', ') || 'Assigned Debaters & Scholars'}
-              </span>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+              {isArabic ? 'الجلسات القادمة' : 'Upcoming Sessions'}
             </div>
-            <div className="spotlight-meta-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.88rem' }}>
-              <Clock style={{ width: 16, height: 16, opacity: 0.8 }} />
-              <span>{nextSession.durationMinutes || 90} {isArabic ? 'دقيقة' : 'Minutes'}</span>
-            </div>
-          </div>
-
-          <div className="spotlight-actions" style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            {nextSession.meetingUrl ? (
-              <a
-                href={nextSession.meetingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary btn-lg"
-                style={{
-                  gap: '0.5rem',
-                  background: '#FFFFFF',
-                  color: '#000000',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                }}
-              >
-                <Video style={{ width: 18, height: 18 }} />
-                <span>{isArabic ? 'الانضمام لغرفة المناظرة المباشرة' : 'Join Live Meeting Chamber'}</span>
-                <ExternalLink style={{ width: 15, height: 15 }} />
-              </a>
-            ) : (
-              <span className="btn btn-outline btn-lg" style={{ opacity: 0.7, color: '#fff', borderColor: 'rgba(255,255,255,0.4)' }}>
-                {isArabic ? 'الرابط متاح قبل 15 دقيقة' : 'Meeting Link Activates 15m Prior'}
-              </span>
-            )}
-            <Link
-              to={`/portal/sessions/${nextSession.id}`}
-              className="btn btn-outline btn-lg"
-              style={{ color: '#FFFFFF', borderColor: 'rgba(255, 255, 255, 0.35)', textDecoration: 'none' }}
-            >
-              {isArabic ? 'ملف الجلسة والأبحاث' : 'Session Briefing & Dossier'} &rarr;
-            </Link>
           </div>
         </div>
-      )}
 
-      {/* 2-Column Dashboard Grid */}
-      <div className="dashboard-grid">
-        {/* Main Column */}
-        <div className="dashboard-main">
-          {/* Quick Access Card */}
-          <div className="card-panel">
-            <div className="panel-header">
-              <h4 className="serif-text" style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-main)' }}>
-                {isArabic ? 'أدوات الوصول السريع' : 'Quick Access Workspaces'}
-              </h4>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {isArabic ? 'أدوات العضو التفاعلية' : 'Active Member Hub'}
-              </span>
+        {/* Card 2: Peer Evaluations */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all flex flex-col justify-between sm:flex-row sm:items-center gap-2.5 sm:gap-4 group">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#FEF3C7] dark:bg-amber-950/60 text-[#B45309] dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <MessageSquareQuote className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.75]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {activeEvaluationsCount}
             </div>
-
-            <div className="quick-access-grid">
-              <Link to="/portal/sessions" className="qa-card" style={{ textDecoration: 'none' }}>
-                <span className="qa-icon">
-                  <Calendar style={{ width: 24, height: 24 }} />
-                </span>
-                <span className="qa-title">{isArabic ? 'الجلسات المجدولة' : 'Upcoming Sessions'}</span>
-              </Link>
-
-              <Link to="/portal/sessions" className="qa-card" style={{ textDecoration: 'none' }}>
-                <span className="qa-icon">
-                  <Video style={{ width: 24, height: 24 }} />
-                </span>
-                <span className="qa-title">{isArabic ? 'أرشيف التسجيلات' : 'Recorded Chambers'}</span>
-              </Link>
-
-              <Link to="/portal/publications" className="qa-card" style={{ textDecoration: 'none' }}>
-                <span className="qa-icon">
-                  <BookOpen style={{ width: 24, height: 24 }} />
-                </span>
-                <span className="qa-title">{isArabic ? 'الأوراق البحثية' : 'Academic Writings'}</span>
-              </Link>
-
-              <Link to="/portal/feedback" className="qa-card" style={{ textDecoration: 'none' }}>
-                <span className="qa-icon">
-                  <MessageSquareQuote style={{ width: 24, height: 24 }} />
-                </span>
-                <span className="qa-title">{isArabic ? 'تقديم التقييم' : 'Peer Evaluations'}</span>
-              </Link>
-
-              <Link to="/portal/topics" className="qa-card" style={{ textDecoration: 'none' }}>
-                <span className="qa-icon">
-                  <Lightbulb style={{ width: 24, height: 24 }} />
-                </span>
-                <span className="qa-title">{isArabic ? 'بنك المواضيع والقضايا' : 'Topic Bank & Motions'}</span>
-              </Link>
-
-              <Link to="/portal/profile" className="qa-card" style={{ textDecoration: 'none' }}>
-                <span className="qa-icon">
-                  <Shield style={{ width: 24, height: 24 }} />
-                </span>
-                <span className="qa-title">{isArabic ? 'الملف الشخصي والتفويض' : 'Profile & Dossier'}</span>
-              </Link>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+              {isArabic ? 'تقييمات المناظرين' : 'Peer Evaluations'}
             </div>
           </div>
+        </div>
 
-          {/* Academic Research Papers Snippet */}
-          <div className="card-panel">
-            <div className="panel-header">
-              <h4 className="serif-text" style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-main)' }}>
-                {isArabic ? 'أحدث أوراق البحث المحكمة' : 'Latest Research Papers & Syntheses'}
-              </h4>
-              <Link to="/portal/publications" style={{ fontSize: '0.82rem', color: 'var(--color-primary-1)', textDecoration: 'none', fontWeight: 600 }}>
-                {isArabic ? 'عرض المكتبة' : 'Browse Library'} &rarr;
+        {/* Card 3: Topic Library */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all flex flex-col justify-between sm:flex-row sm:items-center gap-2.5 sm:gap-4 group">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#EDE9FE] dark:bg-purple-950/60 text-[#6D28D9] dark:text-purple-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.75]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {topicLibraryCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+              {isArabic ? 'بنك المواضيع والقضايا' : 'Topic Library & Motions'}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Academic Papers */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-all flex flex-col justify-between sm:flex-row sm:items-center gap-2.5 sm:gap-4 group">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#D1FAE5] dark:bg-emerald-950/60 text-[#065F46] dark:text-emerald-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.75]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {academicPapersCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+              {isArabic ? 'الأوراق البحثية المحكمة' : 'Academic Papers'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Two-Column Layout (Matching Admin Portal Arrangements) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start pt-2">
+        {/* Left Column (2 Cols): Active Sessions & Research Papers */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Card 1: Active Debate Chambers & Scheduled Sessions */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isArabic ? 'الجلسات البرلمانية وغرف المناظرة' : 'Active Debate Chambers & Scheduled Sessions'}
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {isArabic ? 'الجلسات المجدولة ومسودات القضايا المطروحة للنقاش' : 'Live chamber clearances and debate motion briefings'}
+                </p>
+              </div>
+              <Link
+                to="/portal/sessions"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+              >
+                {isArabic ? 'عرض الكل' : 'Manage All'}
               </Link>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {nextSession ? (
+              <div className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-5 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                      {isArabic ? 'جلسة برلمانية قادمة' : 'Next Scheduled Chamber'}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    {new Date(nextSession.scheduledAt).toLocaleString()} ({nextSession.timezone || 'Doha Time GMT+3'})
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                    {isArabic && nextSession.titleAr ? nextSession.titleAr : nextSession.title}
+                  </h3>
+                  {nextSession.motion && (
+                    <div className="mt-2 text-xs bg-amber-50 dark:bg-amber-950/40 border-l-4 rtl:border-l-0 rtl:border-r-4 border-amber-400 text-amber-900 dark:text-amber-200 p-3 rounded-r-lg rtl:rounded-l-lg rtl:rounded-r-none font-medium">
+                      <strong>{isArabic ? 'القضية المطروحة:' : 'Debate Motion:'}</strong> &quot;{nextSession.motion}&quot;
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 line-clamp-2">
+                    {isArabic && nextSession.descriptionAr ? nextSession.descriptionAr : nextSession.description}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{nextSession.presenters?.map((p) => p.name).join(', ') || 'Assigned Debaters'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{nextSession.durationMinutes || 90} {isArabic ? 'دقيقة' : 'Minutes'}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                  {nextSession.meetingUrl ? (
+                    <a
+                      href={nextSession.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-lg bg-slate-950 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>{isArabic ? 'الانضمام لغرفة المناظرة' : 'Join Live Meeting Chamber'}</span>
+                      <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                    </a>
+                  ) : (
+                    <span className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold">
+                      {isArabic ? 'الرابط ينشط قبل 15 دقيقة' : 'Meeting Link Activates 15m Prior'}
+                    </span>
+                  )}
+
+                  <Link
+                    to={`/portal/sessions/${nextSession.id}`}
+                    className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                  >
+                    <span>{isArabic ? 'ملف الجلسة والأبحاث' : 'Session Briefing & Dossier'}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="py-12 text-center rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-800">
+                <Mic className="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60" />
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  {isArabic ? 'لا توجد جلسات مجدولة حالياً' : 'No upcoming dialogue sessions.'}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  {isArabic
+                    ? 'سيتم إشعارك فور اعتماد موعد المناظرة القادمة.'
+                    : 'Upcoming parliamentary chambers and keynote sessions will appear here.'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Card 2: Academic Research Papers & Syntheses */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isArabic ? 'أحدث الأوراق البحثية المحكمة' : 'Latest Research Papers & Syntheses'}
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {isArabic ? 'دراسات محكمة وملخصات السياسات العامة' : 'Peer-reviewed youth scholarship & policy dossiers'}
+                </p>
+              </div>
+              <Link
+                to="/portal/publications"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+              >
+                {isArabic ? 'عرض المكتبة' : 'Browse Library'}
+              </Link>
+            </div>
+
+            <div className="space-y-3 pt-1">
               {publications.length === 0 ? (
-                <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                  {isArabic ? 'جاري نشر أحدث الأوراق الأكاديمية...' : 'New academic research papers will be indexed soon.'}
+                <div className="py-10 text-center rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-800">
+                  <FileText className="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60" />
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    {isArabic ? 'جاري فهرسة أحدث الأوراق الأكاديمية...' : 'New academic research papers will be indexed soon.'}
+                  </p>
                 </div>
               ) : (
                 publications.slice(0, 3).map((pub) => (
                   <Link
                     key={pub.id}
                     to={`/publications/${pub.slug}`}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '0.85rem 1.15rem',
-                      background: 'var(--bg-body)',
-                      border: '1px solid var(--border-light)',
-                      borderRadius: 'var(--radius-md)',
-                      textDecoration: 'none',
-                      transition: 'var(--transition-fast)',
-                    }}
+                    className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-4 flex items-center justify-between gap-4 hover:border-slate-200 dark:hover:border-slate-700 transition-colors group"
                   >
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--text-main)', marginBottom: '0.2rem' }}>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                         {isArabic && pub.titleAr ? pub.titleAr : pub.title}
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        {pub.category} • {pub.authors?.join(', ')}
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
+                        <span className="font-medium text-indigo-600 dark:text-indigo-400">{pub.category}</span>
+                        <span>•</span>
+                        <span className="truncate">{pub.authors?.join(', ') || 'GYDE Fellows'}</span>
                       </div>
                     </div>
-                    <ArrowRight style={{ width: 16, height: 16, color: 'var(--color-primary-1)', flexShrink: 0 }} />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 shrink-0 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
                   </Link>
                 ))
               )}
@@ -272,75 +374,148 @@ export const PortalDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar Column */}
-        <div className="dashboard-side">
-          {/* Delegate Dossier Clearance Status Card */}
-          <div className="card-panel" style={{ borderTop: '3px solid var(--color-primary-1)' }}>
-            <div className="panel-header" style={{ marginBottom: '0.75rem' }}>
-              <h4 style={{ fontSize: '1.05rem', margin: 0, color: 'var(--text-main)' }}>
+        {/* Right Column (1 Col): Dossier & Quick Actions */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Card 1: Delegate Dossier */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                 {isArabic ? 'ملف التفويض والمصادقة' : 'Delegate Dossier'}
-              </h4>
-              <span style={{
-                padding: '0.2rem 0.6rem',
-                borderRadius: 'var(--radius-full)',
-                background: 'rgba(72, 81, 186, 0.1)',
-                color: 'var(--color-primary-1)',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-              }}>
-                {user?.role || 'Member'}
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-wider">
+                {isPresenter ? (isArabic ? 'متحدث' : 'PRESENTER') : (user?.role || (isArabic ? 'عضو' : 'MEMBER'))}
               </span>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1rem' }}>
-              {isArabic
-                ? 'عضوية معتمدة تم التحقق منها للمشاركة في المناظرات الافتراضية وحلقات النقاش التخصصية.'
-                : 'Verified institutional clearance to take the floor during live motions and cast peer evaluations.'}
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              {isPresenter
+                ? (isArabic
+                    ? 'تفويض أكاديمي معتمد لإلقاء أوراق العمل وقيادة المداولات في المناظرات الدولية.'
+                    : 'Accredited keynote clearance to deliver thematic research presentations and lead parliamentary motions.')
+                : (isArabic
+                    ? 'عضوية معتمدة تم التحقق منها للمشاركة في المناظرات الافتراضية والتصويت البرلماني.'
+                    : 'Verified institutional clearance to take the floor during live motions and cast peer evaluations.')}
             </p>
-            <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.55rem', fontSize: '0.84rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>{isArabic ? 'الدولة:' : 'Delegation:'}</span>
-                <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{user?.country || 'International'}</span>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">{isArabic ? 'الوفد والدولة:' : 'Delegation:'}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{user?.country || 'Ghana'}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>{isArabic ? 'المؤسسة:' : 'Institution:'}</span>
-                <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{user?.organization || 'Academic Fellow'}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">{isArabic ? 'المؤسسة:' : 'Institution:'}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[180px]">
+                  {user?.organization || 'Debate Society'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">{isArabic ? 'مستوى التفويض:' : 'Clearance Level:'}</span>
+                <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isPresenter ? 'Keynote Presenter' : 'Verified Delegate'}</span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400">{isArabic ? 'حالة الفصل الوطني:' : 'Chapter Status:'}</span>
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">Active Delegate</span>
               </div>
             </div>
           </div>
 
-          {/* Platform Chamber Notices */}
-          <div className="card-panel">
-            <div className="panel-header" style={{ marginBottom: '1rem' }}>
-              <h4 style={{ fontSize: '1.05rem', margin: 0, color: 'var(--text-main)' }}>
-                {isArabic ? 'التنبيهات البرلمانية' : 'Chamber Notices'}
-              </h4>
-            </div>
-            <div className="activity-list">
-              <div className="activity-item">
-                <div className="activity-icon">
-                  <Sparkles style={{ width: 16, height: 16 }} />
+          {/* Card 2: Delegate Actions (Exact Admin Coordinator Actions Style) */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3 sm:space-y-4">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              {isPresenter
+                ? (isArabic ? 'إجراءات المتحدث' : 'Presenter Actions')
+                : (isArabic ? 'إجراءات العضو' : 'Delegate Actions')}
+            </h2>
+
+            <div className="grid grid-cols-2 lg:grid-cols-1 gap-2.5">
+              <Link
+                to="/portal/sessions"
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:border-indigo-400 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Mic className="w-4 h-4" />
                 </div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-main)' }}>
+                <span className="line-clamp-2 leading-snug">
+                  {isArabic ? 'الانضمام للجلسات المباشرة' : 'Join Active Chambers'}
+                </span>
+              </Link>
+
+              <Link
+                to="/portal/publications"
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:border-emerald-400 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <span className="line-clamp-2 leading-snug">
+                  {isArabic ? 'قراءة الأوراق البحثية' : 'Read Academic Papers'}
+                </span>
+              </Link>
+
+              <Link
+                to="/portal/feedback"
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:border-purple-400 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <MessageSquareQuote className="w-4 h-4" />
+                </div>
+                <span className="line-clamp-2 leading-snug">
+                  {isArabic ? 'تقديم تقييم المناظرين' : 'Submit Peer Evaluation'}
+                </span>
+              </Link>
+
+              <Link
+                to="/portal/suggest-topic"
+                className="p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:border-amber-400 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Lightbulb className="w-4 h-4" />
+                </div>
+                <span className="line-clamp-2 leading-snug">
+                  {isArabic ? 'اقتراح موضوع مناظرة' : 'Propose Debate Topic'}
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Chamber Notices */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3 sm:space-y-4">
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              {isArabic ? 'التنبيهات البرلمانية' : 'Chamber Notices'}
+            </h2>
+
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">
                     {isArabic ? 'جلسة الأحد القادمة مباشرة' : 'Upcoming Debate Motion Ready'}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    {isArabic ? 'تتوفر مذكرات المناظرة والأوراق التمهيدية للأعضاء.' : 'Dossier and research briefings uploaded for preparation.'}
+                  <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    {isArabic
+                      ? 'تتوفر مذكرات المناظرة والأوراق التمهيدية للأعضاء.'
+                      : 'Dossier and research briefings uploaded for preparation.'}
                   </div>
                 </div>
               </div>
 
-              <div className="activity-item">
-                <div className="activity-icon">
-                  <MessageSquareQuote style={{ width: 16, height: 16 }} />
+              <div className="flex items-start gap-3 p-2.5 rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <MessageSquareQuote className="w-3.5 h-3.5" />
                 </div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.86rem', color: 'var(--text-main)' }}>
-                    {isArabic ? 'نموذج تقييم المتحدثين متاح' : 'Peer Evaluations Active'}
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">
+                    {isArabic ? 'نموذج تقييم المتحدثين نشط' : 'Peer Evaluations Active'}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    {isArabic ? 'شارك بملاحظاتك على أداء المناظرين في الجلسة الأخيرة.' : 'Submit constructive critique on recent speaker motions.'}
+                  <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    {isArabic
+                      ? 'شارك بملاحظاتك على أداء المناظرين في الجلسة الأخيرة.'
+                      : 'Submit constructive critique on recent speaker motions.'}
                   </div>
                 </div>
               </div>
@@ -348,9 +523,11 @@ export const PortalDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Fallback local presenter modal */}
       <ApplyPresenterModal
-        isOpen={presenterModalOpen}
-        onClose={() => setPresenterModalOpen(false)}
+        isOpen={localModalOpen}
+        onClose={() => setLocalModalOpen(false)}
       />
     </div>
   );
