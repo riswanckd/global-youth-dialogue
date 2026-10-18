@@ -5,7 +5,7 @@
    Typography: Sora & Cairo (Arabic RTL)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&display=swap');
 
 :root,
 [data-theme="light"] {
@@ -102,10 +102,11 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Fonts */
-  --font-sans: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-arabic: 'Cairo', 'Sora', sans-serif;
+  /* Fonts - Pairing of Sora (headings) and Inter (body & UI) */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Sora', sans-serif;
+  --font-display: 'Sora', sans-serif;
+  --font-arabic: 'Cairo', 'Sora', 'Inter', sans-serif;
 }
 
 /* ==========================================================================
@@ -234,15 +235,18 @@ img {
   display: block;
 }
 
-/* Typography Helpers */
-.serif-text {
-  font-family: var(--font-serif);
+/* Typography Helpers - Sora & Inter Pairing */
+.serif-text,
+.font-display,
+.font-heading {
+  font-family: var(--font-display);
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
   color: var(--text-main);
   line-height: 1.25;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .text-muted { color: var(--text-muted); }
@@ -5254,51 +5258,66 @@ body.rtl-mode .mobile-nav-drawer {
   .kpi-info h3 { font-size: 1.25rem; }
   .kpi-info p { font-size: 0.74rem; white-space: normal; }
   
-  /* Key Metrics Strip on mobile (3-Column Capsule) */
+  /* Key Metrics Strip on mobile (2x2 Grid) */
   .metrics-strip { padding: 0.75rem 0 1.5rem !important; }
   .metrics-grid {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 0 !important;
-    background: var(--bg-surface, #ffffff) !important;
-    border: 1px solid rgba(72, 81, 186, 0.14) !important;
-    border-radius: 18px !important;
-    padding: 14px 10px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.03) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
   }
   .metric-item {
     position: relative !important;
-    padding: 6px 4px !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 14px 10px !important;
+    background: var(--bg-surface, #ffffff) !important;
+    border: 1px solid var(--border-light, rgba(72, 81, 186, 0.12)) !important;
+    border-radius: 16px !important;
     text-align: center !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+    box-sizing: border-box !important;
   }
   .metric-item:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 15%;
-    height: 70%;
-    width: 1px;
-    background: rgba(72, 81, 186, 0.12);
+    display: none !important;
   }
   .metric-item:nth-child(4) {
-    display: none !important;
+    display: flex !important;
   }
   .metric-number-animated {
     font-family: 'Sora', sans-serif !important;
-    font-size: 1.55rem !important;
+    font-size: 1.65rem !important;
     font-weight: 800 !important;
     color: var(--brand-primary, #4851BA) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 4px !important;
   }
   .metric-label {
-    font-size: 0.68rem !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.72rem !important;
     color: var(--text-muted, #64748b) !important;
     font-weight: 600 !important;
+    line-height: 1.3 !important;
   }
   .metric-item-bar {
     display: none !important;
+  }
+  [data-theme="dark"] .metric-item {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+  [data-theme="dark"] .metric-number-animated {
+    color: #a5b4fc !important;
+  }
+  [data-theme="dark"] .metric-label {
+    color: rgba(255, 255, 255, 0.72) !important;
   }
   
   /* Universal Single-column stacked layouts on mobile */
@@ -5332,8 +5351,7 @@ body.rtl-mode .mobile-nav-drawer {
     gap: 1rem !important;
   }
 
-  /* "Inside GYDE" Horizontal Snap Carousel on Mobile (Reference Model) */
-  /* "Inside GYDE" Small Boxes Peek Carousel on Mobile */
+  /* "Inside GYDE" Peek Carousel on Mobile: Half Box 1, Full Box 2, Half Box 3 */
   .home-highlights-section {
     padding: 1.5rem 0 2rem !important;
     overflow: hidden !important;
@@ -5352,7 +5370,7 @@ body.rtl-mode .mobile-nav-drawer {
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
     margin: 0 !important;
-    padding: 12px calc(24vw - 6px) 18px calc(24vw - 6px) !important;
+    padding: 12px calc(25vw - 6px) 18px calc(25vw - 6px) !important;
     box-sizing: border-box !important;
   }
   .home-highlights-grid::-webkit-scrollbar {
@@ -5361,13 +5379,13 @@ body.rtl-mode .mobile-nav-drawer {
 
   .home-highlights-grid > .highlight-feature-card,
   .home-highlights-grid > .highlight-sunburst-card-wrap {
-    flex: 0 0 calc(52vw - 6px) !important;
-    width: calc(52vw - 6px) !important;
-    min-width: 185px !important;
-    max-width: 220px !important;
-    height: 205px !important;
-    min-height: 205px !important;
-    max-height: 205px !important;
+    flex: 0 0 calc(50vw - 12px) !important;
+    width: calc(50vw - 12px) !important;
+    min-width: 175px !important;
+    max-width: 225px !important;
+    height: 215px !important;
+    min-height: 215px !important;
+    max-height: 215px !important;
     scroll-snap-align: center !important;
     scroll-snap-stop: normal !important;
     border-radius: 18px !important;
@@ -6484,8 +6502,10 @@ body.rtl-mode .mobile-nav-drawer {
   .btn-lang { padding: 0.12rem 0.2rem; font-size: 0.62rem; }
   .mobile-menu-btn { width: 26px; height: 26px; }
   .mobile-tab-btn span:last-child { font-size: 0.52rem; }
-  .mobile-tab-icon svg { width: 14px; height: 14px; }
-  .metrics-grid { grid-template-columns: 1fr !important; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  .metric-item { padding: 10px 6px !important; }
+  .metric-number-animated { font-size: 1.4rem !important; }
+  .metric-label { font-size: 0.65rem !important; }
 
   /* Extreme compact countdown */
   .countdown-box { min-width: 42px; padding: 0.25rem 0.2rem; }

@@ -1,9 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 
 export const Home: React.FC = () => {
   const { isArabic } = useLanguage();
+  const highlightsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-center the middle highlight card on mobile view
+  useEffect(() => {
+    const centerSecondCard = () => {
+      if (highlightsRef.current && window.innerWidth <= 768) {
+        const secondCard = highlightsRef.current.children[1] as HTMLElement;
+        if (secondCard) {
+          const container = highlightsRef.current;
+          const scrollPos = secondCard.offsetLeft - (container.clientWidth - secondCard.clientWidth) / 2;
+          container.scrollTo({ left: Math.max(0, scrollPos), behavior: 'instant' as ScrollBehavior });
+        }
+      }
+    };
+    const t = setTimeout(centerSecondCard, 80);
+    window.addEventListener('resize', centerSecondCard);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', centerSecondCard);
+    };
+  }, []);
 
   // Live countdown timer matching original GYDE calculation
   const [timeLeft, setTimeLeft] = useState({
@@ -331,12 +352,9 @@ export const Home: React.FC = () => {
                     <div><strong>{isArabic ? 'المتحدث:' : 'Presenter:'}</strong> Mubashir CP & Delegation</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <Link to="/apply" className="btn btn-primary" style={{ textAlign: 'center' }}>
-                    {isArabic ? 'طلب المشاركة كمتحدث' : 'Request Floor Speaking Time'} &rarr;
-                  </Link>
-                  <Link to="/sessions" className="btn btn-outline" style={{ textAlign: 'center' }}>
-                    {isArabic ? 'تفاصيل الجلسة ورابط الاجتماع' : 'Session Agenda & Room Link'}
+                <div className="home-upcoming-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <Link to="/apply" className="btn btn-primary" id="upcomingApplyBtn" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> &rarr;
                   </Link>
                 </div>
               </div>
@@ -348,8 +366,8 @@ export const Home: React.FC = () => {
       {/* Quick Welcome Highlights (Home Section Cards) */}
       <section className="home-highlights-section">
         <div className="container">
-          <div className="home-highlights-grid">
-            <Link to="/about" className="highlight-feature-card" style={{ textDecoration: 'none' }}>
+          <div className="home-highlights-grid" ref={highlightsRef}>
+            <Link to="/about" className="highlight-feature-card" data-public-nav="about" style={{ textDecoration: 'none' }}>
               <div className="feature-icon-badge">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="2" y1="22" x2="22" y2="22"></line>
@@ -380,7 +398,7 @@ export const Home: React.FC = () => {
               <svg className="moving-sunburst-accent highlight-card-sunburst" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M50 0L53.5 35L85.3 14.6L64.6 46.5L100 50L64.6 53.5L85.3 85.4L53.5 64.6L50 100L46.5 64.6L14.7 85.4L35.4 53.5L0 50L35.4 46.5L14.7 14.6L46.5 35L50 0Z" fill="currentColor" />
               </svg>
-              <Link to="/topics" className="highlight-feature-card highlight-featured-accent" style={{ textDecoration: 'none' }}>
+              <Link to="/topics" className="highlight-feature-card highlight-featured-accent" data-public-nav="topics" style={{ textDecoration: 'none' }}>
                 <div className="feature-icon-badge">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -400,7 +418,7 @@ export const Home: React.FC = () => {
               </Link>
             </div>
 
-            <Link to="/community" className="highlight-feature-card" style={{ textDecoration: 'none' }}>
+            <Link to="/community" className="highlight-feature-card" data-public-nav="impact" style={{ textDecoration: 'none' }}>
               <div className="feature-icon-badge">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
