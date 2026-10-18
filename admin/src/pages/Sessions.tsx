@@ -160,7 +160,7 @@ export const Sessions: React.FC = () => {
           className="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>{t('sessions.scheduleBtn', 'Schedule Debate Chamber')}</span>
+          <span>{t('sessions.scheduleBtn', 'Schedule Session')}</span>
         </button>
       </div>
 
@@ -488,10 +488,12 @@ export const Sessions: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {t('sessions.modalTitle', 'Schedule Parliamentary Debate Session')}
+                  {t('sessions.modalTitle', 'Schedule Session')}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Select a session category to configure specific participants, moderators, and team rosters.
+                  {isArabic
+                    ? 'حدد شكل النشاط الحواري المقترح لتهيئة المشاركين، مديري الجلسات، وأدوار المتحدثين.'
+                    : 'Select the proposed activity format to configure specific participants, moderators, and team rosters.'}
                 </p>
               </div>
               <button
@@ -513,11 +515,30 @@ export const Sessions: React.FC = () => {
               }}
               className="space-y-4"
             >
-              {/* Category Selection Cards */}
+              {/* Proposed Activity Format */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
-                  {t('sessions.categoryLabel', 'Session Category')} *
+                  {t('sessions.activityFormat', 'Proposed Activity Format')} *
                 </label>
+                <select
+                  value={formData.sessionCategory}
+                  onChange={(e) => setFormData({ ...formData, sessionCategory: e.target.value as any })}
+                  className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium mb-2.5 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                >
+                  <option value="Topic Presentation">
+                    {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
+                  </option>
+                  <option value="Structural Debate">
+                    {isArabic ? 'مناظرة هيكلية (فريقان وأعضاؤهما)' : 'Structural Debate (2 teams and their members)'}
+                  </option>
+                  <option value="Discussion">
+                    {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}
+                  </option>
+                  <option value="Guest Talks">
+                    {isArabic ? 'حوارات الضيوف (اسم الضيف، النبذة والصورة)' : 'Guest Talks (guest name, bio, image)'}
+                  </option>
+                </select>
+
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {/* Topic Presentation */}
                   <button
