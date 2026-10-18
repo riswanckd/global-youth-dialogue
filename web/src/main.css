@@ -57,6 +57,7 @@
   --bg-body: #FFFFFF;
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
+  --bg-card: #FFFFFF;
   --bg-subtle: rgba(72, 81, 186, 0.03);
   --bg-muted: rgba(0, 0, 0, 0.04);
 
@@ -119,6 +120,7 @@ html.dark {
   --bg-body: #0a0c16;
   --bg-surface: #111424;
   --bg-surface-elevated: #171b30;
+  --bg-card: #151829;
   --bg-subtle: rgba(72, 81, 186, 0.16);
   --bg-muted: rgba(255, 255, 255, 0.08);
 
@@ -3391,6 +3393,11 @@ textarea.form-control {
 
 .modal-dialog.modal-wide {
   max-width: 860px;
+}
+
+.modal-dialog.join-community-dialog {
+  max-width: 680px;
+  width: 100%;
 }
 
 .modal-backdrop.active .modal-dialog {
@@ -8688,7 +8695,9 @@ html, body {
   }
 
   /* 4. Apply for Community Membership Modal Mobile */
-  #applyModal .modal-dialog {
+  #applyModal .modal-dialog,
+  .modal-dialog.join-community-dialog {
+    max-width: 450px !important;
     padding: 1.25rem 0.95rem !important;
   }
   #applyStepper {

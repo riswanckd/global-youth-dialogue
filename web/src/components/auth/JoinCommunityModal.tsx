@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { countries } from 'countries-list';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { apiRequest } from '../../utils/api';
 import { CATEGORIES } from '../../constants';
 
@@ -26,7 +27,22 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
   onSuccess,
 }) => {
   const { isArabic } = useLanguage();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
+
+  // Dynamic Theme Colors
+  const bgCard = isDark ? '#141728' : '#ffffff';
+  const bgInput = isDark ? '#1a1e34' : '#f8fafc';
+  const borderInput = isDark ? '1.5px solid rgba(255, 255, 255, 0.14)' : '1.5px solid #e2e8f0';
+  const textHeading = isDark ? '#ffffff' : '#0f172a';
+  const textLabel = isDark ? '#e2e8f0' : '#1e293b';
+  const textMuted = isDark ? '#94a3b8' : '#64748b';
+  const textInput = isDark ? '#ffffff' : '#0f172a';
+  const btnBackBg = isDark ? '#1a1e34' : '#ffffff';
+  const btnBackText = isDark ? '#e2e8f0' : '#475569';
+  const btnBackBorder = isDark ? '1.5px solid rgba(255, 255, 255, 0.16)' : '1.5px solid #cbd5e1';
+  const primaryBrand = isDark ? '#818cf8' : '#4851BA';
+  const primaryGradient = isDark ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : '#4851BA';
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
@@ -220,6 +236,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
   return (
     <div
+      id="applyModal"
       className="modal-overlay"
       style={{
         position: 'fixed',
@@ -237,17 +254,30 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
+      <style>{`
+        .join-community-dialog {
+          width: 100%;
+          max-width: 680px !important;
+          padding: 2rem 2.25rem !important;
+        }
+        @media (max-width: 768px) {
+          .join-community-dialog {
+            max-width: 450px !important;
+            padding: 1.35rem 1.15rem !important;
+          }
+        }
+      `}</style>
       <div
-        className="modal-dialog"
+        id="applyModalDialog"
+        className="modal-dialog join-community-dialog"
         style={{
-          background: '#ffffff',
+          background: bgCard,
+          color: textHeading,
+          border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
           borderRadius: '20px',
-          width: '100%',
-          maxWidth: '450px',
           maxHeight: '94vh',
           overflowY: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          padding: '1.5rem 1.5rem',
+          boxShadow: isDark ? '0 25px 50px -12px rgba(0, 0, 0, 0.85)' : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           position: 'relative',
         }}
       >
@@ -262,7 +292,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             border: 'none',
             fontSize: '1.35rem',
             cursor: 'pointer',
-            color: '#64748b',
+            color: textMuted,
             lineHeight: 1,
             padding: '0.25rem',
           }}
@@ -278,8 +308,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 width: '52px',
                 height: '52px',
                 borderRadius: '50%',
-                background: 'rgba(72, 81, 186, 0.12)',
-                color: '#4851BA',
+                background: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(72, 81, 186, 0.12)',
+                color: isDark ? '#a5b4fc' : '#4851BA',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -290,24 +320,23 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
-            <h2 className="serif-text" style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.45rem' }}>
+            <h2 className="serif-text" style={{ fontSize: '1.35rem', fontWeight: 700, color: textHeading, marginBottom: '0.45rem' }}>
               {isArabic ? 'تم التحقق وتقديم طلبك بنجاح!' : 'Application Submitted!'}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+            <p style={{ color: textMuted, fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
               {isArabic
                 ? 'تم التحقق من بريدك الإلكتروني بنجاح وتسجيل طلبك في سجل المراجعة. ستقوم الأمانة بإشعارك عند اعتماد العضوية.'
                 : 'Your email has been verified and your community application is now queued for secretariat review. You can log in once approved.'}
             </p>
             <button
               onClick={handleSignInRedirect}
-              className="btn btn-primary"
               style={{
                 width: '100%',
                 padding: '0.65rem 1.25rem',
                 borderRadius: '10px',
                 fontWeight: 600,
                 fontSize: '0.85rem',
-                background: '#4851BA',
+                background: primaryGradient,
                 color: '#ffffff',
                 border: 'none',
                 cursor: 'pointer',
@@ -327,8 +356,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   gap: '0.35rem',
                   padding: '0.22rem 0.65rem',
                   borderRadius: '999px',
-                  background: 'rgba(72, 81, 186, 0.08)',
-                  color: '#4851BA',
+                  background: isDark ? 'rgba(129, 140, 248, 0.15)' : 'rgba(72, 81, 186, 0.08)',
+                  color: isDark ? '#a5b4fc' : '#4851BA',
                   fontSize: '0.72rem',
                   fontWeight: 600,
                 }}
@@ -349,7 +378,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
               style={{
                 fontSize: '1.25rem',
                 fontWeight: 700,
-                color: '#0f172a',
+                color: textHeading,
                 textAlign: 'center',
                 margin: '0 0 0.25rem 0',
                 lineHeight: 1.3,
@@ -360,11 +389,11 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             <p
               style={{
                 fontSize: '0.78rem',
-                color: '#64748b',
+                color: textMuted,
                 textAlign: 'center',
                 margin: '0 auto 1.15rem auto',
                 lineHeight: 1.4,
-                maxWidth: '380px',
+                maxWidth: '480px',
               }}
             >
               {isArabic
@@ -374,13 +403,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
             {/* 3-Step Stepper Header */}
             <div
+              id="applyStepper"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '1.15rem',
+                marginBottom: '1.25rem',
                 position: 'relative',
                 padding: '0 0.75rem',
+                maxWidth: '420px',
+                margin: '0 auto 1.25rem auto',
               }}
             >
               {/* Stepper Connecting Lines */}
@@ -391,14 +423,14 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   left: '38px',
                   right: '38px',
                   height: '2px',
-                  background: '#e2e8f0',
+                  background: isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0',
                   zIndex: 1,
                 }}
               >
                 <div
                   style={{
                     height: '100%',
-                    background: '#4851BA',
+                    background: isDark ? '#6366f1' : '#4851BA',
                     transition: 'width 0.3s ease',
                     width: step === 1 ? '0%' : step === 2 ? '50%' : '100%',
                   }}
@@ -412,14 +444,15 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     width: '26px',
                     height: '26px',
                     borderRadius: '50%',
-                    background: step >= 1 ? '#4851BA' : '#f1f5f9',
-                    color: step >= 1 ? '#ffffff' : '#64748b',
+                    background: step >= 1 ? (isDark ? '#6366f1' : '#4851BA') : (isDark ? '#1a1e34' : '#f1f5f9'),
+                    border: step >= 1 ? 'none' : (isDark ? '1.5px solid rgba(255, 255, 255, 0.16)' : '2px solid #cbd5e1'),
+                    color: step >= 1 ? '#ffffff' : textMuted,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    boxShadow: step === 1 ? '0 0 0 3px rgba(72, 81, 186, 0.15)' : 'none',
+                    boxShadow: step === 1 ? (isDark ? '0 0 0 3px rgba(99, 102, 241, 0.3)' : '0 0 0 3px rgba(72, 81, 186, 0.15)') : 'none',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -429,7 +462,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   style={{
                     fontSize: '0.68rem',
                     fontWeight: step === 1 ? 700 : 500,
-                    color: step === 1 ? '#0f172a' : '#64748b',
+                    color: step === 1 ? textHeading : textMuted,
                     marginTop: '0.25rem',
                   }}
                 >
@@ -444,15 +477,15 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     width: '26px',
                     height: '26px',
                     borderRadius: '50%',
-                    background: step >= 2 ? '#4851BA' : '#ffffff',
-                    border: step >= 2 ? 'none' : '2px solid #cbd5e1',
-                    color: step >= 2 ? '#ffffff' : '#64748b',
+                    background: step >= 2 ? (isDark ? '#6366f1' : '#4851BA') : (isDark ? '#1a1e34' : '#f1f5f9'),
+                    border: step >= 2 ? 'none' : (isDark ? '1.5px solid rgba(255, 255, 255, 0.16)' : '2px solid #cbd5e1'),
+                    color: step >= 2 ? '#ffffff' : textMuted,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    boxShadow: step === 2 ? '0 0 0 3px rgba(72, 81, 186, 0.15)' : 'none',
+                    boxShadow: step === 2 ? (isDark ? '0 0 0 3px rgba(99, 102, 241, 0.3)' : '0 0 0 3px rgba(72, 81, 186, 0.15)') : 'none',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -462,7 +495,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   style={{
                     fontSize: '0.68rem',
                     fontWeight: step === 2 ? 700 : 500,
-                    color: step === 2 ? '#0f172a' : '#64748b',
+                    color: step === 2 ? textHeading : textMuted,
                     marginTop: '0.25rem',
                   }}
                 >
@@ -477,15 +510,15 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     width: '26px',
                     height: '26px',
                     borderRadius: '50%',
-                    background: step === 3 ? '#4851BA' : '#ffffff',
-                    border: step >= 3 ? 'none' : '2px solid #cbd5e1',
-                    color: step === 3 ? '#ffffff' : '#64748b',
+                    background: step === 3 ? (isDark ? '#6366f1' : '#4851BA') : (isDark ? '#1a1e34' : '#f1f5f9'),
+                    border: step === 3 ? 'none' : (isDark ? '1.5px solid rgba(255, 255, 255, 0.16)' : '2px solid #cbd5e1'),
+                    color: step === 3 ? '#ffffff' : textMuted,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    boxShadow: step === 3 ? '0 0 0 3px rgba(72, 81, 186, 0.15)' : 'none',
+                    boxShadow: step === 3 ? (isDark ? '0 0 0 3px rgba(99, 102, 241, 0.3)' : '0 0 0 3px rgba(72, 81, 186, 0.15)') : 'none',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -495,7 +528,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   style={{
                     fontSize: '0.68rem',
                     fontWeight: step === 3 ? 700 : 500,
-                    color: step === 3 ? '#0f172a' : '#64748b',
+                    color: step === 3 ? textHeading : textMuted,
                     marginTop: '0.25rem',
                   }}
                 >
@@ -508,9 +541,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             {error && (
               <div
                 style={{
-                  background: '#fef2f2',
-                  border: '1px solid #fecaca',
-                  color: '#b91c1c',
+                  background: isDark ? 'rgba(239, 68, 68, 0.18)' : '#fef2f2',
+                  border: isDark ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid #fecaca',
+                  color: isDark ? '#fca5a5' : '#b91c1c',
                   padding: '0.75rem 1rem',
                   borderRadius: '10px',
                   fontSize: '0.85rem',
@@ -528,7 +561,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.65rem', marginBottom: '1rem' }}>
                   {/* 1. First Name */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: textLabel, marginBottom: '0.25rem' }}>
                       {isArabic ? 'الاسم الأول' : 'First Name'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -540,21 +573,22 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       style={{
                         width: '100%',
                         padding: '0.55rem 0.75rem',
-                        border: '1.5px solid #e2e8f0',
+                        border: borderInput,
                         borderRadius: '8px',
                         fontSize: '0.82rem',
-                        background: '#f8fafc',
+                        background: bgInput,
+                        color: textInput,
                         outline: 'none',
                         transition: 'border-color 0.2s',
                       }}
-                      onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                      onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                      onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                      onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                     />
                   </div>
 
                   {/* 2. Last Name */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: textLabel, marginBottom: '0.25rem' }}>
                       {isArabic ? 'اسم العائلة' : 'Last Name'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -566,20 +600,22 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       style={{
                         width: '100%',
                         padding: '0.55rem 0.75rem',
-                        border: '1.5px solid #e2e8f0',
+                        border: borderInput,
                         borderRadius: '8px',
                         fontSize: '0.82rem',
-                        background: '#f8fafc',
+                        background: bgInput,
+                        color: textInput,
                         outline: 'none',
+                        transition: 'border-color 0.2s',
                       }}
-                      onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                      onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                      onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                      onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                     />
                   </div>
 
                   {/* 3. Country */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: textLabel, marginBottom: '0.25rem' }}>
                       {isArabic ? 'الدولة' : 'Country'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <select
@@ -589,15 +625,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       style={{
                         width: '100%',
                         padding: '0.55rem 0.75rem',
-                        border: '1.5px solid #e2e8f0',
+                        border: borderInput,
                         borderRadius: '8px',
                         fontSize: '0.82rem',
-                        background: '#f8fafc',
+                        background: bgInput,
+                        color: textInput,
                         outline: 'none',
                       }}
                     >
                       {countryOptions.map((c) => (
-                        <option key={c.code} value={c.name}>
+                        <option key={c.code} value={c.name} style={{ background: bgCard, color: textHeading }}>
                           {c.name} {isArabic && c.native ? `(${c.native})` : ''}
                         </option>
                       ))}
@@ -606,7 +643,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
                   {/* 4. Email Address */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: textLabel, marginBottom: '0.25rem' }}>
                       {isArabic ? 'البريد الإلكتروني' : 'Email Address'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -618,20 +655,22 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       style={{
                         width: '100%',
                         padding: '0.55rem 0.75rem',
-                        border: '1.5px solid #e2e8f0',
+                        border: borderInput,
                         borderRadius: '8px',
                         fontSize: '0.82rem',
-                        background: '#f8fafc',
+                        background: bgInput,
+                        color: textInput,
                         outline: 'none',
+                        transition: 'border-color 0.2s',
                       }}
-                      onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                      onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                      onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                      onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                     />
                   </div>
 
                   {/* 5. Set Password */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: textLabel, marginBottom: '0.25rem' }}>
                       {isArabic ? 'تعيين كلمة المرور' : 'Set Password'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <div style={{ position: 'relative' }}>
@@ -645,14 +684,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                         style={{
                           width: '100%',
                           padding: '0.55rem 2.2rem 0.55rem 0.75rem',
-                          border: '1.5px solid #e2e8f0',
+                          border: borderInput,
                           borderRadius: '8px',
                           fontSize: '0.82rem',
-                          background: '#f8fafc',
+                          background: bgInput,
+                          color: textInput,
                           outline: 'none',
+                          transition: 'border-color 0.2s',
                         }}
-                        onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                        onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                        onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                        onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                       />
                       <button
                         type="button"
@@ -665,7 +706,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                           background: 'transparent',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#94a3b8',
+                          color: textMuted,
                           padding: '0.2rem',
                         }}
                         aria-label="Toggle password visibility"
@@ -683,7 +724,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                         )}
                       </button>
                     </div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', color: '#64748b', marginTop: '0.2rem' }}>
+                    <span style={{ display: 'block', fontSize: '0.7rem', color: textMuted, marginTop: '0.2rem' }}>
                       {isArabic
                         ? 'ستستخدم كلمة المرور هذه لتسجيل الدخول بمجرد اعتماد عضويتك.'
                         : 'You will use this password to sign in once your membership is approved.'}
@@ -692,7 +733,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
                   {/* 6. Confirm Password */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: textLabel, marginBottom: '0.25rem' }}>
                       {isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password'} <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <div style={{ position: 'relative' }}>
@@ -705,14 +746,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                         style={{
                           width: '100%',
                           padding: '0.55rem 2.2rem 0.55rem 0.75rem',
-                          border: '1.5px solid #e2e8f0',
+                          border: borderInput,
                           borderRadius: '8px',
                           fontSize: '0.82rem',
-                          background: '#f8fafc',
+                          background: bgInput,
+                          color: textInput,
                           outline: 'none',
+                          transition: 'border-color 0.2s',
                         }}
-                        onFocus={(e) => (e.target.style.borderColor = '#4851BA')}
-                        onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                        onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                        onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                       />
                       <button
                         type="button"
@@ -725,14 +768,14 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                           background: 'transparent',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#94a3b8',
+                          color: textMuted,
                           padding: '0.2rem',
                         }}
                         aria-label="Toggle confirm password visibility"
                       >
                         {showConfirmPassword ? (
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
                             <circle cx="12" cy="7" r="3"></circle>
                           </svg>
                         ) : (
@@ -748,16 +791,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
                 <button
                   type="submit"
-                  className="btn btn-primary"
                   style={{
                     width: '100%',
                     padding: '0.65rem 1rem',
                     borderRadius: '10px',
                     fontWeight: 600,
                     fontSize: '0.86rem',
-                    background: '#4851BA',
+                    background: primaryGradient,
                     color: '#ffffff',
                     border: 'none',
+                    boxShadow: isDark ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -769,7 +812,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   <span>&rarr;</span>
                 </button>
 
-                <div style={{ textAlign: 'center', marginTop: '0.85rem', fontSize: '0.78rem', color: '#64748b' }}>
+                <div style={{ textAlign: 'center', marginTop: '0.85rem', fontSize: '0.78rem', color: textMuted }}>
                   <span>{isArabic ? 'هل لديك حساب معتمد بالفعل؟' : 'Already have an approved account?'}</span>{' '}
                   <button
                     type="button"
@@ -777,7 +820,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: '#4851BA',
+                      color: isDark ? '#a5b4fc' : '#4851BA',
                       fontWeight: 700,
                       cursor: 'pointer',
                       padding: 0,
@@ -794,7 +837,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             {step === 2 && (
               <form onSubmit={handleSendOtpAndProceed}>
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem' }}>
                     {isArabic ? 'المؤسسة / المدرسة / الجامعة (اختياري)' : 'Organization / School / University (Optional)'}
                   </label>
                   <input
@@ -805,20 +848,23 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     style={{
                       width: '100%',
                       padding: '0.65rem 0.85rem',
-                      border: '1.5px solid #e2e8f0',
+                      border: borderInput,
                       borderRadius: '10px',
                       fontSize: '0.9rem',
-                      background: '#f8fafc',
+                      background: bgInput,
+                      color: textInput,
                       outline: 'none',
                     }}
+                    onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                    onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                   />
                 </div>
 
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.45rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.45rem' }}>
                     {isArabic ? 'المجالات الأكاديمية ومحاور النقاش المفضلة' : 'Primary Academic Spheres of Interest'} <span style={{ color: '#ef4444' }}>*</span>
                   </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', maxHeight: '130px', overflowY: 'auto', padding: '0.25rem 0' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', maxHeight: '140px', overflowY: 'auto', padding: '0.25rem 0' }}>
                     {CATEGORIES.map((cat) => {
                       const isSelected = areasOfInterest.includes(cat.name);
                       return (
@@ -831,10 +877,10 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                             borderRadius: '999px',
                             fontSize: '0.76rem',
                             fontWeight: isSelected ? 700 : 500,
-                            background: isSelected ? '#4851BA' : '#f1f5f9',
-                            color: isSelected ? '#ffffff' : '#475569',
+                            background: isSelected ? (isDark ? '#6366f1' : '#4851BA') : (isDark ? '#1a1e34' : '#f1f5f9'),
+                            color: isSelected ? '#ffffff' : (isDark ? '#cbd5e1' : '#475569'),
                             border: '1px solid',
-                            borderColor: isSelected ? '#4851BA' : '#e2e8f0',
+                            borderColor: isSelected ? (isDark ? '#6366f1' : '#4851BA') : (isDark ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0'),
                             cursor: 'pointer',
                             transition: 'all 0.15s ease',
                           }}
@@ -854,7 +900,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                 </div>
 
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem' }}>
                     {isArabic ? 'الخبرة التنافسية أو الخطابية السابقة' : 'Past Debate or Public Speaking Experience'}
                   </label>
                   <textarea
@@ -865,18 +911,21 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     style={{
                       width: '100%',
                       padding: '0.65rem 0.85rem',
-                      border: '1.5px solid #e2e8f0',
+                      border: borderInput,
                       borderRadius: '10px',
                       fontSize: '0.875rem',
-                      background: '#f8fafc',
+                      background: bgInput,
+                      color: textInput,
                       outline: 'none',
                       fontFamily: 'inherit',
                     }}
+                    onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                    onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                   />
                 </div>
 
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem' }}>
                     {isArabic ? 'دافع الانضمام إلى الحوار الدولي' : 'Statement of Motivation'}
                   </label>
                   <textarea
@@ -887,13 +936,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     style={{
                       width: '100%',
                       padding: '0.65rem 0.85rem',
-                      border: '1.5px solid #e2e8f0',
+                      border: borderInput,
                       borderRadius: '10px',
                       fontSize: '0.875rem',
-                      background: '#f8fafc',
+                      background: bgInput,
+                      color: textInput,
                       outline: 'none',
                       fontFamily: 'inherit',
                     }}
+                    onFocus={(e) => (e.target.style.borderColor = primaryBrand)}
+                    onBlur={(e) => (e.target.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.14)' : '#e2e8f0')}
                   />
                 </div>
 
@@ -906,9 +958,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       borderRadius: '12px',
                       fontWeight: 600,
                       fontSize: '0.9rem',
-                      background: '#ffffff',
-                      color: '#475569',
-                      border: '1.5px solid #cbd5e1',
+                      background: btnBackBg,
+                      color: btnBackText,
+                      border: btnBackBorder,
                       cursor: 'pointer',
                     }}
                   >
@@ -917,16 +969,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn btn-primary btn-lg"
                     style={{
                       flex: 1,
                       padding: '0.75rem',
                       borderRadius: '12px',
                       fontWeight: 600,
                       fontSize: '0.95rem',
-                      background: '#4851BA',
+                      background: primaryGradient,
                       color: '#ffffff',
                       border: 'none',
+                      boxShadow: isDark ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
                       cursor: loading ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -950,8 +1002,8 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       width: '48px',
                       height: '48px',
                       borderRadius: '50%',
-                      background: 'rgba(72, 81, 186, 0.1)',
-                      color: '#4851BA',
+                      background: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(72, 81, 186, 0.1)',
+                      color: isDark ? '#a5b4fc' : '#4851BA',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -963,18 +1015,18 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       <polyline points="22,6 12,13 2,6"></polyline>
                     </svg>
                   </div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', margin: '0 0 0.35rem 0' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: textHeading, margin: '0 0 0.35rem 0' }}>
                     {isArabic ? 'التحقق من البريد الإلكتروني' : 'Verify Your Email'}
                   </h3>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, lineHeight: 1.45 }}>
+                  <p style={{ fontSize: '0.85rem', color: textMuted, margin: 0, lineHeight: 1.45 }}>
                     {isArabic ? 'أرسلنا رمز تحقق مكوّناً من 6 أرقام إلى:' : "We've sent a 6-digit verification code to:"}
                     <br />
-                    <strong style={{ color: '#0f172a' }}>{email}</strong>
+                    <strong style={{ color: textHeading }}>{email}</strong>
                   </p>
                 </div>
 
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem', textAlign: 'center' }}>
+                  <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem', textAlign: 'center' }}>
                     {isArabic ? 'رمز التحقق (6 أرقام)' : 'Enter 6-Digit Code'} <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
@@ -990,14 +1042,14 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       margin: '0 auto',
                       display: 'block',
                       padding: '0.75rem 1rem',
-                      border: '2px solid #4851BA',
+                      border: isDark ? '2px solid #818cf8' : '2px solid #4851BA',
                       borderRadius: '12px',
                       fontSize: '1.5rem',
                       letterSpacing: '8px',
                       textAlign: 'center',
                       fontWeight: 700,
-                      color: '#0f172a',
-                      background: '#f8fafc',
+                      color: textInput,
+                      background: bgInput,
                       outline: 'none',
                     }}
                   />
@@ -1012,9 +1064,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                       borderRadius: '12px',
                       fontWeight: 600,
                       fontSize: '0.9rem',
-                      background: '#ffffff',
-                      color: '#475569',
-                      border: '1.5px solid #cbd5e1',
+                      background: btnBackBg,
+                      color: btnBackText,
+                      border: btnBackBorder,
                       cursor: 'pointer',
                     }}
                   >
@@ -1023,16 +1075,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   <button
                     type="submit"
                     disabled={loading || otp.length !== 6}
-                    className="btn btn-primary btn-lg"
                     style={{
                       flex: 1,
                       padding: '0.75rem',
                       borderRadius: '12px',
                       fontWeight: 600,
                       fontSize: '0.95rem',
-                      background: '#4851BA',
+                      background: primaryGradient,
                       color: '#ffffff',
                       border: 'none',
+                      boxShadow: isDark ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
                       cursor: loading || otp.length !== 6 ? 'not-allowed' : 'pointer',
                       opacity: loading || otp.length !== 6 ? 0.7 : 1,
                     }}
@@ -1041,7 +1093,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                   </button>
                 </div>
 
-                <div style={{ textAlign: 'center', fontSize: '0.825rem', color: '#64748b' }}>
+                <div style={{ textAlign: 'center', fontSize: '0.825rem', color: textMuted }}>
                   <span>{isArabic ? 'لم تستلم الرمز؟' : "Didn't receive the code?"}</span>{' '}
                   <button
                     type="button"
@@ -1050,7 +1102,7 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: resendCooldown > 0 ? '#94a3b8' : '#4851BA',
+                      color: resendCooldown > 0 ? textMuted : (isDark ? '#a5b4fc' : '#4851BA'),
                       fontWeight: 700,
                       cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer',
                       padding: 0,

@@ -312,12 +312,12 @@ export const Navbar: React.FC = () => {
               position: 'relative',
               width: '100%',
               maxWidth: '440px',
-              backgroundColor: 'var(--bg-card, #ffffff)',
-              color: 'var(--text-main, #0f172a)',
+              backgroundColor: isDark ? '#141728' : '#ffffff',
+              color: isDark ? '#f8fafc' : '#0f172a',
               borderRadius: '20px',
               padding: '1.75rem 1.5rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-              border: '1px solid var(--border-light, #e2e8f0)',
+              boxShadow: isDark ? '0 25px 50px -12px rgba(0, 0, 0, 0.8)' : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0',
               textAlign: isArabic ? 'right' : 'left',
             }}
             onClick={(e) => e.stopPropagation()}
@@ -333,7 +333,7 @@ export const Navbar: React.FC = () => {
                 insetInlineEnd: '1rem',
                 background: 'transparent',
                 border: 'none',
-                color: 'var(--text-muted, #94a3b8)',
+                color: isDark ? '#94a3b8' : '#64748b',
                 cursor: 'pointer',
                 padding: '0.25rem',
                 display: 'flex',
@@ -353,8 +353,10 @@ export const Navbar: React.FC = () => {
                   width: '52px',
                   height: '52px',
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(72, 81, 186, 0.15) 0%, rgba(99, 102, 241, 0.25) 100%)',
-                  color: 'var(--brand-primary, #4851BA)',
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%)'
+                    : 'linear-gradient(135deg, rgba(72, 81, 186, 0.15) 0%, rgba(99, 102, 241, 0.25) 100%)',
+                  color: isDark ? '#a5b4fc' : '#4851BA',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -374,8 +376,8 @@ export const Navbar: React.FC = () => {
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
-                  color: 'var(--brand-primary, #4851BA)',
-                  background: 'rgba(72, 81, 186, 0.08)',
+                  color: isDark ? '#c084fc' : '#4851BA',
+                  background: isDark ? 'rgba(192, 132, 252, 0.14)' : 'rgba(72, 81, 186, 0.08)',
                   padding: '0.25rem 0.75rem',
                   borderRadius: '999px',
                   display: 'inline-block',
@@ -392,13 +394,13 @@ export const Navbar: React.FC = () => {
                   marginTop: '0.65rem',
                   marginBottom: '0.35rem',
                   lineHeight: '1.3',
-                  color: 'var(--text-main, #0f172a)',
+                  color: isDark ? '#ffffff' : '#0f172a',
                 }}
               >
                 {isArabic ? 'تسجيل الدخول إلى المجتمع' : 'Sign In to GYDE Portal'}
               </h2>
 
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #64748b)', lineHeight: '1.5', margin: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: isDark ? '#94a3b8' : '#64748b', lineHeight: '1.5', margin: 0 }}>
                 {isArabic
                   ? 'مرحباً بك في مجتمع الحوار والتبادل الشبابي الدولي. يرجى اختيار حالة حسابك للمتابعة:'
                   : 'Welcome to the international youth dialogue chambers. Please select your account status to continue:'}
@@ -412,27 +414,26 @@ export const Navbar: React.FC = () => {
                 style={{
                   padding: '1rem',
                   borderRadius: '14px',
-                  border: '1.5px solid var(--border-light, #e2e8f0)',
-                  backgroundColor: 'var(--bg-subtle, #f8fafc)',
+                  border: isDark ? '1.5px solid rgba(255, 255, 255, 0.1)' : '1.5px solid #e2e8f0',
+                  backgroundColor: isDark ? '#1a1e34' : '#f8fafc',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '0.5rem',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main, #0f172a)' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: isDark ? '#ffffff' : '#0f172a' }}>
                     {isArabic ? 'عضو مسجل بالفعل؟' : 'Registered Member?'}
                   </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#16a34a', background: 'rgba(22, 163, 74, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: isDark ? '#4ade80' : '#16a34a', background: isDark ? 'rgba(74, 222, 128, 0.15)' : 'rgba(22, 163, 74, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
                     {isArabic ? 'حساب نشط' : 'Active Account'}
                   </span>
                 </div>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', margin: 0, lineHeight: 1.4 }}>
+                <p style={{ fontSize: '0.78rem', color: isDark ? '#94a3b8' : '#64748b', margin: 0, lineHeight: 1.4 }}>
                   {isArabic ? 'سجل دخولك ببريدك الإلكتروني وكلمة المرور للدخول إلى لوحة المندوب.' : 'Sign in using your accredited email and credentials to enter your member dossier.'}
                 </p>
                 <button
                   type="button"
-                  className="btn btn-outline"
                   onClick={() => {
                     setMemberAccessModalOpen(false);
                     navigate('/login');
@@ -448,6 +449,11 @@ export const Navbar: React.FC = () => {
                     fontWeight: 700,
                     fontSize: '0.88rem',
                     marginTop: '0.25rem',
+                    background: isDark ? '#222744' : '#ffffff',
+                    color: isDark ? '#c7d2fe' : '#4851BA',
+                    border: isDark ? '1.5px solid rgba(129, 140, 248, 0.35)' : '1.5px solid #cbd5e1',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -464,29 +470,28 @@ export const Navbar: React.FC = () => {
                 style={{
                   padding: '1rem',
                   borderRadius: '14px',
-                  border: '1.5px solid rgba(72, 81, 186, 0.35)',
-                  backgroundColor: 'rgba(72, 81, 186, 0.05)',
+                  border: isDark ? '1.5px solid rgba(129, 140, 248, 0.35)' : '1.5px solid rgba(72, 81, 186, 0.35)',
+                  backgroundColor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(72, 81, 186, 0.05)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '0.5rem',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--brand-primary, #4851BA)' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: isDark ? '#c7d2fe' : '#4851BA' }}>
                     {isArabic ? 'مستخدم جديد؟' : 'New User?'}
                   </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--brand-primary, #4851BA)', background: 'rgba(72, 81, 186, 0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: isDark ? '#e9d5ff' : '#4851BA', background: isDark ? 'rgba(192, 132, 252, 0.2)' : 'rgba(72, 81, 186, 0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
                     {isArabic ? 'مطلوب طلب عضوية' : 'Application Required'}
                   </span>
                 </div>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', margin: 0, lineHeight: 1.4 }}>
+                <p style={{ fontSize: '0.78rem', color: isDark ? '#94a3b8' : '#64748b', margin: 0, lineHeight: 1.4 }}>
                   {isArabic
                     ? 'عضوية المنتدى معتمدة وتخضع للمراجعة. يرجى تقديم طلبك للانضمام إلى الوفود الدولية.'
                     : 'GYDE membership is selective and accredited. New delegates must submit a membership application to be approved.'}
                 </p>
                 <button
                   type="button"
-                  className="btn btn-primary"
                   onClick={() => {
                     setMemberAccessModalOpen(false);
                     setJoinModalOpen(true);
@@ -502,6 +507,12 @@ export const Navbar: React.FC = () => {
                     fontWeight: 700,
                     fontSize: '0.88rem',
                     marginTop: '0.25rem',
+                    background: isDark ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : '#4851BA',
+                    color: '#ffffff',
+                    border: 'none',
+                    boxShadow: isDark ? '0 4px 14px rgba(99, 102, 241, 0.4)' : '0 4px 12px rgba(72, 81, 186, 0.25)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                   }}
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
