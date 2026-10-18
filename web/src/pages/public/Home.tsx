@@ -330,7 +330,15 @@ export const Home: React.FC = () => {
               <path d="M50 0L53.5 35L85.3 14.6L64.6 46.5L100 50L64.6 53.5L85.3 85.4L53.5 64.6L50 100L46.5 64.6L14.7 85.4L35.4 53.5L0 50L35.4 46.5L14.7 14.6L46.5 35L50 0Z" fill="currentColor" />
             </svg>
 
-            <div className="home-upcoming-container" style={{ padding: '2rem', background: 'var(--bg-surface)', borderRadius: 'var(--radius-xl)' }}>
+            <div
+              className="home-upcoming-container"
+              style={{
+                position: 'relative',
+                zIndex: 1,
+                padding: '2.25rem 2.5rem',
+                borderRadius: '24px',
+              }}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
                 <div style={{ flex: '1 1 400px' }}>
                   <div style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', background: 'rgba(72, 81, 186, 0.1)', color: 'var(--color-primary-1)', fontWeight: 700, fontSize: '0.78rem', marginBottom: '0.75rem' }}>

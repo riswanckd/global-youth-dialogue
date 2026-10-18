@@ -7766,9 +7766,22 @@ body.rtl-mode .topic-bank-card-title-ar {
   z-index: 0;
 }
 
-.home-session-spotlight {
+.home-session-spotlight,
+.home-upcoming-container {
   position: relative;
   z-index: 1;
+  background: var(--bg-card, #ffffff);
+  border: 1.5px solid rgba(72, 81, 186, 0.22);
+  border-radius: var(--radius-xl, 24px);
+  box-shadow: 0 12px 36px -6px rgba(72, 81, 186, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+}
+
+[data-theme="dark"] .home-upcoming-container,
+.dark .home-upcoming-container {
+  background: #111424 !important;
+  border-color: rgba(158, 89, 172, 0.35) !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65), 0 0 24px rgba(72, 81, 186, 0.18) !important;
 }
 
 /* Highlight Card Moving Sunburst Placement */
