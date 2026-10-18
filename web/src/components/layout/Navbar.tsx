@@ -11,6 +11,7 @@ export const Navbar: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [memberAccessModalOpen, setMemberAccessModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -148,6 +149,43 @@ export const Navbar: React.FC = () => {
               )}
             </div>
 
+            {/* Mobile Sign In / Member Access Button */}
+            <div className="mobile-auth-btn-wrapper">
+              {isAuthenticated && user ? (
+                <Link
+                  to="/portal"
+                  className="mobile-header-signin-btn member-active"
+                  id="mobileHeaderPortalBtn"
+                  title={isArabic ? 'لوحة العضو' : 'Member Portal'}
+                >
+                  <span className="mobile-signin-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </span>
+                  <span className="mobile-signin-text">{isArabic ? 'لوحتي' : 'Portal'}</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setMemberAccessModalOpen(true)}
+                  className="mobile-header-signin-btn"
+                  id="mobileHeaderSignInBtn"
+                  aria-label={isArabic ? 'تسجيل الدخول' : 'Sign In'}
+                >
+                  <span className="mobile-signin-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                  </span>
+                  <span className="mobile-signin-text">{isArabic ? 'دخول' : 'Sign In'}</span>
+                </button>
+              )}
+            </div>
+
             {/* Mobile Menu Toggle Button (hidden on home page and on mobile view) */}
             {location.pathname !== '/' && location.pathname !== '' && (
               <button
@@ -250,6 +288,235 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </aside>
+
+      {/* Member Access Modal (Registered Member Sign In vs New User Apply) */}
+      {memberAccessModalOpen && (
+        <div
+          className="modal-overlay"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(15, 23, 42, 0.72)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+          }}
+          onClick={() => setMemberAccessModalOpen(false)}
+        >
+          <div
+            className="modal-card"
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '440px',
+              backgroundColor: 'var(--bg-card, #ffffff)',
+              color: 'var(--text-main, #0f172a)',
+              borderRadius: '20px',
+              padding: '1.75rem 1.5rem',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+              border: '1px solid var(--border-light, #e2e8f0)',
+              textAlign: isArabic ? 'right' : 'left',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setMemberAccessModalOpen(false)}
+              aria-label="Close"
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                insetInlineEnd: '1rem',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted, #94a3b8)',
+                cursor: 'pointer',
+                padding: '0.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                lineHeight: 1,
+              }}
+            >
+              &times;
+            </button>
+
+            {/* Header Icon & Title */}
+            <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+              <div
+                style={{
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, rgba(72, 81, 186, 0.15) 0%, rgba(99, 102, 241, 0.25) 100%)',
+                  color: 'var(--brand-primary, #4851BA)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem auto',
+                }}
+              >
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+              </div>
+
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'var(--brand-primary, #4851BA)',
+                  background: 'rgba(72, 81, 186, 0.08)',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '999px',
+                  display: 'inline-block',
+                }}
+              >
+                {isArabic ? 'بوابة دخول الأعضاء' : 'Member Portal Access'}
+              </span>
+
+              <h2
+                className="serif-text"
+                style={{
+                  fontSize: '1.35rem',
+                  fontWeight: 700,
+                  marginTop: '0.65rem',
+                  marginBottom: '0.35rem',
+                  lineHeight: '1.3',
+                  color: 'var(--text-main, #0f172a)',
+                }}
+              >
+                {isArabic ? 'تسجيل الدخول إلى المجتمع' : 'Sign In to GYDE Portal'}
+              </h2>
+
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #64748b)', lineHeight: '1.5', margin: 0 }}>
+                {isArabic
+                  ? 'مرحباً بك في مجتمع الحوار والتبادل الشبابي الدولي. يرجى اختيار حالة حسابك للمتابعة:'
+                  : 'Welcome to the international youth dialogue chambers. Please select your account status to continue:'}
+              </p>
+            </div>
+
+            {/* Actions Container */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {/* Option 1: Registered Member */}
+              <div
+                style={{
+                  padding: '1rem',
+                  borderRadius: '14px',
+                  border: '1.5px solid var(--border-light, #e2e8f0)',
+                  backgroundColor: 'var(--bg-subtle, #f8fafc)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main, #0f172a)' }}>
+                    {isArabic ? 'عضو مسجل بالفعل؟' : 'Registered Member?'}
+                  </div>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#16a34a', background: 'rgba(22, 163, 74, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
+                    {isArabic ? 'حساب نشط' : 'Active Account'}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', margin: 0, lineHeight: 1.4 }}>
+                  {isArabic ? 'سجل دخولك ببريدك الإلكتروني وكلمة المرور للدخول إلى لوحة المندوب.' : 'Sign in using your accredited email and credentials to enter your member dossier.'}
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    setMemberAccessModalOpen(false);
+                    navigate('/login');
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    width: '100%',
+                    padding: '0.65rem',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    marginTop: '0.25rem',
+                  }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                  </svg>
+                  <span>{isArabic ? 'تسجيل الدخول كعضو مسجل' : 'Sign In as Registered Member'}</span>
+                </button>
+              </div>
+
+              {/* Option 2: New User Suggestion */}
+              <div
+                style={{
+                  padding: '1rem',
+                  borderRadius: '14px',
+                  border: '1.5px solid rgba(72, 81, 186, 0.35)',
+                  backgroundColor: 'rgba(72, 81, 186, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--brand-primary, #4851BA)' }}>
+                    {isArabic ? 'مستخدم جديد؟' : 'New User?'}
+                  </div>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--brand-primary, #4851BA)', background: 'rgba(72, 81, 186, 0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
+                    {isArabic ? 'مطلوب طلب عضوية' : 'Application Required'}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', margin: 0, lineHeight: 1.4 }}>
+                  {isArabic
+                    ? 'عضوية المنتدى معتمدة وتخضع للمراجعة. يرجى تقديم طلبك للانضمام إلى الوفود الدولية.'
+                    : 'GYDE membership is selective and accredited. New delegates must submit a membership application to be approved.'}
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setMemberAccessModalOpen(false);
+                    setJoinModalOpen(true);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    width: '100%',
+                    padding: '0.65rem',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    marginTop: '0.25rem',
+                  }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" y1="8" x2="19" y2="14"></line>
+                    <line x1="22" y1="11" x2="16" y2="11"></line>
+                  </svg>
+                  <span>{isArabic ? 'تقديم طلب العضوية الآن' : 'Apply for Membership'} &rarr;</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 3-Step Membership Registration Modal with OTP Verification */}
       <JoinCommunityModal
