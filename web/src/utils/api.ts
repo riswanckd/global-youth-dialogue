@@ -1,27 +1,20 @@
 function getApiBase(): string {
+  // In local development with Vite dev server
+  if ((import.meta as any).env?.DEV) {
+    const devUrl = (import.meta as any).env?.VITE_API_BASE_URL;
+    return devUrl || '/api/v1';
+  }
+
   const origin = (import.meta as any).env?.VITE_API_ORIGIN;
   const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL;
-
-  // If VITE_API_ORIGIN is specified from .env or Vercel (e.g. global-youth-dialogue-api.vercel.app)
-  if (origin && origin !== 'http://localhost:5000') {
-    let cleanOrigin = origin.trim().replace(/\/+$/, '');
-    if (!cleanOrigin.startsWith('http://') && !cleanOrigin.startsWith('https://')) {
-      cleanOrigin = `https://${cleanOrigin}`;
-    }
-    return `${cleanOrigin}/api/v1`;
-  }
 
   // If VITE_API_BASE_URL is explicitly set to an absolute URL
   if (baseUrl && (baseUrl.startsWith('http://') || baseUrl.startsWith('https://'))) {
     return baseUrl.trim().replace(/\/+$/, '');
   }
 
-  // In local dev with localhost:5000, use Vite proxy /api/v1
-  if ((import.meta as any).env?.DEV) {
-    return baseUrl || '/api/v1';
-  }
-
-  if (origin) {
+  // If VITE_API_ORIGIN is specified and not pointing to localhost
+  if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
     let cleanOrigin = origin.trim().replace(/\/+$/, '');
     if (!cleanOrigin.startsWith('http://') && !cleanOrigin.startsWith('https://')) {
       cleanOrigin = `https://${cleanOrigin}`;
@@ -29,7 +22,8 @@ function getApiBase(): string {
     return `${cleanOrigin}/api/v1`;
   }
 
-  return baseUrl || '/api/v1';
+  // Production fallback: reliably communicate with the live backend API
+  return 'https://gyde-api.vercel.app/api/v1';
 }
 
 export const API_BASE = getApiBase();

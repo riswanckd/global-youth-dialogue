@@ -41,14 +41,28 @@ export const Applications: React.FC = () => {
     queryFn: async () => {
       let remoteApps: Application[] = [];
       try {
-        const res = await apiRequest<Application[]>(
+        const res = await apiRequest<any>(
           `/admin/applications${statusFilter !== 'all' ? `?status=${statusFilter}` : ''}`
         );
         if (Array.isArray(res)) {
           remoteApps = res;
+        } else if (res && Array.isArray(res.data)) {
+          remoteApps = res.data;
         }
       } catch (err) {
         console.warn('Could not query /admin/applications:', err);
+      }
+
+      // If remote returned nothing, try querying /applications as resilient fallback
+      if (remoteApps.length === 0) {
+        try {
+          const fallbackRes = await apiRequest<any>('/applications');
+          if (Array.isArray(fallbackRes)) {
+            remoteApps = fallbackRes;
+          } else if (fallbackRes && Array.isArray(fallbackRes.data)) {
+            remoteApps = fallbackRes.data;
+          }
+        } catch {}
       }
 
       // Check local shared applications cache (inter-connected across web & admin)
@@ -65,8 +79,11 @@ export const Applications: React.FC = () => {
 
       // Merge remote and local applications seamlessly
       const mergedMap = new Map<string, Application>();
-      remoteApps.forEach((app) => mergedMap.set(app.email.toLowerCase(), app));
+      remoteApps.forEach((app) => {
+        if (app && app.email) mergedMap.set(app.email.toLowerCase(), app);
+      });
       localApps.forEach((app) => {
+        if (!app || !app.email) return;
         const existing = mergedMap.get(app.email.toLowerCase());
         if (!existing) {
           mergedMap.set(app.email.toLowerCase(), app);
@@ -136,12 +153,12 @@ export const Applications: React.FC = () => {
   });
 
   const filtered = applications.filter((app) => {
+    if (!app) return false;
     const q = search.toLowerCase();
-    return (
-      app.applicantName.toLowerCase().includes(q) ||
-      app.email.toLowerCase().includes(q) ||
-      app.country.toLowerCase().includes(q)
-    );
+    const name = (app.applicantName || (app as any).name || '').toLowerCase();
+    const email = (app.email || '').toLowerCase();
+    const country = (app.country || '').toLowerCase();
+    return name.includes(q) || email.includes(q) || country.includes(q);
   });
 
   const pendingCount = applications.filter((a) => a.status === 'pending').length;

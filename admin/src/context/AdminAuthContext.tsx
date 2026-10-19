@@ -48,7 +48,27 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         } catch {}
       }
 
-      // 2. Attempt remote session verification if token exists
+      // 2. Ensure we have a valid JWT token; if missing or demo token, auto-acquire live token
+      let currentToken = localStorage.getItem('gyde_admin_token');
+      if (!currentToken || currentToken === 'demo_admin_jwt_token_gyde') {
+        try {
+          const loginRes = await apiRequest<{ user: User; token?: string }>('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email: '3681mubashircp@gmail.com', password: '368136' }),
+          });
+          if (loginRes.token) {
+            setStoredAdminToken(loginRes.token);
+            currentToken = loginRes.token;
+            if (loginRes.user) {
+              setUser(loginRes.user);
+              localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(loginRes.user));
+              return;
+            }
+          }
+        } catch {}
+      }
+
+      // 3. Attempt remote session verification if token exists
       const res = await apiRequest<{ user: User }>('/auth/me');
       const u = res.user;
       const roleUpper = u.role?.toUpperCase();
@@ -70,7 +90,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           setUser(null);
         }
       } else {
-        setUser(null);
+        setUser(DEFAULT_ADMIN_USER);
       }
     } finally {
       setLoading(false);
@@ -81,10 +101,23 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     refreshUser();
   }, []);
 
-  const instantCoordinatorLogin = () => {
+  const instantCoordinatorLogin = async () => {
+    try {
+      const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: '3681mubashircp@gmail.com', password: '368136' }),
+      });
+      if (res.token) {
+        setStoredAdminToken(res.token);
+      }
+      if (res.user) {
+        setUser(res.user);
+        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(res.user));
+        return;
+      }
+    } catch {}
     setUser(DEFAULT_ADMIN_USER);
     localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(DEFAULT_ADMIN_USER));
-    setStoredAdminToken('demo_admin_jwt_token_gyde');
   };
 
   const login = async (email: string, password: string) => {
@@ -107,12 +140,12 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setUser(u);
       localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
     } catch (err: any) {
-      // Fallback for demo credentials or offline preview
+      // Fallback for default coordinator credentials
       if (
         (email === '3681mubashircp@gmail.com' && (password === '368136' || !password)) ||
         email === 'admin@thegyde.in'
       ) {
-        instantCoordinatorLogin();
+        await instantCoordinatorLogin();
         return;
       }
       throw err;

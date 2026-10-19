@@ -12,7 +12,9 @@ const envSchema = z.object({
     .default(process.env.VERCEL ? 'production' : 'development'),
   PORT: z.string().default('5000').transform((v) => parseInt(v, 10)),
   API_PREFIX: z.string().default('/api/v1'),
-  MONGODB_URI: z.string().default('mongodb://127.0.0.1:27017/gyde'),
+  MONGODB_URI: z
+    .string()
+    .default('mongodb+srv://risilbinmusthafa_db_user:BHUP8wJFLfuMClxJ@cluster0.dxecfdk.mongodb.net/gyde?retryWrites=true&w=majority'),
   WEB_ORIGIN: z.string().default('http://localhost:5173'),
   ADMIN_ORIGIN: z.string().default('http://localhost:5174'),
   JWT_SECRET: z.string().min(16).default('gyde_dev_secret_key_change_in_production_min_32_chars'),
