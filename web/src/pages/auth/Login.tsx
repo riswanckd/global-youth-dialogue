@@ -130,7 +130,12 @@ export const Login: React.FC = () => {
             <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.85rem', background: 'var(--bg-body)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               <span>{isArabic ? 'هل أنت مسؤول نظام؟' : 'Platform administrator?'}</span>
               {' '}
-              <a href="http://localhost:5174" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-primary-1)', fontWeight: 600 }}>
+              <a 
+                href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://gyde-admin.vercel.app'} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ color: 'var(--color-primary-1)', fontWeight: 600 }}
+              >
                 {isArabic ? 'الانتقال إلى بوابة الإدارة المستقلة' : 'Sign in via Admin Portal'} &rarr;
               </a>
             </div>

@@ -188,7 +188,9 @@ export const PortalLayout: React.FC = () => {
 
             {isAdmin && (
               <a
-                href={window.location.port === '5173' ? 'http://localhost:5174/dashboard' : '/admin'}
+                href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174/dashboard' : 'https://gyde-admin.vercel.app/dashboard'}
+                target={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? undefined : '_blank'}
+                rel={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? undefined : 'noopener noreferrer'}
                 className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 border border-amber-200 dark:border-amber-900/50 transition-colors"
                 title="Universal Admin Access"
               >
