@@ -81,8 +81,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'dash.manageAll': { en: 'Manage All', ar: 'إدارة الكل' },
   'dash.noPending': { en: 'No pending membership applications.', ar: 'لا توجد طلبات عضوية معلقة حالياً.' },
   'dash.noPendingDesc': {
-    en: 'New submissions from prospective youth debaters will appear here for review.',
-    ar: 'ستظهر هنا الطلبات الجديدة المقدمة من المناظرين الشباب للمراجعة والتدقيق.',
+    en: 'New submissions from prospective youth scholars and fellows will appear here for review.',
+    ar: 'ستظهر هنا الطلبات الجديدة المقدمة من الشباب والباحثين للمراجعة والتدقيق.',
   },
   'dash.approve': { en: 'Approve', ar: 'قبول' },
   'dash.decline': { en: 'Decline', ar: 'رفض' },
@@ -93,7 +93,7 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'dash.localProcessed': { en: 'Action processed locally.', ar: 'تمت معالجة الإجراء محلياً.' },
 
   'dash.coordinatorActions': { en: 'Coordinator Actions', ar: 'إجراءات المنسق' },
-  'dash.actionCreateSession': { en: 'Create New Session', ar: 'إنشاء جلسة مناظرة جديدة' },
+  'dash.actionCreateSession': { en: 'Create New Session', ar: 'إنشاء جلسة حوارية جديدة' },
   'dash.actionDraftSummary': { en: 'Draft Academic Summary', ar: 'صياغة ملخص أكاديمي' },
   'dash.actionInspectFeedback': { en: 'Inspect Feedback Reviews', ar: 'فحص تقييمات الوفود' },
   'dash.actionPostAnnouncement': { en: 'Post Community Announcement', ar: 'نشر إعلان للمجتمع' },
@@ -102,8 +102,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   // Applications Page
   'apps.title': { en: 'Applicant Dossiers & Vetting', ar: 'ملفات المتقدمين والتدقيق' },
   'apps.subtitle': {
-    en: 'Review and deliberate on incoming membership requests from international youth debaters.',
-    ar: 'مراجعة والبت في طلبات العضوية الواردة من المناظرين الشباب حول العالم.',
+    en: 'Review and deliberate on incoming membership requests from international youth scholars.',
+    ar: 'مراجعة والبت في طلبات العضوية الواردة من الشباب والباحثين حول العالم.',
   },
   'apps.totalDossiers': { en: 'Total Dossiers', ar: 'إجمالي الملفات' },
   'apps.searchPlaceholder': {
@@ -118,17 +118,17 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'apps.noApps': { en: 'No applications found.', ar: 'لم يتم العثور على أي طلبات عضوية.' },
   'apps.colApplicant': { en: 'Applicant', ar: 'المتقدم' },
   'apps.colCountry': { en: 'Country & Institution', ar: 'الدولة والمؤسسة' },
-  'apps.colExperience': { en: 'Debate Track', ar: 'المسار التناظري' },
+  'apps.colExperience': { en: 'Dialogue Track', ar: 'المسار الحواري' },
   'apps.colStatus': { en: 'Status', ar: 'الحالة' },
   'apps.colActions': { en: 'Actions', ar: 'الإجراءات' },
   'apps.reviewBtn': { en: 'Review Dossier', ar: 'مراجعة الملف' },
   'apps.modalTitle': { en: 'Applicant Dossier & Deliberation', ar: 'ملف المتقدم ومداولة المنسقين' },
   'apps.modalSubtitle': {
-    en: 'Review full background, debate accolades, and candidate motivation statement.',
-    ar: 'مراجعة السيرة التناظرية والجوائز ورسالة الدافع للمرشح.',
+    en: 'Review full background, academic accolades, and candidate motivation statement.',
+    ar: 'مراجعة السيرة الأكاديمية والجوائز ورسالة الدافع للمرشح.',
   },
   'apps.personalStatement': { en: 'Personal Statement & Motivation', ar: 'رسالة الاهتمام والدافع' },
-  'apps.debateExperience': { en: 'Debate Experience & Honors', ar: 'الخبرة التناظرية والجوائز' },
+  'apps.debateExperience': { en: 'Dialogue & Academic Experience', ar: 'الخبرة الحوارية والأكاديمية' },
   'apps.interests': { en: 'Thematic Knowledge Disciplines', ar: 'المجالات والمحاور المعرفية' },
   'apps.coordinatorNotes': { en: 'Coordinator Deliberation Notes', ar: 'ملاحظات وتوصيات المنسق' },
   'apps.notesPlaceholder': {
@@ -136,8 +136,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
     ar: 'أدخل ملاحظات التقييم أو شروط الاعتماد للمتقدم...',
   },
   'apps.accreditPresenter': {
-    en: 'Accredit as Verified Debate Presenter / Chair',
-    ar: 'اعتماد المرشح كمقدم / رئيس جلسة مناظرة رسمي',
+    en: 'Accredit as Verified Session Presenter / Moderator',
+    ar: 'اعتماد المرشح كمقدم / مدير جلسة رسمي',
   },
   'apps.approveApplication': { en: 'Approve Membership', ar: 'الموافقة على العضوية' },
   'apps.rejectApplication': { en: 'Decline Application', ar: 'رفض الطلب' },
@@ -146,8 +146,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   // Users Page
   'users.title': { en: 'Community Directory', ar: 'دليل المجتمع والوفود' },
   'users.subtitle': {
-    en: 'Manage verified youth scholars, debaters, and coordinator privileges across 14+ country delegations.',
-    ar: 'إدارة الباحثين الشباب والمناظرين المعتمدين وصلاحيات المنسقين عبر وفود أكثر من 14 دولة.',
+    en: 'Manage verified youth scholars, fellows, and coordinator privileges across 14+ country delegations.',
+    ar: 'إدارة الباحثين الشباب والزملاء المعتمدين وصلاحيات المنسقين عبر وفود أكثر من 14 دولة.',
   },
   'users.searchPlaceholder': {
     en: 'Search users by name, email, or country...',
@@ -156,7 +156,7 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'users.filterAllRoles': { en: 'All Roles', ar: 'جميع الأدوار' },
   'users.filterSuperAdmin': { en: 'Super Admin', ar: 'المشرف العام' },
   'users.filterCoordinator': { en: 'Coordinator', ar: 'منسق' },
-  'users.filterPresenter': { en: 'Presenter', ar: 'مقدم مناظرة' },
+  'users.filterPresenter': { en: 'Presenter / Moderator', ar: 'مقدم / مدير جلسة' },
   'users.filterMember': { en: 'Member', ar: 'عضو' },
   'users.noUsers': { en: 'No members found matching filter.', ar: 'لم يتم العثور على أي أعضاء مطابقين للبحث.' },
   'users.colUser': { en: 'User & Details', ar: 'المستخدم والبيانات' },
@@ -174,27 +174,27 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'users.delete': { en: 'Delete', ar: 'حذف' },
 
   // Sessions Page
-  'sessions.title': { en: 'Parliamentary Sessions & Debates', ar: 'جلسات المناظرات البرلمانية' },
+  'sessions.title': { en: 'Academic Sessions & Structured Dialogues', ar: 'جلسات الحوار الأكاديمي والتبادل الفكري' },
   'sessions.subtitle': {
-    en: 'Schedule and preside over bi-weekly parliamentary debates, configure motion assignments, and upload recordings.',
-    ar: 'جدولة وإدارة جلسات المناظرة البرلمانية نصف الشهرية، وتعيين القضايا وتوثيق التسجيلات.',
+    en: 'Schedule and preside over bi-weekly academic dialogues, configure session assignments, and upload recordings.',
+    ar: 'جدولة وإدارة جلسات الحوار الأكاديمي نصف الشهرية، وتعيين المحاور وتوثيق التسجيلات.',
   },
-  'sessions.scheduleBtn': { en: 'Schedule Sessions', ar: 'جدولة الجلسات' },
+  'sessions.scheduleBtn': { en: 'Schedule Session', ar: 'جدولة جلسة' },
   'sessions.searchPlaceholder': {
     en: 'Search sessions by title or category...',
     ar: 'البحث في الجلسات حسب العنوان أو المجال...',
   },
-  'sessions.noSessions': { en: 'No parliamentary sessions found.', ar: 'لا توجد جلسات مسجلة.' },
-  'sessions.modalTitle': { en: 'Schedule Sessions', ar: 'جدولة الجلسات' },
+  'sessions.noSessions': { en: 'No academic sessions found.', ar: 'لا توجد جلسات مسجلة.' },
+  'sessions.modalTitle': { en: 'Schedule Session', ar: 'جدولة جلسة' },
   'sessions.activityFormat': { en: 'Proposed Activity Format', ar: 'شكل النشاط الحواري المقترح' },
-  'sessions.motionLabel': { en: 'Session Motion / Title', ar: 'قضية الجلسة / العنوان' },
-  'sessions.descLabel': { en: 'Motion Description & Rules of Engagement', ar: 'الوصف ومحددات المناظرة' },
+  'sessions.motionLabel': { en: 'Session Topic / Motion', ar: 'موضوع الجلسة / القضية' },
+  'sessions.descLabel': { en: 'Dialogue Framing & Guidelines', ar: 'الوصف ومحددات الحوار' },
   'sessions.dateLabel': { en: 'Scheduled Date & Time (UTC)', ar: 'الموعد المحدد (توقيت UTC)' },
   'sessions.durationLabel': { en: 'Duration (Minutes)', ar: 'المدة (بالدقائق)' },
   'sessions.meetingUrlLabel': { en: 'Virtual Meeting URL (Zoom / Google Meet)', ar: 'رابط قاعة الاجتماع (Zoom / Meet)' },
   'sessions.cancelBtn': { en: 'Cancel', ar: 'إلغاء' },
   'sessions.createBtn': { en: 'Publish Session', ar: 'اعتماد ونشر الجلسة' },
-  'sessions.joinChamber': { en: 'Join Chamber', ar: 'دخول القاعة' },
+  'sessions.joinChamber': { en: 'Join Dialogue Chamber', ar: 'دخول قاعة الحوار' },
   'sessions.live': { en: 'Live Now', ar: 'جارية الآن' },
   'sessions.scheduled': { en: 'Scheduled', ar: 'مجدولة' },
   'sessions.completed': { en: 'Completed', ar: 'منتهية' },
@@ -204,8 +204,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'sessions.moderatorPlaceholder': { en: 'Full name of session moderator...', ar: 'اسم مدير الجلسة الكامل...' },
   'sessions.presentersLabel': { en: 'Presenter(s) (1 or more)', ar: 'مقدم(و) العرض (1 أو أكثر)' },
   'sessions.addPresenter': { en: '+ Add Presenter', ar: '+ إضافة مقدم عرض' },
-  'sessions.team1Label': { en: 'Team 1 / Proposition Members', ar: 'الفريق الأول / أعضاء فريق الموالاة' },
-  'sessions.team2Label': { en: 'Team 2 / Opposition Members', ar: 'الفريق الثاني / أعضاء فريق المعارضة' },
+  'sessions.team1Label': { en: 'Team 1 / Affirmative Members', ar: 'الفريق الأول / أعضاء فريق التأييد' },
+  'sessions.team2Label': { en: 'Team 2 / Alternative Members', ar: 'الفريق الثاني / أعضاء الفريق المقابل' },
   'sessions.teamMemberPlaceholder': { en: 'Enter member name...', ar: 'أدخل اسم العضو...' },
   'sessions.addMember': { en: '+ Add Member', ar: '+ إضافة عضو' },
   'sessions.speakersLabel': { en: 'Key Speakers (if any)', ar: 'المتحدثون الرئيسيون (إن وجدوا)' },
@@ -223,8 +223,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   // Topics Page
   'topics.title': { en: 'Topic Pipeline & Proposals', ar: 'مسار ومقترحات القضايا' },
   'topics.subtitle': {
-    en: 'Curate member-suggested parliamentary debate motions across the 16 core knowledge disciplines.',
-    ar: 'فرز وتنسيق قضايا المناظرات البرلمانية المقترحة من الأعضاء عبر 16 تخصصاً معرفياً.',
+    en: 'Curate member-suggested academic dialogue motions across the 16 core knowledge disciplines.',
+    ar: 'فرز وتنسيق قضايا الحوار الأكاديمي المقترحة من الأعضاء عبر 16 تخصصاً معرفياً.',
   },
   'topics.searchPlaceholder': {
     en: 'Search topics by motion or category...',
@@ -237,17 +237,17 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'topics.addTopicBtn': { en: 'Add Topic', ar: 'إضافة موضوع جديد' },
   'topics.addModalTitle': { en: 'Add New Topic to Bank', ar: 'إضافة موضوع جديد إلى بنك المواضيع' },
   'topics.addModalSubtitle': {
-    en: 'Administrators have authorization to directly add approved debate topics to the global repository.',
-    ar: 'يملك المنسقون والمسؤولون صلاحية إضافة قضايا معتمدة مباشرة إلى المستودع العالمي.',
+    en: 'Administrators have authorization to directly add approved dialogue topics to the global repository.',
+    ar: 'يملك المنسقون والمسؤولون صلاحية إضافة قضايا حوارية معتمدة مباشرة إلى المستودع العالمي.',
   },
   'topics.titleInputLabel': { en: 'Topic Title', ar: 'عنوان الموضوع' },
   'topics.titlePlaceholder': { en: 'e.g., Geopolitical Realignment in South Asia', ar: 'مثال: التحالفات الجيوسياسية في جنوب آسيا' },
-  'topics.motionInputLabel': { en: 'Suggested Debate Motion', ar: 'نص القضية المقترح (الأطروحة الجدلية)' },
-  'topics.motionPlaceholder': { en: 'This House Believes That / This House Would...', ar: 'يرى هذا المجلس أن / سيقوم هذا المجلس بـ...' },
+  'topics.motionInputLabel': { en: 'Suggested Dialogue Motion / Focus', ar: 'نص القضية أو المحور الحواري المقترح' },
+  'topics.motionPlaceholder': { en: 'Key proposition or dialogue question...', ar: 'الأطروحة الأساسية أو السؤال الحواري الموجه...' },
   'topics.categoryInputLabel': { en: 'Core Discipline / Sphere', ar: 'المجال التخصصي الأساسي' },
   'topics.formatInputLabel': { en: 'Proposed Activity Format', ar: 'صيغة النشاط المقترحة' },
   'topics.descriptionInputLabel': { en: 'Academic Rationale & Description', ar: 'الوصف والسياق الأكاديمي' },
-  'topics.descriptionPlaceholder': { en: 'Provide contextual framing, core debate lines, and background notes...', ar: 'قدم الإطار السياقي والمحاور الجدلية الأساسية...' },
+  'topics.descriptionPlaceholder': { en: 'Provide contextual framing, core dialogue lines, and background notes...', ar: 'قدم الإطار السياقي والمحاور الحوارية الأساسية...' },
   'topics.perspectiveInputLabel': { en: 'Regional / Policy Perspective (Optional)', ar: 'المنظور الإقليمي أو السياسي (اختياري)' },
   'topics.perspectivePlaceholder': { en: 'e.g., GCC, Global South, European Union', ar: 'مثال: دول مجلس التعاون، الجنوب العالمي، الاتحاد الأوروبي' },
   'topics.statusInputLabel': { en: 'Topic Status', ar: 'حالة الموضوع' },
@@ -273,8 +273,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   // Feedback Page
   'fb.title': { en: 'Delegate Reviews & Feedback', ar: 'تقييمات الوفود والمراجعات' },
   'fb.subtitle': {
-    en: 'Peer reflections and ratings on presentation clarity, argument strength, and floor debate rigor.',
-    ar: 'انطباعات وتقييمات الأقران حول وضوح العرض، قوة الحجج، ورصانة المناظرة.',
+    en: 'Peer reflections and ratings on presentation clarity, argument strength, and floor dialogue rigor.',
+    ar: 'انطباعات وتقييمات الأقران حول وضوح العرض، قوة الحجج، ورصانة الحوار.',
   },
   'fb.searchPlaceholder': {
     en: 'Search feedback by session or member...',
@@ -291,10 +291,10 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   // Analytics Page
   'analytics.title': { en: 'Platform Analytics & Deliberations', ar: 'إحصائيات المنصة والتحليلات' },
   'analytics.subtitle': {
-    en: 'Real-time metrics on debate session attendance, geographic distribution, and paper citations.',
+    en: 'Real-time metrics on dialogue session attendance, geographic distribution, and paper citations.',
     ar: 'مؤشرات حية حول حضور الجلسات، التوزيع الجغرافي للوفود، والنشاط الأكاديمي.',
   },
-  'analytics.monthlyAttendance': { en: 'Monthly Chamber Attendance', ar: 'حضور غرف المناظرة الشهري' },
+  'analytics.monthlyAttendance': { en: 'Monthly Chamber Attendance', ar: 'حضور غرف الحوار الشهري' },
   'analytics.countryDistribution': { en: 'Delegation Distribution by Nation', ar: 'توزيع الوفود حسب الدول' },
   'analytics.noAttendance': { en: 'No session attendance data recorded yet.', ar: 'لا توجد بيانات حضور مسجلة حتى الآن.' },
   'analytics.noAttendanceDesc': {
@@ -378,7 +378,8 @@ const CATEGORIES_AR: Record<string, string> = {
   'Education Reform': 'تطوير التعليم والمعرفة',
   'Media & Information Integrity': 'الإعلام ونزاهة المعلومات',
   'Topic Presentation': 'عرض موضوع',
-  'Structural Debate': 'مناظرة هيكلية',
+  'Structured Dialogue': 'حوار منظم',
+  'Structural Debate': 'حوار منظم (مناظرة هيكلية)',
   'Discussion': 'جلسة نقاشية',
   'Guest Talks': 'حوارات الضيوف',
 };
@@ -387,7 +388,7 @@ const ROLES_AR: Record<string, string> = {
   SUPER_ADMIN: 'المشرف العام',
   ADMIN: 'مسؤول النظام',
   COORDINATOR: 'منسق أكاديمي',
-  PRESENTER: 'مقدم مناظرة',
+  PRESENTER: 'مقدم / مدير جلسة',
   MEMBER: 'عضو باحث',
 };
 

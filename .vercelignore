@@ -1,6 +1,3 @@
-# Ignore admin sub-project from main site deployment
-admin/
-
 
 # Local & temporary files
 server.py

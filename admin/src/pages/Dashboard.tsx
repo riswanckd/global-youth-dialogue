@@ -226,7 +226,7 @@ export const Dashboard: React.FC = () => {
                   {t('dash.noPending', 'No pending membership applications.')}
                 </p>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  {t('dash.noPendingDesc', 'New submissions from prospective youth debaters will appear here for review.')}
+                  {t('dash.noPendingDesc', 'New submissions from prospective youth scholars and fellows will appear here for review.')}
                 </p>
               </div>
             ) : (

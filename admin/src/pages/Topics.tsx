@@ -38,7 +38,7 @@ const SPHERES = [
 
 const ACTIVITY_FORMATS = [
   'Topic Presentation',
-  'Structural Debate',
+  'Structured Dialogue',
   'Discussion',
   'Guest Talks',
   'Academic Discussion / Policy Roundtable',
@@ -174,7 +174,7 @@ export const Topics: React.FC = () => {
           <p className="text-sm text-slate-500 mt-1">
             {t(
               'topics.subtitle',
-              'Curate and manage parliamentary debate motions across the 16 core knowledge disciplines.'
+              'Curate member-suggested academic dialogue motions across the 16 core knowledge disciplines.'
             )}
           </p>
         </div>
@@ -569,7 +569,7 @@ export const Topics: React.FC = () => {
                   <p className="text-xs text-slate-500 mt-0.5">
                     {t(
                       'topics.addModalSubtitle',
-                      'Administrators have authorization to directly add approved debate topics to the global repository.'
+                      'Administrators have authorization to directly add approved dialogue topics to the global repository.'
                     )}
                   </p>
                 </div>
@@ -616,16 +616,16 @@ export const Topics: React.FC = () => {
                 />
               </div>
 
-              {/* Debate Motion / Thesis */}
+              {/* Dialogue Motion / Focus */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  {t('topics.motionInputLabel', 'Suggested Debate Motion')}
+                  {t('topics.motionInputLabel', 'Suggested Dialogue Motion / Focus')}
                 </label>
                 <input
                   type="text"
                   placeholder={t(
                     'topics.motionPlaceholder',
-                    'This House Believes That / This House Would...'
+                    'Key proposition or dialogue question...'
                   )}
                   value={formData.motion}
                   onChange={(e) => setFormData({ ...formData, motion: e.target.value })}
@@ -720,7 +720,7 @@ export const Topics: React.FC = () => {
                   rows={3}
                   placeholder={t(
                     'topics.descriptionPlaceholder',
-                    'Provide contextual framing, core debate lines, and background notes...'
+                    'Provide contextual framing, core dialogue lines, and background notes...'
                   )}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}

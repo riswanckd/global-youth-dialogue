@@ -45,7 +45,7 @@ export const Analytics: React.FC = () => {
           {t('analytics.title', 'Platform Analytics & Deliberations')}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          {t('analytics.subtitle', 'Real-time metrics on debate session attendance, geographic distribution, and paper citations.')}
+          {t('analytics.subtitle', 'Real-time metrics on dialogue session attendance, geographic distribution, and paper citations.')}
         </p>
       </div>
 

@@ -70,7 +70,7 @@ export const Applications: React.FC = () => {
             {t('apps.title', 'Applicant Dossiers & Vetting')}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            {t('apps.subtitle', 'Review and deliberate on incoming membership requests from international youth debaters.')}
+            {t('apps.subtitle', 'Review and deliberate on incoming membership requests from international youth scholars.')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -357,7 +357,7 @@ export const Applications: React.FC = () => {
             {/* Experience */}
             <div className="space-y-1">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                {t('apps.debateExperience', 'Debate & Academic Experience')}
+                {t('apps.debateExperience', 'Dialogue & Academic Experience')}
               </h4>
               <p className="text-xs leading-relaxed text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
                 {selectedApp.experience}
@@ -399,7 +399,7 @@ export const Applications: React.FC = () => {
               <textarea
                 value={reviewNotes}
                 onChange={(e) => setReviewNotes(e.target.value)}
-                placeholder={t('apps.notesPlaceholder', 'Enter observations, debate chamber suitability, or deliberation rationale...')}
+                placeholder={t('apps.notesPlaceholder', 'Enter observations, dialogue chamber suitability, or deliberation rationale...')}
                 rows={3}
                 className="w-full p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />

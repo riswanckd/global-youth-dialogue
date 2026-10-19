@@ -83,7 +83,7 @@ export const Users: React.FC = () => {
             {t('users.title', 'Community Directory & Roles')}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            {t('users.subtitle', 'Manage authenticated youth debaters, keynote presenters, and secretariat coordinators.')}
+            {t('users.subtitle', 'Manage authenticated youth scholars, fellows, and secretariat coordinators.')}
           </p>
         </div>
       </div>
@@ -105,7 +105,7 @@ export const Users: React.FC = () => {
           </div>
         </div>
 
-        {/* Youth Debaters */}
+        {/* Youth Scholars & Fellows */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />

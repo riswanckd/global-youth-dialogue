@@ -38,7 +38,7 @@ export const Feedback: React.FC = () => {
           {t('fb.title', 'Delegate Reviews & Feedback')}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          {t('fb.subtitle', 'Peer reflections and ratings on presentation clarity, argument strength, and floor debate rigor.')}
+          {t('fb.subtitle', 'Peer reflections and ratings on presentation clarity, argument strength, and floor dialogue rigor.')}
         </p>
       </div>
 
@@ -89,7 +89,7 @@ export const Feedback: React.FC = () => {
           </div>
         </div>
 
-        {/* Debate Chambers */}
+        {/* Dialogue Chambers */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />

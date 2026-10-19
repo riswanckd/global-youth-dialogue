@@ -59,7 +59,7 @@ export const Sessions: React.FC = () => {
 
   const [formData, setFormData] = useState({
     title: '',
-    sessionCategory: 'Topic Presentation' as 'Topic Presentation' | 'Structural Debate' | 'Discussion' | 'Guest Talks',
+    sessionCategory: 'Topic Presentation' as 'Topic Presentation' | 'Structured Dialogue' | 'Discussion' | 'Guest Talks' | 'Structural Debate',
     academicSphere: 'Technology & AI Ethics',
     description: '',
     scheduledAt: '',
@@ -119,8 +119,8 @@ export const Sessions: React.FC = () => {
         title: createdTopic?.title || newTopicForm.title,
         academicSphere: createdTopic?.category || newTopicForm.category,
         description: createdTopic?.description || newTopicForm.description,
-        sessionCategory: ['Topic Presentation', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(createdTopic?.format)
-          ? (createdTopic.format as any)
+        sessionCategory: ['Topic Presentation', 'Structured Dialogue', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(createdTopic?.format)
+          ? (createdTopic.format === 'Structural Debate' ? 'Structured Dialogue' : (createdTopic.format as any))
           : prev.sessionCategory,
       }));
       setTopicCreateSuccess(t('sessions.topicAddedSuccess', 'New topic created and selected for this session!'));
@@ -155,8 +155,8 @@ export const Sessions: React.FC = () => {
         title: found.title,
         academicSphere: found.category || prev.academicSphere,
         description: found.description || prev.description,
-        sessionCategory: (['Topic Presentation', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(found.format as any)
-          ? found.format
+        sessionCategory: (['Topic Presentation', 'Structured Dialogue', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(found.format as any)
+          ? (found.format === 'Structural Debate' ? 'Structured Dialogue' : found.format)
           : prev.sessionCategory) as any,
       }));
     }
@@ -209,13 +209,13 @@ export const Sessions: React.FC = () => {
             country: p.country?.trim() || '',
             bio: p.bio?.trim() || '',
           }));
-      } else if (data.sessionCategory === 'Structural Debate') {
+      } else if (data.sessionCategory === 'Structured Dialogue' || (data.sessionCategory as any) === 'Structural Debate') {
         payload.moderator = data.moderator.trim();
         payload.propositionTeam = data.team1Members.map((m) => m.trim()).filter(Boolean);
         payload.oppositionTeam = data.team2Members.map((m) => m.trim()).filter(Boolean);
         payload.presenters = [
-          ...payload.propositionTeam.map((name: string) => ({ name, role: 'Proposition Team' })),
-          ...payload.oppositionTeam.map((name: string) => ({ name, role: 'Opposition Team' })),
+          ...payload.propositionTeam.map((name: string) => ({ name, role: 'Affirmative Team' })),
+          ...payload.oppositionTeam.map((name: string) => ({ name, role: 'Alternative Team' })),
         ];
       } else if (data.sessionCategory === 'Discussion') {
         payload.moderator = data.moderator.trim();
@@ -263,10 +263,10 @@ export const Sessions: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {t('sessions.title', 'Parliamentary Sessions & Debates')}
+            {t('sessions.title', 'Academic Sessions & Structured Dialogues')}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            {t('sessions.subtitle', 'Schedule and preside over bi-weekly parliamentary debates, configure motion assignments, and upload recordings.')}
+            {t('sessions.subtitle', 'Schedule and preside over bi-weekly academic dialogues, configure session assignments, and upload recordings.')}
           </p>
         </div>
         <button
@@ -274,7 +274,7 @@ export const Sessions: React.FC = () => {
           className="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>{t('sessions.scheduleBtn', 'Schedule Sessions')}</span>
+          <span>{t('sessions.scheduleBtn', 'Schedule Session')}</span>
         </button>
       </div>
 
@@ -390,14 +390,14 @@ export const Sessions: React.FC = () => {
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
                               sessionCat === 'Topic Presentation'
                                 ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400'
-                                : sessionCat === 'Structural Debate'
+                                : (sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate')
                                 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
                                 : sessionCat === 'Discussion'
                                 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                                 : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400'
                             }`}>
                               {sessionCat === 'Topic Presentation' && <Presentation className="w-3 h-3" />}
-                              {sessionCat === 'Structural Debate' && <Users className="w-3 h-3" />}
+                              {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && <Users className="w-3 h-3" />}
                               {sessionCat === 'Discussion' && <MessageSquare className="w-3 h-3" />}
                               {sessionCat === 'Guest Talks' && <Sparkles className="w-3 h-3" />}
                               <span>{translateCategory(sessionCat)}</span>
@@ -418,7 +418,7 @@ export const Sessions: React.FC = () => {
                               </div>
                             )}
 
-                            {sessionCat === 'Structural Debate' && (
+                            {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && (
                               <div className="flex flex-wrap items-center gap-2">
                                 {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
                                 {s.propositionTeam && s.propositionTeam.length > 0 && (
@@ -513,7 +513,7 @@ export const Sessions: React.FC = () => {
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
                             sessionCat === 'Topic Presentation'
                               ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400'
-                              : sessionCat === 'Structural Debate'
+                              : (sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate')
                               ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
                               : sessionCat === 'Discussion'
                               ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
@@ -541,7 +541,7 @@ export const Sessions: React.FC = () => {
                           )}
                         </div>
                       )}
-                      {sessionCat === 'Structural Debate' && (
+                      {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && (
                         <div className="space-y-1">
                           {s.propositionTeam && s.propositionTeam.length > 0 && (
                             <div className="text-indigo-600 dark:text-indigo-400 font-medium">Team 1: {s.propositionTeam.join(', ')}</div>
@@ -584,7 +584,7 @@ export const Sessions: React.FC = () => {
                         className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                       >
                         <Video className="w-3.5 h-3.5" />
-                        <span>{t('sessions.joinChamber', 'Join Debate Chamber')}</span>
+                        <span>{t('sessions.joinChamber', 'Join Dialogue Chamber')}</span>
                       </a>
                     )}
                   </div>
@@ -602,7 +602,7 @@ export const Sessions: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {t('sessions.modalTitle', 'Schedule Sessions')}
+                  {t('sessions.modalTitle', 'Schedule Session')}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   {isArabic
@@ -642,8 +642,8 @@ export const Sessions: React.FC = () => {
                   <option value="Topic Presentation">
                     {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
                   </option>
-                  <option value="Structural Debate">
-                    {isArabic ? 'مناظرة هيكلية (فريقان وأعضاؤهما)' : 'Structural Debate (2 teams and their members)'}
+                  <option value="Structured Dialogue">
+                    {isArabic ? 'حوار منظم (فريقان وأعضاؤهما)' : 'Structured Dialogue (2 teams and their members)'}
                   </option>
                   <option value="Discussion">
                     {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}
@@ -674,23 +674,23 @@ export const Sessions: React.FC = () => {
                     <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator & Presenter(s)</div>
                   </button>
 
-                  {/* Structural Debate */}
+                  {/* Structured Dialogue */}
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, sessionCategory: 'Structural Debate' })}
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Structured Dialogue' })}
                     className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
-                      formData.sessionCategory === 'Structural Debate'
+                      formData.sessionCategory === 'Structured Dialogue' || (formData.sessionCategory as any) === 'Structural Debate'
                         ? 'border-amber-600 bg-amber-50/70 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/20'
                         : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <Users className="w-4 h-4 mb-1" />
-                      {formData.sessionCategory === 'Structural Debate' && (
+                      {(formData.sessionCategory === 'Structured Dialogue' || (formData.sessionCategory as any) === 'Structural Debate') && (
                         <div className="w-2 h-2 rounded-full bg-amber-600" />
                       )}
                     </div>
-                    <div className="font-bold text-xs leading-tight">Structural Debate</div>
+                    <div className="font-bold text-xs leading-tight">Structured Dialogue</div>
                     <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">2 Teams & Members</div>
                   </button>
 
@@ -906,12 +906,12 @@ export const Sessions: React.FC = () => {
                   </div>
                 )}
 
-                {/* 2. STRUCTURAL DEBATE */}
-                {formData.sessionCategory === 'Structural Debate' && (
+                {/* 2. STRUCTURED DIALOGUE */}
+                {(formData.sessionCategory === 'Structured Dialogue' || (formData.sessionCategory as any) === 'Structural Debate') && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
                       <Users className="w-4 h-4" />
-                      <span>Structural Debate Configuration (2 Teams and their Members)</span>
+                      <span>Structured Dialogue Configuration (2 Teams and their Members)</span>
                     </div>
 
                     <div>
@@ -928,11 +928,11 @@ export const Sessions: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      {/* Team 1 / Proposition */}
+                      {/* Team 1 / Affirmative */}
                       <div className="p-2.5 rounded-lg border border-indigo-200 dark:border-indigo-900/60 bg-white dark:bg-slate-800/80 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-xs text-indigo-700 dark:text-indigo-400">
-                            Team 1 (Proposition)
+                            Team 1 (Affirmative / Proposition)
                           </span>
                           <button
                             type="button"
@@ -977,11 +977,11 @@ export const Sessions: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Team 2 / Opposition */}
+                      {/* Team 2 / Alternative */}
                       <div className="p-2.5 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-white dark:bg-slate-800/80 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-xs text-amber-700 dark:text-amber-400">
-                            Team 2 (Opposition)
+                            Team 2 (Alternative / Opposition)
                           </span>
                           <button
                             type="button"
@@ -1339,11 +1339,11 @@ export const Sessions: React.FC = () => {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  {t('topics.motionInputLabel', 'Suggested Debate Motion')}
+                  {t('topics.motionInputLabel', 'Suggested Dialogue Motion / Focus')}
                 </label>
                 <input
                   type="text"
-                  placeholder="This House Believes That..."
+                  placeholder="Key proposition or dialogue question..."
                   value={newTopicForm.motion}
                   onChange={(e) => setNewTopicForm({ ...newTopicForm, motion: e.target.value })}
                   className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-[11px]"
@@ -1378,7 +1378,7 @@ export const Sessions: React.FC = () => {
                     className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                   >
                     <option value="Topic Presentation">{translateCategory('Topic Presentation')}</option>
-                    <option value="Structural Debate">{translateCategory('Structural Debate')}</option>
+                    <option value="Structured Dialogue">{translateCategory('Structured Dialogue')}</option>
                     <option value="Discussion">{translateCategory('Discussion')}</option>
                     <option value="Guest Talks">{translateCategory('Guest Talks')}</option>
                     <option value="Academic Discussion / Policy Roundtable">{translateCategory('Academic Discussion / Policy Roundtable')}</option>
