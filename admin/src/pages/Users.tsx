@@ -12,7 +12,28 @@ import {
   KeyRound,
   Filter,
   Trash2,
+  Lock,
+  Check,
+  X,
+  CheckSquare,
+  Square,
+  Sliders,
 } from 'lucide-react';
+
+export const ADMIN_MODULES = [
+  { id: 'dashboard', name: 'Programme Overview', description: 'Metrics, live telemetry, and activity pulse' },
+  { id: 'users', name: 'The Community', description: 'Community directory, membership, and role management' },
+  { id: 'pipeline', name: 'Topic Lifecycle Pipeline', description: 'Topic submissions, review stages, and voting pipeline' },
+  { id: 'topics', name: 'Topic Bank', description: 'Official registry of proposed and approved dialogue topics' },
+  { id: 'sessions', name: 'Session Management', description: 'Dialogue session scheduling, chambers, and format config' },
+  { id: 'session-summaries', name: 'Session Summaries', description: 'Post-dialogue executive summaries and deliberation briefs' },
+  { id: 'publications', name: 'Academic Writing Studio', description: 'Working papers, resolutions, and editorial publishing' },
+  { id: 'feedback', name: 'Delegate Feedback Analysis', description: 'Participant ratings, feedback analytics, and sentiment' },
+  { id: 'applications', name: 'Pending Applications', description: 'Applicant screening, verification, and admission approval' },
+  { id: 'coordinators', name: 'ISDC7 Coordinator Team', description: 'Secretariat team directory and coordinator roster' },
+  { id: 'analytics', name: 'Country Chapters', description: 'Geographic delegate distribution and chapter analytics' },
+  { id: 'settings', name: 'Media & PR Studio', description: 'Press materials, public relations assets, and broadcast kits' },
+];
 
 export const Users: React.FC = () => {
   const queryClient = useQueryClient();
@@ -28,14 +49,65 @@ export const Users: React.FC = () => {
       ),
   });
 
+  const [permissionModalUser, setPermissionModalUser] = useState<{ user: User; targetRole: UserRole } | null>(null);
+  const [selectedMenus, setSelectedMenus] = useState<string[]>([]);
+
   const updateRoleMutation = useMutation({
-    mutationFn: ({ id, role }: { id: string; role: UserRole }) =>
+    mutationFn: ({ id, role, allowedMenus }: { id: string; role: UserRole; allowedMenus?: string[] }) =>
       apiRequest(`/admin/users/${id}/role`, {
         method: 'PATCH',
-        body: JSON.stringify({ role }),
+        body: JSON.stringify({ role, allowedMenus }),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      setPermissionModalUser(null);
+    },
   });
+
+  const handleRoleChange = (targetUser: User, newRole: UserRole) => {
+    if (newRole === 'COORDINATOR' || newRole === 'ADMIN') {
+      setPermissionModalUser({ user: targetUser, targetRole: newRole });
+      setSelectedMenus(
+        targetUser.allowedMenus && targetUser.allowedMenus.length > 0
+          ? targetUser.allowedMenus
+          : ADMIN_MODULES.map((m) => m.id)
+      );
+    } else {
+      updateRoleMutation.mutate({ id: targetUser.id, role: newRole });
+    }
+  };
+
+  const handleOpenPermissions = (targetUser: User) => {
+    setPermissionModalUser({ user: targetUser, targetRole: targetUser.role });
+    setSelectedMenus(
+      targetUser.allowedMenus && targetUser.allowedMenus.length > 0
+        ? targetUser.allowedMenus
+        : ADMIN_MODULES.map((m) => m.id)
+    );
+  };
+
+  const handleToggleMenu = (menuId: string) => {
+    setSelectedMenus((prev) =>
+      prev.includes(menuId) ? prev.filter((id) => id !== menuId) : [...prev, menuId]
+    );
+  };
+
+  const handleSelectAllMenus = () => {
+    setSelectedMenus(ADMIN_MODULES.map((m) => m.id));
+  };
+
+  const handleClearAllMenus = () => {
+    setSelectedMenus([]);
+  };
+
+  const handleSavePermissions = () => {
+    if (!permissionModalUser) return;
+    updateRoleMutation.mutate({
+      id: permissionModalUser.user.id,
+      role: permissionModalUser.targetRole,
+      allowedMenus: selectedMenus,
+    });
+  };
 
   const toggleStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'active' | 'suspended' }) =>
@@ -221,19 +293,30 @@ export const Users: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <select
-                          value={u.role}
-                          onChange={(e) =>
-                            updateRoleMutation.mutate({ id: u.id, role: e.target.value as UserRole })
-                          }
-                          className="text-xs font-semibold px-2 py-1 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
-                        >
-                          <option value="MEMBER">{translateRole('MEMBER')}</option>
-                          <option value="PRESENTER">{translateRole('PRESENTER')}</option>
-                          <option value="COORDINATOR">{translateRole('COORDINATOR')}</option>
-                          <option value="ADMIN">{translateRole('ADMIN')}</option>
-                          <option value="SUPER_ADMIN">{translateRole('SUPER_ADMIN')}</option>
-                        </select>
+                        <div className="flex items-center gap-1.5">
+                          <select
+                            value={u.role}
+                            onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                            className="text-xs font-semibold px-2 py-1 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
+                          >
+                            <option value="MEMBER">{translateRole('MEMBER')}</option>
+                            <option value="PRESENTER">{translateRole('PRESENTER')}</option>
+                            <option value="COORDINATOR">{translateRole('COORDINATOR')}</option>
+                            <option value="ADMIN">{translateRole('ADMIN')}</option>
+                            <option value="SUPER_ADMIN">{translateRole('SUPER_ADMIN')}</option>
+                          </select>
+                          {(u.role === 'COORDINATOR' || u.role === 'ADMIN') && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenPermissions(u)}
+                              title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
+                              className="p-1 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors inline-flex items-center gap-1 text-[11px] font-semibold"
+                            >
+                              <Shield className="w-3 h-3" />
+                              <span className="hidden lg:inline">{t('users.perms', 'Permissions')}</span>
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4">
                         <span
@@ -324,20 +407,31 @@ export const Users: React.FC = () => {
                     <span className="text-[10px] text-slate-400">{new Date(u.createdAt).toLocaleDateString()}</span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-slate-800/60">
-                    <select
-                      value={u.role}
-                      onChange={(e) =>
-                        updateRoleMutation.mutate({ id: u.id, role: e.target.value as UserRole })
-                      }
-                      className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
-                    >
-                      <option value="MEMBER">{translateRole('MEMBER')}</option>
-                      <option value="PRESENTER">{translateRole('PRESENTER')}</option>
-                      <option value="COORDINATOR">{translateRole('COORDINATOR')}</option>
-                      <option value="ADMIN">{translateRole('ADMIN')}</option>
-                      <option value="SUPER_ADMIN">{translateRole('SUPER_ADMIN')}</option>
-                    </select>
+                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-slate-800/60 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <select
+                        value={u.role}
+                        onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                        className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
+                      >
+                        <option value="MEMBER">{translateRole('MEMBER')}</option>
+                        <option value="PRESENTER">{translateRole('PRESENTER')}</option>
+                        <option value="COORDINATOR">{translateRole('COORDINATOR')}</option>
+                        <option value="ADMIN">{translateRole('ADMIN')}</option>
+                        <option value="SUPER_ADMIN">{translateRole('SUPER_ADMIN')}</option>
+                      </select>
+
+                      {(u.role === 'COORDINATOR' || u.role === 'ADMIN') && (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenPermissions(u)}
+                          title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
+                          className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors"
+                        >
+                          <Shield className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
 
                     <div className="flex items-center gap-1.5">
                       <button
@@ -378,6 +472,133 @@ export const Users: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Co-Admin Granular Permission Settings Modal */}
+      {permissionModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
+                    {t('users.permModalTitle', 'Co-Admin Granular Permission Settings')}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {t('users.permModalSub', 'Configure authorized menu modules for')}{' '}
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {permissionModalUser.user.name}
+                    </span>{' '}
+                    ({permissionModalUser.user.email})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPermissionModalUser(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Actions Bar */}
+            <div className="flex items-center justify-between py-3 px-1 text-xs shrink-0">
+              <div className="text-slate-500">
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">{selectedMenus.length}</span> of {ADMIN_MODULES.length} modules authorized
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSelectAllMenus}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                  {t('users.selectAll', 'Select All')}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearAllMenus}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                  {t('users.clearAll', 'Clear All')}
+                </button>
+              </div>
+            </div>
+
+            {/* Modules Checkbox Grid (Scrollable) */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-2 no-scrollbar py-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {ADMIN_MODULES.map((mod) => {
+                  const isChecked = selectedMenus.includes(mod.id);
+                  return (
+                    <label
+                      key={mod.id}
+                      onClick={() => handleToggleMenu(mod.id)}
+                      className={`cursor-pointer p-3 rounded-xl border text-left rtl:text-right transition-all flex items-start gap-3 select-none ${
+                        isChecked
+                          ? 'border-indigo-500/80 bg-indigo-50/50 dark:bg-indigo-950/30 ring-1 ring-indigo-500/30'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {}} // Handled by label click
+                        className="mt-0.5 h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-600 shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-xs text-slate-900 dark:text-white leading-tight">
+                          {mod.name}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          {mod.description}
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+
+              <div className="p-3 mt-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                <Lock className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>
+                  {t(
+                    'users.permNotice',
+                    'Unauthorized modules will remain visible in the Co-Admin sidebar for navigational consistency, but will be greyed out, disabled, and non-clickable with a lock indicator.'
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800 shrink-0">
+              <button
+                type="button"
+                onClick={() => setPermissionModalUser(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                {t('common.cancel', 'Cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleSavePermissions}
+                disabled={updateRoleMutation.isPending}
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>
+                  {updateRoleMutation.isPending
+                    ? t('common.saving', 'Saving...')
+                    : t('users.savePermissions', 'Save & Grant Permissions')}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

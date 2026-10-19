@@ -24,6 +24,7 @@ import {
   Globe,
   Shield,
   ShieldCheck,
+  Users,
 } from 'lucide-react';
 
 export const PortalLayout: React.FC = () => {
@@ -41,7 +42,28 @@ export const PortalLayout: React.FC = () => {
     navigate('/');
   };
 
-  const isPresenter = user?.role === 'PRESENTER';
+  const userRoleUpper = user?.role?.toUpperCase() || '';
+  const isSuperAdmin = userRoleUpper === 'SUPER_ADMIN' || user?.email === '3681mubashircp@gmail.com';
+  const isAdmin = isSuperAdmin || userRoleUpper === 'ADMIN' || userRoleUpper === 'COORDINATOR';
+  const hasPresenterAccess = isAdmin || userRoleUpper === 'PRESENTER';
+
+  // Toggle state between Member View and Presenter View (stored in localStorage for seamless experience)
+  const [activeDashboardMode, setActiveDashboardMode] = useState<'member' | 'presenter'>(() => {
+    if (!hasPresenterAccess) return 'member';
+    const saved = localStorage.getItem('gyde_active_view_mode');
+    return (saved === 'member' || saved === 'presenter') ? saved : (hasPresenterAccess ? 'presenter' : 'member');
+  });
+
+  const toggleDashboardMode = (mode: 'member' | 'presenter') => {
+    if (mode === 'presenter' && !hasPresenterAccess) {
+      setPresenterModalOpen(true);
+      return;
+    }
+    setActiveDashboardMode(mode);
+    localStorage.setItem('gyde_active_view_mode', mode);
+  };
+
+  const isPresenter = activeDashboardMode === 'presenter';
 
   const navItems = [
     {
@@ -129,6 +151,51 @@ export const PortalLayout: React.FC = () => {
                 }}
               />
             </Link>
+          </div>
+
+          {/* Center: Multi-Dashboard Access Controller / Switcher */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
+            <button
+              type="button"
+              onClick={() => toggleDashboardMode('member')}
+              className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeDashboardMode === 'member'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>{isArabic ? 'لوحة العضو' : 'Member Dashboard'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => toggleDashboardMode('presenter')}
+              className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeDashboardMode === 'presenter'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span>{isArabic ? 'لوحة المتحدث' : 'Presenter Dashboard'}</span>
+              {!hasPresenterAccess && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                  {isArabic ? 'طلب' : 'Apply'}
+                </span>
+              )}
+            </button>
+
+            {isAdmin && (
+              <a
+                href={window.location.port === '5173' ? 'http://localhost:5174/dashboard' : '/admin'}
+                className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 border border-amber-200 dark:border-amber-900/50 transition-colors"
+                title="Universal Admin Access"
+              >
+                <Shield className="w-3.5 h-3.5 text-amber-600" />
+                <span>{isArabic ? 'بوابة الإدارة' : 'Admin Portal'}</span>
+              </a>
+            )}
           </div>
 
           {/* Right: Actions */}
@@ -302,7 +369,13 @@ export const PortalLayout: React.FC = () => {
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-w-0 h-full p-4 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
-          <Outlet context={{ openPresenterModal: () => setPresenterModalOpen(true) }} />
+          <Outlet
+            context={{
+              openPresenterModal: () => setPresenterModalOpen(true),
+              activeDashboardMode,
+              toggleDashboardMode,
+            }}
+          />
         </main>
       </div>
 

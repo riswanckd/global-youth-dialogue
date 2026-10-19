@@ -15,6 +15,7 @@ export interface User {
   organization?: string;
   interests?: string[];
   department?: string;
+  allowedMenus?: string[];
   createdAt: string;
 }
 

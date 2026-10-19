@@ -27,6 +27,7 @@ import {
   Menu,
   X,
   AlertTriangle,
+  Lock,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -96,20 +97,38 @@ export const AdminLayout: React.FC = () => {
   };
 
   const navItems = [
-    { label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
-    { label: t('menu.community', 'The Community'), path: '/users', icon: Users },
-    { label: t('menu.pipeline', 'Topic Lifecycle Pipeline'), path: '/topics/pipeline', icon: GitBranch },
-    { label: t('menu.topicBank', 'Topic Bank'), path: '/topics', icon: BookOpen },
-    { label: t('menu.sessions', 'Session Management'), path: '/sessions', icon: Mic },
-    { label: t('menu.sessionSummaries', 'Session Summaries'), path: '/session-summaries', icon: FileCheck },
-    { label: t('menu.writingStudio', 'Academic Writing Studio'), path: '/publications', icon: FileText },
-    { label: t('menu.feedbackAnalysis', 'Delegate Feedback Analysis'), path: '/feedback', icon: MessageSquareQuote },
-    { label: t('menu.pendingApps', 'Pending Applications'), path: '/applications', icon: UserCheck },
-    { label: t('menu.coordinatorTeam', 'ISDC7 Coordinator Team'), path: '/users?role=COORDINATOR', icon: Award },
-    { label: t('menu.countryChapters', 'Country Chapters'), path: '/analytics', icon: Globe },
-    { label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/settings', icon: Share2 },
-    { label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/settings', icon: User },
+    { id: 'dashboard', label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
+    { id: 'users', label: t('menu.community', 'The Community'), path: '/users', icon: Users },
+    { id: 'pipeline', label: t('menu.pipeline', 'Topic Lifecycle Pipeline'), path: '/topics/pipeline', icon: GitBranch },
+    { id: 'topics', label: t('menu.topicBank', 'Topic Bank'), path: '/topics', icon: BookOpen },
+    { id: 'sessions', label: t('menu.sessions', 'Session Management'), path: '/sessions', icon: Mic },
+    { id: 'session-summaries', label: t('menu.sessionSummaries', 'Session Summaries'), path: '/session-summaries', icon: FileCheck },
+    { id: 'publications', label: t('menu.writingStudio', 'Academic Writing Studio'), path: '/publications', icon: FileText },
+    { id: 'feedback', label: t('menu.feedbackAnalysis', 'Delegate Feedback Analysis'), path: '/feedback', icon: MessageSquareQuote },
+    { id: 'applications', label: t('menu.pendingApps', 'Pending Applications'), path: '/applications', icon: UserCheck },
+    { id: 'coordinators', label: t('menu.coordinatorTeam', 'ISDC7 Coordinator Team'), path: '/users?role=COORDINATOR', icon: Award },
+    { id: 'analytics', label: t('menu.countryChapters', 'Country Chapters'), path: '/analytics', icon: Globe },
+    { id: 'settings', label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/settings', icon: Share2 },
+    { id: 'profile', label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/settings', icon: User },
   ];
+
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === '3681mubashircp@gmail.com';
+  const isCoAdmin = !isSuperAdmin && (user?.role === 'ADMIN' || user?.role === 'COORDINATOR');
+
+  const isMenuAuthorized = (menuId: string) => {
+    if (isSuperAdmin) return true;
+    if (!isCoAdmin) return true;
+    if (menuId === 'profile') return true;
+    if (!user?.allowedMenus || user.allowedMenus.length === 0) return true;
+    return user.allowedMenus.includes(menuId);
+  };
+
+  const currentActiveItem = navItems.find((item) =>
+    item.path === '/dashboard'
+      ? location.pathname === '/dashboard'
+      : location.pathname.startsWith(item.path.split('?')[0])
+  );
+  const isCurrentRouteAuthorized = !currentActiveItem || isMenuAuthorized(currentActiveItem.id);
 
   const displayName = user?.name || t('nav.defaultName', 'Mubashir CP');
   const displayRole = user?.role
@@ -245,8 +264,30 @@ export const AdminLayout: React.FC = () => {
             <nav className="space-y-0.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname === item.path ||
-                  (item.path !== '/dashboard' && location.pathname.startsWith(item.path.split('?')[0]));
+                const isAuthorized = isMenuAuthorized(item.id);
+                const isActive =
+                  location.pathname === item.path ||
+                  (item.path !== '/dashboard' &&
+                    location.pathname.startsWith(item.path.split('?')[0]));
+
+                if (!isAuthorized) {
+                  return (
+                    <div
+                      key={item.label}
+                      title={t('access.restrictedTooltip', 'Module access restricted by Super Administrator')}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-400 dark:text-slate-600 bg-slate-50/40 dark:bg-slate-900/40 opacity-40 cursor-not-allowed select-none border border-transparent"
+                    >
+                      <div className="flex items-center gap-3 truncate">
+                        <Icon className="w-4 h-4 shrink-0 text-slate-400 dark:text-slate-600" />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 bg-slate-200/50 dark:bg-slate-800 px-1.5 py-0.5 rounded shrink-0">
+                        <Lock className="w-2.5 h-2.5" />
+                        <span>{t('access.locked', 'Locked')}</span>
+                      </span>
+                    </div>
+                  );
+                }
 
                 return (
                   <Link
@@ -297,7 +338,31 @@ export const AdminLayout: React.FC = () => {
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-w-0 h-full p-4 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
-          <Outlet context={{ openDeleteTrialModal: () => setDeleteModalOpen(true) }} />
+          {!isCurrentRouteAuthorized ? (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm max-w-lg mx-auto my-12">
+              <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                {t('access.restrictedTitle', 'Module Access Restricted')}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-sm">
+                {t(
+                  'access.restrictedDesc',
+                  'Your Co-Admin account has not been granted clearance for this administrative module. Please contact the Super Administrator to configure your access settings.'
+                )}
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard')}
+                className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold hover:opacity-90 transition-opacity"
+              >
+                {t('access.returnDashboard', 'Return to Overview')}
+              </button>
+            </div>
+          ) : (
+            <Outlet context={{ openDeleteTrialModal: () => setDeleteModalOpen(true) }} />
+          )}
         </main>
       </div>
 

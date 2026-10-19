@@ -24,12 +24,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshUser = async () => {
     try {
       const res = await apiRequest<{ user: User }>('/auth/me');
-      if (res.user?.role === 'admin' || res.user?.role === 'super_admin') {
-        await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
-        removeStoredToken();
-        setUser(null);
-        return;
-      }
       setUser(res.user);
     } catch {
       const stored = localStorage.getItem('gyde_token');
@@ -82,15 +76,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
-
-      if (res.user.role === 'admin' || res.user.role === 'super_admin') {
-        await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
-        removeStoredToken();
-        setUser(null);
-        throw new Error(
-          'Administrator accounts cannot sign in to the Member Website. Please use the Admin Portal.'
-        );
-      }
 
       if (res.token) {
         setStoredToken(res.token);

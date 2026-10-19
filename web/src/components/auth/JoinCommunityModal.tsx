@@ -1198,6 +1198,14 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
                     placeholder="123456"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    data-lpignore="true"
+                    data-form-type="other"
+                    name="gyde_manual_otp_code"
+                    id="gyde_manual_otp_code"
                     style={{
                       width: '100%',
                       maxWidth: '220px',

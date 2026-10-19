@@ -16,6 +16,7 @@ export interface IUser extends Document {
   languages?: string[];
   department?: string;
   interests?: string[];
+  allowedMenus?: string[];
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +48,7 @@ const UserSchema = new Schema<IUser>(
     languages: [{ type: String }],
     department: { type: String, default: '' },
     interests: [{ type: String }],
+    allowedMenus: [{ type: String }],
     lastLoginAt: { type: Date },
   },
   {

@@ -128,11 +128,11 @@ export async function updateUserStatus(req: Request, res: Response, next: NextFu
 
 export async function updateUserRole(req: Request, res: Response, next: NextFunction) {
   try {
-    const { role } = req.body;
+    const { role, allowedMenus } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) throw new NotFoundError('User not found');
 
-    if (user.role === ROLES.SUPER_ADMIN && role !== ROLES.SUPER_ADMIN) {
+    if (user.role === ROLES.SUPER_ADMIN && role && role !== ROLES.SUPER_ADMIN) {
       const superAdminCount = await User.countDocuments({ role: ROLES.SUPER_ADMIN });
       if (superAdminCount <= 1) {
         throw new BadRequestError('Cannot demote the only remaining Super Administrator');
@@ -140,7 +140,12 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
     }
 
     const prevRole = user.role;
-    user.role = role as UserRole;
+    if (role) {
+      user.role = role as UserRole;
+    }
+    if (Array.isArray(allowedMenus)) {
+      user.allowedMenus = allowedMenus;
+    }
     await user.save();
 
     await logAuditEvent({

@@ -26,13 +26,15 @@ import { ApplyPresenterModal } from '../../components/portal/ApplyPresenterModal
 
 interface OutletContextType {
   openPresenterModal?: () => void;
+  activeDashboardMode?: 'member' | 'presenter';
+  toggleDashboardMode?: (mode: 'member' | 'presenter') => void;
 }
 
 export const PortalDashboard: React.FC = () => {
   const { user } = useAuth();
   const { isArabic } = useLanguage();
   const navigate = useNavigate();
-  const { openPresenterModal } = useOutletContext<OutletContextType>() || {};
+  const { openPresenterModal, activeDashboardMode } = useOutletContext<OutletContextType>() || {};
 
   const [localModalOpen, setLocalModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export const PortalDashboard: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const isPresenter = user?.role === 'PRESENTER';
+  const isPresenter = activeDashboardMode ? activeDashboardMode === 'presenter' : user?.role === 'PRESENTER';
 
   // Fetch dialogue sessions
   const { data: sessions = [] } = useQuery<DialogueSession[]>({

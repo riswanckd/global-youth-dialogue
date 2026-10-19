@@ -12,6 +12,7 @@ export interface User {
   country?: string;
   organization?: string;
   interests?: string[];
+  allowedMenus?: string[];
   createdAt: string;
   lastLoginAt?: string;
 }
