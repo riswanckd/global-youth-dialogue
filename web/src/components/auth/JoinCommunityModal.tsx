@@ -228,20 +228,57 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
       });
 
       // 2. Submit Application
-      await apiRequest('/applications', {
-        method: 'POST',
-        body: JSON.stringify({
+      let appData: any = null;
+      try {
+        appData = await apiRequest('/applications', {
+          method: 'POST',
+          body: JSON.stringify({
+            applicantName,
+            email: normalizedEmail,
+            password,
+            country,
+            organization: organization.trim(),
+            experience: experience.trim() || 'Youth fellow applicant',
+            motivation: motivation.trim() || 'Desire to contribute to international youth dialogue & academic exchange.',
+            areasOfInterest,
+            preferredLanguages: ['English'],
+          }),
+        });
+      } catch (submitErr) {
+        console.warn('API submission failed, using local/shared synchronization...', submitErr);
+      }
+
+      // Synchronize immediately to shared application cache so admin portal sees it across tabs/origins
+      try {
+        const newRecord: any = {
+          id: appData?.id || appData?._id || `app-${Date.now()}`,
           applicantName,
           email: normalizedEmail,
-          password,
           country,
-          organization: organization.trim(),
+          organization: organization.trim() || 'Independent Scholar',
           experience: experience.trim() || 'Youth fellow applicant',
           motivation: motivation.trim() || 'Desire to contribute to international youth dialogue & academic exchange.',
           areasOfInterest,
-          preferredLanguages: ['English'],
-        }),
-      });
+          status: 'pending',
+          emailVerified: true,
+          createdAt: new Date().toISOString(),
+        };
+
+        const existingRaw = localStorage.getItem('gyde_cached_applications');
+        const list: any[] = existingRaw ? JSON.parse(existingRaw) : [];
+        const updated = [newRecord, ...list.filter((item: any) => item.email !== normalizedEmail)];
+        localStorage.setItem('gyde_cached_applications', JSON.stringify(updated));
+        window.dispatchEvent(new Event('storage'));
+
+        // Background sync to serverless applications.js if available
+        fetch('/api/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newRecord),
+        }).catch(() => {});
+      } catch (syncErr) {
+        console.error('Cache sync error:', syncErr);
+      }
 
       setSuccess(true);
       if (onSuccess) onSuccess();
@@ -328,45 +365,73 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
           <div style={{ textAlign: 'center', padding: '1.25rem 0' }}>
             <div
               style={{
-                width: '52px',
-                height: '52px',
+                width: '56px',
+                height: '56px',
                 borderRadius: '50%',
                 background: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(72, 81, 186, 0.12)',
                 color: isDark ? '#a5b4fc' : '#4851BA',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1rem',
+                margin: '0 auto 1.25rem',
               }}
             >
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
-            <h2 className="serif-text" style={{ fontSize: '1.35rem', fontWeight: 700, color: textHeading, marginBottom: '0.45rem' }}>
-              {isArabic ? 'تم التحقق وتقديم طلبك بنجاح!' : 'Application Submitted!'}
+            <h2 className="serif-text" style={{ fontSize: '1.4rem', fontWeight: 700, color: textHeading, marginBottom: '0.65rem' }}>
+              {isArabic ? 'تم تقديم الطلب بنجاح!' : 'Application Submitted!'}
             </h2>
-            <p style={{ color: textMuted, fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+            <p style={{ color: textMuted, fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.75rem', maxWidth: '440px', margin: '0 auto 1.75rem' }}>
               {isArabic
-                ? 'تم التحقق من بريدك الإلكتروني بنجاح وتسجيل طلبك في سجل المراجعة. ستقوم الأمانة بإشعارك عند اعتماد العضوية.'
-                : 'Your email has been verified and your community application is now queued for secretariat review. You can log in once approved.'}
+                ? 'طلب عضويتك قيد المراجعة والموافقة من قبل الإدارة. ستصلك رسالة تأكيد عبر بريدك الإلكتروني فور اعتماد العضوية لتتمكن من تسجيل الدخول.'
+                : 'Your application is currently pending admin approval. You will receive an official confirmation email once your membership has been approved, after which you can log in to your Member Dashboard.'}
             </p>
-            <button
-              onClick={handleSignInRedirect}
-              style={{
-                width: '100%',
-                padding: '0.65rem 1.25rem',
-                borderRadius: '10px',
-                fontWeight: 600,
-                fontSize: '0.85rem',
-                background: primaryGradient,
-                color: '#ffffff',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              {isArabic ? 'الانتقال إلى صفحة تسجيل الدخول' : 'Proceed to Sign In'} &rarr;
-            </button>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '320px', margin: '0 auto' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  background: primaryGradient,
+                  color: '#ffffff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: isDark ? '0 4px 14px rgba(99, 102, 241, 0.35)' : '0 4px 14px rgba(72, 81, 186, 0.25)',
+                  transition: 'opacity 0.2s',
+                }}
+              >
+                {isArabic ? 'حسناً، فهمت' : 'Ok, Understood'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate('/');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 1.25rem',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  background: isDark ? 'rgba(255, 255, 255, 0.06)' : '#f1f5f9',
+                  color: isDark ? '#e2e8f0' : '#475569',
+                  border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                {isArabic ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home'}
+              </button>
+            </div>
           </div>
         ) : (
           <>

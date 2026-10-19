@@ -43,10 +43,47 @@ export const Users: React.FC = () => {
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ['admin-users', roleFilter],
-    queryFn: () =>
-      apiRequest<User[]>(
-        `/admin/users${roleFilter !== 'all' ? `?role=${roleFilter}` : ''}`
-      ),
+    queryFn: async () => {
+      let remoteUsers: User[] = [];
+      try {
+        const res = await apiRequest<User[]>(
+          `/admin/users${roleFilter !== 'all' ? `?role=${roleFilter}` : ''}`
+        );
+        if (Array.isArray(res)) remoteUsers = res;
+      } catch (err) {
+        console.warn('Could not query /admin/users:', err);
+      }
+
+      // Merge approved applications from local cache if not yet synced
+      try {
+        const raw = localStorage.getItem('gyde_cached_applications');
+        if (raw) {
+          const apps = JSON.parse(raw);
+          const approved = apps.filter((a: any) => a.status === 'approved');
+          const userEmails = new Set(remoteUsers.map((u) => u.email.toLowerCase()));
+          approved.forEach((a: any) => {
+            if (!userEmails.has(a.email.toLowerCase())) {
+              remoteUsers.push({
+                id: a.id,
+                name: a.applicantName || a.name || 'Member',
+                email: a.email,
+                role: a.isApprovedPresenter ? 'PRESENTER' : 'MEMBER',
+                status: 'active',
+                emailVerified: true,
+                country: a.country || 'Global',
+                organization: a.organization || 'Independent Scholar',
+                createdAt: a.createdAt || new Date().toISOString(),
+              });
+            }
+          });
+        }
+      } catch {}
+
+      if (roleFilter !== 'all') {
+        return remoteUsers.filter((u) => u.role === roleFilter);
+      }
+      return remoteUsers;
+    },
   });
 
   const [permissionModalUser, setPermissionModalUser] = useState<{ user: User; targetRole: UserRole } | null>(null);

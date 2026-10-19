@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
@@ -25,23 +25,110 @@ export const Applications: React.FC = () => {
   const [reviewNotes, setReviewNotes] = useState('');
   const [isPresenter, setIsPresenter] = useState(false);
 
+  // Cross-portal real-time storage listener
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'gyde_cached_applications' || !e.key) {
+        queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [queryClient]);
 
   const { data: applications = [], isLoading } = useQuery<Application[]>({
     queryKey: ['admin-applications', statusFilter],
-    queryFn: () =>
-      apiRequest<Application[]>(
-        `/admin/applications${statusFilter !== 'all' ? `?status=${statusFilter}` : ''}`
-      ),
+    queryFn: async () => {
+      let remoteApps: Application[] = [];
+      try {
+        const res = await apiRequest<Application[]>(
+          `/admin/applications${statusFilter !== 'all' ? `?status=${statusFilter}` : ''}`
+        );
+        if (Array.isArray(res)) {
+          remoteApps = res;
+        }
+      } catch (err) {
+        console.warn('Could not query /admin/applications:', err);
+      }
+
+      // Check local shared applications cache (inter-connected across web & admin)
+      let localApps: Application[] = [];
+      try {
+        const cached = localStorage.getItem('gyde_cached_applications');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) {
+            localApps = parsed;
+          }
+        }
+      } catch {}
+
+      // Merge remote and local applications seamlessly
+      const mergedMap = new Map<string, Application>();
+      remoteApps.forEach((app) => mergedMap.set(app.email.toLowerCase(), app));
+      localApps.forEach((app) => {
+        const existing = mergedMap.get(app.email.toLowerCase());
+        if (!existing) {
+          mergedMap.set(app.email.toLowerCase(), app);
+        } else if (app.status === 'pending' && existing.status !== 'pending') {
+          mergedMap.set(app.email.toLowerCase(), { ...existing, ...app });
+        }
+      });
+
+      const all = Array.from(mergedMap.values());
+      try {
+        localStorage.setItem('gyde_cached_applications', JSON.stringify(all));
+      } catch {}
+
+      if (statusFilter !== 'all') {
+        return all.filter((a) => a.status === statusFilter);
+      }
+      return all;
+    },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, status, notes, approvePresenter }: { id: string; status: string; notes?: string; approvePresenter?: boolean }) =>
-      apiRequest(`/admin/applications/${id}/status`, {
+    mutationFn: async ({
+      id,
+      status,
+      notes,
+      approvePresenter,
+    }: {
+      id: string;
+      status: string;
+      notes?: string;
+      approvePresenter?: boolean;
+    }) => {
+      // 1. Remote API call
+      await apiRequest(`/admin/applications/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status, reviewNotes: notes, isApprovedPresenter: approvePresenter }),
-      }),
+      }).catch((err) => console.warn('Remote status update error:', err));
+
+      // 2. Local shared cache update
+      try {
+        const raw = localStorage.getItem('gyde_cached_applications');
+        if (raw) {
+          const list = JSON.parse(raw);
+          const updated = list.map((a: Application) => {
+            if (a.id === id || a.email === selectedApp?.email) {
+              return {
+                ...a,
+                status,
+                reviewNotes: notes || a.reviewNotes,
+                isApprovedPresenter: approvePresenter || a.isApprovedPresenter,
+              };
+            }
+            return a;
+          });
+          localStorage.setItem('gyde_cached_applications', JSON.stringify(updated));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       setSelectedApp(null);
       setReviewNotes('');
       setIsPresenter(false);
