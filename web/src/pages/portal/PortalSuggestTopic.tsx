@@ -362,7 +362,7 @@ export const PortalSuggestTopic: React.FC = () => {
                 <option value="Topic Presentation">
                   {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
                 </option>
-                <option value="Structural Debate">
+                <option value="Structured Dialogue">
                   {isArabic ? 'حوار منظم (فريقان ومحاور نقاشية)' : 'Structured Dialogue (2 teams and their members)'}
                 </option>
                 <option value="Discussion">

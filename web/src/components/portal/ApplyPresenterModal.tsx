@@ -378,7 +378,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
                 <option value="Topic Presentation (Presenter / Keynote)">
                   {isArabic ? 'عرض موضوع (مقدم عرض رئيسي)' : 'Topic Presentation (Presenter / Keynote)'}
                 </option>
-                <option value="Structural Debate (Debater / Team Member)">
+                <option value="Structured Dialogue (Panelist / Team Member)">
                   {isArabic ? 'حوار منظم (عضو فريق / متحدث مشارك)' : 'Structured Dialogue (Team Member / Panelist)'}
                 </option>
                 <option value="Discussion (Key Speaker / Panellist)">

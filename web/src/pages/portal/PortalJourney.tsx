@@ -17,10 +17,10 @@ export const PortalJourney: React.FC = () => {
   const badges = [
     {
       id: 'isdc7_veteran',
-      title: isArabic ? 'مندوب مؤسس في بطولة قطر ISDC7' : 'Qatar ISDC7 Founding Delegate',
+      title: isArabic ? 'مندوب مؤسس في ملتقى قطر الدولي' : 'Qatar Founding Dialogue Delegate',
       desc: isArabic
-        ? 'شارك في النسخة السابعة من بطولة قطر الدولية لمناظرات المدارس بالدوحة'
-        : 'Participated in the Doha 7th International Schools Debate Championship',
+        ? 'شارك في النسخة السابعة من المؤتمر الدولي للحوار الطلابي بالدوحة'
+        : 'Participated in the Doha 7th International Youth Dialogue Forum',
       unlocked: true,
       progress: '100%',
       icon: (
