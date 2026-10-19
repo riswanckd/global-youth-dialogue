@@ -96,6 +96,46 @@ export const AdminLayout: React.FC = () => {
     }
   };
 
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 'n1',
+      title: 'Pending Delegate Dossiers',
+      message: '4 international delegate credentials awaiting accreditation review.',
+      time: '10m ago',
+      path: '/applications',
+      unread: true,
+      category: 'applications',
+    },
+    {
+      id: 'n2',
+      title: 'Academic Writing Submissions',
+      message: 'New academic work submitted by presenter for review and publishing.',
+      time: '45m ago',
+      path: '/publications',
+      unread: true,
+      category: 'publications',
+    },
+    {
+      id: 'n3',
+      title: 'Topic Bank Motions',
+      message: 'New research themes and motions proposed for deliberation.',
+      time: '2h ago',
+      path: '/topics',
+      unread: true,
+      category: 'topics',
+    },
+    {
+      id: 'n4',
+      title: 'Session Management',
+      message: 'Dialogue session scheduled and chambers active for delegates.',
+      time: '4h ago',
+      path: '/sessions',
+      unread: true,
+      category: 'sessions',
+    },
+  ]);
+
   const navItems = [
     { id: 'dashboard', label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
     { id: 'users', label: t('menu.community', 'The Community'), path: '/users', icon: Users },
@@ -106,13 +146,12 @@ export const AdminLayout: React.FC = () => {
     { id: 'publications', label: t('menu.writingStudio', 'Academic Writing Studio'), path: '/publications', icon: FileText },
     { id: 'feedback', label: t('menu.feedbackAnalysis', 'Delegate Feedback Analysis'), path: '/feedback', icon: MessageSquareQuote },
     { id: 'applications', label: t('menu.pendingApps', 'Pending Applications'), path: '/applications', icon: UserCheck },
-    { id: 'coordinators', label: t('menu.coordinatorTeam', 'ISDC7 Coordinator Team'), path: '/users?role=COORDINATOR', icon: Award },
     { id: 'analytics', label: t('menu.countryChapters', 'Country Chapters'), path: '/analytics', icon: Globe },
     { id: 'settings', label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/settings', icon: Share2 },
     { id: 'profile', label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/settings', icon: User },
   ];
 
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === '3681mubashircp@gmail.com';
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === 'admin@thegyde.in';
   const isCoAdmin = !isSuperAdmin && (user?.role === 'ADMIN' || user?.role === 'COORDINATOR');
 
   const isMenuAuthorized = (menuId: string) => {
@@ -130,11 +169,25 @@ export const AdminLayout: React.FC = () => {
   );
   const isCurrentRouteAuthorized = !currentActiveItem || isMenuAuthorized(currentActiveItem.id);
 
-  const displayName = user?.name || t('nav.defaultName', 'Mubashir CP');
+  const displayName = user?.name || (isSuperAdmin ? 'GYDE Super Administrator' : t('nav.defaultName', 'Mubashir CP'));
   const displayRole = user?.role
     ? translateRole(user.role)
-    : t('nav.defaultRole', 'Founding Coordinator (India)');
-  const avatarLetter = (displayName[0] || 'M').toUpperCase();
+    : (isSuperAdmin ? 'Super Administrator' : t('nav.defaultRole', 'Founding Coordinator (India)'));
+  const avatarLetter = (displayName[0] || 'A').toUpperCase();
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  };
+
+  const handleNotificationClick = (path: string, id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+    );
+    setNotificationsOpen(false);
+    navigate(path);
+  };
 
   return (
     <div className="h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans overflow-hidden">
@@ -198,17 +251,94 @@ export const AdminLayout: React.FC = () => {
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
 
-            {/* Notification Bell */}
-            <button
-              onClick={() => navigate('/notifications')}
-              title={t('nav.notifications', 'Notifications')}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
-                4
-              </span>
-            </button>
+            {/* Notification Bell & Interactive Popover */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                title={t('nav.notifications', 'Notifications')}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setNotificationsOpen(false)}
+                  />
+                  <div className="absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    {/* Header */}
+                    <div className="p-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-slate-900 dark:text-white">
+                          {t('nav.notifications', 'Notifications')}
+                        </span>
+                        {unreadCount > 0 && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                            {unreadCount} new
+                          </span>
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllRead}
+                          className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Notification Items */}
+                    <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                      {notifications.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => handleNotificationClick(item.path, item.id)}
+                          className={`p-3 text-left rtl:text-right hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors flex items-start gap-2.5 ${
+                            item.unread ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''
+                          }`}
+                        >
+                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.unread ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <h5 className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                                {item.title}
+                              </h5>
+                              <span className="text-[10px] text-slate-400 shrink-0">
+                                {item.time}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
+                              {item.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-center">
+                      <button
+                        onClick={() => {
+                          setNotificationsOpen(false);
+                          navigate('/applications');
+                        }}
+                        className="text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600"
+                      >
+                        View All Pending Secretariat Tasks &rarr;
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Language Switcher */}
             <button

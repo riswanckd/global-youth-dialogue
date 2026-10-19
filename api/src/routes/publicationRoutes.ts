@@ -11,11 +11,11 @@ const router = Router();
 router.get('/', optionalAuthenticate, publicationController.listPublications);
 router.get('/:slug', optionalAuthenticate, publicationController.getPublicationBySlug);
 
-// Staff publication management
+// Staff publication management & Presenter proposal submission
 router.post(
   '/',
   authenticate,
-  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.COORDINATOR),
+  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.COORDINATOR, ROLES.PRESENTER),
   validate(createPublicationSchema),
   publicationController.createPublication
 );

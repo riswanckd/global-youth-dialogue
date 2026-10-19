@@ -5,14 +5,14 @@ import { apiRequest, setStoredAdminToken, removeStoredAdminToken } from '../util
 const ADMIN_SESSION_KEY = 'gyde_admin_session';
 
 const DEFAULT_ADMIN_USER: User = {
-  id: 'admin-mubashir',
-  name: 'Mubashir CP',
-  email: '3681mubashircp@gmail.com',
+  id: 'super-admin-gyde',
+  name: 'GYDE Super Administrator',
+  email: 'admin@thegyde.in',
   role: 'SUPER_ADMIN',
   status: 'active',
   emailVerified: true,
   country: 'India',
-  organization: 'Qatar ISDC7 Founding Secretariat',
+  organization: 'Global Youth Dialogue & Exchange Secretariat',
   bio: 'Founding Coordinator and Chief Platform Administrator',
   createdAt: new Date().toISOString(),
 };
@@ -54,7 +54,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         try {
           const loginRes = await apiRequest<{ user: User; token?: string }>('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ email: '3681mubashircp@gmail.com', password: '368136' }),
+            body: JSON.stringify({ email: 'admin@thegyde.in', password: 'gyde2026' }),
           });
           if (loginRes.token) {
             setStoredAdminToken(loginRes.token);
@@ -105,7 +105,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: '3681mubashircp@gmail.com', password: '368136' }),
+        body: JSON.stringify({ email: 'admin@thegyde.in', password: 'gyde2026' }),
       });
       if (res.token) {
         setStoredAdminToken(res.token);
@@ -142,8 +142,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (err: any) {
       // Fallback for default coordinator credentials
       if (
-        (email === '3681mubashircp@gmail.com' && (password === '368136' || !password)) ||
-        email === 'admin@thegyde.in'
+        (email === 'admin@thegyde.in' && (password === 'gyde2026' || !password)) ||
+        (email === '3681mubashircp@gmail.com' && (password === '368136' || !password))
       ) {
         await instantCoordinatorLogin();
         return;

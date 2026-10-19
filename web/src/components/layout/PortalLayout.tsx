@@ -43,7 +43,7 @@ export const PortalLayout: React.FC = () => {
   };
 
   const userRoleUpper = user?.role?.toUpperCase() || '';
-  const isSuperAdmin = userRoleUpper === 'SUPER_ADMIN' || user?.email === '3681mubashircp@gmail.com';
+  const isSuperAdmin = userRoleUpper === 'SUPER_ADMIN' || user?.email === 'admin@thegyde.in';
   const isAdmin = isSuperAdmin || userRoleUpper === 'ADMIN' || userRoleUpper === 'COORDINATOR';
   const hasPresenterAccess = isAdmin || userRoleUpper === 'PRESENTER';
 

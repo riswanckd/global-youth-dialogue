@@ -34,9 +34,9 @@ const envSchema = z.object({
   SMTP_PASS: z.string().default('nwhnmkersbiwwrry'),
   FROM_EMAIL: z.string().default('thegyde.verify@gmail.com'),
   FROM_NAME: z.string().default('Global Youth Dialogue & Exchange (GYDE)'),
-  INITIAL_ADMIN_EMAIL: z.string().email().default('3681mubashircp@gmail.com'),
-  INITIAL_ADMIN_PASSWORD: z.string().default('368136'),
-  INITIAL_ADMIN_NAME: z.string().default('Mubashir CP'),
+  INITIAL_ADMIN_EMAIL: z.string().email().default('admin@thegyde.in'),
+  INITIAL_ADMIN_PASSWORD: z.string().default('gyde2026'),
+  INITIAL_ADMIN_NAME: z.string().default('GYDE Super Administrator'),
 });
 
 const parsed = envSchema.safeParse(process.env);

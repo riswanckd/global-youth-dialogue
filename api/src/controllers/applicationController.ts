@@ -62,7 +62,7 @@ export async function submitApplication(req: Request, res: Response, next: NextF
     });
 
     // Notify administrator of new incoming application
-    const adminEmail = env.INITIAL_ADMIN_EMAIL || '3681mubashircp@gmail.com';
+    const adminEmail = env.INITIAL_ADMIN_EMAIL || 'admin@thegyde.in';
     sendEmail({
       to: adminEmail,
       subject: `New Application Received: ${applicantName} (${country})`,

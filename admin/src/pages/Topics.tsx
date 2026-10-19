@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { Topic } from '../types';
+import { TOPIC_BANK } from '../constants/topicBank';
 import {
   Lightbulb,
   Search,
@@ -74,10 +75,42 @@ export const Topics: React.FC = () => {
     }
   }, [searchParams]);
 
-  const { data: topics = [], isLoading } = useQuery<Topic[]>({
+  const { data: remoteTopics = [], isLoading } = useQuery<Topic[]>({
     queryKey: ['admin-topics'],
     queryFn: () => apiRequest<Topic[]>('/admin/topics'),
   });
+
+  const canonicalTopics: Topic[] = useMemo(() => {
+    return TOPIC_BANK.map((tb) => ({
+      id: tb.id,
+      title: tb.title,
+      motion: tb.title,
+      category: tb.categoryName,
+      format: (tb.recommendedFormats && tb.recommendedFormats[0]) || 'Academic Discussion / Policy Roundtable',
+      status: 'approved',
+      description: tb.description,
+      subtopics: tb.subtopics,
+      regionalPerspective: 'Global',
+      proposedBy: {
+        name: tb.addedBy || 'Academic Advisory Board',
+        country: 'Global',
+      },
+      createdAt: tb.dateAdded || '2024-05-15',
+    } as any));
+  }, []);
+
+  const topics: Topic[] = useMemo(() => {
+    const remoteTitles = new Set(remoteTopics.map((t) => t.title.toLowerCase().trim()));
+    const remoteIds = new Set(remoteTopics.map((t) => (t as any).id || (t as any)._id));
+
+    const combined = [...remoteTopics];
+    canonicalTopics.forEach((ct) => {
+      if (!remoteTitles.has(ct.title.toLowerCase().trim()) && !remoteIds.has(ct.id)) {
+        combined.push(ct);
+      }
+    });
+    return combined;
+  }, [remoteTopics, canonicalTopics]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -144,7 +177,8 @@ export const Topics: React.FC = () => {
       tItem.title.toLowerCase().includes(q) ||
       tItem.category.toLowerCase().includes(q) ||
       (tItem.motion && tItem.motion.toLowerCase().includes(q)) ||
-      (tItem.description && tItem.description.toLowerCase().includes(q));
+      (tItem.description && tItem.description.toLowerCase().includes(q)) ||
+      ((tItem as any).subtopics && (tItem as any).subtopics.some((st: string) => st.toLowerCase().includes(q)));
 
     const matchesStatus =
       statusFilter === 'all'
@@ -410,6 +444,18 @@ export const Topics: React.FC = () => {
                           <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
                             {topicItem.description}
                           </div>
+                          {((topicItem as any).subtopics && (topicItem as any).subtopics.length > 0) && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {(topicItem as any).subtopics.map((st: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium"
+                                >
+                                  • {st}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
@@ -518,6 +564,19 @@ export const Topics: React.FC = () => {
                       <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">
                         {topicItem.description}
                       </p>
+                    )}
+
+                    {((topicItem as any).subtopics && (topicItem as any).subtopics.length > 0) && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {(topicItem as any).subtopics.map((st: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium"
+                          >
+                            • {st}
+                          </span>
+                        ))}
+                      </div>
                     )}
 
                     <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/60">

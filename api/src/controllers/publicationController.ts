@@ -95,6 +95,17 @@ export async function createPublication(req: Request, res: Response, next: NextF
       counter++;
     }
 
+    const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;
+    const finalStatus = isStaff ? (status || 'published') : 'draft';
+
+    const defaultAuthors = authors && authors.length > 0 ? authors : [
+      {
+        name: req.user!.name,
+        email: req.user!.email,
+        affiliation: req.user!.organization || 'GYDE Fellow',
+      }
+    ];
+
     const publication = await Publication.create({
       title,
       titleAr: titleAr || '',
@@ -104,14 +115,14 @@ export async function createPublication(req: Request, res: Response, next: NextF
       sections: sections || [],
       content: content || '',
       contentAr: contentAr || '',
-      authors,
+      authors: defaultAuthors,
       category,
       coverImage: coverImage || '',
       documentUrl: documentUrl || '',
       citation: citation || '',
-      status: status || 'draft',
+      status: finalStatus,
       visibility: visibility || 'public',
-      publishedAt: status === 'published' ? new Date() : undefined,
+      publishedAt: finalStatus === 'published' ? new Date() : undefined,
       createdBy: req.user!._id,
     });
 

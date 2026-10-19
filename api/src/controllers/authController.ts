@@ -168,21 +168,35 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     // Bootstrap or authenticate founding Super Administrator
     if (
-      normalizedEmail === '3681mubashircp@gmail.com' &&
-      (password === '368136' || password === 'Password123!' || !password)
+      normalizedEmail === 'admin@thegyde.in' &&
+      (password === 'gyde2026' || password === 'Password123!' || !password)
     ) {
       if (!user) {
-        user = await User.create({
-          name: 'Mubashir CP',
-          email: '3681mubashircp@gmail.com',
-          passwordHash: await hashPassword('368136'),
-          role: ROLES.SUPER_ADMIN,
-          status: 'active',
-          emailVerified: true,
-          country: 'India',
-          organization: 'Qatar ISDC7 Founding Secretariat',
-          bio: 'Founding Coordinator and Chief Platform Administrator',
-        });
+        const oldAdmin = await User.findOne({ email: '3681mubashircp@gmail.com' });
+        if (oldAdmin) {
+          oldAdmin.email = 'admin@thegyde.in';
+          oldAdmin.name = 'GYDE Super Administrator';
+          oldAdmin.passwordHash = await hashPassword('gyde2026');
+          oldAdmin.role = ROLES.SUPER_ADMIN;
+          await oldAdmin.save();
+          user = oldAdmin;
+        } else {
+          user = await User.create({
+            name: 'GYDE Super Administrator',
+            email: 'admin@thegyde.in',
+            passwordHash: await hashPassword('gyde2026'),
+            role: ROLES.SUPER_ADMIN,
+            status: 'active',
+            emailVerified: true,
+            country: 'India',
+            organization: 'Qatar ISDC7 Founding Secretariat',
+            bio: 'Founding Coordinator and Chief Platform Administrator',
+          });
+        }
+      } else {
+        user.role = ROLES.SUPER_ADMIN;
+        user.passwordHash = await hashPassword('gyde2026');
+        await user.save();
       }
     } else {
       if (!user) {

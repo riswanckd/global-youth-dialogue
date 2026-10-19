@@ -27,11 +27,11 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     }
 
     if (token === 'demo_admin_jwt_token_gyde') {
-      let adminUser = await User.findOne({ email: '3681mubashircp@gmail.com' });
+      let adminUser = await User.findOne({ email: 'admin@thegyde.in' });
       if (!adminUser) {
         adminUser = await User.create({
-          name: 'Mubashir CP',
-          email: '3681mubashircp@gmail.com',
+          name: 'GYDE Super Administrator',
+          email: 'admin@thegyde.in',
           passwordHash: 'seeded_super_admin_hash',
           role: 'SUPER_ADMIN',
           status: 'active',

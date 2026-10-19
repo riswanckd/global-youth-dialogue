@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User';
+import { Application } from '../models/Application';
 import { sendSuccess } from '../utils/response';
 import { BadRequestError, NotFoundError, ForbiddenError } from '../utils/errors';
 import { ROLES, UserRole } from '../constants/roles';
@@ -34,14 +35,25 @@ export async function listUsers(req: Request, res: Response, next: NextFunction)
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // If regular member browsing community directory, sanitize email
-    const sanitized = users.map((u) => {
-      const obj = u.toJSON();
-      if (!isStaff) {
-        delete (obj as any).email;
-      }
-      return obj;
-    });
+    // If staff, merge experience and motivation from Application if not on User
+    const sanitized = await Promise.all(
+      users.map(async (u) => {
+        const obj = u.toJSON();
+        if (!isStaff) {
+          delete (obj as any).email;
+        } else {
+          try {
+            const app = await Application.findOne({ email: u.email.toLowerCase() }).sort({ createdAt: -1 });
+            if (app) {
+              obj.experience = obj.experience || app.experience;
+              obj.motivation = obj.motivation || app.motivation;
+              obj.interests = (obj.interests && obj.interests.length > 0) ? obj.interests : app.areasOfInterest;
+            }
+          } catch {}
+        }
+        return obj;
+      })
+    );
 
     return sendSuccess(res, sanitized, undefined, 200, {
       page,
@@ -58,7 +70,16 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
   try {
     const user = await User.findById(req.params.id);
     if (!user) throw new NotFoundError('User not found');
-    return sendSuccess(res, user);
+    const userObj = user.toJSON();
+    try {
+      const app = await Application.findOne({ email: user.email.toLowerCase() }).sort({ createdAt: -1 });
+      if (app) {
+        userObj.experience = userObj.experience || app.experience;
+        userObj.motivation = userObj.motivation || app.motivation;
+        userObj.interests = (userObj.interests && userObj.interests.length > 0) ? userObj.interests : app.areasOfInterest;
+      }
+    } catch {}
+    return sendSuccess(res, userObj);
   } catch (err) {
     next(err);
   }
