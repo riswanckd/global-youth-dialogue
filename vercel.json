@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "vite build",
+  "buildCommand": "vite build || (cd web && npm install && npm run build && cd .. && node -e \"require('fs').cpSync('web/dist', 'dist', {recursive: true})\")",
   "outputDirectory": "dist",
   "rewrites": [
     {

@@ -9,7 +9,7 @@
     "api"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "vite build || (cd web && npm install && npm run build && cd .. && node -e \"require('fs').cpSync('web/dist', 'dist', {recursive: true})\")",
     "dev": "npm --prefix web run dev",
     "dev:api": "npm --prefix api run dev",
     "dev:web": "npm --prefix web run dev",
@@ -18,7 +18,7 @@
     "build:web": "npm --prefix web run build",
     "build:admin": "npm --prefix admin run build"
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
