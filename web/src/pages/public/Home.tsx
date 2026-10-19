@@ -86,11 +86,13 @@ export const Home: React.FC = () => {
               <h1 className="hero-title serif-text">
                 {isArabic ? (
                   <>
-                    حيث تلتقي العقول الشابة <span className="gradient-accent-text">بالعالم.</span>
+                    حيث تلتقي العقول الشابة <br />
+                    <span className="gradient-accent-text">بالعالم.</span>
                   </>
                 ) : (
                   <>
-                    Where young minds <span className="gradient-accent-text">meet the world.</span>
+                    Where young minds <br />
+                    <span className="gradient-accent-text">meet the world.</span>
                   </>
                 )}
               </h1>
