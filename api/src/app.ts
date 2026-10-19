@@ -67,6 +67,10 @@ app.use(cookieParser(env.COOKIE_SECRET));
 
 // Mount REST API routes
 app.use(env.API_PREFIX, routes);
+if (env.API_PREFIX !== '/api') {
+  app.use('/api', routes);
+}
+app.use('/', routes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
