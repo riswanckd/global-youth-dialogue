@@ -107,6 +107,10 @@ export const createSessionSchema = z.object({
   adjudicator: z.string().optional(),
   discussionQuestions: z.array(z.string()).optional(),
   workingDraftTitle: z.string().optional(),
+  summary: z.string().optional(),
+  summaryAr: z.string().optional(),
+  keyTakeaways: z.array(z.string()).optional(),
+  outcomes: z.string().optional(),
   assignedCoordinator: z.string().optional(),
   assignedCoordinatorId: z.string().optional(),
 });

@@ -48,6 +48,10 @@ export interface DialogueSession {
   oppositionTeam?: string[];
   moderator?: string;
   discussionQuestions?: string[];
+  summary?: string;
+  summaryAr?: string;
+  keyTakeaways?: string[];
+  outcomes?: string;
   assignedCoordinator?: string | { id?: string; _id?: string; name?: string; email?: string; role?: string };
   createdBy?: string | { id?: string; _id?: string; name?: string; email?: string };
 }

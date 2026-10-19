@@ -66,6 +66,10 @@ export interface DialogueSession {
   oppositionTeam?: string[];
   moderator?: string;
   adjudicator?: string;
+  summary?: string;
+  summaryAr?: string;
+  keyTakeaways?: string[];
+  outcomes?: string;
 }
 
 export interface Topic {

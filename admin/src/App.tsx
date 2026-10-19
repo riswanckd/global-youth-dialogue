@@ -14,6 +14,7 @@ import { Sessions } from './pages/Sessions';
 import { Topics } from './pages/Topics';
 import { Feedback } from './pages/Feedback';
 import { Publications } from './pages/Publications';
+import { SessionSummaries } from './pages/SessionSummaries';
 import { Analytics } from './pages/Analytics';
 import { AuditLogs } from './pages/AuditLogs';
 import { Settings } from './pages/Settings';
@@ -49,6 +50,8 @@ export const App: React.FC = () => {
                 <Route path="applications" element={<Applications />} />
                 <Route path="users" element={<Users />} />
                 <Route path="sessions" element={<Sessions />} />
+                <Route path="session-summaries" element={<SessionSummaries />} />
+                <Route path="sessions/summaries" element={<SessionSummaries />} />
                 <Route path="topics" element={<Topics />} />
                 <Route path="topics/pipeline" element={<Topics />} />
                 <Route path="feedback" element={<Feedback />} />

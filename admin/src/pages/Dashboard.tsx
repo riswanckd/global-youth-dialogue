@@ -291,7 +291,7 @@ export const Dashboard: React.FC = () => {
             </Link>
 
             <Link
-              to="/publications"
+              to="/session-summaries"
               className="p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:border-emerald-400 bg-white dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex flex-col lg:flex-row items-start lg:items-center gap-2 lg:gap-3 transition-all group"
             >
               <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">

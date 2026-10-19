@@ -32,6 +32,10 @@ export interface IDialogueSession extends Document {
   adjudicator?: string;
   discussionQuestions?: string[];
   workingDraftTitle?: string;
+  summary?: string;
+  summaryAr?: string;
+  keyTakeaways?: string[];
+  outcomes?: string;
   assignedCoordinator?: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -81,6 +85,10 @@ const DialogueSessionSchema = new Schema<IDialogueSession>(
     adjudicator: { type: String, default: '' },
     discussionQuestions: [{ type: String }],
     workingDraftTitle: { type: String, default: '' },
+    summary: { type: String, default: '' },
+    summaryAr: { type: String, default: '' },
+    keyTakeaways: [{ type: String }],
+    outcomes: { type: String, default: '' },
     assignedCoordinator: { type: Schema.Types.ObjectId, ref: 'User' },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },
