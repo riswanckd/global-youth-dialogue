@@ -418,6 +418,7 @@ const CATEGORIES_AR: Record<string, string> = {
   'Structural Debate': 'حوار منظم (مناظرة هيكلية)',
   'Discussion': 'جلسة نقاشية',
   'Guest Talks': 'حوارات الضيوف',
+  'Guest Talk': 'حوار الضيف',
 };
 
 const ROLES_AR: Record<string, string> = {

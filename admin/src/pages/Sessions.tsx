@@ -59,7 +59,7 @@ export const Sessions: React.FC = () => {
 
   const [formData, setFormData] = useState({
     title: '',
-    sessionCategory: 'Topic Presentation' as 'Topic Presentation' | 'Structured Dialogue' | 'Discussion' | 'Guest Talks' | 'Structural Debate',
+    sessionCategory: 'Topic Presentation' as 'Topic Presentation' | 'Structural Debate' | 'Structured Dialogue' | 'Discussion' | 'Guest Talk' | 'Guest Talks',
     academicSphere: 'Technology & AI Ethics',
     description: '',
     scheduledAt: '',
@@ -114,14 +114,25 @@ export const Sessions: React.FC = () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
       const tId = createdTopic?.id || createdTopic?._id;
       if (tId) setSelectedTopicId(tId);
+
+      const rawFormat = (createdTopic?.format || newTopicForm.format || '').toLowerCase();
+      let matchedFormat: any = 'Topic Presentation';
+      if (rawFormat.includes('debate') || rawFormat.includes('structured dialogue')) {
+        matchedFormat = 'Structural Debate';
+      } else if (rawFormat.includes('guest')) {
+        matchedFormat = 'Guest Talk';
+      } else if (rawFormat.includes('discussion') || rawFormat.includes('roundtable')) {
+        matchedFormat = 'Discussion';
+      } else {
+        matchedFormat = 'Topic Presentation';
+      }
+
       setFormData((prev) => ({
         ...prev,
         title: createdTopic?.title || newTopicForm.title,
         academicSphere: createdTopic?.category || newTopicForm.category,
         description: createdTopic?.description || newTopicForm.description,
-        sessionCategory: ['Topic Presentation', 'Structured Dialogue', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(createdTopic?.format)
-          ? (createdTopic.format === 'Structural Debate' ? 'Structured Dialogue' : (createdTopic.format as any))
-          : prev.sessionCategory,
+        sessionCategory: matchedFormat,
       }));
       setTopicCreateSuccess(t('sessions.topicAddedSuccess', 'New topic created and selected for this session!'));
       setTimeout(() => {
@@ -150,14 +161,24 @@ export const Sessions: React.FC = () => {
     }
     const found = topics.find((t) => ((t as any).id || (t as any)._id) === topicId);
     if (found) {
+      const rawFormat = (found.format || '').toLowerCase();
+      let matchedFormat: any = 'Topic Presentation';
+      if (rawFormat.includes('debate') || rawFormat.includes('structured dialogue')) {
+        matchedFormat = 'Structural Debate';
+      } else if (rawFormat.includes('guest')) {
+        matchedFormat = 'Guest Talk';
+      } else if (rawFormat.includes('discussion') || rawFormat.includes('roundtable')) {
+        matchedFormat = 'Discussion';
+      } else {
+        matchedFormat = 'Topic Presentation';
+      }
+
       setFormData((prev) => ({
         ...prev,
         title: found.title,
         academicSphere: found.category || prev.academicSphere,
         description: found.description || prev.description,
-        sessionCategory: (['Topic Presentation', 'Structured Dialogue', 'Structural Debate', 'Discussion', 'Guest Talks'].includes(found.format as any)
-          ? (found.format === 'Structural Debate' ? 'Structured Dialogue' : found.format)
-          : prev.sessionCategory) as any,
+        sessionCategory: matchedFormat,
       }));
     }
   };
@@ -209,7 +230,7 @@ export const Sessions: React.FC = () => {
             country: p.country?.trim() || '',
             bio: p.bio?.trim() || '',
           }));
-      } else if (data.sessionCategory === 'Structured Dialogue' || (data.sessionCategory as any) === 'Structural Debate') {
+      } else if (data.sessionCategory === 'Structural Debate' || (data.sessionCategory as any) === 'Structured Dialogue') {
         payload.moderator = data.moderator.trim();
         payload.propositionTeam = data.team1Members.map((m) => m.trim()).filter(Boolean);
         payload.oppositionTeam = data.team2Members.map((m) => m.trim()).filter(Boolean);
@@ -223,7 +244,7 @@ export const Sessions: React.FC = () => {
           .map((s) => s.trim())
           .filter(Boolean)
           .map((name) => ({ name, role: 'Key Speaker' }));
-      } else if (data.sessionCategory === 'Guest Talks') {
+      } else if (data.sessionCategory === 'Guest Talk' || (data.sessionCategory as any) === 'Guest Talks') {
         payload.moderator = data.moderator.trim();
         if (data.guestName.trim()) {
           payload.presenters = [
@@ -269,13 +290,37 @@ export const Sessions: React.FC = () => {
             {t('sessions.subtitle', 'Schedule and preside over bi-weekly academic dialogues, configure session assignments, and upload recordings.')}
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('sessions.scheduleBtn', 'Schedule Session')}</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setNewTopicForm({
+                title: '',
+                motion: '',
+                category: formData.academicSphere || 'Technology & AI Ethics',
+                format: formData.sessionCategory || 'Topic Presentation',
+                description: '',
+                regionalPerspective: '',
+                status: 'approved',
+              });
+              setTopicCreateError('');
+              setTopicCreateSuccess('');
+              setShowAddTopicModal(true);
+            }}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-xs transition-colors cursor-pointer"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>+ Add Topic to Bank</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('sessions.scheduleBtn', 'Schedule Session')}</span>
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards Grid (2x2 on mobile, 4 in a row on desktop) */}
@@ -399,7 +444,7 @@ export const Sessions: React.FC = () => {
                               {sessionCat === 'Topic Presentation' && <Presentation className="w-3 h-3" />}
                               {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && <Users className="w-3 h-3" />}
                               {sessionCat === 'Discussion' && <MessageSquare className="w-3 h-3" />}
-                              {sessionCat === 'Guest Talks' && <Sparkles className="w-3 h-3" />}
+                              {(sessionCat === 'Guest Talks' || sessionCat === 'Guest Talk') && <Sparkles className="w-3 h-3" />}
                               <span>{translateCategory(sessionCat)}</span>
                             </span>
                             <span className="text-[11px] text-slate-500 font-medium">
@@ -443,8 +488,9 @@ export const Sessions: React.FC = () => {
                               </div>
                             )}
 
-                            {sessionCat === 'Guest Talks' && (
-                              <div className="flex items-center gap-2">
+                            {(sessionCat === 'Guest Talks' || sessionCat === 'Guest Talk') && (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
                                 {s.presenters && s.presenters[0] && (
                                   <div className="flex items-center gap-1.5">
                                     {s.presenters[0].avatar ? (
@@ -559,7 +605,7 @@ export const Sessions: React.FC = () => {
                           )}
                         </div>
                       )}
-                      {sessionCat === 'Guest Talks' && s.presenters && s.presenters[0] && (
+                      {(sessionCat === 'Guest Talks' || sessionCat === 'Guest Talk') && s.presenters && s.presenters[0] && (
                         <div className="flex items-center gap-2">
                           {s.presenters[0].avatar && (
                             <img src={s.presenters[0].avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
@@ -625,31 +671,124 @@ export const Sessions: React.FC = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                if (formData.sessionCategory === 'Discussion' && !formData.moderator.trim()) {
+                  alert('Session Moderator is required for Discussion format.');
+                  return;
+                }
+                if (
+                  (formData.sessionCategory === 'Guest Talk' || (formData.sessionCategory as any) === 'Guest Talks') &&
+                  (!formData.guestName.trim() || !formData.guestBio.trim())
+                ) {
+                  alert('Guest Name and Biography are required for Guest Talk.');
+                  return;
+                }
+                if (
+                  formData.sessionCategory === 'Topic Presentation' &&
+                  (!formData.presenters[0] || !formData.presenters[0].name.trim())
+                ) {
+                  alert('At least one presenter name is required for Topic Presentation.');
+                  return;
+                }
                 createMutation.mutate(formData);
               }}
               className="space-y-4"
             >
-              {/* Proposed Activity Format */}
+              {/* 1. SELECT TOPIC FROM TOPIC BANK (PROMINENT AT TOP) */}
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-indigo-50/80 to-indigo-100/40 dark:from-indigo-950/40 dark:to-indigo-900/20 border border-indigo-200/80 dark:border-indigo-800/60 space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                    <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>{t('sessions.chooseTopic', 'Select Topic from Topic Bank')}</span>
+                    <span className="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">
+                      ({topics.length} {t('sessions.availableTopics', 'available in bank')})
+                    </span>
+                  </label>
+
+                  {/* Admin access to add new topic to topic bank */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewTopicForm({
+                        title: '',
+                        motion: '',
+                        category: formData.academicSphere || 'Technology & AI Ethics',
+                        format: formData.sessionCategory || 'Topic Presentation',
+                        description: '',
+                        regionalPerspective: '',
+                        status: 'approved',
+                      });
+                      setTopicCreateError('');
+                      setTopicCreateSuccess('');
+                      setShowAddTopicModal(true);
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{t('sessions.addNewTopicBtn', '+ Add New Topic to Bank')}</span>
+                  </button>
+                </div>
+
+                <select
+                  value={selectedTopicId}
+                  onChange={(e) => handleTopicSelect(e.target.value)}
+                  className="w-full p-2.5 text-xs rounded-xl border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-xs"
+                >
+                  <option value="">{t('sessions.chooseTopicPlaceholder', '-- Select an Approved Topic from Topic Bank --')}</option>
+                  <option value="custom">{t('sessions.customTopicOption', '✎ Custom Topic / Type Title Manually')}</option>
+                  {topics.map((tItem) => {
+                    const tId = (tItem as any).id || (tItem as any)._id;
+                    return (
+                      <option key={tId} value={tId}>
+                        {tItem.title} — [{translateCategory(tItem.category)}]
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {selectedTopic && (
+                  <div className="text-[11px] text-indigo-900 dark:text-indigo-200 bg-white/90 dark:bg-slate-900/80 p-2.5 rounded-lg border border-indigo-200 dark:border-indigo-800 space-y-1">
+                    {selectedTopic.motion && (
+                      <div className="italic font-medium text-slate-700 dark:text-slate-300">
+                        "{selectedTopic.motion}"
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">{translateCategory(selectedTopic.category)}</span>
+                      {selectedTopic.format && <span>• {translateCategory(selectedTopic.format)}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. FORMAT DROPDOWN */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
-                  {t('sessions.activityFormat', 'Proposed Activity Format')} *
+                  {t('sessions.activityFormat', 'Activity Format')} *
                 </label>
                 <select
-                  value={formData.sessionCategory}
+                  value={formData.sessionCategory === 'Structured Dialogue' ? 'Structural Debate' : (formData.sessionCategory === 'Guest Talks' ? 'Guest Talk' : formData.sessionCategory)}
                   onChange={(e) => setFormData({ ...formData, sessionCategory: e.target.value as any })}
-                  className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium mb-2.5 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                  className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium mb-2.5 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-xs"
                 >
                   <option value="Topic Presentation">
-                    {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
+                    {isArabic
+                      ? 'عرض موضوع (اسم مدير الجلسة - اختياري، اسم مقدم العرض)'
+                      : 'Topic Presentation (moderator name - optional, presenter name)'}
                   </option>
-                  <option value="Structured Dialogue">
-                    {isArabic ? 'حوار منظم (فريقان وأعضاؤهما)' : 'Structured Dialogue (2 teams and their members)'}
+                  <option value="Structural Debate">
+                    {isArabic
+                      ? 'مناظرة هيكلية (مدير الجلسة - اختياري، فريقان وأسماء أعضائهما)'
+                      : 'Structural Debate (moderator - optional, two teams and their members names)'}
                   </option>
                   <option value="Discussion">
-                    {isArabic ? 'جلسة نقاشية (مدير الجلسة والمتحدثون الرئيسيون - إن وجدوا)' : 'Discussion (moderator, and key speakers - if any)'}
+                    {isArabic
+                      ? 'جلسة نقاشية (مدير الجلسة - إلزامي، المتحدثون الرئيسيون - اختياري)'
+                      : 'Discussion (moderator - required, key speakers - optional)'}
                   </option>
-                  <option value="Guest Talks">
-                    {isArabic ? 'حوارات الضيوف (اسم الضيف، النبذة والصورة)' : 'Guest Talks (guest name, bio, image)'}
+                  <option value="Guest Talk">
+                    {isArabic
+                      ? 'حوار الضيف (مدير الجلسة - اختياري، اسم الضيف، النبذة، الصورة)'
+                      : 'Guest Talk (moderator - optional, guest name, bio, picture)'}
                   </option>
                 </select>
 
@@ -671,27 +810,27 @@ export const Sessions: React.FC = () => {
                       )}
                     </div>
                     <div className="font-bold text-xs leading-tight">Topic Presentation</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator & Presenter(s)</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator (opt) & Presenter(s)</div>
                   </button>
 
-                  {/* Structured Dialogue */}
+                  {/* Structural Debate */}
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, sessionCategory: 'Structured Dialogue' })}
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Structural Debate' })}
                     className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
-                      formData.sessionCategory === 'Structured Dialogue' || (formData.sessionCategory as any) === 'Structural Debate'
+                      formData.sessionCategory === 'Structural Debate' || (formData.sessionCategory as any) === 'Structured Dialogue'
                         ? 'border-amber-600 bg-amber-50/70 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/20'
                         : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <Users className="w-4 h-4 mb-1" />
-                      {(formData.sessionCategory === 'Structured Dialogue' || (formData.sessionCategory as any) === 'Structural Debate') && (
+                      {(formData.sessionCategory === 'Structural Debate' || (formData.sessionCategory as any) === 'Structured Dialogue') && (
                         <div className="w-2 h-2 rounded-full bg-amber-600" />
                       )}
                     </div>
-                    <div className="font-bold text-xs leading-tight">Structured Dialogue</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">2 Teams & Members</div>
+                    <div className="font-bold text-xs leading-tight">Structural Debate</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator (opt) & 2 Teams</div>
                   </button>
 
                   {/* Discussion */}
@@ -711,98 +850,32 @@ export const Sessions: React.FC = () => {
                       )}
                     </div>
                     <div className="font-bold text-xs leading-tight">Discussion</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator & Key Speakers</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Moderator (Req) & Speakers</div>
                   </button>
 
-                  {/* Guest Talks */}
+                  {/* Guest Talk */}
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, sessionCategory: 'Guest Talks' })}
+                    onClick={() => setFormData({ ...formData, sessionCategory: 'Guest Talk' })}
                     className={`p-2.5 rounded-xl border text-left rtl:text-right transition-all flex flex-col justify-between ${
-                      formData.sessionCategory === 'Guest Talks'
+                      formData.sessionCategory === 'Guest Talk' || (formData.sessionCategory as any) === 'Guest Talks'
                         ? 'border-purple-600 bg-purple-50/70 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 ring-2 ring-purple-500/20'
                         : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <Sparkles className="w-4 h-4 mb-1" />
-                      {formData.sessionCategory === 'Guest Talks' && (
+                      {(formData.sessionCategory === 'Guest Talk' || (formData.sessionCategory as any) === 'Guest Talks') && (
                         <div className="w-2 h-2 rounded-full bg-purple-600" />
                       )}
                     </div>
-                    <div className="font-bold text-xs leading-tight">Guest Talks</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Guest, Bio & Photo</div>
+                    <div className="font-bold text-xs leading-tight">Guest Talk</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Guest, Bio, Picture & Mod</div>
                   </button>
                 </div>
               </div>
 
-              {/* Topic Bank Dropdown & Add Topic Button */}
-              <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                    <span>{t('sessions.chooseTopic', 'Select Topic from Topic Bank')}</span>
-                    <span className="text-[10px] font-normal text-indigo-600 dark:text-indigo-400">
-                      ({topics.length} {t('sessions.availableTopics', 'available')})
-                    </span>
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNewTopicForm({
-                        title: '',
-                        motion: '',
-                        category: formData.academicSphere || 'Technology & AI Ethics',
-                        format: formData.sessionCategory || 'Topic Presentation',
-                        description: '',
-                        regionalPerspective: '',
-                        status: 'approved',
-                      });
-                      setTopicCreateError('');
-                      setTopicCreateSuccess('');
-                      setShowAddTopicModal(true);
-                    }}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span>{t('sessions.addNewTopicBtn', '+ Add New Topic')}</span>
-                  </button>
-                </div>
-
-                <select
-                  value={selectedTopicId}
-                  onChange={(e) => handleTopicSelect(e.target.value)}
-                  className="w-full p-2 text-xs rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                >
-                  <option value="">{t('sessions.chooseTopicPlaceholder', '-- Select an Approved Topic from Bank --')}</option>
-                  <option value="custom">{t('sessions.customTopicOption', '✎ Custom Topic / Type Title Manually')}</option>
-                  {topics.map((tItem) => {
-                    const tId = (tItem as any).id || (tItem as any)._id;
-                    return (
-                      <option key={tId} value={tId}>
-                        {tItem.title} — [{translateCategory(tItem.category)}]
-                      </option>
-                    );
-                  })}
-                </select>
-
-                {selectedTopic && (
-                  <div className="text-[11px] text-indigo-800 dark:text-indigo-300 bg-white/80 dark:bg-slate-900/60 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900/50 space-y-1">
-                    {selectedTopic.motion && (
-                      <div className="italic font-medium text-slate-700 dark:text-slate-300">
-                        "{selectedTopic.motion}"
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
-                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">{translateCategory(selectedTopic.category)}</span>
-                      {selectedTopic.format && <span>• {translateCategory(selectedTopic.format)}</span>}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Title / Motion */}
+              {/* 3. TITLE / MOTION */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   {t('sessions.motionLabel', 'Session Motion / Title')} *
@@ -817,23 +890,23 @@ export const Sessions: React.FC = () => {
                 />
               </div>
 
-              {/* Dynamic Participants Section Based on Selected Category */}
+              {/* 4. DYNAMIC PARTICIPANTS SECTION BASED ON FORMAT */}
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
                 {/* 1. TOPIC PRESENTATION */}
                 {formData.sessionCategory === 'Topic Presentation' && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
                       <Presentation className="w-4 h-4" />
-                      <span>Topic Presentation Configuration (Moderator and Presenter - 1 or more)</span>
+                      <span>Topic Presentation Configuration (Moderator name - optional, Presenter name)</span>
                     </div>
 
                     <div>
                       <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        {t('sessions.moderator', 'Session Moderator')}
+                        {t('sessions.moderator', 'Session Moderator')} <span className="text-slate-400 text-[10px] font-normal">(Optional)</span>
                       </label>
                       <input
                         type="text"
-                        placeholder={t('sessions.moderatorPlaceholder', 'e.g. Dr. Tariq Al-Mansoor')}
+                        placeholder={t('sessions.moderatorPlaceholder', 'e.g. Dr. Tariq Al-Mansoor (Optional)')}
                         value={formData.moderator}
                         onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
                         className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
@@ -853,7 +926,7 @@ export const Sessions: React.FC = () => {
                               presenters: [...formData.presenters, { name: '', country: '', bio: '' }],
                             })
                           }
-                          className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                          className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>{t('sessions.addPresenter', '+ Add Presenter')}</span>
@@ -893,7 +966,7 @@ export const Sessions: React.FC = () => {
                                   const newP = formData.presenters.filter((_, i) => i !== idx);
                                   setFormData({ ...formData, presenters: newP });
                                 }}
-                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
+                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
                                 title="Remove Presenter"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -906,21 +979,21 @@ export const Sessions: React.FC = () => {
                   </div>
                 )}
 
-                {/* 2. STRUCTURED DIALOGUE */}
-                {(formData.sessionCategory === 'Structured Dialogue' || (formData.sessionCategory as any) === 'Structural Debate') && (
+                {/* 2. STRUCTURAL DEBATE */}
+                {(formData.sessionCategory === 'Structural Debate' || (formData.sessionCategory as any) === 'Structured Dialogue') && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
                       <Users className="w-4 h-4" />
-                      <span>Structured Dialogue Configuration (2 Teams and their Members)</span>
+                      <span>Structural Debate Configuration (Moderator - optional, Two teams and their members names)</span>
                     </div>
 
                     <div>
                       <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Chamber President / Moderator (Optional)
+                        Chamber President / Moderator <span className="text-slate-400 text-[10px] font-normal">(Optional)</span>
                       </label>
                       <input
                         type="text"
-                        placeholder="e.g. Session Speaker / Adjudicator Name"
+                        placeholder="e.g. Session Speaker / Adjudicator Name (Optional)"
                         value={formData.moderator}
                         onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
                         className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
@@ -939,7 +1012,7 @@ export const Sessions: React.FC = () => {
                             onClick={() =>
                               setFormData({ ...formData, team1Members: [...formData.team1Members, ''] })
                             }
-                            className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                            className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                           >
                             + Add Member
                           </button>
@@ -949,7 +1022,7 @@ export const Sessions: React.FC = () => {
                             <div key={idx} className="flex items-center gap-1.5">
                               <input
                                 type="text"
-                                placeholder={`Member ${idx + 1}`}
+                                placeholder={`Member ${idx + 1} Name`}
                                 value={member}
                                 onChange={(e) => {
                                   const updated = [...formData.team1Members];
@@ -967,7 +1040,7 @@ export const Sessions: React.FC = () => {
                                       team1Members: formData.team1Members.filter((_, i) => i !== idx),
                                     });
                                   }}
-                                  className="text-rose-500 hover:text-rose-700 p-1"
+                                  className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -988,7 +1061,7 @@ export const Sessions: React.FC = () => {
                             onClick={() =>
                               setFormData({ ...formData, team2Members: [...formData.team2Members, ''] })
                             }
-                            className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                            className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
                           >
                             + Add Member
                           </button>
@@ -998,7 +1071,7 @@ export const Sessions: React.FC = () => {
                             <div key={idx} className="flex items-center gap-1.5">
                               <input
                                 type="text"
-                                placeholder={`Member ${idx + 1}`}
+                                placeholder={`Member ${idx + 1} Name`}
                                 value={member}
                                 onChange={(e) => {
                                   const updated = [...formData.team2Members];
@@ -1016,7 +1089,7 @@ export const Sessions: React.FC = () => {
                                       team2Members: formData.team2Members.filter((_, i) => i !== idx),
                                     });
                                   }}
-                                  className="text-rose-500 hover:text-rose-700 p-1"
+                                  className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -1034,37 +1107,42 @@ export const Sessions: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
                       <MessageSquare className="w-4 h-4" />
-                      <span>Discussion Configuration (Moderator, and Key Speakers - if any)</span>
+                      <span>Discussion Configuration (Moderator - required, Key speakers - optional)</span>
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        {t('sessions.moderator', 'Session Moderator')} *
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          {t('sessions.moderator', 'Session Moderator')} *
+                        </label>
+                        <span className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-200 dark:border-rose-900">
+                          * Required
+                        </span>
+                      </div>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Elena Rostova (Discussion Chair)"
+                        placeholder="e.g. Elena Rostova (Discussion Chair) - Required"
                         value={formData.moderator}
                         onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
-                        className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                        className="w-full p-2 text-xs rounded-lg border border-rose-300 dark:border-rose-800 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-rose-500/20"
                       />
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          {t('sessions.speakersLabel', 'Key Speakers (if any)')}
+                          {t('sessions.speakersLabel', 'Key Speakers (1 or more)')} <span className="text-slate-400 text-[10px] font-normal">(Optional)</span>
                         </label>
                         <button
                           type="button"
                           onClick={() =>
                             setFormData({ ...formData, keySpeakers: [...formData.keySpeakers, ''] })
                           }
-                          className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                          className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>{t('sessions.addSpeaker', '+ Add Speaker')}</span>
+                          <span>{t('sessions.addSpeaker', '+ Add Key Speaker')}</span>
                         </button>
                       </div>
 
@@ -1073,7 +1151,7 @@ export const Sessions: React.FC = () => {
                           <div key={idx} className="flex items-center gap-2">
                             <input
                               type="text"
-                              placeholder={`Key Speaker ${idx + 1} Name`}
+                              placeholder={`Key Speaker ${idx + 1} Name (Optional)`}
                               value={speaker}
                               onChange={(e) => {
                                 const updated = [...formData.keySpeakers];
@@ -1091,7 +1169,8 @@ export const Sessions: React.FC = () => {
                                     keySpeakers: formData.keySpeakers.filter((_, i) => i !== idx),
                                   });
                                 }}
-                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
+                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
+                                title="Remove Key Speaker"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -1103,12 +1182,12 @@ export const Sessions: React.FC = () => {
                   </div>
                 )}
 
-                {/* 4. GUEST TALKS */}
-                {formData.sessionCategory === 'Guest Talks' && (
+                {/* 4. GUEST TALK */}
+                {(formData.sessionCategory === 'Guest Talk' || (formData.sessionCategory as any) === 'Guest Talks') && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
                       <Sparkles className="w-4 h-4" />
-                      <span>Guest Talks Configuration (Guest Name, Bio, Image)</span>
+                      <span>Guest Talk Configuration (Moderator - optional, Guest name, Bio, Picture)</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1128,11 +1207,11 @@ export const Sessions: React.FC = () => {
 
                       <div>
                         <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                          Host / Moderator (Optional)
+                          Host / Moderator <span className="text-slate-400 text-[10px] font-normal">(Optional)</span>
                         </label>
                         <input
                           type="text"
-                          placeholder="e.g. Mubashir CP"
+                          placeholder="e.g. Mubashir CP (Optional)"
                           value={formData.moderator}
                           onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
                           className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
@@ -1156,7 +1235,7 @@ export const Sessions: React.FC = () => {
 
                     <div>
                       <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        {t('sessions.guestImage', 'Guest Image / Photo URL')}
+                        {t('sessions.guestImage', 'Guest Picture / Photo URL')} <span className="text-slate-400 text-[10px] font-normal">(Optional)</span>
                       </label>
                       <div className="flex items-center gap-2">
                         <input
@@ -1378,10 +1457,9 @@ export const Sessions: React.FC = () => {
                     className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                   >
                     <option value="Topic Presentation">{translateCategory('Topic Presentation')}</option>
-                    <option value="Structured Dialogue">{translateCategory('Structured Dialogue')}</option>
+                    <option value="Structural Debate">{translateCategory('Structural Debate')}</option>
                     <option value="Discussion">{translateCategory('Discussion')}</option>
-                    <option value="Guest Talks">{translateCategory('Guest Talks')}</option>
-                    <option value="Academic Discussion / Policy Roundtable">{translateCategory('Academic Discussion / Policy Roundtable')}</option>
+                    <option value="Guest Talk">{translateCategory('Guest Talk')}</option>
                   </select>
                 </div>
               </div>
