@@ -330,11 +330,11 @@ export const Users: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <select
                             value={u.role}
                             onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
-                            className="text-xs font-semibold px-2 py-1 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
+                            className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                           >
                             <option value="MEMBER">{translateRole('MEMBER')}</option>
                             <option value="PRESENTER">{translateRole('PRESENTER')}</option>
@@ -342,15 +342,26 @@ export const Users: React.FC = () => {
                             <option value="ADMIN">{translateRole('ADMIN')}</option>
                             <option value="SUPER_ADMIN">{translateRole('SUPER_ADMIN')}</option>
                           </select>
-                          {(u.role === 'COORDINATOR' || u.role === 'ADMIN') && (
+
+                          {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
                             <button
                               type="button"
                               onClick={() => handleOpenPermissions(u)}
                               title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
-                              className="p-1 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors inline-flex items-center gap-1 text-[11px] font-semibold"
+                              className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 transition-colors inline-flex items-center gap-1.5 text-xs font-bold shadow-xs"
                             >
-                              <Shield className="w-3 h-3" />
-                              <span className="hidden lg:inline">{t('users.perms', 'Permissions')}</span>
+                              <Shield className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                              <span>{t('users.perms', 'Permissions')} ({u.allowedMenus ? u.allowedMenus.length : 12}/12)</span>
+                            </button>
+                          ) : u.role !== 'SUPER_ADMIN' && (
+                            <button
+                              type="button"
+                              onClick={() => handleRoleChange(u, 'COORDINATOR')}
+                              title={t('users.assignCoAdmin', 'Promote to Co-Admin and configure permissions')}
+                              className="px-2 py-1 rounded-lg text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-100 dark:border-indigo-900/60 transition-colors inline-flex items-center gap-1"
+                            >
+                              <Shield className="w-3 h-3 text-indigo-500" />
+                              <span>{t('users.grantCoAdmin', 'Grant Co-Admin')}</span>
                             </button>
                           )}
                         </div>
@@ -458,14 +469,24 @@ export const Users: React.FC = () => {
                         <option value="SUPER_ADMIN">{translateRole('SUPER_ADMIN')}</option>
                       </select>
 
-                      {(u.role === 'COORDINATOR' || u.role === 'ADMIN') && (
+                      {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
                         <button
                           type="button"
                           onClick={() => handleOpenPermissions(u)}
                           title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
-                          className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors"
+                          className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 text-xs font-bold"
                         >
                           <Shield className="w-3.5 h-3.5" />
+                          <span>Permissions</span>
+                        </button>
+                      ) : u.role !== 'SUPER_ADMIN' && (
+                        <button
+                          type="button"
+                          onClick={() => handleRoleChange(u, 'COORDINATOR')}
+                          className="px-2 py-1 text-[11px] rounded-lg border border-dashed border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 font-semibold"
+                        >
+                          <Shield className="w-3 h-3" />
+                          <span>Grant Co-Admin</span>
                         </button>
                       )}
                     </div>

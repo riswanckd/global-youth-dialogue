@@ -1,10 +1,4 @@
 function getApiBase(): string {
-  // In local development with Vite dev server
-  if ((import.meta as any).env?.DEV) {
-    const devUrl = (import.meta as any).env?.VITE_API_BASE_URL;
-    return devUrl || '/api/v1';
-  }
-
   const origin = (import.meta as any).env?.VITE_API_ORIGIN;
   const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL;
 
