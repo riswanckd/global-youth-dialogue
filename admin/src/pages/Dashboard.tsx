@@ -221,8 +221,19 @@ export const Dashboard: React.FC = () => {
     },
   });
 
-  // Approve / Decline mutation with direct live fallback and cache sync
+  // Approve / Decline mutation with instant optimistic UI update, live backend sync, and cache sync
   const updateAppMutation = useMutation({
+    onMutate: async ({ id, status, email }: { id: string; status: string; email?: string }) => {
+      // 0ms Optimistic UI removal from pending queue
+      queryClient.setQueryData<Application[]>(['admin-applications', 'pending'], (old = []) =>
+        old.filter((a) => a.id !== id && (email ? a.email?.toLowerCase() !== email.toLowerCase() : true))
+      );
+      showToast(
+        status === 'approved'
+          ? t('dash.appApprovedToast', 'Application approved successfully.')
+          : t('dash.appDeclinedToast', 'Application declined.')
+      );
+    },
     mutationFn: async ({ id, status, email }: { id: string; status: string; email?: string }) => {
       let remoteSuccess = false;
       try {
@@ -267,18 +278,10 @@ export const Dashboard: React.FC = () => {
         }
       } catch {}
     },
-    onSuccess: (_, vars) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      showToast(
-        vars.status === 'approved'
-          ? t('dash.appApprovedToast', 'Application approved successfully.')
-          : t('dash.appDeclinedToast', 'Application declined.')
-      );
-    },
-    onError: () => {
-      showToast(t('dash.localProcessed', 'Action processed locally.'));
     },
   });
 

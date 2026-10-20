@@ -25,6 +25,12 @@ export const Applications: React.FC = () => {
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [isPresenter, setIsPresenter] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   // Cross-portal real-time storage listener
   useEffect(() => {
@@ -196,6 +202,23 @@ export const Applications: React.FC = () => {
   });
 
   const updateMutation = useMutation({
+    onMutate: async ({ id, status, email }: { id: string; status: string; notes?: string; approvePresenter?: boolean; email?: string }) => {
+      const targetEmail = (email || selectedApp?.email || '').toLowerCase();
+      // Optimistic update in 0ms
+      queryClient.setQueryData<Application[]>(['admin-applications', statusFilter], (old = []) =>
+        old.map((a) => {
+          if (a.id === id || (targetEmail && a.email?.toLowerCase() === targetEmail)) {
+            return { ...a, status: status as any };
+          }
+          return a;
+        })
+      );
+      showToast(
+        status === 'approved'
+          ? t('dash.appApprovedToast', 'Application approved successfully.')
+          : t('dash.appDeclinedToast', 'Application declined.')
+      );
+    },
     mutationFn: async ({
       id,
       status,
@@ -269,7 +292,7 @@ export const Applications: React.FC = () => {
         }
       } catch {}
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
@@ -294,6 +317,13 @@ export const Applications: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold animate-in fade-in">
+          {toastMessage}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -305,16 +335,10 @@ export const Applications: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all"
-            title="Sync applications from live database"
-          >
-            <RotateCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-indigo-600' : ''}`} />
-            <span>{isFetching ? 'Syncing...' : 'Sync Live'}</span>
-          </button>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-xs font-semibold text-emerald-700 dark:text-emerald-300 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Real-time Live Sync</span>
+          </div>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
             {t('apps.totalDossiers', 'Total Dossiers')}: {applications.length}
           </span>
