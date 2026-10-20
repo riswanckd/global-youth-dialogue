@@ -5,7 +5,7 @@
    Typography: Sora & Cairo (Arabic RTL)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&family=Sora:wght@300;400;500;600;700;800&display=swap');
 
 :root,
 [data-theme="light"] {
@@ -9543,6 +9543,183 @@ html, body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ==========================================================================
+   AUTHENTIC ARABIC TYPOGRAPHY & RTL DESIGN SYSTEM
+   Pairing: Readex Pro (body, ui, cards) + Cairo (display, headers) + Amiri (classical/scholarly)
+   ========================================================================== */
+
+html[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Readex Pro', 'Cairo', system-ui, -apple-system, sans-serif;
+  letter-spacing: normal !important;
+}
+
+html[dir="rtl"] body {
+  font-family: 'Readex Pro', 'Cairo', system-ui, -apple-system, sans-serif;
+  letter-spacing: normal !important;
+  line-height: 1.7;
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] .serif-text,
+html[dir="rtl"] .serif-heading,
+html[dir="rtl"] .section-title,
+html[dir="rtl"] .hero-title {
+  font-family: 'Cairo', 'Readex Pro', sans-serif !important;
+  font-weight: 800;
+  letter-spacing: normal !important;
+  line-height: 1.38 !important;
+  text-align: right;
+}
+
+/* Scholarly Accents, Quotes, Mottos */
+html[dir="rtl"] .creed-motto,
+html[dir="rtl"] .academic-citation,
+html[dir="rtl"] blockquote,
+html[dir="rtl"] .hero-subtitle-lead {
+  font-family: 'Amiri', 'Cairo', serif !important;
+  letter-spacing: normal !important;
+}
+
+html[dir="rtl"] .hero-subtitle-lead {
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+html[dir="rtl"] button,
+html[dir="rtl"] input,
+html[dir="rtl"] select,
+html[dir="rtl"] textarea,
+html[dir="rtl"] .btn,
+html[dir="rtl"] .category-pill,
+html[dir="rtl"] .country-pill,
+html[dir="rtl"] .section-tag,
+html[dir="rtl"] .nav-link {
+  font-family: 'Readex Pro', 'Cairo', system-ui, sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+/* Alignments & Structural Flips in RTL */
+html[dir="rtl"] .section-header {
+  text-align: right;
+}
+
+html[dir="rtl"] .section-header.text-center,
+html[dir="rtl"] .section-header[style*="text-align: center"] {
+  text-align: center !important;
+}
+
+html[dir="rtl"] .hero-content {
+  text-align: right;
+}
+
+html[dir="rtl"] .hero-actions {
+  justify-content: flex-start;
+}
+
+html[dir="rtl"] .footer-brand,
+html[dir="rtl"] .footer-col {
+  text-align: right;
+}
+
+html[dir="rtl"] .footer-links {
+  padding-right: 0;
+}
+
+/* Arrow reversals in RTL */
+html[dir="rtl"] .rtl-flip-arrow,
+html[dir="rtl"] .hero-cta-pill span + span,
+html[dir="rtl"] .category-footer span:last-child {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* Off-canvas mobile navigation drawer in RTL */
+html[dir="rtl"] .mobile-nav-drawer {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+html[dir="rtl"] .mobile-nav-drawer.open {
+  transform: translateX(0);
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS & TOUCH ADAPTATIONS
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Header & Logo */
+  .brand-logo-img {
+    height: 32px !important;
+    width: auto !important;
+  }
+
+  .header-actions {
+    gap: 0.35rem;
+  }
+
+  /* Hero Section Mobile */
+  .hero-section {
+    padding-top: 2rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  .hero-title {
+    font-size: 2rem !important;
+    line-height: 1.25 !important;
+  }
+
+  html[dir="rtl"] .hero-title {
+    font-size: 2.15rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .hero-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0.75rem !important;
+  }
+
+  .hero-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Grid Adjustments */
+  .public-sessions-grid,
+  .categories-grid,
+  .mission-vision-grid,
+  .impact-pillars-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+
+  .section-title {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Container padding */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Footer Mobile */
+  .footer-top {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
 }
 
 

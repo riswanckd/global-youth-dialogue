@@ -414,12 +414,12 @@ export const PortalDashboard: React.FC = () => {
                 <span className="text-slate-400">{isArabic ? 'مستوى التفويض:' : 'Clearance Level:'}</span>
                 <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{isPresenter ? 'Keynote Presenter' : 'Verified Delegate'}</span>
+                  <span>{isPresenter ? (isArabic ? 'متحدث رئيسي' : 'Keynote Presenter') : (isArabic ? 'وفد معتمد' : 'Verified Delegate')}</span>
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-400">{isArabic ? 'حالة الفصل الوطني:' : 'Chapter Status:'}</span>
-                <span className="font-bold text-indigo-600 dark:text-indigo-400">Active Delegate</span>
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">{isArabic ? 'عضو نشط' : 'Active Delegate'}</span>
               </div>
             </div>
           </div>

@@ -111,7 +111,7 @@ export const Home: React.FC = () => {
 
               <div className="hero-actions">
                 <Link to="/apply" className="btn btn-primary btn-lg hero-cta-pill" id="heroJoinBtn">
-                  <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> &rarr;
+                  <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
                 </Link>
                 <Link to="/sessions" className="btn btn-outline btn-lg hero-cta-explore" id="heroSessionsBtn">
                   {isArabic ? 'استكشاف جلسات الحوار' : 'Explore Dialogue Sessions'}
@@ -237,7 +237,7 @@ export const Home: React.FC = () => {
 
           {/* Action Button */}
           <Link to="/sessions" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-            <span>{isArabic ? 'التسجيل للحضور' : 'Register to Attend'}</span> &rarr;
+            <span>{isArabic ? 'التسجيل للحضور' : 'Register to Attend'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
           </Link>
         </div>
       </div>
@@ -245,33 +245,66 @@ export const Home: React.FC = () => {
       {/* Continuous Silky Marquee Ribbon */}
       <div className="marquee-ribbon-wrap">
         <div className="marquee-track">
-          <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 14+ Global Chapters
-          </div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Accra</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Doha</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> S&atilde;o Paulo</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Oxford</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> New Delhi</div>
-          <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> Weekly Structured Dialogue Sessions
-          </div>
-          <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> 100% Youth-Researched Papers
-          </div>
-          <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> 60+ International Fellows & Thinkers
-          </div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Washington D.C.</div>
-          {/* Loop duplicates */}
-          <div className="marquee-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 14+ Global Chapters
-          </div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Accra</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Doha</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> S&atilde;o Paulo</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> Oxford</div>
-          <div className="marquee-item"><span className="marquee-star">&#10022;</span> New Delhi</div>
+          {isArabic ? (
+            <>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> ١٤+ فرع وممثل دولي
+              </div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> الدوحة</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> أكرا</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> ساو باولو</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> أكسفورد</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> نيودلهي</div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> جلسات حوار أسبوعية منظمة
+              </div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> أوراق بحثية شبابية ١٠٠٪
+              </div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> ٦٠+ مفكراً وباحثاً شاباً
+              </div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> واشنطن العاصمة</div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> ١٤+ فرع وممثل دولي
+              </div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> الدوحة</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> أكرا</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> ساو باولو</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> أكسفورد</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> نيودلهي</div>
+            </>
+          ) : (
+            <>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 14+ Global Chapters
+              </div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Accra</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Doha</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> S&atilde;o Paulo</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Oxford</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> New Delhi</div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 21h14"></path><path d="M4 7l8-4 8 4"></path><path d="M1 11l4-4 4 4a4 4 0 0 1-8 0z"></path><path d="M15 11l4-4 4 4a4 4 0 0 1-8 0z"></path></svg> Weekly Structured Dialogue Sessions
+              </div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> 100% Youth-Researched Papers
+              </div>
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg> 60+ International Fellows & Thinkers
+              </div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Washington D.C.</div>
+              {/* Loop duplicates */}
+              <div className="marquee-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 14+ Global Chapters
+              </div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Accra</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Doha</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> S&atilde;o Paulo</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> Oxford</div>
+              <div className="marquee-item"><span className="marquee-star">&#10022;</span> New Delhi</div>
+            </>
+          )}
         </div>
       </div>
 
@@ -357,14 +390,14 @@ export const Home: React.FC = () => {
                       : 'A high-level dialogue exploring generative AI systems, territorial regulatory jurisdiction, and cross-border digital sovereignty.'}
                   </p>
                   <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
-                    <div><strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong> Saturday, Oct 24, 2026</div>
-                    <div><strong>{isArabic ? 'الوقت:' : 'Time:'}</strong> 16:00 UTC (19:00 Doha / Riyadh)</div>
-                    <div><strong>{isArabic ? 'المتحدث:' : 'Presenter:'}</strong> Mubashir CP & Delegation</div>
+                    <div><strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong> {isArabic ? 'السبت، ٢٤ أكتوبر ٢٠٢٦' : 'Saturday, Oct 24, 2026'}</div>
+                    <div><strong>{isArabic ? 'الوقت:' : 'Time:'}</strong> {isArabic ? '١٦:٠٠ بتوقيت غرينتش (١٩:٠٠ بتوقيت الدوحة)' : '16:00 UTC (19:00 Doha / Riyadh)'}</div>
+                    <div><strong>{isArabic ? 'المتحدث:' : 'Presenter:'}</strong> {isArabic ? 'مبشر سي بي والوفد الدبلوماسي' : 'Mubashir CP & Delegation'}</div>
                   </div>
                 </div>
                 <div className="home-upcoming-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <Link to="/apply" className="btn btn-primary" id="upcomingApplyBtn" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> &rarr;
+                    <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
                   </Link>
                 </div>
               </div>
@@ -399,7 +432,7 @@ export const Home: React.FC = () => {
                   : 'Founded by young scholars who met at an international forum to build a lasting global academic dialogue network.'}
               </p>
               <span className="feature-learn-more">
-                <span>{isArabic ? 'معرفة المزيد' : 'Learn More'}</span> &rarr;
+                <span>{isArabic ? 'معرفة المزيد' : 'Learn More'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
               </span>
             </Link>
 
@@ -410,7 +443,7 @@ export const Home: React.FC = () => {
               </svg>
               <Link to="/topics" className="highlight-feature-card highlight-featured-accent" data-public-nav="topics" style={{ textDecoration: 'none' }}>
                 <div className="feature-icon-badge">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="2" y1="12" x2="22" y2="12"></line>
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -423,14 +456,14 @@ export const Home: React.FC = () => {
                     : 'Explore multidisciplinary arenas from Geopolitics & AI Ethics to Climate, Governance, and Human Rights.'}
                 </p>
                 <span className="feature-learn-more">
-                  <span>{isArabic ? 'استكشاف المحاور' : 'Explore Topics'}</span> &rarr;
+                  <span>{isArabic ? 'استكشاف المحاور' : 'Explore Topics'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
                 </span>
               </Link>
             </div>
 
             <Link to="/community" className="highlight-feature-card" data-public-nav="impact" style={{ textDecoration: 'none' }}>
               <div className="feature-icon-badge">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
                   <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
                   <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
@@ -444,7 +477,7 @@ export const Home: React.FC = () => {
                   : 'Cultivate global perspectives: develop rigorous research, public discourse, academic writing, and international leadership.'}
               </p>
               <span className="feature-learn-more">
-                <span>{isArabic ? 'اكتشف الأثر' : 'Discover Impact'}</span> &rarr;
+                <span>{isArabic ? 'اكتشف الأثر' : 'Discover Impact'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
               </span>
             </Link>
           </div>

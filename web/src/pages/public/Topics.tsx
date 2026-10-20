@@ -229,7 +229,7 @@ export const Topics: React.FC = () => {
                 <div className="category-footer">
                   <Link to={`/topics/${cat.id}`} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                     <span>{isArabic ? 'استكشاف الأوراق والمناظرات' : 'Explore Motions & Papers'}</span>
-                    <span>&rarr;</span>
+                    <span className="rtl-flip-arrow inline-block">&rarr;</span>
                   </Link>
                 </div>
               </div>

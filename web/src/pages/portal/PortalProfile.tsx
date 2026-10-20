@@ -27,7 +27,7 @@ const countryOptions = Object.entries(countries)
 
 export const PortalProfile: React.FC = () => {
   const { user, refreshUser } = useAuth();
-  const { isArabic } = useLanguage();
+  const { isArabic, translateRole } = useLanguage();
 
   // Profile form state
   const [formData, setFormData] = useState({
@@ -168,7 +168,7 @@ export const PortalProfile: React.FC = () => {
             </h2>
             <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
               <ShieldCheck className="w-3 h-3" />
-              <span>{user?.role === 'PRESENTER' ? 'Keynote Presenter' : 'Verified Delegate'}</span>
+              <span>{translateRole(user?.role || 'MEMBER')}</span>
             </span>
           </div>
           <div className="text-xs text-slate-500 dark:text-slate-400">
@@ -263,7 +263,7 @@ export const PortalProfile: React.FC = () => {
               value={formData.organization}
               onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
               className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="e.g. University of Oxford, Youth Forum..."
+              placeholder={isArabic ? 'مثال: جامعة قطر، منتدى الشباب الدولي...' : 'e.g. University of Oxford, Youth Forum...'}
             />
           </div>
         </div>
@@ -277,7 +277,7 @@ export const PortalProfile: React.FC = () => {
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Share your academic background or research and dialogue interests..."
+            placeholder={isArabic ? 'شارك خلفيتك الأكاديمية أو اهتماماتك البحثية والحوارية...' : 'Share your academic background or research and dialogue interests...'}
           />
         </div>
 

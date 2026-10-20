@@ -261,12 +261,12 @@ export const PortalPublications: React.FC = () => {
         {isLoading ? (
           <div className="py-20 text-center">
             <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-xs text-slate-500">Loading publications...</p>
+            <p className="text-xs text-slate-500">{isArabic ? 'جاري تحميل الأوراق الأكاديمية...' : 'Loading publications...'}</p>
           </div>
         ) : publications.length === 0 ? (
           <div className="p-12 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             <BookOpen className="w-8 h-8 mx-auto text-slate-400 mb-2" />
-            <p className="font-semibold text-sm">No research papers published yet.</p>
+            <p className="font-semibold text-sm">{isArabic ? 'لم يتم نشر أوراق بحثية بعد.' : 'No research papers published yet.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

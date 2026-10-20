@@ -29,22 +29,22 @@ import {
 } from 'lucide-react';
 
 export const ADMIN_MODULES = [
-  { id: 'dashboard', name: 'Programme Overview', description: 'Metrics, live telemetry, and activity pulse' },
-  { id: 'users', name: 'The Community', description: 'Community directory, membership, and role management' },
-  { id: 'pipeline', name: 'Topic Lifecycle Pipeline', description: 'Topic submissions, review stages, and voting pipeline' },
-  { id: 'topics', name: 'Topic Bank', description: 'Official registry of proposed and approved dialogue topics' },
-  { id: 'sessions', name: 'Session Management', description: 'Dialogue session scheduling, chambers, and format config' },
-  { id: 'session-summaries', name: 'Session Summaries', description: 'Post-dialogue executive summaries and deliberation briefs' },
-  { id: 'publications', name: 'Academic Writing Studio', description: 'Working papers, resolutions, and editorial publishing' },
-  { id: 'feedback', name: 'Delegate Feedback Analysis', description: 'Participant ratings, feedback analytics, and sentiment' },
-  { id: 'applications', name: 'Pending Applications', description: 'Applicant screening, verification, and admission approval' },
-  { id: 'analytics', name: 'Country Chapters', description: 'Geographic delegate distribution and chapter analytics' },
-  { id: 'settings', name: 'Media & PR Studio', description: 'Press materials, public relations assets, and broadcast kits' },
+  { id: 'dashboard', name: 'Programme Overview', nameAr: 'نظرة عامة على البرنامج', description: 'Metrics, live telemetry, and activity pulse', descriptionAr: 'المؤشرات والقياسات الحية ونبض الأنشطة' },
+  { id: 'users', name: 'The Community', nameAr: 'المجتمع والوفود', description: 'Community directory, membership, and role management', descriptionAr: 'دليل المجتمع والوفود وإدارة العضويات والأدوار' },
+  { id: 'pipeline', name: 'Topic Lifecycle Pipeline', nameAr: 'مسار اعتماد المواضيع', description: 'Topic submissions, review stages, and voting pipeline', descriptionAr: 'مقترحات المواضيع ومراحل المراجعة والاعتماد' },
+  { id: 'topics', name: 'Topic Bank', nameAr: 'بنك المواضيع', description: 'Official registry of proposed and approved dialogue topics', descriptionAr: 'السجل الرسمي للمواضيع المعتمدة والمقترحة للحوار' },
+  { id: 'sessions', name: 'Session Management', nameAr: 'إدارة الجلسات', description: 'Dialogue session scheduling, chambers, and format config', descriptionAr: 'جدولة جلسات الحوار وتكوين الغرف والوفود' },
+  { id: 'session-summaries', name: 'Session Summaries', nameAr: 'ملخصات الجلسات', description: 'Post-dialogue executive summaries and deliberation briefs', descriptionAr: 'الملخصات التنفيذية والتحليلات الأكاديمية للجلسات' },
+  { id: 'publications', name: 'Academic Writing Studio', nameAr: 'استوديو الكتابة الأكاديمية', description: 'Working papers, resolutions, and editorial publishing', descriptionAr: 'أوراق العمل والمقالات البحثية والنشر الأكاديمي' },
+  { id: 'feedback', name: 'Delegate Feedback Analysis', nameAr: 'تحليل تقييمات الوفود', description: 'Participant ratings, feedback analytics, and sentiment', descriptionAr: 'تقييمات المشاركين وتحليل مؤشرات الأداء الحواري' },
+  { id: 'applications', name: 'Pending Applications', nameAr: 'طلبات الانضمام المعلقة', description: 'Applicant screening, verification, and admission approval', descriptionAr: 'تدقيق وتدقيق ملفات المتقدمين والبت في العضوية' },
+  { id: 'analytics', name: 'Country Chapters', nameAr: 'الفروع والوفود الدولية', description: 'Geographic delegate distribution and chapter analytics', descriptionAr: 'التوزيع الجغرافي للمشاركين ومؤشرات الفروع الوطنية' },
+  { id: 'settings', name: 'Media & PR Studio', nameAr: 'استوديو الإعلام والعلاقات العامة', description: 'Press materials, public relations assets, and broadcast kits', descriptionAr: 'المواد الصحفية وأصول العلاقات العامة وحقائب البث' },
 ];
 
 export const Users: React.FC = () => {
   const queryClient = useQueryClient();
-  const { t, translateRole, translateStatus } = useAdminLanguage();
+  const { isArabic, t, translateRole, translateStatus } = useAdminLanguage();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null);
@@ -271,7 +271,7 @@ export const Users: React.FC = () => {
               {coordinatorsCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              Co-Administrators
+              {isArabic ? 'المشرفون المعاونون' : 'Co-Administrators'}
             </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ export const Users: React.FC = () => {
               {r === 'all'
                 ? t('users.filterAllRoles', 'All')
                 : r === 'ADMIN'
-                ? 'Co-Admins'
+                ? (isArabic ? 'مشرفون معاونون' : 'Co-Admins')
                 : translateRole(r)}
             </button>
           ))}
@@ -314,7 +314,7 @@ export const Users: React.FC = () => {
       {/* Users Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500">Loading user records...</div>
+          <div className="p-12 text-center text-slate-500">{isArabic ? 'جاري تحميل سجلات الوفود والأعضاء...' : 'Loading user records...'}</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-slate-500 space-y-2">
             <UsersIcon className="w-8 h-8 mx-auto text-slate-400" />
@@ -363,7 +363,7 @@ export const Users: React.FC = () => {
                         {u.role === 'SUPER_ADMIN' ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 font-bold text-xs shadow-xs">
                             <Shield className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                            <span>Super Admin</span>
+                            <span>{isArabic ? 'المشرف العام' : 'Super Admin'}</span>
                           </span>
                         ) : (
                           <div className="flex items-center gap-2 flex-wrap">
@@ -374,7 +374,7 @@ export const Users: React.FC = () => {
                             >
                               <option value="MEMBER">{translateRole('MEMBER')}</option>
                               <option value="PRESENTER">{translateRole('PRESENTER')}</option>
-                              {isSuperAdmin && <option value="ADMIN">Co-Admin</option>}
+                              {isSuperAdmin && <option value="ADMIN">{isArabic ? 'مشرف معاون' : 'Co-Admin'}</option>}
                             </select>
 
                             {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
@@ -386,7 +386,7 @@ export const Users: React.FC = () => {
                                   className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 transition-colors inline-flex items-center gap-1.5 text-xs font-bold shadow-xs"
                                 >
                                   <Shield className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                                  <span>{t('users.perms', 'Permissions')} ({u.allowedMenus ? u.allowedMenus.length : 11}/11)</span>
+                                  <span>{isArabic ? 'الصلاحيات' : t('users.perms', 'Permissions')} ({u.allowedMenus ? u.allowedMenus.length : 11}/11)</span>
                                 </button>
                               )
                             ) : isSuperAdmin && (
@@ -397,7 +397,7 @@ export const Users: React.FC = () => {
                                 className="px-2 py-1 rounded-lg text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-100 dark:border-indigo-900/60 transition-colors inline-flex items-center gap-1"
                               >
                                 <Shield className="w-3 h-3 text-indigo-500" />
-                                <span>{t('users.grantCoAdmin', 'Grant Co-Admin')}</span>
+                                <span>{isArabic ? 'ترقية لمشرف معاون' : t('users.grantCoAdmin', 'Grant Co-Admin')}</span>
                               </button>
                             )}
                           </div>
@@ -504,7 +504,7 @@ export const Users: React.FC = () => {
                       {u.role === 'SUPER_ADMIN' ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 font-bold text-xs">
                           <Shield className="w-3 h-3 text-amber-500 shrink-0" />
-                          <span>Super Admin</span>
+                          <span>{isArabic ? 'المشرف العام' : 'Super Admin'}</span>
                         </span>
                       ) : (
                         <>
@@ -515,7 +515,7 @@ export const Users: React.FC = () => {
                           >
                             <option value="MEMBER">{translateRole('MEMBER')}</option>
                             <option value="PRESENTER">{translateRole('PRESENTER')}</option>
-                            {isSuperAdmin && <option value="ADMIN">Co-Admin</option>}
+                            {isSuperAdmin && <option value="ADMIN">{isArabic ? 'مشرف معاون' : 'Co-Admin'}</option>}
                           </select>
 
                           {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
@@ -527,7 +527,7 @@ export const Users: React.FC = () => {
                                 className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 text-xs font-bold"
                               >
                                 <Shield className="w-3.5 h-3.5" />
-                                <span>Permissions</span>
+                                <span>{isArabic ? 'الصلاحيات' : 'Permissions'}</span>
                               </button>
                             )
                           ) : isSuperAdmin && (
@@ -537,7 +537,7 @@ export const Users: React.FC = () => {
                               className="px-2 py-1 text-[11px] rounded-lg border border-dashed border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 font-semibold"
                             >
                               <Shield className="w-3 h-3" />
-                              <span>Grant Co-Admin</span>
+                              <span>{isArabic ? 'ترقية لمشرف معاون' : 'Grant Co-Admin'}</span>
                             </button>
                           )}
                         </>
@@ -809,10 +809,10 @@ export const Users: React.FC = () => {
                       />
                       <div className="min-w-0 flex-1">
                         <div className="font-bold text-xs text-slate-900 dark:text-white leading-tight">
-                          {mod.name}
+                          {isArabic && (mod as any).nameAr ? (mod as any).nameAr : mod.name}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                          {mod.description}
+                          {isArabic && (mod as any).descriptionAr ? (mod as any).descriptionAr : mod.description}
                         </div>
                       </div>
                     </label>

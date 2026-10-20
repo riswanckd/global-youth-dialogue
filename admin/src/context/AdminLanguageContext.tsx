@@ -173,6 +173,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'users.suspend': { en: 'Suspend', ar: 'إيقاف' },
   'users.activate': { en: 'Activate', ar: 'تفعيل' },
   'users.delete': { en: 'Delete', ar: 'حذف' },
+  'users.roleCoAdmin': { en: 'Co-Administrators', ar: 'المشرفون المعاونون' },
+  'roles.co_admin': { en: 'Co-Admins', ar: 'المشرفون المعاونون' },
 
   // Sessions Page
   'sessions.title': { en: 'Academic Sessions & Structured Dialogues', ar: 'جلسات الحوار الأكاديمي والتبادل الفكري' },
@@ -292,19 +294,49 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'topics.cancelBtn': { en: 'Cancel', ar: 'إلغاء' },
   'topics.toastSuccess': { en: 'New topic successfully added to Topic Bank!', ar: 'تمت إضافة الموضوع الجديد بنجاح إلى بنك المواضيع!' },
 
-  // Publications Page
-  'pubs.title': { en: 'Academic Research & Papers', ar: 'الأبحاث والأوراق الأكاديمية' },
+  // Publications & Writing Studio Page
+  'pubs.title': { en: 'Academic Writing Studio & Publications', ar: 'استوديو الأبحاث والأوراق الأكاديمية' },
   'pubs.subtitle': {
-    en: 'Review, peer-assess, and publish delegate academic papers to the public digital repository.',
-    ar: 'مراجعة وتحكيم ونشر الأوراق البحثية للوفود في المستودع الرقمي العام.',
+    en: 'Author official secretariat monographs, review delegate and presenter research submissions, and publish to the public repository.',
+    ar: 'صياغة واعتماد ونشر الأوراق البحثية للأمانة العامة والوفود والمتحدثين في المستودع الرقمي العام.',
   },
   'pubs.searchPlaceholder': {
     en: 'Search papers by title or category...',
-    ar: 'البحث في الأبحاث حسب العنوان أو المجال...',
+    ar: 'البحث في الأوراق حسب العنوان أو المجال...',
   },
   'pubs.noPubs': { en: 'No research papers found.', ar: 'لم يتم العثور على أوراق بحثية.' },
   'pubs.publishBtn': { en: 'Accredit & Publish', ar: 'اعتماد ونشر للعامة' },
   'pubs.publishedBadge': { en: 'Published Online', ar: 'منشور في المستودع' },
+  'pubs.writePiece': { en: 'Write Academic Piece', ar: 'صياغة ورقة أكاديمية' },
+  'pubs.totalWorks': { en: 'Total Works', ar: 'إجمالي الأوراق' },
+  'pubs.presenterRequests': { en: 'Presenter Requests', ar: 'طلبات المتحدثين' },
+  'pubs.publishedOnSite': { en: 'Published on Site', ar: 'منشور في الموقع' },
+  'pubs.activeDisciplines': { en: 'Active Disciplines', ar: 'المحاور النشطة' },
+  'pubs.createModalTitle': { en: 'Draft & Publish Academic Piece', ar: 'صياغة ونشر ورقة أكاديمية' },
+  'pubs.createModalSubtitle': {
+    en: 'Secretariat monographs are immediately published to the public digital repository.',
+    ar: 'تُنشر أوراق الأمانة العامة مباشرة في المستودع الرقمي العام المتاح للجمهور.',
+  },
+  'pubs.titleLabel': { en: 'Paper Title', ar: 'عنوان الورقة' },
+  'pubs.titlePlaceholder': { en: 'e.g., The Architecture of Digital Sovereignty...', ar: 'مثال: هندسة السيادة الرقمية والحوكمة...' },
+  'pubs.categoryLabel': { en: 'Academic Sphere / Discipline', ar: 'المجال المعرفي الأكاديمي' },
+  'pubs.authorLabel': { en: 'Author Name / Signature', ar: 'اسم الكاتب / التوقيع' },
+  'pubs.affiliationLabel': { en: 'Affiliation / Role', ar: 'الجهة أو الصفة الأكاديمية' },
+  'pubs.abstractLabel': { en: 'Abstract / Synthesis (Summary)', ar: 'ملخص الورقة والنتائج المركزية' },
+  'pubs.abstractPlaceholder': { en: 'Executive synthesis of arguments, methodological scope, and findings...', ar: 'الملخص التنفيذي للحجج والمنهجية والخلاصات...' },
+  'pubs.contentLabel': { en: 'Full Academic Monograph Text / Essay', ar: 'النص الأكاديمي الكامل / المقال والقرارات' },
+  'pubs.contentPlaceholder': { en: 'Write complete paper text, numbered sections, arguments, and policy recommendations...', ar: 'اكتب نص البحث الكامل، الأقسام المرقمة، الحجج، والتوصيات...' },
+  'pubs.publishNowBtn': { en: 'Publish to Public Site', ar: 'نشر مباشرة في الموقع العام' },
+  'pubs.saveDraftBtn': { en: 'Save as Draft', ar: 'حفظ كمسودة' },
+  'pubs.reviewModalTitle': { en: 'Review Presenter Academic Submission', ar: 'مراجعة ورقة المتحدث المقدمة' },
+  'pubs.approveAndPublishBtn': { en: 'Approve & Publish Monograph', ar: 'اعتماد ونشر الورقة' },
+  'pubs.declineBtn': { en: 'Decline Request', ar: 'رفض الطلب' },
+  'pubs.submittedBy': { en: 'Submitted by Presenter', ar: 'مقدمة من المتحدث' },
+  'pubs.readPublic': { en: 'Read Public Paper', ar: 'قراءة الورقة في الموقع' },
+  'pubs.reviewAction': { en: 'Review Request', ar: 'مراجعة والبت' },
+  'pubs.allTab': { en: 'All Papers', ar: 'جميع الأوراق' },
+  'pubs.requestsTab': { en: 'Presenter Requests', ar: 'طلبات المتحدثين' },
+  'pubs.publishedTab': { en: 'Published Papers', ar: 'الأوراق المنشورة' },
 
   // Feedback Page
   'fb.title': { en: 'Delegate Reviews & Feedback', ar: 'تقييمات الوفود والمراجعات' },
@@ -423,7 +455,8 @@ const CATEGORIES_AR: Record<string, string> = {
 
 const ROLES_AR: Record<string, string> = {
   SUPER_ADMIN: 'المشرف العام',
-  ADMIN: 'مسؤول النظام',
+  ADMIN: 'مشرف معاون',
+  CO_ADMIN: 'مشرف معاون',
   COORDINATOR: 'منسق أكاديمي',
   PRESENTER: 'مقدم / مدير جلسة',
   MEMBER: 'عضو باحث',

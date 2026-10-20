@@ -228,7 +228,7 @@ export const Sessions: React.FC = () => {
                   ))}
                   <div style={{ marginInlineStart: 'auto' }}>
                     <Link to="/apply" className="btn btn-outline btn-sm" style={{ padding: '0.2rem 0.6rem', fontSize: '0.76rem' }}>
-                      {session.status === 'Upcoming' ? (isArabic ? 'حضور' : 'Attend') : (isArabic ? 'الملخص' : 'Summary')} &rarr;
+                      {session.status === 'Upcoming' ? (isArabic ? 'حضور' : 'Attend') : (isArabic ? 'الملخص' : 'Summary')} <span className="rtl-flip-arrow inline-block">&rarr;</span>
                     </Link>
                   </div>
                 </div>

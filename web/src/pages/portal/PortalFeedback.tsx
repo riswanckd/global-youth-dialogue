@@ -42,7 +42,7 @@ export const PortalFeedback: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.sessionId) {
-      setError('Please select a dialogue session to evaluate');
+      setError(isArabic ? 'يرجى اختيار جلسة حوارية لتقييمها' : 'Please select a dialogue session to evaluate');
       return;
     }
     setLoading(true);
@@ -65,7 +65,7 @@ export const PortalFeedback: React.FC = () => {
       });
       setTimeout(() => setSuccess(false), 4000);
     } catch (err: any) {
-      setError(err instanceof ApiError ? err.message : 'Failed to submit presentation feedback');
+      setError(err instanceof ApiError ? err.message : (isArabic ? 'فشل إرسال التقييم' : 'Failed to submit presentation feedback'));
     } finally {
       setLoading(false);
     }
@@ -88,12 +88,16 @@ export const PortalFeedback: React.FC = () => {
         {success && (
           <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-800 dark:text-emerald-300 text-sm">
             <CheckCircle2 className="w-5 h-5 shrink-0" />
-            <span>Thank you! Your constructive evaluation has been submitted to the speaker and secretariat.</span>
+            <span>
+              {isArabic
+                ? 'شكراً لك! تم إرسال تقييمك البناء بنجاح إلى المتحدث والأمانة العامة.'
+                : 'Thank you! Your constructive evaluation has been submitted to the speaker and secretariat.'}
+            </span>
           </div>
         )}
 
         {error && (
-          <div className="p-4 rounded-xl bg-rose-50 text-rose-700 text-xs flex items-center gap-2">
+          <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -102,7 +106,7 @@ export const PortalFeedback: React.FC = () => {
         {/* Session Selector */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            Select Dialogue Session *
+            {isArabic ? 'اختر الجلسة الحوارية *' : 'Select Dialogue Session *'}
           </label>
           <select
             required
@@ -110,10 +114,10 @@ export const PortalFeedback: React.FC = () => {
             onChange={(e) => setFormData({ ...formData, sessionId: e.target.value })}
             className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gyde-green"
           >
-            <option value="">-- Choose a session --</option>
+            <option value="">{isArabic ? '-- اختر جلسة حوارية --' : '-- Choose a session --'}</option>
             {sessions.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.title} ({new Date(s.scheduledAt).toLocaleDateString()})
+                {isArabic && (s as any).titleAr ? (s as any).titleAr : s.title} ({new Date(s.scheduledAt).toLocaleDateString()})
               </option>
             ))}
           </select>
@@ -125,7 +129,7 @@ export const PortalFeedback: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Argumentation Depth (1-5)
+                {isArabic ? 'عمق المحاججة الفكرية (1-5)' : 'Argumentation Depth (1-5)'}
               </label>
               <span className="text-xs font-bold text-gyde-gold">{formData.ratings.argumentation} / 5</span>
             </div>
@@ -143,7 +147,7 @@ export const PortalFeedback: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Evidence Sufficiency (1-5)
+                {isArabic ? 'كفاية الأدلة والقرائن (1-5)' : 'Evidence Sufficiency (1-5)'}
               </label>
               <span className="text-xs font-bold text-gyde-gold">{formData.ratings.evidence} / 5</span>
             </div>
@@ -161,7 +165,7 @@ export const PortalFeedback: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Rebuttal Precision & Delivery (1-5)
+                {isArabic ? 'دقة التفنيد والإلقاء (1-5)' : 'Rebuttal Precision & Delivery (1-5)'}
               </label>
               <span className="text-xs font-bold text-gyde-gold">{formData.ratings.delivery} / 5</span>
             </div>
@@ -179,7 +183,7 @@ export const PortalFeedback: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Chamber Engagement & POIs (1-5)
+                {isArabic ? 'التفاعل والنقاط الحوارية (1-5)' : 'Chamber Engagement & POIs (1-5)'}
               </label>
               <span className="text-xs font-bold text-gyde-gold">{formData.ratings.engagement} / 5</span>
             </div>
@@ -197,7 +201,7 @@ export const PortalFeedback: React.FC = () => {
         {/* Written Review */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            Core Strengths & Strongest Analytical Points *
+            {isArabic ? 'نقاط القوة والأطروحات الأكثر إقناعاً *' : 'Core Strengths & Strongest Analytical Points *'}
           </label>
           <textarea
             required
@@ -205,13 +209,13 @@ export const PortalFeedback: React.FC = () => {
             value={formData.strengths}
             onChange={(e) => setFormData({ ...formData, strengths: e.target.value })}
             className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gyde-green"
-            placeholder="Highlight the most persuasive claims, case study evidence, or rebuttal impact..."
+            placeholder={isArabic ? 'سلط الضوء على الحجج الأقوى، الأدلة التوضيحية، أو تأثير التفنيد...' : 'Highlight the most persuasive claims, case study evidence, or rebuttal impact...'}
           />
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            Constructive Recommendations for Improvement *
+            {isArabic ? 'توصيات بناءة لتطوير الأداء المستقبلي *' : 'Constructive Recommendations for Improvement *'}
           </label>
           <textarea
             required
@@ -219,17 +223,17 @@ export const PortalFeedback: React.FC = () => {
             value={formData.improvements}
             onChange={(e) => setFormData({ ...formData, improvements: e.target.value })}
             className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gyde-green"
-            placeholder="How could the speaker strengthen burden of proof, address opposing counter-examples, or refine pacing?"
+            placeholder={isArabic ? 'كيف يمكن للمتحدث تدعيم عبء الإثبات، معالجة الأمثلة المضادة، أو تحسين وتيرة الإلقاء؟' : 'How could the speaker strengthen burden of proof, address opposing counter-examples, or refine pacing?'}
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-6 rounded-lg bg-gyde-green hover:bg-gyde-green-light disabled:opacity-50 text-white font-bold text-sm shadow transition-colors inline-flex items-center justify-center gap-2"
+          className="w-full py-3 px-6 rounded-lg bg-gyde-green hover:bg-gyde-green-light disabled:opacity-50 text-white font-bold text-sm shadow transition-colors inline-flex items-center justify-center gap-2 cursor-pointer"
         >
-          <Send className="w-4 h-4" />
-          <span>{loading ? 'Submitting Review...' : 'Submit Presentation Evaluation'}</span>
+          <Send className="w-4 h-4 rtl:rotate-180" />
+          <span>{loading ? (isArabic ? 'جارٍ إرسال التقييم...' : 'Submitting Review...') : (isArabic ? 'إرسال تقييم العرض' : 'Submit Presentation Evaluation')}</span>
         </button>
       </form>
     </div>

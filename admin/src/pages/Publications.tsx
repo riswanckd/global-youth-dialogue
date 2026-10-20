@@ -40,7 +40,7 @@ const SPHERES = [
 
 export const Publications: React.FC = () => {
   const queryClient = useQueryClient();
-  const { t, translateCategory, translateStatus } = useAdminLanguage();
+  const { t, translateCategory, translateStatus, isArabic } = useAdminLanguage();
   const [search, setSearch] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -109,11 +109,12 @@ export const Publications: React.FC = () => {
   });
 
   const filtered = publications.filter((p) => {
-    const q = search.toLowerCase();
+    const authorName = p.authors?.[0]?.name || (p as any).author?.name || '';
     const matchesSearch =
-      p.title.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      (p.authors && p.authors.some((a) => a.name.toLowerCase().includes(q)));
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
+      p.category.toLowerCase().includes(search.toLowerCase()) ||
+      authorName.toLowerCase().includes(search.toLowerCase());
+
     const matchesStatus =
       selectedStatusFilter === 'all'
         ? true
@@ -132,10 +133,10 @@ export const Publications: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {t('pubs.title', 'Academic Writing Studio')}
+            {t('pubs.title', 'Academic Writing Studio & Publications')}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Author official secretariat monographs, review delegate and presenter research submissions, and publish to the public repository.
+            {t('pubs.subtitle', 'Author official secretariat monographs, review delegate and presenter research submissions, and publish to the public repository.')}
           </p>
         </div>
 
@@ -145,11 +146,11 @@ export const Publications: React.FC = () => {
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Write Academic Piece</span>
+          <span>{t('pubs.writePiece', 'Write Academic Piece')}</span>
         </button>
       </div>
 
-      {/* KPI Cards Grid */}
+      {/* KPI Cards Grid (2x2 on mobile, 4 in a row on desktop) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Papers */}
         <div
@@ -164,7 +165,7 @@ export const Publications: React.FC = () => {
               {publications.length}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              Total Works
+              {t('pubs.totalWorks', 'Total Works')}
             </div>
           </div>
         </div>
@@ -182,7 +183,7 @@ export const Publications: React.FC = () => {
               {reviewCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              Presenter Requests
+              {t('pubs.presenterRequests', 'Presenter Requests')}
             </div>
           </div>
         </div>
@@ -200,7 +201,7 @@ export const Publications: React.FC = () => {
               {publishedCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              Published on Site
+              {t('pubs.publishedOnSite', 'Published on Site')}
             </div>
           </div>
         </div>
@@ -215,7 +216,7 @@ export const Publications: React.FC = () => {
               16
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              Active Disciplines
+              {t('pubs.activeDisciplines', 'Active Disciplines')}
             </div>
           </div>
         </div>
@@ -225,39 +226,56 @@ export const Publications: React.FC = () => {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search pieces by title, category, or author..."
+              placeholder={t('pubs.searchPlaceholder', 'Search papers by title or category...')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 self-start sm:self-auto overflow-x-auto">
-            {['all', 'review', 'published'].map((st) => (
-              <button
-                key={st}
-                onClick={() => setSelectedStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors capitalize ${
-                  selectedStatusFilter === st
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                {st === 'all' ? 'All Works' : st === 'review' ? 'Presenter Requests' : 'Published Online'}
-              </button>
-            ))}
+          <div className="flex items-center gap-1.5 self-start sm:self-auto overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+            <button
+              onClick={() => setSelectedStatusFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                selectedStatusFilter === 'all'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t('pubs.allTab', 'All Papers')}
+            </button>
+            <button
+              onClick={() => setSelectedStatusFilter('review')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                selectedStatusFilter === 'review'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t('pubs.requestsTab', 'Presenter Requests')}
+            </button>
+            <button
+              onClick={() => setSelectedStatusFilter('published')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                selectedStatusFilter === 'published'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t('pubs.publishedTab', 'Published Papers')}
+            </button>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500">Loading research pieces...</div>
+          <div className="p-12 text-center text-slate-500">{t('common.loading', 'Loading...')}</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-slate-500 space-y-2">
             <BookOpen className="w-8 h-8 mx-auto text-slate-400" />
-            <p className="font-semibold text-sm">No research pieces found matching filter.</p>
+            <p className="font-semibold text-sm">{t('pubs.noPubs', 'No research papers found.')}</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -268,7 +286,7 @@ export const Publications: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setReviewModalPaper(paper)}
-                      className="text-left group"
+                      className="text-left rtl:text-right group"
                     >
                       <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {paper.title}
@@ -286,7 +304,9 @@ export const Publications: React.FC = () => {
                         : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                     }`}
                   >
-                    {paper.status === 'published' ? 'Published Online' : 'Pending Review'}
+                    {paper.status === 'published'
+                      ? t('pubs.publishedBadge', 'Published Online')
+                      : t('status.pending', 'Pending Review')}
                   </span>
                 </div>
 
@@ -296,7 +316,10 @@ export const Publications: React.FC = () => {
 
                 <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800 flex-wrap gap-2">
                   <div>
-                    Authors: <strong className="text-slate-700 dark:text-slate-300">{paper.authors?.map((a: any) => a.name).join(', ') || 'GYDE Scholar'}</strong>
+                    {isArabic ? 'المؤلف:' : 'Author:'}{' '}
+                    <strong className="text-slate-700 dark:text-slate-300">
+                      {paper.authors?.map((a: any) => a.name).join(', ') || 'GYDE Scholar'}
+                    </strong>
                     {paper.authors?.[0]?.affiliation && ` (${paper.authors[0].affiliation})`}
                   </div>
 
@@ -304,10 +327,10 @@ export const Publications: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setReviewModalPaper(paper)}
-                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition-colors inline-flex items-center gap-1"
+                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>Review Details</span>
+                      <span>{t('pubs.reviewAction', 'Review Details')}</span>
                     </button>
 
                     {paper.status !== 'published' ? (
@@ -318,12 +341,12 @@ export const Publications: React.FC = () => {
                         className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs inline-flex items-center gap-1 cursor-pointer"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        <span>Approve & Publish to Site</span>
+                        <span>{t('pubs.publishBtn', 'Accredit & Publish')}</span>
                       </button>
                     ) : (
-                      <span className="text-emerald-600 font-semibold inline-flex items-center gap-1">
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Visible on Public Site</span>
+                        <span>{t('pubs.publishedOnSite', 'Visible on Site')}</span>
                       </span>
                     )}
                   </div>
@@ -345,10 +368,10 @@ export const Publications: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
-                    Write Academic Piece / Essay / Article
+                    {t('pubs.createModalTitle', 'Draft & Publish Academic Piece')}
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Compose official secretariat monographs, policy resolutions, or research essays.
+                    {t('pubs.createModalSubtitle', 'Secretariat monographs are immediately published to the public digital repository.')}
                   </p>
                 </div>
               </div>
@@ -370,12 +393,12 @@ export const Publications: React.FC = () => {
             >
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Title of the Academic Work *
+                  {t('pubs.titleLabel', 'Paper Title')} *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Multilateral AI Governance & Transnational Ethical Standards"
+                  placeholder={t('pubs.titlePlaceholder', 'e.g., Multilateral AI Governance & Transnational Ethical Standards')}
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -385,7 +408,7 @@ export const Publications: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Academic Discipline / Category *
+                    {t('pubs.categoryLabel', 'Academic Discipline / Category')} *
                   </label>
                   <select
                     value={formData.category}
@@ -402,27 +425,27 @@ export const Publications: React.FC = () => {
 
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Publication Status *
+                    {isArabic ? 'حالة النشر *' : 'Publication Status *'}
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                     className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                   >
-                    <option value="published">Publish Immediately to Public Site</option>
-                    <option value="draft">Save as Draft (Private)</option>
+                    <option value="published">{isArabic ? 'نشر فوري في الموقع العام' : 'Publish Immediately to Public Site'}</option>
+                    <option value="draft">{isArabic ? 'حفظ كمسودة خاصة' : 'Save as Draft (Private)'}</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Abstract / Executive Summary *
+                  {t('pubs.abstractLabel', 'Abstract / Executive Summary')} *
                 </label>
                 <textarea
                   required
                   rows={3}
-                  placeholder="Comprehensive summary of the problem statement, thesis, methodology, and key policy findings..."
+                  placeholder={t('pubs.abstractPlaceholder', 'Comprehensive summary of the problem statement, thesis, methodology, and key policy findings...')}
                   value={formData.abstract}
                   onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
@@ -431,11 +454,11 @@ export const Publications: React.FC = () => {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Full Piece Content / Article Body (Optional)
+                  {t('pubs.contentLabel', 'Full Piece Content / Article Body')}
                 </label>
                 <textarea
                   rows={6}
-                  placeholder="Full text of the essay, article, or policy recommendation..."
+                  placeholder={t('pubs.contentPlaceholder', 'Full text of the essay, article, or policy recommendation...')}
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none font-mono"
@@ -445,7 +468,7 @@ export const Publications: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Lead Author Name
+                    {t('pubs.authorLabel', 'Lead Author Name')}
                   </label>
                   <input
                     type="text"
@@ -456,7 +479,7 @@ export const Publications: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    Author Affiliation
+                    {t('pubs.affiliationLabel', 'Author Affiliation')}
                   </label>
                   <input
                     type="text"
@@ -473,7 +496,7 @@ export const Publications: React.FC = () => {
                   onClick={() => setIsCreateModalOpen(false)}
                   className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300"
                 >
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="submit"
@@ -481,10 +504,10 @@ export const Publications: React.FC = () => {
                   className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {createPubMutation.isPending
-                    ? 'Publishing...'
+                    ? t('common.loading', 'Publishing...')
                     : formData.status === 'published'
-                    ? 'Publish to Site'
-                    : 'Save Draft'}
+                    ? t('pubs.publishNowBtn', 'Publish to Site')
+                    : t('pubs.saveDraftBtn', 'Save Draft')}
                 </button>
               </div>
             </form>
@@ -499,7 +522,7 @@ export const Publications: React.FC = () => {
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                  {reviewModalPaper.category}
+                  {translateCategory(reviewModalPaper.category)}
                 </span>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white mt-0.5 leading-snug">
                   {reviewModalPaper.title}
@@ -518,7 +541,9 @@ export const Publications: React.FC = () => {
               {/* Authors info */}
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Author & Scholar</span>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                    {isArabic ? 'الكاتب والباحث' : 'Author & Scholar'}
+                  </span>
                   <span className="font-bold text-slate-800 dark:text-slate-200">
                     {reviewModalPaper.authors?.map((a) => a.name).join(', ') || 'GYDE Scholar'}
                   </span>
@@ -533,14 +558,16 @@ export const Publications: React.FC = () => {
                       : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                   }`}
                 >
-                  {reviewModalPaper.status === 'published' ? 'Published Online' : 'Pending Review'}
+                  {reviewModalPaper.status === 'published'
+                    ? t('pubs.publishedBadge', 'Published Online')
+                    : t('status.pending', 'Pending Review')}
                 </span>
               </div>
 
               {/* Abstract */}
               <div>
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                  Abstract / Executive Summary
+                  {t('pubs.abstractLabel', 'Abstract / Executive Summary')}
                 </div>
                 <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                   {reviewModalPaper.abstract}
@@ -551,7 +578,7 @@ export const Publications: React.FC = () => {
               {reviewModalPaper.content && (
                 <div>
                   <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Submitted Full Text Body
+                    {t('pubs.contentLabel', 'Submitted Full Text Body')}
                   </div>
                   <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800 whitespace-pre-wrap font-sans">
                     {reviewModalPaper.content}
@@ -567,7 +594,7 @@ export const Publications: React.FC = () => {
                 onClick={() => setReviewModalPaper(null)}
                 className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
-                Close
+                {t('common.close', 'Close')}
               </button>
 
               {reviewModalPaper.status !== 'published' ? (
@@ -578,12 +605,12 @@ export const Publications: React.FC = () => {
                   className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Check className="w-4 h-4" />
-                  <span>{publishMutation.isPending ? 'Publishing...' : 'Approve & Publish to Public Site'}</span>
+                  <span>{publishMutation.isPending ? t('common.loading', 'Publishing...') : t('pubs.approveAndPublishBtn', 'Approve & Publish to Public Site')}</span>
                 </button>
               ) : (
-                <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Approved & Live on Website</span>
+                  <span>{isArabic ? 'معتمد ومنشور على الموقع' : 'Approved & Live on Website'}</span>
                 </span>
               )}
             </div>

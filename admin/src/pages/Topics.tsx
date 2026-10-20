@@ -342,14 +342,14 @@ export const Topics: React.FC = () => {
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
               <input
                 type="text"
-                placeholder="Search across 16 disciplines and subtopics..."
+                placeholder={isArabic ? 'البحث عبر 16 تخصصاً والموضوعات الفرعية...' : 'Search across 16 disciplines and subtopics...'}
                 value={categorySearch}
                 onChange={(e) => setCategorySearch(e.target.value)}
                 className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
               />
             </div>
             <div className="text-xs text-slate-500 font-semibold">
-              Showing 16 Official Academic Disciplines & 80+ Subtopics
+              {isArabic ? 'عرض 16 تخصصاً أكاديمياً معتمداً وأكثر من 80 موضوعاً فرعياً' : 'Showing 16 Official Academic Disciplines & 80+ Subtopics'}
             </div>
           </div>
 
@@ -359,6 +359,7 @@ export const Topics: React.FC = () => {
               const q = categorySearch.toLowerCase();
               return (
                 cat.name.toLowerCase().includes(q) ||
+                translateCategory(cat.name).toLowerCase().includes(q) ||
                 cat.subTopics.some((sub) => sub.toLowerCase().includes(q))
               );
             }).map((cat) => (
@@ -368,7 +369,7 @@ export const Topics: React.FC = () => {
               >
                 <div>
                   <div className="font-bold text-sm text-slate-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
-                    {cat.name}
+                    {translateCategory(cat.name)}
                   </div>
                   <div className="space-y-1.5">
                     {cat.subTopics.map((sub, i) => (
@@ -381,7 +382,7 @@ export const Topics: React.FC = () => {
                 </div>
                 <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    {cat.subTopics.length} subtopics
+                    {cat.subTopics.length} {isArabic ? 'موضوعات فرعية' : 'subtopics'}
                   </div>
                   <button
                     type="button"
@@ -391,7 +392,7 @@ export const Topics: React.FC = () => {
                     }}
                     className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                   >
-                    + Add Topic
+                    {isArabic ? '+ إضافة موضوع' : '+ Add Topic'}
                   </button>
                 </div>
               </div>

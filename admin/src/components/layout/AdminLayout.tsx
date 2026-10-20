@@ -416,8 +416,8 @@ export const AdminLayout: React.FC = () => {
       )}
       {/* Secretariat Notifications Drawer */}
       {notificationsOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-4 bg-slate-950/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-5 mt-14 mr-2 overflow-hidden flex flex-col gap-3">
+        <div className="fixed inset-0 z-50 flex items-start justify-end rtl:justify-start p-3 sm:p-4 bg-slate-950/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-5 mt-14 mr-2 rtl:mr-auto rtl:ml-2 overflow-hidden flex flex-col gap-3">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
@@ -425,9 +425,11 @@ export const AdminLayout: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                    Secretariat Notifications
+                    {isArabic ? 'إشعارات الأمانة العامة' : 'Secretariat Notifications'}
                   </h3>
-                  <p className="text-[11px] text-slate-500">Live operational & delegate telemetry</p>
+                  <p className="text-[11px] text-slate-500">
+                    {isArabic ? 'القياسات التشغيلية المباشرة وحركة الوفود' : 'Live operational & delegate telemetry'}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -436,7 +438,7 @@ export const AdminLayout: React.FC = () => {
                   onClick={() => setNotificationsRead(true)}
                   className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                 >
-                  Mark read
+                  {isArabic ? 'تحديد كمقروء' : 'Mark read'}
                 </button>
                 <button
                   type="button"
@@ -468,12 +470,16 @@ export const AdminLayout: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    Delegate Admissions Pending
+                    {isArabic ? 'طلبات انضمام الوفود المعلقة' : 'Delegate Admissions Pending'}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    Review and verify incoming international youth delegate and keynote speaker applications.
+                    {isArabic
+                      ? 'مراجعة وتدقيق طلبات انضمام الوفود الشبابية الدولية والمتحدثين الرئيسيين الجدد.'
+                      : 'Review and verify incoming international youth delegate and keynote speaker applications.'}
                   </p>
-                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">Review in Applications →</span>
+                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">
+                    {isArabic ? 'المراجعة في قائمة الطلبات ←' : 'Review in Applications →'}
+                  </span>
                 </div>
               </button>
 
@@ -491,12 +497,16 @@ export const AdminLayout: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    Topic Lifecycle Motions
+                    {isArabic ? 'قضايا ومحاور الحوار قيد التدقيق' : 'Topic Lifecycle Motions'}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    Academic debate motions submitted across the 16 core knowledge disciplines awaiting editorial clearance.
+                    {isArabic
+                      ? 'قضايا حوارية مقدمة عبر المجالات المعرفية الـ 16 بانتظار الاعتماد التحريري.'
+                      : 'Academic debate motions submitted across the 16 core knowledge disciplines awaiting editorial clearance.'}
                   </p>
-                  <span className="text-[10px] text-purple-500 font-semibold mt-1 inline-block">Review Pipeline →</span>
+                  <span className="text-[10px] text-purple-500 font-semibold mt-1 inline-block">
+                    {isArabic ? 'متابعة مسار المواضيع ←' : 'Review Pipeline →'}
+                  </span>
                 </div>
               </button>
 
@@ -514,12 +524,16 @@ export const AdminLayout: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    Academic Writing Studio Requests
+                    {isArabic ? 'طلبات استوديو الكتابة الأكاديمية' : 'Academic Writing Studio Requests'}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    Presenters have submitted academic articles & essays for secretariat review and public publishing.
+                    {isArabic
+                      ? 'قدّم المتحدثون أوراقاً ومقالات أكاديمية لمراجعة الأمانة العامة والنشر العام.'
+                      : 'Presenters have submitted academic articles & essays for secretariat review and public publishing.'}
                   </p>
-                  <span className="text-[10px] text-amber-500 font-semibold mt-1 inline-block">Open Writing Studio →</span>
+                  <span className="text-[10px] text-amber-500 font-semibold mt-1 inline-block">
+                    {isArabic ? 'فتح استوديو الكتابة ←' : 'Open Writing Studio →'}
+                  </span>
                 </div>
               </button>
 
@@ -537,18 +551,22 @@ export const AdminLayout: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    Chambers & Dialogue Sessions
+                    {isArabic ? 'غرف وجلسات الحوار' : 'Chambers & Dialogue Sessions'}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    Manage upcoming virtual dialogue chambers, guest speakers, and executive session summaries.
+                    {isArabic
+                      ? 'إدارة غرف الحوار الافتراضية، والمتحدثين الضيوف، والملخصات التنفيذية للجلسات.'
+                      : 'Manage upcoming virtual dialogue chambers, guest speakers, and executive session summaries.'}
                   </p>
-                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">Manage Sessions →</span>
+                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">
+                    {isArabic ? 'إدارة الجلسات ←' : 'Manage Sessions →'}
+                  </span>
                 </div>
               </button>
             </div>
 
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
-              <span>Platform telemetry: Operational</span>
+              <span>{isArabic ? 'حالة المنصة: تعمل بكفاءة تامة' : 'Platform telemetry: Operational'}</span>
               <button
                 type="button"
                 onClick={() => {
@@ -559,7 +577,7 @@ export const AdminLayout: React.FC = () => {
                 }}
                 className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 cursor-pointer"
               >
-                Close
+                {isArabic ? 'إغلاق' : 'Close'}
               </button>
             </div>
           </div>

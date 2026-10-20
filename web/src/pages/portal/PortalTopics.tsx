@@ -7,7 +7,7 @@ import { CATEGORIES } from '../../constants';
 import { Lightbulb, Plus, CheckCircle2, AlertCircle, Clock, Sparkles } from 'lucide-react';
 
 export const PortalTopics: React.FC = () => {
-  const { isArabic } = useLanguage();
+  const { isArabic, translateCategory, translateStatus } = useLanguage();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
@@ -36,7 +36,7 @@ export const PortalTopics: React.FC = () => {
       setError(null);
     },
     onError: (err: any) => {
-      setError(err.message || 'Failed to submit topic proposal');
+      setError(err.message || (isArabic ? 'فشل إرسال مقترح الموضوع' : 'Failed to submit topic proposal'));
     },
   });
 
@@ -48,17 +48,41 @@ export const PortalTopics: React.FC = () => {
   const getStatusBadge = (status: Topic['status']) => {
     switch (status) {
       case 'proposed':
-        return <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold uppercase tracking-wider">Proposed</span>;
+        return (
+          <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 text-[10px] font-bold uppercase tracking-wider">
+            {isArabic ? 'مقترح' : 'Proposed'}
+          </span>
+        );
       case 'reviewing':
-        return <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wider">Under Review</span>;
+        return (
+          <span className="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 text-[10px] font-bold uppercase tracking-wider">
+            {isArabic ? 'قيد المراجعة' : 'Under Review'}
+          </span>
+        );
       case 'approved':
-        return <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">Approved</span>;
+        return (
+          <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+            {isArabic ? 'معتمد' : 'Approved'}
+          </span>
+        );
       case 'scheduled':
-        return <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider">Scheduled</span>;
+        return (
+          <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wider">
+            {isArabic ? 'مجدول' : 'Scheduled'}
+          </span>
+        );
       case 'completed':
-        return <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[10px] font-bold uppercase tracking-wider">Completed</span>;
+        return (
+          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider">
+            {isArabic ? 'منعقد' : 'Completed'}
+          </span>
+        );
       default:
-        return <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider">{status}</span>;
+        return (
+          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+            {translateStatus(status)}
+          </span>
+        );
     }
   };
 
@@ -76,10 +100,10 @@ export const PortalTopics: React.FC = () => {
 
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white font-bold text-xs shadow transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white font-bold text-xs shadow transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>{showForm ? 'Cancel' : 'Propose New Topic'}</span>
+          <span>{showForm ? (isArabic ? 'إلغاء' : 'Cancel') : (isArabic ? 'اقتراح موضوع جديد' : 'Propose New Topic')}</span>
         </button>
       </div>
 
@@ -88,11 +112,11 @@ export const PortalTopics: React.FC = () => {
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gyde-canvas-cardDark rounded-2xl p-6 sm:p-8 border-2 border-gyde-green/30 shadow-sm space-y-4">
           <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-gyde-gold" />
-            <span>Submit a Dialogue Topic Proposal</span>
+            <span>{isArabic ? 'تقديم مقترح موضوع حواري جديد' : 'Submit a Dialogue Topic Proposal'}</span>
           </h3>
 
           {error && (
-            <div className="p-3 rounded-lg bg-rose-50 text-rose-700 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -100,7 +124,7 @@ export const PortalTopics: React.FC = () => {
 
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
-              Topic Title / Dialogue Theme *
+              {isArabic ? 'عنوان الموضوع / القضية الحوارية *' : 'Topic Title / Dialogue Theme *'}
             </label>
             <input
               type="text"
@@ -108,13 +132,13 @@ export const PortalTopics: React.FC = () => {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gyde-green"
-              placeholder='e.g. This House would mandate open-weight source code for foundation AI models'
+              placeholder={isArabic ? 'مثال: يرى هذا المجلس وجوب إتاحة المصادر المفتوحة لنماذج الذكاء الاصطناعي التأسيسية' : 'e.g. This House would mandate open-weight source code for foundation AI models'}
             />
           </div>
 
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
-              Category Discipline *
+              {isArabic ? 'المجال التخصصي *' : 'Category Discipline *'}
             </label>
             <select
               value={formData.category}
@@ -123,7 +147,7 @@ export const PortalTopics: React.FC = () => {
             >
               {CATEGORIES.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name}
+                  {isArabic ? c.nameAr : c.name}
                 </option>
               ))}
             </select>
@@ -131,7 +155,7 @@ export const PortalTopics: React.FC = () => {
 
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-400">
-              Academic Context & Clashing Arguments *
+              {isArabic ? 'السياق الأكاديمي وجوهر النزاع الفكري *' : 'Academic Context & Clashing Arguments *'}
             </label>
             <textarea
               required
@@ -139,16 +163,18 @@ export const PortalTopics: React.FC = () => {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gyde-green"
-              placeholder="Outline the fundamental tension between affirmative and negative sides..."
+              placeholder={isArabic ? 'وضح التوتر الجوهري بين وجهتي النظر المؤيدة والمعارضة والأسس المعرفية...' : 'Outline the fundamental tension between affirmative and negative sides...'}
             />
           </div>
 
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="py-2.5 px-6 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white font-bold text-xs shadow"
+            className="py-2.5 px-6 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white font-bold text-xs shadow cursor-pointer"
           >
-            {mutation.isPending ? 'Submitting...' : 'Propose Motion to Pipeline'}
+            {mutation.isPending
+              ? (isArabic ? 'جارٍ الإرسال...' : 'Submitting...')
+              : (isArabic ? 'إرسال المقترح إلى المسار الحواري' : 'Propose Motion to Pipeline')}
           </button>
         </form>
       )}
@@ -157,13 +183,17 @@ export const PortalTopics: React.FC = () => {
       {isLoading ? (
         <div className="py-20 text-center">
           <div className="w-8 h-8 border-4 border-gyde-green border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-xs text-slate-500">Loading topic pipeline...</p>
+          <p className="text-xs text-slate-500">{isArabic ? 'جارٍ تحميل مسار القضايا...' : 'Loading topic pipeline...'}</p>
         </div>
       ) : topics.length === 0 ? (
         <div className="p-12 text-center bg-white dark:bg-gyde-canvas-cardDark rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
           <Lightbulb className="w-8 h-8 text-slate-400 mx-auto" />
-          <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">No topic proposals yet</h3>
-          <p className="text-xs text-slate-500">Be the first to submit a motion for the upcoming cycle.</p>
+          <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">
+            {isArabic ? 'لا توجد مقترحات مواضيع مسجلة بعد' : 'No topic proposals yet'}
+          </h3>
+          <p className="text-xs text-slate-500">
+            {isArabic ? 'كن أول من يقترح قضية حوارية للدورة القادمة.' : 'Be the first to submit a motion for the upcoming cycle.'}
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -175,25 +205,28 @@ export const PortalTopics: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   {getStatusBadge(topic.status)}
-                  <span className="text-xs font-semibold text-gyde-gold">{topic.category}</span>
+                  <span className="text-xs font-semibold text-gyde-gold">
+                    {translateCategory(topic.category)}
+                  </span>
                 </div>
                 <div className="text-xs text-slate-400">
-                  Proposed by: <strong>{topic.proposedBy?.name || 'Delegate'}</strong>
+                  {isArabic ? 'اقتراح بواسطة:' : 'Proposed by:'}{' '}
+                  <strong>{topic.proposedBy?.name || (isArabic ? 'وفد مشارك' : 'Delegate')}</strong>
                 </div>
               </div>
 
               <div>
                 <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-white">
-                  {topic.title}
+                  {isArabic && (topic as any).titleAr ? (topic as any).titleAr : topic.title}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  {topic.description}
+                  {isArabic && (topic as any).descriptionAr ? (topic as any).descriptionAr : topic.description}
                 </p>
               </div>
 
               {topic.reviewNotes && (
                 <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
-                  <strong>Secretariat Review Note:</strong> {topic.reviewNotes}
+                  <strong>{isArabic ? 'ملاحظة مراجعة الأمانة العامة:' : 'Secretariat Review Note:'}</strong> {topic.reviewNotes}
                 </div>
               )}
             </div>

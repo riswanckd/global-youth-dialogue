@@ -43,40 +43,40 @@ export const PortalSessions: React.FC = () => {
         </div>
 
         {/* Filter buttons */}
-        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg overflow-x-auto">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors shrink-0 ${
               filter === 'all' ? 'bg-white dark:bg-gyde-canvas-cardDark text-gyde-green shadow-sm' : 'text-slate-500'
             }`}
           >
-            All Sessions
+            {isArabic ? 'جميع الجلسات' : 'All Sessions'}
           </button>
           {isCoordinator && (
             <button
               onClick={() => setFilter('assigned')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors shrink-0 ${
                 filter === 'assigned' ? 'bg-white dark:bg-gyde-canvas-cardDark text-gyde-green shadow-sm' : 'text-slate-500'
               }`}
             >
-              Assigned to Me
+              {isArabic ? 'جلساتي المعينة' : 'Assigned to Me'}
             </button>
           )}
           <button
             onClick={() => setFilter('scheduled')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors shrink-0 ${
               filter === 'scheduled' ? 'bg-white dark:bg-gyde-canvas-cardDark text-gyde-green shadow-sm' : 'text-slate-500'
             }`}
           >
-            Upcoming
+            {isArabic ? 'الجلسات القادمة' : 'Upcoming'}
           </button>
           <button
             onClick={() => setFilter('completed')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors shrink-0 ${
               filter === 'completed' ? 'bg-white dark:bg-gyde-canvas-cardDark text-gyde-green shadow-sm' : 'text-slate-500'
             }`}
           >
-            Completed
+            {isArabic ? 'الأرشيف المكتمل' : 'Completed'}
           </button>
         </div>
       </div>
@@ -84,12 +84,14 @@ export const PortalSessions: React.FC = () => {
       {isLoading ? (
         <div className="py-20 text-center">
           <div className="w-8 h-8 border-4 border-gyde-green border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-xs text-slate-500">Loading sessions...</p>
+          <p className="text-xs text-slate-500">{isArabic ? 'جارٍ تحميل الجلسات...' : 'Loading sessions...'}</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center bg-white dark:bg-gyde-canvas-cardDark rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
           <Calendar className="w-8 h-8 text-slate-400 mx-auto" />
-          <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">No sessions found</h3>
+          <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">
+            {isArabic ? 'لا توجد جلسات مطابقة' : 'No sessions found'}
+          </h3>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
@@ -109,7 +111,13 @@ export const PortalSessions: React.FC = () => {
                         : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                     }`}
                   >
-                    {session.status}
+                    {isArabic
+                      ? session.status === 'live'
+                        ? 'مباشر الآن'
+                        : session.status === 'scheduled'
+                        ? 'مجدولة'
+                        : 'منعقدة'
+                      : session.status}
                   </span>
                   <span className="text-xs font-semibold text-gyde-gold">
                     {session.category}
@@ -123,7 +131,7 @@ export const PortalSessions: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{new Date(session.scheduledAt).toLocaleString()} ({session.durationMinutes} mins)</span>
+                  <span>{new Date(session.scheduledAt).toLocaleString()} ({session.durationMinutes} {isArabic ? 'دقيقة' : 'mins'})</span>
                 </div>
               </div>
 
@@ -144,7 +152,7 @@ export const PortalSessions: React.FC = () => {
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <Users className="w-4 h-4 text-gyde-gold" />
-                  <span>{session.presenters?.map((p) => p.name).join(', ') || 'Delegates assigned'}</span>
+                  <span>{session.presenters?.map((p) => p.name).join(', ') || (isArabic ? 'الوفود المعينة' : 'Delegates assigned')}</span>
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
@@ -164,7 +172,7 @@ export const PortalSessions: React.FC = () => {
                     to={`/portal/sessions/${session.id}`}
                     className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-gyde-green"
                   >
-                    View Briefing Dossier
+                    {isArabic ? 'استعراض ملف الجلسة' : 'View Briefing Dossier'}
                   </Link>
 
                   {session.meetingUrl && (session.status === 'scheduled' || session.status === 'live') && (
@@ -175,7 +183,7 @@ export const PortalSessions: React.FC = () => {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gyde-green hover:bg-gyde-green-light text-white text-xs font-bold shadow-sm"
                     >
                       <Video className="w-3.5 h-3.5" />
-                      <span>Join Chamber</span>
+                      <span>{isArabic ? 'دخول القاعة' : 'Join Chamber'}</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
@@ -188,7 +196,7 @@ export const PortalSessions: React.FC = () => {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-slate-800 text-xs font-bold"
                     >
                       <Video className="w-3.5 h-3.5 text-red-500" />
-                      <span>Watch Recording</span>
+                      <span>{isArabic ? 'مشاهدة التسجيل' : 'Watch Recording'}</span>
                     </a>
                   )}
                 </div>

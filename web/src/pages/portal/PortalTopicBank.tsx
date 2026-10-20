@@ -182,7 +182,7 @@ export const PortalTopicBank: React.FC = () => {
           className="topic-bank-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
             gap: '1.5rem',
           }}
         >
@@ -297,7 +297,7 @@ export const PortalTopicBank: React.FC = () => {
                     }}
                   >
                     <span>{isArabic ? 'اقتراح هذا الموضوع' : 'Suggest This Topic'}</span>
-                    <span>&rarr;</span>
+                    <span className="rtl-flip-arrow inline-block">&rarr;</span>
                   </button>
                 </div>
               </div>
