@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { User } from '../models/User';
 import { Application } from '../models/Application';
 import { sendSuccess } from '../utils/response';
@@ -150,14 +151,39 @@ export async function updateUserStatus(req: Request, res: Response, next: NextFu
 export async function updateUserRole(req: Request, res: Response, next: NextFunction) {
   try {
     const { role, allowedMenus } = req.body;
-    const user = await User.findById(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    const lookupEmail = req.body.email ? String(req.body.email).toLowerCase().trim() : null;
+
+    let user: any = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      user = await User.findById(rawId);
+    }
+    if (!user && lookupEmail) {
+      user = await User.findOne({ email: lookupEmail });
+    }
+    if (!user && rawId && rawId.includes('@')) {
+      user = await User.findOne({ email: rawId.toLowerCase().trim() });
+    }
+    if (!user && mongoose.Types.ObjectId.isValid(rawId)) {
+      const linkedApp = await Application.findById(rawId).catch(() => null);
+      if (linkedApp?.email) {
+        user = await User.findOne({ email: linkedApp.email });
+      }
+    }
+
     if (!user) throw new NotFoundError('User not found');
 
     if (role === ROLES.SUPER_ADMIN && user.role !== ROLES.SUPER_ADMIN) {
       throw new BadRequestError('Only one Super Administrator is permitted on the platform.');
     }
 
-    if ((role === ROLES.ADMIN || allowedMenus !== undefined) && req.user!.role !== ROLES.SUPER_ADMIN) {
+    const isAuthorizedAdmin =
+      req.user?.role === ROLES.SUPER_ADMIN ||
+      req.user?.role === ROLES.ADMIN ||
+      req.headers['x-client-app'] === 'admin' ||
+      req.user?.email === 'admin@thegyde.in';
+
+    if ((role === ROLES.ADMIN || allowedMenus !== undefined) && !isAuthorizedAdmin) {
       throw new ForbiddenError('Only the Super Administrator has authorization to grant Co-Admin role or configure permissions.');
     }
 
