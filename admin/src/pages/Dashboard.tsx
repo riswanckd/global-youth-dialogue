@@ -28,7 +28,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { openDeleteTrialModal } = useOutletContext<OutletContextType>() || {};
-  const { t } = useAdminLanguage();
+  const { t, isArabic } = useAdminLanguage();
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -90,7 +90,7 @@ export const Dashboard: React.FC = () => {
       {/* Page Header */}
       <div>
         <h1
-          style={{ fontFamily: "'Sora', sans-serif" }}
+          style={{ fontFamily: isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Sora', sans-serif" }}
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight"
         >
           {t('dash.title', 'Coordinator Workspace')}

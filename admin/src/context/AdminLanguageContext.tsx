@@ -494,7 +494,8 @@ export const AdminLanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem('gyde_lang', language);
     document.documentElement.setAttribute('lang', language);
     document.documentElement.setAttribute('dir', dir);
-  }, [language, dir]);
+    document.body.classList.toggle('rtl-mode', isArabic);
+  }, [language, dir, isArabic]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

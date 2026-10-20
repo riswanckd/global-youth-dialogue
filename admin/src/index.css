@@ -13,56 +13,99 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Authentic & Prestigious Arabic Typography Engine */
-  html[dir="rtl"] body {
-    font-family: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-    letter-spacing: normal !important;
-    line-height: 1.7;
-  }
+}
 
-  html[dir="rtl"] h1,
-  html[dir="rtl"] h2,
-  html[dir="rtl"] h3,
-  html[dir="rtl"] h4,
-  html[dir="rtl"] h5,
-  html[dir="rtl"] h6,
-  html[dir="rtl"] .serif-heading,
-  html[dir="rtl"] .font-serif {
-    font-family: 'Noto Kufi Arabic', sans-serif !important;
-    font-weight: 700;
-    letter-spacing: normal !important;
-    line-height: 1.45 !important;
-  }
+/* ==========================================================================
+   AUTHENTIC & PRESTIGIOUS ARABIC TYPOGRAPHY ENGINE (RTL)
+   Noto Kufi Arabic (Headings, Titles, Nav, Action Buttons, Badges)
+   + IBM Plex Sans Arabic (Body Text, Forms, Inputs, Tables)
+   + Amiri (Scholarly Citations, Mottos, Quotes)
+   ========================================================================== */
 
-  html[dir="rtl"] button,
-  html[dir="rtl"] input,
-  html[dir="rtl"] select,
-  html[dir="rtl"] textarea,
-  html[dir="rtl"] label,
-  html[dir="rtl"] .font-sans {
-    font-family: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
-    letter-spacing: normal !important;
-  }
+html[dir="rtl"],
+html[dir="rtl"] body,
+html[dir="rtl"] #root,
+body.rtl-mode,
+.rtl-mode {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  letter-spacing: normal !important;
+  line-height: 1.7;
+}
 
-  html[dir="rtl"] p,
-  html[dir="rtl"] span,
-  html[dir="rtl"] div,
-  html[dir="rtl"] td,
-  html[dir="rtl"] li {
-    letter-spacing: normal !important;
-  }
+/* Headings, Big Titles, Modals, Card Headers, Stats */
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] .serif-heading,
+html[dir="rtl"] .font-serif,
+html[dir="rtl"] .font-heading,
+body.rtl-mode h1,
+body.rtl-mode h2,
+body.rtl-mode h3,
+body.rtl-mode h4,
+body.rtl-mode h5,
+body.rtl-mode h6 {
+  font-family: 'Noto Kufi Arabic', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: normal !important;
+  line-height: 1.45 !important;
+  text-align: right;
+}
 
-  html[dir="rtl"] .font-mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  }
+/* Form Controls, Inputs, Buttons, Navigation, Badges, Labels */
+html[dir="rtl"] button,
+html[dir="rtl"] input,
+html[dir="rtl"] select,
+html[dir="rtl"] textarea,
+html[dir="rtl"] label,
+html[dir="rtl"] nav,
+html[dir="rtl"] a,
+html[dir="rtl"] .font-sans,
+body.rtl-mode button,
+body.rtl-mode input,
+body.rtl-mode select,
+body.rtl-mode textarea,
+body.rtl-mode nav,
+body.rtl-mode a,
+body.rtl-mode .font-sans {
+  font-family: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  letter-spacing: normal !important;
+}
 
-  /* Scholarly Accents & Quotes */
-  html[dir="rtl"] blockquote,
-  html[dir="rtl"] .academic-citation,
-  html[dir="rtl"] .creed-motto {
-    font-family: 'Amiri', 'Noto Kufi Arabic', serif !important;
-    font-size: 1.08em;
-  }
+/* Content Elements & Table Data */
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] div,
+html[dir="rtl"] td,
+html[dir="rtl"] th,
+html[dir="rtl"] li,
+body.rtl-mode p,
+body.rtl-mode span,
+body.rtl-mode div,
+body.rtl-mode td,
+body.rtl-mode th,
+body.rtl-mode li {
+  letter-spacing: normal !important;
+}
+
+html[dir="rtl"] .font-mono,
+body.rtl-mode .font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+/* Scholarly Mottos, Quotes, Classical Excerpts */
+html[dir="rtl"] blockquote,
+html[dir="rtl"] .academic-citation,
+html[dir="rtl"] .creed-motto,
+html[dir="rtl"] .font-scholarly,
+body.rtl-mode blockquote {
+  font-family: 'Amiri', 'Noto Kufi Arabic', serif !important;
+  font-size: 1.08em;
 }
 
 /* RTL Directional Rules & Micro-Alignments */

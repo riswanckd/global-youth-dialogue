@@ -52,7 +52,7 @@ export const Login: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
+      await login(email.trim().toLowerCase(), password.trim());
       navigate(redirect);
     } catch (err: any) {
       setError(err.message || 'Secretariat authentication failed. Please check your credentials.');
@@ -130,7 +130,7 @@ export const Login: React.FC = () => {
             {/* Title & Subtitle */}
             <div className="space-y-1 pt-1">
               <h1
-                style={{ fontFamily: "'Sora', sans-serif" }}
+                style={{ fontFamily: isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Sora', sans-serif" }}
                 className="text-2xl sm:text-3xl font-extrabold text-black dark:text-white tracking-tight"
               >
                 {t('dash.title', 'Coordinator Workspace')}

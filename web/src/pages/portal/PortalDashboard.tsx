@@ -90,7 +90,7 @@ export const PortalDashboard: React.FC = () => {
       {/* Page Header (Exact Admin Style & Sora Typography) */}
       <div>
         <h1
-          style={{ fontFamily: "'Sora', sans-serif" }}
+          style={{ fontFamily: isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Sora', sans-serif" }}
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight"
         >
           {isPresenter
