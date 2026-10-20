@@ -149,7 +149,7 @@ export const PortalSuggestTopic: React.FC = () => {
         body: JSON.stringify({
           title: finalTitle,
           category: finalCategory,
-          description: reason.trim(),
+          description: reason.trim() || currentBankItem?.description || finalTitle || 'Proposed topic for international youth dialogue.',
           subtopics: subtopicsList,
           subtopic: selectedSubtopic || undefined,
           motion: motion.trim() || undefined,
@@ -395,12 +395,11 @@ export const PortalSuggestTopic: React.FC = () => {
             {/* Academic Context & Why We Should Discuss This */}
             <div className="form-group" style={{ marginBottom: '1rem' }}>
               <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
-                {isArabic ? 'السياق الأكاديمي ولماذا يجب مناقشة هذا الموضوع' : 'Academic Context & Why We Should Discuss This'} <span style={{ color: '#ef4444' }}>*</span>
+                {isArabic ? 'السياق الأكاديمي ولماذا يجب مناقشة هذا الموضوع (اختياري)' : 'Academic Context & Why We Should Discuss This (Optional)'}
               </label>
               <textarea
                 className="form-control"
                 rows={3}
-                required
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Explain the global relevance, timeliness, and cross-border implications..."

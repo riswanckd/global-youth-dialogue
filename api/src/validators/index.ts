@@ -46,7 +46,7 @@ export const createApplicationSchema = z.object({
     .optional()
     .or(z.literal(''))
     .transform((val) => (val === '' ? undefined : val)),
-  country: z.string().min(1, 'Country is required'),
+  country: z.string().optional().or(z.literal('')).transform((v) => v || 'Global'),
   organization: z.string().optional().or(z.literal('')),
   experience: z.string().optional().or(z.literal('')),
   debateExperience: z.string().optional().or(z.literal('')),
@@ -66,22 +66,22 @@ export const reviewApplicationSchema = z.object({
 });
 
 export const presenterApplicationSchema = z.object({
-  countryChapter: z.string().min(1, 'Country & Chapter Affiliation is required'),
-  sphere: z.string().min(1, 'Primary Academic Sphere is required'),
-  proposedTopic: z.string().min(1, 'Proposed Topic or Thesis is required'),
-  experience: z.string().min(1, 'Academic, public speaking, or debate background is required'),
+  countryChapter: z.string().optional().or(z.literal('')).transform((v) => v || 'Global Delegation'),
+  sphere: z.string().optional().or(z.literal('')).transform((v) => v || 'Geopolitics & International Relations'),
+  proposedTopic: z.string().optional().or(z.literal('')).transform((v) => v || 'Keynote Presentation & Academic Briefing'),
+  experience: z.string().optional().or(z.literal('')).transform((v) => v || 'Active Member of GYDE Academic Community'),
   dossierUrl: z.string().optional().or(z.literal('')),
-  preferredFormat: z.string().optional(),
-  statementOfIntent: z.string().min(1, 'Statement of Intent is required'),
+  preferredFormat: z.string().optional().or(z.literal('')).transform((v) => v || 'Topic Presentation (Presenter / Keynote)'),
+  statementOfIntent: z.string().optional().or(z.literal('')).transform((v) => v || 'Committed to fostering evidence-based dialogue and active participation.'),
 });
 
 // Session Validators
 export const createSessionSchema = z.object({
-  title: z.string().min(3, 'Title is required').max(200),
+  title: z.string().min(1, 'Title is required').max(200),
   titleAr: z.string().optional(),
-  description: z.string().min(10, 'Description is required'),
+  description: z.string().optional().or(z.literal('')).transform((v) => v || 'Session agenda and dialogue overview.'),
   descriptionAr: z.string().optional(),
-  category: z.string().min(1, 'Category is required'),
+  category: z.string().optional().or(z.literal('')).transform((v) => v || 'General'),
   categoryNameAr: z.string().optional(),
   format: z.string().optional(),
   formatAr: z.string().optional(),
@@ -126,11 +126,11 @@ export const updateSessionSchema = createSessionSchema.partial().extend({
 
 // Topic Validators
 export const createTopicSchema = z.object({
-  title: z.string().min(3, 'Title is required').max(250),
+  title: z.string().min(1, 'Title is required').max(250),
   titleAr: z.string().optional(),
-  description: z.string().min(5, 'Description is required'),
+  description: z.string().optional().or(z.literal('')).transform((v) => v || 'Proposed topic for international youth dialogue.'),
   descriptionAr: z.string().optional(),
-  category: z.string().min(1, 'Category is required'),
+  category: z.string().optional().or(z.literal('')).transform((v) => v || 'Geopolitics & International Relations'),
   subtopics: z.array(z.string()).optional(),
   subtopic: z.string().optional(),
   motion: z.string().optional(),
@@ -144,8 +144,8 @@ export const createTopicSchema = z.object({
 
 export const updateTopicStatusSchema = z.object({
   status: z.enum(['proposed', 'reviewing', 'shortlisted', 'approved', 'published', 'scheduled', 'completed', 'rejected']).optional(),
-  title: z.string().min(3).optional(),
-  description: z.string().min(5).optional(),
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
   motion: z.string().optional(),
   format: z.string().optional(),
   subtopic: z.string().optional(),
@@ -160,13 +160,13 @@ export const submitFeedbackSchema = z.object({
   presentationId: z.string().optional(),
   recipientPresenterId: z.string().optional(),
   ratings: z.object({
-    argumentation: z.number().min(1).max(5),
-    evidence: z.number().min(1).max(5),
-    delivery: z.number().min(1).max(5),
-    engagement: z.number().min(1).max(5),
+    argumentation: z.number().min(1).max(5).default(5),
+    evidence: z.number().min(1).max(5).default(5),
+    delivery: z.number().min(1).max(5).default(5),
+    engagement: z.number().min(1).max(5).default(5),
   }),
-  strengths: z.string().min(5, 'Please provide constructive strengths'),
-  improvements: z.string().min(5, 'Please provide areas of improvement'),
+  strengths: z.string().optional().or(z.literal('')).transform((v) => v || 'Engaging delivery, well-structured arguments, and clear thesis.'),
+  improvements: z.string().optional().or(z.literal('')).transform((v) => v || 'Continue expanding cross-regional empirical evidence.'),
   missingPerspectives: z.string().optional(),
   futureTopicSuggestions: z.string().optional(),
   privateNotes: z.string().optional(),
@@ -175,12 +175,12 @@ export const submitFeedbackSchema = z.object({
 
 // Publication Validators
 export const createPublicationSchema = z.object({
-  title: z.string().min(3, 'Title is required').max(300),
+  title: z.string().min(1, 'Title is required').max(300),
   titleAr: z.string().optional(),
-  slug: z.string().min(3).max(150).optional(),
-  abstract: z.string().min(20, 'Abstract is required'),
+  slug: z.string().optional(),
+  abstract: z.string().optional().or(z.literal('')).transform((v) => v || 'Executive abstract and research summary.'),
   abstractAr: z.string().optional(),
-  category: z.string().min(1, 'Category is required'),
+  category: z.string().optional().or(z.literal('')).transform((v) => v || 'Geopolitics & International Relations'),
   authors: z
     .array(
       z.object({

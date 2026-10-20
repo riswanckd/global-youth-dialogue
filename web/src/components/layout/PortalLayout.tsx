@@ -285,13 +285,10 @@ export const PortalLayout: React.FC = () => {
         {/* SIDEBAR: DESKTOP COLUMN & FULL-HEIGHT MOBILE DRAWER */}
         <aside
           className={`
-            fixed top-16 bottom-0 left-0 rtl:left-auto rtl:right-0 z-40 lg:static lg:top-auto lg:bottom-auto lg:z-10
-            h-[calc(100dvh-64px)] lg:h-full w-[290px] max-w-[85vw] lg:w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
-            flex flex-col justify-between py-4 px-3 shrink-0 transition-all duration-200 select-none shadow-2xl lg:shadow-none
-            ${mobileMenuOpen
-              ? 'translate-x-0 opacity-100 pointer-events-auto'
-              : '-translate-x-full rtl:translate-x-full opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto lg:translate-x-0 rtl:lg:translate-x-0'
-            }
+            ${mobileMenuOpen ? 'flex fixed top-16 bottom-0 left-0 rtl:left-auto rtl:right-0 z-40 w-[280px] max-w-[85vw] shadow-2xl' : 'hidden'}
+            lg:flex lg:static lg:top-auto lg:bottom-auto lg:z-10 lg:w-64 lg:shadow-none
+            h-[calc(100dvh-64px)] lg:h-full bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
+            flex-col justify-between py-4 px-3 shrink-0 select-none
           `}
         >
           {/* Upper Sidebar: Mobile Header + Profile Card + Mode Switcher + Menu */}

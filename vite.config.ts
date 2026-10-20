@@ -10,10 +10,10 @@ export default defineConfig({
     {
       name: 'sync-dist-dirs',
       closeBundle() {
-        const src = path.resolve(__dirname, 'web/dist');
-        const dest = path.resolve(__dirname, 'dist');
-        if (fs.existsSync(src)) {
-          fs.cpSync(src, dest, { recursive: true });
+        const distRoot = path.resolve(__dirname, 'dist');
+        const webDist = path.resolve(__dirname, 'web/dist');
+        if (fs.existsSync(distRoot)) {
+          fs.cpSync(distRoot, webDist, { recursive: true });
         }
       },
     },
@@ -24,7 +24,7 @@ export default defineConfig({
     postcss: path.resolve(__dirname, 'web'),
   },
   build: {
-    outDir: path.resolve(__dirname, 'web/dist'),
+    outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
   },
   server: {

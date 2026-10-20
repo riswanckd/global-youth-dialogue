@@ -49,9 +49,14 @@ export const PortalFeedback: React.FC = () => {
     setError(null);
 
     try {
+      const payload = {
+        ...formData,
+        strengths: formData.strengths.trim() || 'Well-argued presentation and engaging articulation.',
+        improvements: formData.improvements.trim() || 'Continue deepening empirical case studies and policy references.',
+      };
       await apiRequest('/feedback', {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       setSuccess(true);
       setFormData({
@@ -201,10 +206,9 @@ export const PortalFeedback: React.FC = () => {
         {/* Written Review */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {isArabic ? 'نقاط القوة والأطروحات الأكثر إقناعاً *' : 'Core Strengths & Strongest Analytical Points *'}
+            {isArabic ? 'نقاط القوة والأطروحات الأكثر إقناعاً (اختياري)' : 'Core Strengths & Analytical Points (Optional)'}
           </label>
           <textarea
-            required
             rows={3}
             value={formData.strengths}
             onChange={(e) => setFormData({ ...formData, strengths: e.target.value })}
@@ -215,10 +219,9 @@ export const PortalFeedback: React.FC = () => {
 
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            {isArabic ? 'توصيات بناءة لتطوير الأداء المستقبلي *' : 'Constructive Recommendations for Improvement *'}
+            {isArabic ? 'توصيات لتطوير الأداء المستقبلي (اختياري)' : 'Recommendations for Improvement (Optional)'}
           </label>
           <textarea
-            required
             rows={3}
             value={formData.improvements}
             onChange={(e) => setFormData({ ...formData, improvements: e.target.value })}

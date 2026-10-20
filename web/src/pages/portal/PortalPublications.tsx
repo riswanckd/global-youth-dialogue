@@ -81,10 +81,10 @@ export const PortalPublications: React.FC = () => {
       apiRequest('/publications', {
         method: 'POST',
         body: JSON.stringify({
-          title: newPaper.title,
-          category: newPaper.category,
-          abstract: newPaper.abstract,
-          content: newPaper.content,
+          title: newPaper.title.trim() || 'Untitled Academic Research',
+          category: newPaper.category || SPHERES[0],
+          abstract: newPaper.abstract.trim() || 'Executive abstract and research summary.',
+          content: newPaper.content.trim() || undefined,
           status: 'under_review',
           authors: [
             {
@@ -354,7 +354,6 @@ export const PortalPublications: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  required
                   placeholder={
                     isArabic
                       ? 'مثال: سيادة البيانات والذكاء الاصطناعي في الجنوب العالمي'
@@ -368,7 +367,7 @@ export const PortalPublications: React.FC = () => {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  {isArabic ? 'المجال الأكاديمي / التخصص *' : 'Academic Sphere / Category *'}
+                  {isArabic ? 'المجال الأكاديمي / التخصص' : 'Academic Sphere / Category'}
                 </label>
                 <select
                   value={formData.category}
@@ -385,10 +384,9 @@ export const PortalPublications: React.FC = () => {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  {isArabic ? 'الملخص الأكاديمي التنفيذي *' : 'Abstract / Executive Summary *'}
+                  {isArabic ? 'الملخص الأكاديمي التنفيذي (اختياري)' : 'Abstract / Executive Summary (Optional)'}
                 </label>
                 <textarea
-                  required
                   rows={3}
                   placeholder={
                     isArabic

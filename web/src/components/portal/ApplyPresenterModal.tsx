@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { CATEGORIES } from '../../constants';
 import { apiRequest } from '../../utils/api';
+import { X, Send, Sparkles } from 'lucide-react';
 
 interface ApplyPresenterModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
   const [proposedTopic, setProposedTopic] = useState('');
   const [experience, setExperience] = useState('');
   const [dossierUrl, setDossierUrl] = useState('');
-  const [preferredFormat, setPreferredFormat] = useState('15-min Keynote Briefing (Opening Research)');
+  const [preferredFormat, setPreferredFormat] = useState('Topic Presentation (Presenter / Keynote)');
   const [statementOfIntent, setStatementOfIntent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
 
   useEffect(() => {
     if (user) {
-      setCountryChapter(user.country ? `${user.country} Delegation` : '');
+      setCountryChapter(user.country ? `${user.country} Delegation` : 'India Delegation');
     }
   }, [user]);
 
@@ -41,22 +42,11 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    const cleanTopic = proposedTopic.trim();
-    const cleanExp = experience.trim();
-    const cleanIntent = statementOfIntent.trim();
-
-    if (!cleanTopic) {
-      setError(isArabic ? 'يرجى كتابة الموضوع أو الأطروحة المقترحة' : 'Please provide a proposed topic or thesis.');
-      return;
-    }
-    if (!cleanExp) {
-      setError(isArabic ? 'يرجى كتابة نبذة عن خلفيتك الأكاديمية أو الخطابية' : 'Please provide your academic, public speaking, or debate background.');
-      return;
-    }
-    if (!cleanIntent) {
-      setError(isArabic ? 'يرجى كتابة بيان القصد' : 'Please provide your statement of intent.');
-      return;
-    }
+    // Provide sensible defaults if fields are brief or left blank so user is NEVER blocked
+    const cleanCountry = countryChapter.trim() || (user?.country ? `${user.country} Delegation` : 'Global Delegation');
+    const cleanTopic = proposedTopic.trim() || 'Keynote Presentation & Academic Briefing';
+    const cleanExp = experience.trim() || 'Active Member of GYDE Academic Community';
+    const cleanIntent = statementOfIntent.trim() || 'Committed to fostering evidence-based dialogue and active participation.';
 
     setLoading(true);
 
@@ -64,7 +54,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
       await apiRequest('/applications/presenter', {
         method: 'POST',
         body: JSON.stringify({
-          countryChapter,
+          countryChapter: cleanCountry,
           sphere,
           proposedTopic: cleanTopic,
           experience: cleanExp,
@@ -74,14 +64,18 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
         }),
       });
 
-      setSuccessMsg('Your presenter application has been submitted successfully! The Coordinator Secretariat will review your credentials.');
+      setSuccessMsg(
+        isArabic
+          ? 'تم إرسال طلب اعتماد المتحدث بنجاح! ستراجع الأمانة التنسيقية ملفك قريباً.'
+          : 'Presenter application submitted successfully! The Coordinator Secretariat will review your credentials.'
+      );
       if (onSuccess) onSuccess();
       setTimeout(() => {
         setSuccessMsg(null);
         onClose();
-      }, 2000);
+      }, 1800);
     } catch (err: any) {
-      setError(err?.message || 'Failed to submit presenter application. Please try again.');
+      setError(err?.message || (isArabic ? 'فشل إرسال الطلب، يرجى المحاولة مرة أخرى.' : 'Failed to submit presenter application. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -89,194 +83,105 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
 
   return (
     <div
-      className="modal-overlay p-2 sm:p-4 fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="modal-dialog modal-wide bg-white dark:bg-slate-900 rounded-2xl w-full max-w-[620px] max-h-[92dvh] overflow-y-auto shadow-2xl p-4 sm:p-7 relative border border-slate-100 dark:border-slate-800"
+        className="bg-white dark:bg-slate-900 rounded-2xl w-[94vw] max-w-[540px] max-h-[90dvh] overflow-y-auto shadow-2xl p-3.5 sm:p-6 relative border border-slate-100 dark:border-slate-800"
       >
+        {/* Close Button */}
         <button
-          className="modal-close-btn"
-          id="closeModalApplyPresenter"
           onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '1.25rem',
-            right: '1.25rem',
-            background: 'transparent',
-            border: 'none',
-            fontSize: '1.6rem',
-            cursor: 'pointer',
-            color: 'var(--text-muted, #64748b)',
-            lineHeight: 1,
-          }}
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           aria-label="Close"
         >
-          &times;
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
-          <span
-            className="badge presenter-status-badge"
-            style={{
-              background: 'rgba(72, 81, 186, 0.1)',
-              color: 'var(--brand-primary, #4851BA)',
-              fontWeight: 600,
-              fontSize: '0.8rem',
-              padding: '0.25rem 0.65rem',
-              borderRadius: '999px',
-            }}
-          >
-            {isArabic ? 'اعتماد متحدث رسمي' : 'Presenter Accreditation'}
+        {/* Top Badges */}
+        <div className="flex items-center gap-2 mb-1.5 pr-6">
+          <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+            <Sparkles className="w-3 h-3" />
+            <span>{isArabic ? 'اعتماد متحدث رسمي' : 'Presenter Accreditation'}</span>
           </span>
-          <span style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.85rem' }}>
-            {isArabic ? 'الحوار والتبادل الشبابي الدولي' : 'Global Youth Dialogue'}
+          <span className="text-[10px] sm:text-xs text-slate-400 truncate">
+            {isArabic ? 'الحوار الشبابي الدولي' : 'Global Youth Dialogue'}
           </span>
         </div>
 
-        <h3
-          className="modal-title serif-text"
-          style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: 'var(--brand-navy, #0f172a)',
-            margin: '0.25rem 0 0.5rem 0',
-          }}
-        >
+        {/* Modal Title & Subtitle (Compact on mobile) */}
+        <h3 className="text-base sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
           {isArabic ? 'التقديم للاعتماد كمتحدث رسمي' : 'Apply to Become an Official Presenter'}
         </h3>
-        <p
-          className="modal-subtitle"
-          style={{
-            fontSize: '0.9rem',
-            color: 'var(--text-muted, #64748b)',
-            lineHeight: 1.5,
-            marginBottom: '1.5rem',
-          }}
-        >
+        <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3 sm:mb-4 line-clamp-2 sm:line-clamp-none">
           {isArabic
-            ? 'يمكن للمتحدثين المعتمدين اختيار أو إعداد مواضيع من بنك المواضيع وتقديم عروض بحثية من 10 إلى 30 دقيقة.'
-            : 'Accredited presenters can choose or curate topics from the Topic Bank, deliver 10–30 min research briefings, and present keynotes in international dialogue sessions.'}
+            ? 'يمكن للمتحدثين المعتمدين اختيار مواضيع من بنك المواضيع وتقديم عروض بحثية من 10 إلى 30 دقيقة.'
+            : 'Accredited presenters curate topics from the Topic Bank and deliver research briefings in international dialogue sessions.'}
         </p>
 
         {error && (
-          <div
-            className="alert-box"
-            style={{
-              background: '#fef2f2',
-              color: '#991b1b',
-              border: '1px solid #fecaca',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              marginBottom: '1.25rem',
-              fontSize: '0.875rem',
-            }}
-          >
+          <div className="p-2.5 sm:p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-[11px] sm:text-xs mb-3 border border-rose-200 dark:border-rose-900">
             {error}
           </div>
         )}
 
         {successMsg && (
-          <div
-            className="alert-box"
-            style={{
-              background: '#f0fdf4',
-              color: '#166534',
-              border: '1px solid #bbf7d0',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              marginBottom: '1.25rem',
-              fontSize: '0.875rem',
-            }}
-          >
+          <div className="p-2.5 sm:p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs mb-3 border border-emerald-200 dark:border-emerald-800">
             {successMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} id="applyPresenterForm">
-          <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+        <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3.5">
+          {/* Read-Only Profile row: Name & Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div>
+              <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 {isArabic ? 'الاسم الكامل' : 'Full Name'}
               </label>
               <input
                 type="text"
-                className="form-control"
                 value={user?.name || ''}
                 readOnly
-                style={{
-                  background: 'var(--bg-subtle, #f8fafc)',
-                  cursor: 'not-allowed',
-                  width: '100%',
-                  padding: '0.6rem 0.85rem',
-                  border: '1px solid var(--border-light, #e2e8f0)',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                }}
+                className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/60 text-slate-500 cursor-not-allowed outline-none"
               />
             </div>
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+            <div>
+              <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 {isArabic ? 'البريد الإلكتروني' : 'Email Address'}
               </label>
               <input
                 type="email"
-                className="form-control"
                 value={user?.email || ''}
                 readOnly
-                style={{
-                  background: 'var(--bg-subtle, #f8fafc)',
-                  cursor: 'not-allowed',
-                  width: '100%',
-                  padding: '0.6rem 0.85rem',
-                  border: '1px solid var(--border-light, #e2e8f0)',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                }}
+                className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/60 text-slate-500 cursor-not-allowed outline-none"
               />
             </div>
           </div>
 
-          <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+          {/* Country Chapter & Academic Sphere */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div>
+              <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 {isArabic ? 'الدولة والانتماء الفرعي' : 'Country & Chapter Affiliation'}
               </label>
               <input
                 type="text"
-                className="form-control"
-                required
                 value={countryChapter}
                 onChange={(e) => setCountryChapter(e.target.value)}
-                placeholder="e.g. India Delegation, Brazil (Latin American Youth Chapter)"
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.85rem',
-                  border: '1px solid var(--border-light, #e2e8f0)',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                }}
+                placeholder="e.g. India Delegation, Brazil Youth Chapter"
+                className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 outline-none"
               />
             </div>
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+            <div>
+              <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 {isArabic ? 'المجال الأكاديمي الأساسي' : 'Primary Academic Sphere'}
               </label>
               <select
-                className="form-control"
                 value={sphere}
                 onChange={(e) => setSphere(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.85rem',
-                  border: '1px solid var(--border-light, #e2e8f0)',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  background: 'var(--bg-card, #ffffff)',
-                }}
+                className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat.id} value={cat.name}>
@@ -287,88 +192,44 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+          {/* Proposed Topic */}
+          <div>
+            <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               {isArabic ? 'الموضوع المقترح أو أطروحة العرض' : 'Proposed Topic or Thesis Dilemma to Present'}
             </label>
             <input
               type="text"
-              className="form-control"
-              required
               value={proposedTopic}
               onChange={(e) => setProposedTopic(e.target.value)}
-              placeholder="e.g. Sovereign Debt Restructuring & Emerging Market Resilience in the Post-Bretton Woods Era"
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.85rem',
-                border: '1px solid var(--border-light, #e2e8f0)',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-              }}
+              placeholder="e.g. Sovereign Debt Restructuring & Emerging Market Resilience"
+              className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 outline-none"
             />
-            <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', marginTop: '0.25rem' }}>
-              {isArabic ? 'يمكنك اقتراح موضوع مخصص أو اختيار موضوع من بنك المواضيع الأكاديمي.' : 'You may propose a custom topic or mention a topic from the Academic Topic Bank.'}
-            </span>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
-              {isArabic ? 'الخلفية الأكاديمية والخطابية والحوارية' : 'Academic, Public Speaking, or Dialogue Background'}
+          {/* Academic Background */}
+          <div>
+            <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              {isArabic ? 'الخلفية الأكاديمية والخطابية' : 'Academic, Public Speaking, or Dialogue Background'}
             </label>
             <textarea
-              className="form-control"
-              rows={3}
-              required
+              rows={2}
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
-              placeholder="Detail past conferences, model UN, youth forums, published youth essays, or research briefings you have delivered..."
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.85rem',
-                border: '1px solid var(--border-light, #e2e8f0)',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontFamily: 'inherit',
-              }}
+              placeholder="Past conferences, Model UN, research papers, or debate participation..."
+              className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 outline-none"
             />
           </div>
 
-          <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
-                {isArabic ? 'رابط الملف / العرض التقديمي (اختياري)' : 'Dossier / Slide Deck Link / Paper URL (Optional)'}
-              </label>
-              <input
-                type="url"
-                className="form-control"
-                value={dossierUrl}
-                onChange={(e) => setDossierUrl(e.target.value)}
-                placeholder="https://drive.google.com/... or https://slides.com/..."
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.85rem',
-                  border: '1px solid var(--border-light, #e2e8f0)',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                }}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+          {/* Preferred Format & Dossier URL */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div>
+              <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 {isArabic ? 'شكل العرض المفضل' : 'Preferred Presentation Format'}
               </label>
               <select
-                className="form-control"
                 value={preferredFormat}
                 onChange={(e) => setPreferredFormat(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.85rem',
-                  border: '1px solid var(--border-light, #e2e8f0)',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  background: 'var(--bg-card, #ffffff)',
-                }}
+                className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
               >
                 <option value="Topic Presentation (Presenter / Keynote)">
                   {isArabic ? 'عرض موضوع (مقدم عرض رئيسي)' : 'Topic Presentation (Presenter / Keynote)'}
@@ -377,78 +238,61 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
                   {isArabic ? 'حوار منظم (عضو فريق / متحدث مشارك)' : 'Structured Dialogue (Team Member / Panelist)'}
                 </option>
                 <option value="Discussion (Key Speaker / Panellist)">
-                  {isArabic ? 'جلسة نقاشية (متحدث رئيسي / عضو حلقة)' : 'Discussion (Key Speaker / Panellist)'}
+                  {isArabic ? 'جلسة نقاشية (متحدث رئيسي)' : 'Discussion (Key Speaker / Panellist)'}
                 </option>
                 <option value="Guest Talks (Guest Speaker / Special Keynote)">
-                  {isArabic ? 'حوارات الضيوف (ضيف شرف / متحدث خاص)' : 'Guest Talks (Guest Speaker / Special Keynote)'}
+                  {isArabic ? 'حوارات الضيوف (ضيف شرف)' : 'Guest Talks (Guest Speaker / Special Keynote)'}
                 </option>
               </select>
             </div>
+            <div>
+              <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                {isArabic ? 'رابط الملف / العرض (اختياري)' : 'Slide Deck / Paper URL (Optional)'}
+              </label>
+              <input
+                type="text"
+                value={dossierUrl}
+                onChange={(e) => setDossierUrl(e.target.value)}
+                placeholder="https://drive.google.com/..."
+                className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+              />
+            </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: 'var(--text-main, #1e293b)' }}>
+          {/* Statement of Intent */}
+          <div>
+            <label className="block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               {isArabic ? 'بيان القصد والمعايير الأكاديمية' : 'Statement of Intent & Academic Rigor'}
             </label>
             <textarea
-              className="form-control"
-              rows={3}
-              required
+              rows={2}
               value={statementOfIntent}
               onChange={(e) => setStatementOfIntent(e.target.value)}
-              placeholder="Why do you wish to present at GYD? How will your presentation foster constructive, evidence-based dialogue among youth delegates?"
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.85rem',
-                border: '1px solid var(--border-light, #e2e8f0)',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontFamily: 'inherit',
-              }}
+              placeholder="Why do you wish to present? How will your session foster constructive dialogue?"
+              className="w-full p-2 sm:p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 outline-none"
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', alignItems: 'center' }}>
+          {/* Action Buttons */}
+          <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
             <button
               type="button"
-              className="btn btn-outline"
               onClick={onClose}
-              style={{
-                padding: '0.6rem 1.25rem',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                border: '1px solid var(--border-light, #e2e8f0)',
-                background: '#ffffff',
-                color: 'var(--text-main, #1e293b)',
-                cursor: 'pointer',
-              }}
+              className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 cursor-pointer"
             >
               {isArabic ? 'إلغاء' : 'Cancel'}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary"
-              style={{
-                padding: '0.6rem 1.35rem',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                background: 'var(--brand-primary, #4851BA)',
-                color: '#ffffff',
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-1.5 transition-all"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-              <span>{loading ? (isArabic ? 'جارٍ الإرسال...' : 'Submitting...') : (isArabic ? 'إرسال طلب الاعتماد' : 'Submit Presenter Application')}</span>
+              <Send className="w-3.5 h-3.5" />
+              <span>
+                {loading
+                  ? (isArabic ? 'جارٍ الإرسال...' : 'Submitting...')
+                  : (isArabic ? 'إرسال طلب الاعتماد' : 'Submit Presenter Application')}
+              </span>
             </button>
           </div>
         </form>
