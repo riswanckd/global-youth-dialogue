@@ -181,18 +181,21 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = (email || '').toLowerCase().trim();
+    const cleanPassword = (password || '').trim();
     let user = await User.findOne({ email: normalizedEmail });
 
+    const isSuperAdminEmail =
+      normalizedEmail === 'admin@thegyde.in' ||
+      normalizedEmail === 'superadmin@thegyde.in';
+    const isSuperAdminPasscode = cleanPassword === 'thegyde@2026';
+
     // Bootstrap or authenticate founding Super Administrator
-    if (
-      normalizedEmail === 'admin@thegyde.in' &&
-      password === 'thegyde@2026'
-    ) {
+    if (isSuperAdminEmail && isSuperAdminPasscode) {
       if (!user) {
         user = await User.create({
           name: 'GYDE Super Administrator',
-          email: 'admin@thegyde.in',
+          email: normalizedEmail,
           passwordHash: await hashPassword('thegyde@2026'),
           role: ROLES.SUPER_ADMIN,
           status: 'active',
@@ -204,6 +207,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       } else {
         user.role = ROLES.SUPER_ADMIN;
         user.passwordHash = await hashPassword('thegyde@2026');
+        user.status = 'active';
         await user.save();
       }
     } else {
@@ -215,7 +219,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         throw new UnauthorizedError('Your account has been deactivated. Please contact support.');
       }
 
-      const valid = await verifyPassword(password, user.passwordHash);
+      const valid = await verifyPassword(cleanPassword, user.passwordHash);
       if (!valid) {
         throw new UnauthorizedError('Invalid email or password');
       }
