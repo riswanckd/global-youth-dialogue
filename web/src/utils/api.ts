@@ -94,7 +94,7 @@ export async function apiRequest<T = any>(
     data = null;
   }
 
-  if (response.status === 401) {
+  if (response.status === 401 && !endpoint.includes('/auth/me')) {
     removeStoredToken();
   }
 

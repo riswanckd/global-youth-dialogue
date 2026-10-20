@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
-import { apiRequest, setStoredToken, removeStoredToken } from '../utils/api';
+import { apiRequest, getStoredToken, setStoredToken, removeStoredToken } from '../utils/api';
 
 interface AuthContextType {
   user: User | null;
@@ -17,50 +17,59 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const USER_SESSION_KEY = 'gyde_user_session';
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const cached = localStorage.getItem(USER_SESSION_KEY);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch {}
+    return null;
+  });
   const [loading, setLoading] = useState<boolean>(true);
 
   const refreshUser = async () => {
-    try {
-      const res = await apiRequest<{ user: User }>('/auth/me');
-      setUser(res.user);
-    } catch {
-      const stored = localStorage.getItem('gyde_token');
-      if (stored === 'demo_member_jwt_token') {
-        const demoMember: User = {
-          id: 'demo-member-kofi',
-          name: 'Kofi Mensah',
-          email: 'debater.demo@thegyde.in',
-          role: 'member',
-          status: 'active',
-          emailVerified: true,
-          country: 'Ghana',
-          organization: 'University of Ghana Youth Forum',
-          bio: 'Youth fellow and academic researcher, Qatar ISDC7 participant.',
-          createdAt: new Date().toISOString(),
-        };
-        setUser(demoMember);
-        return;
-      }
-      if (stored === 'demo_presenter_jwt_token') {
-        const demoPresenter: User = {
-          id: 'demo-presenter-layla',
-          name: 'Dr. Layla Al-Mansouri',
-          email: 'presenter@thegyde.in',
-          role: 'PRESENTER',
-          status: 'active',
-          emailVerified: true,
-          country: 'Qatar',
-          organization: 'Georgetown University Qatar / ISDC7',
-          bio: 'Keynote Orator & International Dialogue Fellow.',
-          createdAt: new Date().toISOString(),
-        };
-        setUser(demoPresenter);
-        return;
-      }
-      removeStoredToken();
+    const token = getStoredToken();
+    const cachedSession = localStorage.getItem(USER_SESSION_KEY);
+
+    // If no token and no cached session at all, definitely not authenticated
+    if (!token && !cachedSession) {
       setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    // Immediately restore cached session so page refresh NEVER resets or flickers
+    if (cachedSession) {
+      try {
+        const parsed = JSON.parse(cachedSession);
+        if (parsed && parsed.id) {
+          setUser(parsed);
+        }
+      } catch {}
+    }
+
+    try {
+      // If we have a live real token, refresh user data from API
+      if (token && !token.startsWith('demo_') && !token.startsWith('gyde_super_admin')) {
+        const res = await apiRequest<{ user: User }>('/auth/me');
+        if (res?.user) {
+          setUser(res.user);
+          localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
+          return;
+        }
+      }
+    } catch (err: any) {
+      // Only clear if the server explicitly invalidated a real authenticated user token
+      if (err?.statusCode === 401 && token && !token.startsWith('demo_') && !token.startsWith('gyde_super_admin')) {
+        removeStoredToken();
+        localStorage.removeItem(USER_SESSION_KEY);
+        setUser(null);
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -80,7 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.token) {
         setStoredToken(res.token);
       }
-      setUser(res.user);
+      if (res.user) {
+        setUser(res.user);
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
+      }
     } catch (err: any) {
       const cleanEmail = (email || '').trim().toLowerCase();
       if (cleanEmail === 'admin@thegyde.in' || cleanEmail === 'superadmin@thegyde.in') {
@@ -99,6 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           setStoredToken('gyde_super_admin_jwt_token');
           setUser(superAdminUser);
+          localStorage.setItem(USER_SESSION_KEY, JSON.stringify(superAdminUser));
           return;
         }
       }
@@ -123,6 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         setStoredToken('demo_member_jwt_token');
         setUser(demoMember);
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(demoMember));
         return;
       }
       if (
@@ -144,6 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         setStoredToken('demo_presenter_jwt_token');
         setUser(demoPresenter);
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(demoPresenter));
         return;
       }
       throw err;
@@ -158,14 +173,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (res.token) {
       setStoredToken(res.token);
     }
-    setUser(res.user);
+    if (res.user) {
+      setUser(res.user);
+      localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
+    }
   };
 
   const logout = async () => {
     try {
-      await apiRequest('/auth/logout', { method: 'POST' });
+      await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
     } finally {
       removeStoredToken();
+      localStorage.removeItem(USER_SESSION_KEY);
       setUser(null);
     }
   };
