@@ -112,57 +112,57 @@ export const PortalDashboard: React.FC = () => {
                 : 'Verified Academic Fellow & Floor Delegate (Global Youth Dialogue Framework)')}
         </p>
 
-        {/* Action Buttons: 2x2 grid on mobile, row on desktop (Exact Admin Style) */}
+        {/* Action Buttons: 2x2 grid on mobile, row on desktop (Borderless, light tinted pills) */}
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-2.5 mt-3.5">
           {/* Notifications button */}
           <button
             onClick={() => navigate('/portal/dashboard?notifications=open')}
-            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer"
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
             <Bell className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <span className="truncate">{isArabic ? 'الإشعارات' : 'Notifications'}</span>
           </button>
 
-          {/* + Suggest / Propose Topic (indigo pill) */}
+          {/* + Suggest / Propose Topic (Light indigo tint, no stroke) */}
           <button
             onClick={() => navigate('/portal/suggest-topic')}
-            className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
+            className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-indigo-50/90 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
-            <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+            <Lightbulb className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span className="truncate">{isArabic ? 'اقتراح موضوع' : 'Suggest a Topic'}</span>
           </button>
 
-          {/* Action pill: Request to be Presenter (for standard members) vs Switch to Presenter Dashboard (for users with presenter access) vs Floor Speaking Schedule (when in presenter mode) */}
+          {/* Action pill: Request to be Presenter / Switch to Presenter Dashboard / Floor Speaking Schedule */}
           {!hasPresenterAccess ? (
             <button
               onClick={handleOpenPresenterModal}
-              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-xs transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-emerald-50/90 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
-              <Mic className="w-3.5 h-3.5 shrink-0" />
+              <Mic className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">{isArabic ? 'طلب الاعتماد كمتحدث' : 'Request to be Presenter'}</span>
             </button>
           ) : !isPresenter ? (
             <button
               onClick={() => toggleDashboardMode ? toggleDashboardMode('presenter') : navigate('/portal')}
-              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-emerald-50/90 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
-              <Mic className="w-3.5 h-3.5 shrink-0" />
+              <Mic className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">{isArabic ? 'التبديل إلى لوحة المتحدث' : 'Switch to Presenter Dashboard'}</span>
             </button>
           ) : (
             <button
               onClick={() => navigate('/portal/sessions')}
-              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-800 dark:hover:bg-white shadow-xs transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-violet-50/90 hover:bg-violet-100 dark:bg-violet-950/60 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
-              <Mic className="w-3.5 h-3.5 shrink-0" />
+              <Mic className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
               <span className="truncate">{isArabic ? 'جدول الكلمات الرسمية' : 'Floor Speaking Schedule'}</span>
             </button>
           )}
 
-          {/* Delegate Dossier (outline pill) */}
+          {/* Delegate Dossier (Light neutral tint pill, no stroke) */}
           <button
             onClick={() => navigate('/portal/profile')}
-            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-xs transition-all"
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
             <Shield className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <span className="truncate">{isArabic ? 'ملف التفويض' : 'Delegate Dossier'}</span>
