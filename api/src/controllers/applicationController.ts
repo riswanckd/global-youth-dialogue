@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { Application } from '../models/Application';
 import { User } from '../models/User';
 import { sendSuccess } from '../utils/response';
@@ -173,19 +174,43 @@ export async function getApplicationById(req: Request, res: Response, next: Next
 
 export async function reviewApplication(req: Request, res: Response, next: NextFunction) {
   try {
-    const { status, reviewNotes, assignRole } = req.body;
-    const application = await Application.findById(req.params.id);
+    const rawStatus = (req.body.status || '').toLowerCase();
+    const status = rawStatus === 'declined' ? 'rejected' : rawStatus;
+    const { reviewNotes, assignRole, isApprovedPresenter } = req.body;
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    const lookupEmail = req.body.email ? String(req.body.email).toLowerCase().trim() : null;
+
+    let application: any = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      application = await Application.findById(rawId);
+    }
+    if (!application && lookupEmail) {
+      application = await Application.findOne({ email: lookupEmail });
+    }
+    if (!application && rawId && rawId.includes('@')) {
+      application = await Application.findOne({ email: rawId.toLowerCase().trim() });
+    }
+    if (!application && (lookupEmail || rawId)) {
+      application = await Application.findOne({
+        $or: [
+          { email: lookupEmail || rawId },
+          { applicantName: req.body.applicantName || '' },
+        ],
+      });
+    }
 
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
     application.status = status;
-    application.reviewNotes = reviewNotes || application.reviewNotes;
-    application.reviewedBy = req.user!._id as any;
+    application.reviewNotes = reviewNotes !== undefined ? reviewNotes : application.reviewNotes;
+    if (req.user?._id) {
+      application.reviewedBy = req.user._id as any;
+    }
     application.reviewedAt = new Date();
 
-    if (assignRole === ROLES.PRESENTER) {
+    if (assignRole === ROLES.PRESENTER || isApprovedPresenter === true) {
       application.isApprovedPresenter = true;
     }
 

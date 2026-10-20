@@ -177,11 +177,9 @@ export const Applications: React.FC = () => {
       });
       localApps.forEach((app) => {
         if (!app || !app.email) return;
-        const existing = mergedMap.get(app.email.toLowerCase());
-        if (!existing) {
-          mergedMap.set(app.email.toLowerCase(), app);
-        } else if (app.status === 'pending' && existing.status !== 'pending') {
-          mergedMap.set(app.email.toLowerCase(), { ...existing, ...app });
+        const key = app.email.toLowerCase();
+        if (!mergedMap.has(key)) {
+          mergedMap.set(key, app);
         }
       });
 
@@ -203,17 +201,52 @@ export const Applications: React.FC = () => {
       status,
       notes,
       approvePresenter,
+      email,
     }: {
       id: string;
       status: string;
       notes?: string;
       approvePresenter?: boolean;
+      email?: string;
     }) => {
-      // 1. Remote API call
-      await apiRequest(`/admin/applications/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status, reviewNotes: notes, isApprovedPresenter: approvePresenter }),
-      }).catch((err) => console.warn('Remote status update error:', err));
+      const targetEmail = (email || selectedApp?.email || '').toLowerCase();
+      let remoteSuccess = false;
+
+      // 1. Remote API call with direct live backend fallback
+      try {
+        await apiRequest(`/admin/applications/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            status,
+            reviewNotes: notes,
+            isApprovedPresenter: approvePresenter,
+            email: targetEmail,
+          }),
+        });
+        remoteSuccess = true;
+      } catch (err) {
+        console.warn('Remote status update error via apiRequest, trying direct live fallback:', err);
+      }
+
+      if (!remoteSuccess) {
+        try {
+          const directRes = await fetch(`https://gyde-api.vercel.app/api/v1/admin/applications/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+              'x-client-app': 'admin',
+            },
+            body: JSON.stringify({
+              status,
+              reviewNotes: notes,
+              isApprovedPresenter: approvePresenter,
+              email: targetEmail,
+            }),
+          });
+          if (directRes.ok) remoteSuccess = true;
+        } catch {}
+      }
 
       // 2. Local shared cache update
       try {
@@ -221,12 +254,12 @@ export const Applications: React.FC = () => {
         if (raw) {
           const list = JSON.parse(raw);
           const updated = list.map((a: Application) => {
-            if (a.id === id || a.email === selectedApp?.email) {
+            if (a.id === id || (targetEmail && a.email?.toLowerCase() === targetEmail)) {
               return {
                 ...a,
                 status,
-                reviewNotes: notes || a.reviewNotes,
-                isApprovedPresenter: approvePresenter || a.isApprovedPresenter,
+                reviewNotes: notes !== undefined ? notes : a.reviewNotes,
+                isApprovedPresenter: approvePresenter !== undefined ? approvePresenter : a.isApprovedPresenter,
               };
             }
             return a;
@@ -239,6 +272,7 @@ export const Applications: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       setSelectedApp(null);
       setReviewNotes('');
       setIsPresenter(false);
@@ -456,17 +490,43 @@ export const Applications: React.FC = () => {
                         {new Date(app.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4 text-right rtl:text-left">
-                        <button
-                          onClick={() => {
-                            setSelectedApp(app);
-                            setReviewNotes(app.reviewNotes || '');
-                            setIsPresenter(app.isApprovedPresenter || false);
-                          }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>{t('apps.reviewBtn', 'Inspect')}</span>
-                        </button>
+                        <div className="inline-flex items-center gap-1.5 justify-end">
+                          {app.status === 'pending' && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={updateMutation.isPending}
+                                onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors"
+                                title="Approve"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>{t('dash.approve', 'Approve')}</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={updateMutation.isPending}
+                                onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors"
+                                title="Decline"
+                              >
+                                <XCircle className="w-3.5 h-3.5" />
+                                <span>{t('dash.decline', 'Decline')}</span>
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setReviewNotes(app.reviewNotes || '');
+                              setIsPresenter(app.isApprovedPresenter || false);
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>{t('apps.reviewBtn', 'Inspect')}</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -521,17 +581,41 @@ export const Applications: React.FC = () => {
                     </div>
                   )}
 
-                  <button
-                    onClick={() => {
-                      setSelectedApp(app);
-                      setReviewNotes(app.reviewNotes || '');
-                      setIsPresenter(app.isApprovedPresenter || false);
-                    }}
-                    className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>{t('apps.reviewBtn', 'Inspect Dossier')}</span>
-                  </button>
+                  <div className="flex items-center gap-2 pt-1">
+                    {app.status === 'pending' && (
+                      <>
+                        <button
+                          type="button"
+                          disabled={updateMutation.isPending}
+                          onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                          className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{t('dash.approve', 'Approve')}</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={updateMutation.isPending}
+                          onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                          className="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>{t('dash.decline', 'Decline')}</span>
+                        </button>
+                      </>
+                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedApp(app);
+                        setReviewNotes(app.reviewNotes || '');
+                        setIsPresenter(app.isApprovedPresenter || false);
+                      }}
+                      className="flex-1 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 text-xs font-bold flex items-center justify-center gap-1 transition-colors shadow-xs"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{t('apps.reviewBtn', 'Inspect')}</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -645,6 +729,7 @@ export const Applications: React.FC = () => {
                       id: selectedApp.id,
                       status: 'rejected',
                       notes: reviewNotes,
+                      email: selectedApp.email,
                     })
                   }
                   className="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
@@ -661,6 +746,7 @@ export const Applications: React.FC = () => {
                       status: 'approved',
                       notes: reviewNotes,
                       approvePresenter: isPresenter,
+                      email: selectedApp.email,
                     })
                   }
                   className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"

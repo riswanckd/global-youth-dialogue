@@ -57,10 +57,12 @@ export const createApplicationSchema = z.object({
 });
 
 export const reviewApplicationSchema = z.object({
-  status: z.enum(['pending', 'under_review', 'approved', 'rejected']),
-  reviewNotes: z.string().optional(),
+  status: z.enum(['pending', 'under_review', 'approved', 'rejected', 'declined']),
+  reviewNotes: z.string().optional().or(z.literal('')),
   assignRole: z.enum([ROLES.MEMBER, ROLES.PRESENTER, ROLES.COORDINATOR]).optional(),
   isApprovedPresenter: z.boolean().optional(),
+  email: z.string().optional(),
+  applicantName: z.string().optional(),
 });
 
 export const presenterApplicationSchema = z.object({
