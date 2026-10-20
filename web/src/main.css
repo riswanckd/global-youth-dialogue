@@ -4487,18 +4487,18 @@ body.rtl-mode .toast-container {
   background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: 0 16px 36px -8px rgba(14, 43, 61, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   padding: 2.75rem 2.5rem;
   position: relative;
   transition: var(--transition-normal);
 }
 
 .auth-card-member {
-  border-top: 4px solid var(--brand-green);
+  border-top: 1px solid var(--border-light);
 }
 
 .auth-card-admin {
-  border-top: 4px solid var(--brand-navy);
+  border-top: 1px solid var(--border-light);
 }
 
 .auth-card-top-badge {
@@ -9195,6 +9195,9 @@ html, body {
     max-width: 100% !important;
     padding: 1.5rem 1.15rem !important;
     box-sizing: border-box !important;
+    border: 1px solid var(--border-light) !important;
+    border-top: 1px solid var(--border-light) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   }
   .role-segmented-switcher {
     width: 100% !important;
