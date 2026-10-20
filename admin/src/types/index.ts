@@ -112,11 +112,13 @@ export interface Publication {
     name: string;
     country: string;
     role?: string;
+    affiliation?: string;
   }>;
   sections?: Array<{
     title: string;
     content: string;
   }>;
+  content?: string;
   category: string;
   status: 'draft' | 'under_review' | 'published' | 'archived';
   visibility: 'public' | 'members_only';
