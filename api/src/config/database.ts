@@ -32,6 +32,7 @@ export async function connectDatabase(): Promise<typeof mongoose> {
     }
 
     const opts: mongoose.ConnectOptions = {
+      dbName: 'gyde',
       serverSelectionTimeoutMS: 10000,
       connectTimeoutMS: 10000,
       socketTimeoutMS: 45000,
