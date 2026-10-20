@@ -191,20 +191,6 @@ export const Login: React.FC = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <div className="flex items-center justify-between pt-1 px-1 text-[11px] text-slate-500 dark:text-slate-400">
-                <span>Passcode: <code className="font-mono text-[#4950BA] dark:text-[#A159AF] font-bold">thegyde@2026</code></span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('admin@thegyde.in');
-                    setPassword('thegyde@2026');
-                    setShowPassword(true);
-                  }}
-                  className="text-[11px] text-[#4950BA] dark:text-[#A159AF] font-semibold hover:underline cursor-pointer"
-                >
-                  Use Default Passcode
-                </button>
-              </div>
             </div>
 
             <button
