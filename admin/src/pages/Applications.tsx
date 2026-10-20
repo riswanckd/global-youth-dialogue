@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   AlertCircle,
   UserCheck,
+  RotateCw,
   X
 } from 'lucide-react';
 
@@ -36,24 +37,76 @@ export const Applications: React.FC = () => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [queryClient]);
 
-  const { data: applications = [], isLoading } = useQuery<Application[]>({
+  const { data: applications = [], isLoading, refetch, isFetching } = useQuery<Application[]>({
     queryKey: ['admin-applications', statusFilter],
+    refetchInterval: 5000, // Synchronize incoming applications every 5 seconds
     queryFn: async () => {
       let remoteApps: Application[] = [];
+
+      // 1. Primary Query: /admin/applications with limit=100
       try {
         const res = await apiRequest<any>(
-          `/admin/applications${statusFilter !== 'all' ? `?status=${statusFilter}` : ''}`
+          `/admin/applications?limit=100${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`
         );
+        let items: any[] = [];
         if (Array.isArray(res)) {
-          remoteApps = res;
+          items = res;
         } else if (res && Array.isArray(res.data)) {
-          remoteApps = res.data;
+          items = res.data;
         }
+        items.forEach((item: any) => {
+          if (item && item.email) {
+            remoteApps.push({
+              id: item.id || item._id?.toString() || `app-${Date.now()}`,
+              applicantName: item.applicantName || item.name || 'Applicant',
+              email: item.email,
+              country: item.country || 'Global',
+              flag: item.flag || 'INT',
+              organization: item.organization || '',
+              experience: item.experience || item.debateExperience || '',
+              motivation: item.motivation || '',
+              areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+              preferredLanguages: item.preferredLanguages || ['English'],
+              status: (item.status || 'pending').toLowerCase() as any,
+              emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+              createdAt: item.createdAt || item.date || new Date().toISOString(),
+            });
+          }
+        });
       } catch (err) {
         console.warn('Could not query /admin/applications:', err);
       }
 
-      // Query Vercel Serverless Function /api/applications
+      // 2. Fallback Query: /applications if /admin/applications had zero results
+      if (remoteApps.length === 0) {
+        try {
+          const res2 = await apiRequest<any>('/applications?limit=100');
+          let items2: any[] = [];
+          if (Array.isArray(res2)) items2 = res2;
+          else if (res2 && Array.isArray(res2.data)) items2 = res2.data;
+          items2.forEach((item: any) => {
+            if (item && item.email) {
+              remoteApps.push({
+                id: item.id || item._id?.toString() || `app-${Date.now()}`,
+                applicantName: item.applicantName || item.name || 'Applicant',
+                email: item.email,
+                country: item.country || 'Global',
+                flag: item.flag || 'INT',
+                organization: item.organization || '',
+                experience: item.experience || item.debateExperience || '',
+                motivation: item.motivation || '',
+                areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+                preferredLanguages: item.preferredLanguages || ['English'],
+                status: (item.status || 'pending').toLowerCase() as any,
+                emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                createdAt: item.createdAt || item.date || new Date().toISOString(),
+              });
+            }
+          });
+        } catch {}
+      }
+
+      // 3. Query Vercel Serverless Function /api/applications (if running on same domain)
       try {
         const sRes = await fetch('/api/applications');
         if (sRes.ok) {
@@ -62,7 +115,7 @@ export const Applications: React.FC = () => {
             sData.forEach((item: any) => {
               if (item && item.email) {
                 remoteApps.push({
-                  id: item.id || `app-${Date.now()}`,
+                  id: item.id || item._id?.toString() || `app-${Date.now()}`,
                   applicantName: item.applicantName || item.name || 'Applicant',
                   email: item.email,
                   country: item.country || 'Global',
@@ -82,14 +135,28 @@ export const Applications: React.FC = () => {
         }
       } catch {}
 
-      // Check local shared applications cache (inter-connected across web & admin)
+      // 4. Check local shared applications cache (inter-connected across web & admin)
       let localApps: Application[] = [];
       try {
         const cached = localStorage.getItem('gyde_cached_applications');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed)) {
-            localApps = parsed;
+            localApps = parsed.map((item: any) => ({
+              id: item.id || item._id?.toString() || `app-${Date.now()}`,
+              applicantName: item.applicantName || item.name || 'Applicant',
+              email: item.email,
+              country: item.country || 'Global',
+              flag: item.flag || 'INT',
+              organization: item.organization || '',
+              experience: item.experience || item.debateExperience || '',
+              motivation: item.motivation || '',
+              areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+              preferredLanguages: item.preferredLanguages || ['English'],
+              status: (item.status || 'pending').toLowerCase() as any,
+              emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+              createdAt: item.createdAt || item.date || new Date().toISOString(),
+            }));
           }
         }
       } catch {}
@@ -115,7 +182,7 @@ export const Applications: React.FC = () => {
       } catch {}
 
       if (statusFilter !== 'all') {
-        return all.filter((a) => a.status === statusFilter);
+        return all.filter((a) => (a.status || '').toLowerCase() === statusFilter.toLowerCase());
       }
       return all;
     },
@@ -178,9 +245,9 @@ export const Applications: React.FC = () => {
     return name.includes(q) || email.includes(q) || country.includes(q);
   });
 
-  const pendingCount = applications.filter((a) => a.status === 'pending').length;
-  const underReviewCount = applications.filter((a) => a.status === 'under_review').length;
-  const approvedCount = applications.filter((a) => a.status === 'approved').length;
+  const pendingCount = applications.filter((a) => (a.status || '').toLowerCase() === 'pending').length;
+  const underReviewCount = applications.filter((a) => (a.status || '').toLowerCase() === 'under_review').length;
+  const approvedCount = applications.filter((a) => (a.status || '').toLowerCase() === 'approved').length;
 
   return (
     <div className="space-y-6">
@@ -195,6 +262,16 @@ export const Applications: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm transition-all"
+            title="Sync applications from live database"
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-indigo-600' : ''}`} />
+            <span>{isFetching ? 'Syncing...' : 'Sync Live'}</span>
+          </button>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
             {t('apps.totalDossiers', 'Total Dossiers')}: {applications.length}
           </span>

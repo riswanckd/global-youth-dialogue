@@ -18,6 +18,7 @@ import {
   FileText,
   MessageSquareQuote,
   Volume2,
+  RotateCw,
 } from 'lucide-react';
 
 interface OutletContextType {
@@ -44,28 +45,66 @@ export const Dashboard: React.FC = () => {
   });
 
   // Fetch pending applications with multi-source synchronization (MongoDB + Serverless + Local Cache)
-  const { data: applications = [] } = useQuery<Application[]>({
+  const { data: applications = [], refetch: refetchApps, isFetching: isFetchingApps } = useQuery<Application[]>({
     queryKey: ['admin-applications', 'pending'],
+    refetchInterval: 5000, // Synchronize pending applications every 5 seconds
     queryFn: async () => {
       let remoteApps: Application[] = [];
       try {
-        const res = await apiRequest<any>('/admin/applications?status=pending');
+        const res = await apiRequest<any>('/admin/applications?status=pending&limit=100');
+        let items: any[] = [];
         if (Array.isArray(res)) {
-          remoteApps = res;
+          items = res;
         } else if (res && Array.isArray(res.data)) {
-          remoteApps = res.data;
+          items = res.data;
         }
+        items.forEach((item: any) => {
+          if (item && item.email) {
+            remoteApps.push({
+              id: item.id || item._id?.toString() || `app-${Date.now()}`,
+              applicantName: item.applicantName || item.name || 'Applicant',
+              email: item.email,
+              country: item.country || 'Global',
+              flag: item.flag || 'INT',
+              organization: item.organization || '',
+              experience: item.experience || item.debateExperience || '',
+              motivation: item.motivation || '',
+              areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+              preferredLanguages: item.preferredLanguages || ['English'],
+              status: (item.status || 'pending').toLowerCase() as any,
+              emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+              createdAt: item.createdAt || item.date || new Date().toISOString(),
+            });
+          }
+        });
       } catch {}
 
       // Fallback: Query /applications
       if (remoteApps.length === 0) {
         try {
-          const res2 = await apiRequest<any>('/applications');
-          if (Array.isArray(res2)) {
-            remoteApps = res2;
-          } else if (res2 && Array.isArray(res2.data)) {
-            remoteApps = res2.data;
-          }
+          const res2 = await apiRequest<any>('/applications?limit=100');
+          let items2: any[] = [];
+          if (Array.isArray(res2)) items2 = res2;
+          else if (res2 && Array.isArray(res2.data)) items2 = res2.data;
+          items2.forEach((item: any) => {
+            if (item && item.email) {
+              remoteApps.push({
+                id: item.id || item._id?.toString() || `app-${Date.now()}`,
+                applicantName: item.applicantName || item.name || 'Applicant',
+                email: item.email,
+                country: item.country || 'Global',
+                flag: item.flag || 'INT',
+                organization: item.organization || '',
+                experience: item.experience || item.debateExperience || '',
+                motivation: item.motivation || '',
+                areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+                preferredLanguages: item.preferredLanguages || ['English'],
+                status: (item.status || 'pending').toLowerCase() as any,
+                emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                createdAt: item.createdAt || item.date || new Date().toISOString(),
+              });
+            }
+          });
         } catch {}
       }
 
@@ -78,7 +117,7 @@ export const Dashboard: React.FC = () => {
             sData.forEach((item: any) => {
               if (item && item.email) {
                 remoteApps.push({
-                  id: item.id || `app-${Date.now()}`,
+                  id: item.id || item._id?.toString() || `app-${Date.now()}`,
                   applicantName: item.applicantName || item.name || 'Applicant',
                   email: item.email,
                   country: item.country || 'Global',
@@ -104,7 +143,23 @@ export const Dashboard: React.FC = () => {
         const cached = localStorage.getItem('gyde_cached_applications');
         if (cached) {
           const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed)) localApps = parsed;
+          if (Array.isArray(parsed)) {
+            localApps = parsed.map((item: any) => ({
+              id: item.id || item._id?.toString() || `app-${Date.now()}`,
+              applicantName: item.applicantName || item.name || 'Applicant',
+              email: item.email,
+              country: item.country || 'Global',
+              flag: item.flag || 'INT',
+              organization: item.organization || '',
+              experience: item.experience || item.debateExperience || '',
+              motivation: item.motivation || '',
+              areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+              preferredLanguages: item.preferredLanguages || ['English'],
+              status: (item.status || 'pending').toLowerCase() as any,
+              emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+              createdAt: item.createdAt || item.date || new Date().toISOString(),
+            }));
+          }
         }
       } catch {}
 
@@ -123,7 +178,7 @@ export const Dashboard: React.FC = () => {
       });
 
       return Array.from(mergedMap.values()).filter(
-        (a) => a.status === 'pending' || (a.status as any) === 'Pending'
+        (a) => (a.status || '').toLowerCase() === 'pending'
       );
     },
   });
@@ -289,12 +344,24 @@ export const Dashboard: React.FC = () => {
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
               {t('dash.pendingHeader', 'Pending Membership Applications')}
             </h2>
-            <Link
-              to="/applications"
-              className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
-            >
-              {t('dash.manageAll', 'Manage All')}
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => refetchApps()}
+                disabled={isFetchingApps}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-all flex items-center gap-1 shadow-xs"
+                title="Sync pending applications"
+              >
+                <RotateCw className={`w-3 h-3 ${isFetchingApps ? 'animate-spin text-indigo-600' : ''}`} />
+                <span>{isFetchingApps ? 'Syncing...' : 'Sync'}</span>
+              </button>
+              <Link
+                to="/applications"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+              >
+                {t('dash.manageAll', 'Manage All')}
+              </Link>
+            </div>
           </div>
 
           <div className="space-y-3 pt-1">

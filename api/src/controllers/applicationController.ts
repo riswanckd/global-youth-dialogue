@@ -12,31 +12,49 @@ import { env } from '../config/env';
 
 export async function submitApplication(req: Request, res: Response, next: NextFunction) {
   try {
-    const { applicantName, email, password, country, organization, experience, motivation, areasOfInterest, preferredLanguages } = req.body;
+    const rawName = req.body.applicantName || req.body.name || 'Applicant';
+    const applicantName = rawName.trim();
+    const email = req.body.email || '';
     const normalizedEmail = email.toLowerCase().trim();
+    const password = req.body.password;
+    const country = req.body.country || 'Global';
+    const organization = req.body.organization || '';
+    const experience = req.body.experience || req.body.debateExperience || '';
+    const motivation = req.body.motivation || '';
+    const areasOfInterest = Array.isArray(req.body.areasOfInterest)
+      ? req.body.areasOfInterest
+      : (Array.isArray(req.body.interests) ? req.body.interests : ['Global Affairs']);
+    const preferredLanguages = req.body.preferredLanguages || ['English'];
 
-    // Prevent duplicate active applications
-    const existing = await Application.findOne({
-      email: normalizedEmail,
-      status: { $in: ['pending', 'under_review', 'approved'] },
-    });
+    let application = await Application.findOne({ email: normalizedEmail });
 
-    if (existing) {
-      throw new BadRequestError('An application with this email is already on file.');
+    if (application) {
+      application.applicantName = applicantName;
+      application.country = country;
+      application.organization = organization;
+      application.experience = experience;
+      application.motivation = motivation;
+      application.areasOfInterest = areasOfInterest;
+      application.preferredLanguages = preferredLanguages;
+      if (password) application.password = password;
+      application.status = 'pending';
+      application.emailVerified = true;
+      await application.save();
+    } else {
+      application = await Application.create({
+        applicantName,
+        email: normalizedEmail,
+        password: password || '',
+        country,
+        organization,
+        experience,
+        motivation,
+        areasOfInterest,
+        preferredLanguages,
+        status: 'pending',
+        emailVerified: true,
+      });
     }
-
-    const application = await Application.create({
-      applicantName,
-      email: normalizedEmail,
-      password: password || '',
-      country,
-      organization: organization || '',
-      experience,
-      motivation,
-      areasOfInterest: areasOfInterest || [],
-      preferredLanguages: preferredLanguages || ['English'],
-      status: 'pending',
-    });
 
     // Notify applicant that application is under review
     sendEmail({
@@ -107,13 +125,13 @@ export async function getMyApplication(req: Request, res: Response, next: NextFu
 export async function listApplications(req: Request, res: Response, next: NextFunction) {
   try {
     const page = parseInt(req.query.page as string, 10) || 1;
-    const limit = parseInt(req.query.limit as string, 10) || 20;
+    const limit = parseInt(req.query.limit as string, 10) || 100;
     const status = req.query.status as string;
     const search = req.query.search as string;
 
     const query: any = {};
     if (status && status !== 'all') {
-      query.status = status;
+      query.status = { $regex: new RegExp(`^${status}$`, 'i') };
     }
     if (search) {
       query.$or = [

@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // 30 requests per window
+  max: 100, // 100 requests per window
   message: {
     success: false,
     error: 'Too many authentication attempts. Please try again after 15 minutes.',
@@ -13,7 +13,7 @@ export const authRateLimiter = rateLimit({
 
 export const otpRateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5, // 5 OTP dispatches per window
+  max: 100, // 100 OTP dispatches per window for development/testing
   message: {
     success: false,
     error: 'Too many verification code requests. Please wait before requesting another OTP.',

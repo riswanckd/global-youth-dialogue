@@ -37,7 +37,8 @@ export const resetPasswordSchema = z.object({
 
 // Application Validators
 export const createApplicationSchema = z.object({
-  applicantName: z.string().min(2, 'Name is required').max(100),
+  applicantName: z.string().optional(),
+  name: z.string().optional(),
   email: z.string().email('Valid email address is required').toLowerCase().trim(),
   password: z
     .string()
@@ -48,8 +49,10 @@ export const createApplicationSchema = z.object({
   country: z.string().min(1, 'Country is required'),
   organization: z.string().optional().or(z.literal('')),
   experience: z.string().optional().or(z.literal('')),
+  debateExperience: z.string().optional().or(z.literal('')),
   motivation: z.string().optional().or(z.literal('')),
-  areasOfInterest: z.array(z.string()).min(1, 'Select at least one area of interest'),
+  areasOfInterest: z.array(z.string()).optional(),
+  interests: z.array(z.string()).optional(),
   preferredLanguages: z.array(z.string()).optional(),
 });
 
