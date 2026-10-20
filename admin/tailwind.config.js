@@ -2,6 +2,11 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: ['class', '[data-theme="dark"]'],
+  safelist: [
+    '-translate-x-full',
+    'translate-x-full',
+    'translate-x-0',
+  ],
   theme: {
     extend: {
       colors: {

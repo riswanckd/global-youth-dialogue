@@ -49,6 +49,11 @@ export const AdminLayout: React.FC = () => {
     }
   }, [location]);
 
+  // Ensure mobile drawer is always closed on initial load and route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   useEffect(() => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
                    document.documentElement.classList.contains('dark');
@@ -152,7 +157,7 @@ export const AdminLayout: React.FC = () => {
       )}
 
       {/* TOP NAVBAR */}
-      <header className="shrink-0 z-30 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <header className="shrink-0 z-50 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: Brand Logo & Mobile Trigger */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -246,7 +251,7 @@ export const AdminLayout: React.FC = () => {
         {mobileMenuOpen && (
           <div
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs lg:hidden transition-opacity"
+            className="fixed inset-0 top-16 lg:hidden z-30 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-200"
             aria-hidden="true"
           />
         )}
@@ -254,37 +259,25 @@ export const AdminLayout: React.FC = () => {
         {/* SIDEBAR DESKTOP & FULL-HEIGHT MOBILE DRAWER */}
         <aside
           className={`
-            fixed inset-y-0 left-0 rtl:left-auto rtl:right-0 z-50 lg:static lg:z-10
-            h-full w-[290px] max-w-[85vw] lg:w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
-            flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200 select-none shadow-2xl lg:shadow-none
-            ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
+            fixed top-16 bottom-0 left-0 rtl:left-auto rtl:right-0 z-40 lg:static lg:top-auto lg:bottom-auto lg:z-10
+            h-[calc(100dvh-64px)] lg:h-full w-[290px] max-w-[85vw] lg:w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
+            flex flex-col justify-between py-4 px-3 shrink-0 transition-all duration-200 select-none shadow-2xl lg:shadow-none
+            ${mobileMenuOpen
+              ? 'translate-x-0 opacity-100 pointer-events-auto'
+              : '-translate-x-full rtl:translate-x-full opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto lg:translate-x-0 rtl:lg:translate-x-0'
+            }
           `}
         >
           {/* Upper Sidebar: Drawer Top Bar + Profile Card + Menu */}
           <div className="flex flex-col flex-1 overflow-y-auto space-y-3 overscroll-contain no-scrollbar">
             {/* Mobile Drawer Top Bar with Close Button */}
             <div className="lg:hidden flex items-center justify-between pb-2 px-1 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <img
-                  src="/assets/images/gyde_official_logo.svg"
-                  alt="GYDE Official Logo"
-                  className="h-7 w-auto object-contain dark:hidden"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo.png';
-                  }}
-                />
-                <img
-                  src="/assets/images/gyde_official_logo_dark.svg"
-                  alt="GYDE Official Logo"
-                  className="h-7 w-auto object-contain hidden dark:block"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo_dark.png';
-                  }}
-                />
-              </div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                {isArabic ? 'لوحة التحكم الإدارية' : 'Admin Navigation'}
+              </span>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 aria-label="Close Navigation"
               >
                 <X className="w-5 h-5" />

@@ -10,6 +10,11 @@ export default {
   corePlugins: {
     preflight: false,
   },
+  safelist: [
+    '-translate-x-full',
+    'translate-x-full',
+    'translate-x-0',
+  ],
   theme: {
     extend: {
       colors: {
