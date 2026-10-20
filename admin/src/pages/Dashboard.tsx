@@ -103,8 +103,8 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-2.5 mt-3.5">
           {/* Notifications button */}
           <button
-            onClick={() => navigate('/notifications')}
-            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs"
+            onClick={() => navigate('/dashboard?notifications=open')}
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer"
           >
             <Bell className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <span className="truncate">{t('dash.notificationsBtn', 'Notifications')}</span>

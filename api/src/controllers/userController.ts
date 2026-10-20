@@ -35,25 +35,34 @@ export async function listUsers(req: Request, res: Response, next: NextFunction)
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // If staff, merge experience and motivation from Application if not on User
-    const sanitized = await Promise.all(
-      users.map(async (u) => {
-        const obj = u.toJSON();
-        if (!isStaff) {
-          delete (obj as any).email;
-        } else {
-          try {
-            const app = await Application.findOne({ email: u.email.toLowerCase() }).sort({ createdAt: -1 });
-            if (app) {
-              obj.experience = obj.experience || app.experience;
-              obj.motivation = obj.motivation || app.motivation;
-              obj.interests = (obj.interests && obj.interests.length > 0) ? obj.interests : app.areasOfInterest;
-            }
-          } catch {}
+    // If staff, merge application details (experience, motivation, areasOfInterest)
+    let appMap = new Map();
+    if (isStaff) {
+      const userEmails = users.map((u) => u.email.toLowerCase());
+      const applications = await Application.find({ email: { $in: userEmails } }).lean();
+      appMap = new Map(applications.map((a: any) => [a.email.toLowerCase(), a]));
+    }
+
+    // Sanitize and enrich user records
+    const sanitized = users.map((u) => {
+      const obj = u.toJSON();
+      if (isStaff) {
+        const app = appMap.get(u.email.toLowerCase());
+        if (app) {
+          if (!obj.experience) obj.experience = app.experience;
+          if (!obj.motivation) obj.motivation = app.motivation;
+          if (!obj.areasOfInterest || obj.areasOfInterest.length === 0) {
+            obj.areasOfInterest = app.areasOfInterest || obj.interests || [];
+          }
         }
-        return obj;
-      })
-    );
+        if (!obj.areasOfInterest && obj.interests) {
+          obj.areasOfInterest = obj.interests;
+        }
+      } else {
+        delete (obj as any).email;
+      }
+      return obj;
+    });
 
     return sendSuccess(res, sanitized, undefined, 200, {
       page,
@@ -70,16 +79,7 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
   try {
     const user = await User.findById(req.params.id);
     if (!user) throw new NotFoundError('User not found');
-    const userObj = user.toJSON();
-    try {
-      const app = await Application.findOne({ email: user.email.toLowerCase() }).sort({ createdAt: -1 });
-      if (app) {
-        userObj.experience = userObj.experience || app.experience;
-        userObj.motivation = userObj.motivation || app.motivation;
-        userObj.interests = (userObj.interests && userObj.interests.length > 0) ? userObj.interests : app.areasOfInterest;
-      }
-    } catch {}
-    return sendSuccess(res, userObj);
+    return sendSuccess(res, user);
   } catch (err) {
     next(err);
   }
@@ -152,6 +152,14 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
     const { role, allowedMenus } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) throw new NotFoundError('User not found');
+
+    if (role === ROLES.SUPER_ADMIN && user.role !== ROLES.SUPER_ADMIN) {
+      throw new BadRequestError('Only one Super Administrator is permitted on the platform.');
+    }
+
+    if ((role === ROLES.ADMIN || allowedMenus !== undefined) && req.user!.role !== ROLES.SUPER_ADMIN) {
+      throw new ForbiddenError('Only the Super Administrator has authorization to grant Co-Admin role or configure permissions.');
+    }
 
     if (user.role === ROLES.SUPER_ADMIN && role && role !== ROLES.SUPER_ADMIN) {
       const superAdminCount = await User.countDocuments({ role: ROLES.SUPER_ADMIN });

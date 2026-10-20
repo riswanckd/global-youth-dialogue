@@ -54,7 +54,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         try {
           const loginRes = await apiRequest<{ user: User; token?: string }>('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ email: 'admin@thegyde.in', password: 'gyde2026' }),
+            body: JSON.stringify({ email: 'admin@thegyde.in', password: 'thegyde@2026' }),
           });
           if (loginRes.token) {
             setStoredAdminToken(loginRes.token);
@@ -105,7 +105,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: 'admin@thegyde.in', password: 'gyde2026' }),
+        body: JSON.stringify({ email: 'admin@thegyde.in', password: 'thegyde@2026' }),
       });
       if (res.token) {
         setStoredAdminToken(res.token);
@@ -141,10 +141,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
     } catch (err: any) {
       // Fallback for default coordinator credentials
-      if (
-        (email === 'admin@thegyde.in' && (password === 'gyde2026' || !password)) ||
-        (email === '3681mubashircp@gmail.com' && (password === '368136' || !password))
-      ) {
+      if (email === 'admin@thegyde.in' && (password === 'thegyde@2026' || !password)) {
         await instantCoordinatorLogin();
         return;
       }

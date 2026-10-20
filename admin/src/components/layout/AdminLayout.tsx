@@ -14,7 +14,6 @@ import {
   FileCheck,
   MessageSquareQuote,
   UserCheck,
-  Award,
   Globe,
   Share2,
   User,
@@ -41,6 +40,14 @@ export const AdminLayout: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteSuccessToast, setDeleteSuccessToast] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsRead, setNotificationsRead] = useState(false);
+
+  useEffect(() => {
+    if (location.search.includes('notifications=open') || location.pathname === '/notifications') {
+      setNotificationsOpen(true);
+    }
+  }, [location]);
 
   useEffect(() => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
@@ -96,46 +103,6 @@ export const AdminLayout: React.FC = () => {
     }
   };
 
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 'n1',
-      title: 'Pending Delegate Dossiers',
-      message: '4 international delegate credentials awaiting accreditation review.',
-      time: '10m ago',
-      path: '/applications',
-      unread: true,
-      category: 'applications',
-    },
-    {
-      id: 'n2',
-      title: 'Academic Writing Submissions',
-      message: 'New academic work submitted by presenter for review and publishing.',
-      time: '45m ago',
-      path: '/publications',
-      unread: true,
-      category: 'publications',
-    },
-    {
-      id: 'n3',
-      title: 'Topic Bank Motions',
-      message: 'New research themes and motions proposed for deliberation.',
-      time: '2h ago',
-      path: '/topics',
-      unread: true,
-      category: 'topics',
-    },
-    {
-      id: 'n4',
-      title: 'Session Management',
-      message: 'Dialogue session scheduled and chambers active for delegates.',
-      time: '4h ago',
-      path: '/sessions',
-      unread: true,
-      category: 'sessions',
-    },
-  ]);
-
   const navItems = [
     { id: 'dashboard', label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
     { id: 'users', label: t('menu.community', 'The Community'), path: '/users', icon: Users },
@@ -169,25 +136,11 @@ export const AdminLayout: React.FC = () => {
   );
   const isCurrentRouteAuthorized = !currentActiveItem || isMenuAuthorized(currentActiveItem.id);
 
-  const displayName = user?.name || (isSuperAdmin ? 'GYDE Super Administrator' : t('nav.defaultName', 'Mubashir CP'));
+  const displayName = user?.name || 'GYDE Super Administrator';
   const displayRole = user?.role
     ? translateRole(user.role)
-    : (isSuperAdmin ? 'Super Administrator' : t('nav.defaultRole', 'Founding Coordinator (India)'));
+    : 'Super Administrator';
   const avatarLetter = (displayName[0] || 'A').toUpperCase();
-
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-  };
-
-  const handleNotificationClick = (path: string, id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
-    );
-    setNotificationsOpen(false);
-    navigate(path);
-  };
 
   return (
     <div className="h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans overflow-hidden">
@@ -251,94 +204,17 @@ export const AdminLayout: React.FC = () => {
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
 
-            {/* Notification Bell & Interactive Popover */}
-            <div className="relative">
-              <button
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                title={t('nav.notifications', 'Notifications')}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
-              >
-                <Bell className="w-4 h-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {notificationsOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setNotificationsOpen(false)}
-                  />
-                  <div className="absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    {/* Header */}
-                    <div className="p-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-slate-900 dark:text-white">
-                          {t('nav.notifications', 'Notifications')}
-                        </span>
-                        {unreadCount > 0 && (
-                          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
-                            {unreadCount} new
-                          </span>
-                        )}
-                      </div>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllRead}
-                          className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
-                        >
-                          Mark all as read
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Notification Items */}
-                    <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
-                      {notifications.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => handleNotificationClick(item.path, item.id)}
-                          className={`p-3 text-left rtl:text-right hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors flex items-start gap-2.5 ${
-                            item.unread ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''
-                          }`}
-                        >
-                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.unread ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1">
-                              <h5 className="font-bold text-xs text-slate-900 dark:text-white truncate">
-                                {item.title}
-                              </h5>
-                              <span className="text-[10px] text-slate-400 shrink-0">
-                                {item.time}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
-                              {item.message}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-center">
-                      <button
-                        onClick={() => {
-                          setNotificationsOpen(false);
-                          navigate('/applications');
-                        }}
-                        className="text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600"
-                      >
-                        View All Pending Secretariat Tasks &rarr;
-                      </button>
-                    </div>
-                  </div>
-                </>
+            {/* Notification Bell */}
+            <button
+              onClick={() => setNotificationsOpen(true)}
+              title={t('nav.notifications', 'Notifications')}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
+            >
+              <Bell className="w-4 h-4" />
+              {!notificationsRead && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
               )}
-            </div>
+            </button>
 
             {/* Language Switcher */}
             <button
@@ -533,6 +409,157 @@ export const AdminLayout: React.FC = () => {
                 ) : (
                   <span>{t('deleteModal.confirm', 'Confirm Delete')}</span>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Secretariat Notifications Drawer */}
+      {notificationsOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-4 bg-slate-950/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-5 mt-14 mr-2 overflow-hidden flex flex-col gap-3">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <Bell className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                    Secretariat Notifications
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Live operational & delegate telemetry</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNotificationsRead(true)}
+                  className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                >
+                  Mark read
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    if (location.search.includes('notifications=')) {
+                      navigate(location.pathname, { replace: true });
+                    }
+                  }}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto no-scrollbar py-1">
+              {/* Item 1: Applications */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  navigate('/applications');
+                }}
+                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    Delegate Admissions Pending
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                    Review and verify incoming international youth delegate and keynote speaker applications.
+                  </p>
+                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">Review in Applications →</span>
+                </div>
+              </button>
+
+              {/* Item 2: Topic Pipeline */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  navigate('/topics/pipeline');
+                }}
+                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <GitBranch className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    Topic Lifecycle Motions
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                    Academic debate motions submitted across the 16 core knowledge disciplines awaiting editorial clearance.
+                  </p>
+                  <span className="text-[10px] text-purple-500 font-semibold mt-1 inline-block">Review Pipeline →</span>
+                </div>
+              </button>
+
+              {/* Item 3: Academic Writing Studio */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  navigate('/publications');
+                }}
+                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    Academic Writing Studio Requests
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                    Presenters have submitted academic articles & essays for secretariat review and public publishing.
+                  </p>
+                  <span className="text-[10px] text-amber-500 font-semibold mt-1 inline-block">Open Writing Studio →</span>
+                </div>
+              </button>
+
+              {/* Item 4: Scheduled Sessions */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  navigate('/sessions');
+                }}
+                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Mic className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    Chambers & Dialogue Sessions
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                    Manage upcoming virtual dialogue chambers, guest speakers, and executive session summaries.
+                  </p>
+                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">Manage Sessions →</span>
+                </div>
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Platform telemetry: Operational</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  if (location.search.includes('notifications=')) {
+                    navigate(location.pathname, { replace: true });
+                  }
+                }}
+                className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 cursor-pointer"
+              >
+                Close
               </button>
             </div>
           </div>

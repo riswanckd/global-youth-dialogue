@@ -181,12 +181,12 @@ export const createPublicationSchema = z.object({
       z.object({
         name: z.string().min(1),
         nameAr: z.string().optional(),
-        country: z.string().min(1),
+        country: z.string().optional().default('Global'),
         role: z.string().optional(),
         affiliation: z.string().optional(),
       })
     )
-    .min(1, 'At least one author is required'),
+    .optional(),
   sections: z
     .array(
       z.object({

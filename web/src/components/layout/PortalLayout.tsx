@@ -36,6 +36,14 @@ export const PortalLayout: React.FC = () => {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [presenterModalOpen, setPresenterModalOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsRead, setNotificationsRead] = useState(false);
+
+  useEffect(() => {
+    if (location.search.includes('notifications=open')) {
+      setNotificationsOpen(true);
+    }
+  }, [location]);
 
   const handleLogout = async () => {
     await logout();
@@ -222,16 +230,17 @@ export const PortalLayout: React.FC = () => {
             </button>
 
             {/* Notification Bell */}
-            <Link
-              to="/portal/sessions"
+            <button
+              type="button"
+              onClick={() => setNotificationsOpen(true)}
               title={isArabic ? 'الإشعارات' : 'Notifications'}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0 cursor-pointer"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 rtl:-right-auto rtl:-left-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
-                2
-              </span>
-            </Link>
+              {!notificationsRead && (
+                <span className="absolute -top-0.5 -right-0.5 rtl:-right-auto rtl:-left-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
+              )}
+            </button>
 
             {/* Language Switcher */}
             <button
@@ -386,6 +395,139 @@ export const PortalLayout: React.FC = () => {
         isOpen={presenterModalOpen}
         onClose={() => setPresenterModalOpen(false)}
       />
+
+      {/* Member / Presenter Notifications Drawer */}
+      {notificationsOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-4 bg-slate-950/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-5 mt-14 mr-2 rtl:mr-auto rtl:ml-2 overflow-hidden flex flex-col gap-3">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <Bell className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                    {isArabic ? 'إشعارات العضوية والأكاديمية' : 'Delegate & Member Notifications'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    {isArabic ? 'تحديثات الجلسات وأوراق الحوار' : 'Live session updates & editorial alerts'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNotificationsRead(true)}
+                  className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                >
+                  {isArabic ? 'تحديد كمقروء' : 'Mark read'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    if (location.search.includes('notifications=')) {
+                      navigate(location.pathname, { replace: true });
+                    }
+                  }}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto no-scrollbar py-1">
+              {/* Item 1: Accreditation status */}
+              <div className="p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
+                  ✓
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">
+                    {isArabic ? 'اعتماد العضوية الأكاديمية' : 'Accredited Membership Active'}
+                  </div>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                    {isArabic
+                      ? 'تم التحقق من بياناتك للمشاركة الكاملة في جلسات الحوار واللجان الافتراضية.'
+                      : 'Your credentials have been verified for multilateral chambers and voting.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Item 2: Academic Writing Studio */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  navigate('/portal/publications');
+                }}
+                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
+                  ✍
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    {isArabic ? 'استوديو الكتابة الأكاديمية' : 'Academic Writing Studio'}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {isArabic
+                      ? 'قدّم مقالك أو ورقتك الأكاديمية للمراجعة ونشرها في المكتبة الرقمية العامة.'
+                      : 'Draft and submit your research essay or article for editorial review and public publishing.'}
+                  </p>
+                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">
+                    {isArabic ? 'فتح الاستوديو ←' : 'Open Writing Studio →'}
+                  </span>
+                </div>
+              </button>
+
+              {/* Item 3: Upcoming Session */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  navigate('/portal/sessions');
+                }}
+                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
+                  🎙
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    {isArabic ? 'جلسات الحوار الدولية القادمة' : 'Upcoming Dialogue Chambers'}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {isArabic
+                      ? 'غرف الحوار المباشرة مفتوحة للتسجيل وتأكيد الحضور الافتراضي.'
+                      : 'Join official live plenary debates and reserve your seat on the floor.'}
+                  </p>
+                  <span className="text-[10px] text-purple-500 font-semibold mt-1 inline-block">
+                    {isArabic ? 'عرض الجلسات ←' : 'Explore Sessions →'}
+                  </span>
+                </div>
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+              <span>GYDE Secretariat Network</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  if (location.search.includes('notifications=')) {
+                    navigate(location.pathname, { replace: true });
+                  }
+                }}
+                className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 cursor-pointer"
+              >
+                {isArabic ? 'إغلاق' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

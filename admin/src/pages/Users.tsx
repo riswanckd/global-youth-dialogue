@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import { apiRequest } from '../utils/api';
 import { User, UserRole } from '../types';
 import {
@@ -16,12 +17,15 @@ import {
   Check,
   X,
   CheckSquare,
+  Square,
   Sliders,
-  Info,
-  Globe,
   Mail,
-  Calendar,
-  Award,
+  Eye,
+  MapPin,
+  Building2,
+  BookOpen,
+  Heart,
+  Star,
 } from 'lucide-react';
 
 export const ADMIN_MODULES = [
@@ -43,6 +47,7 @@ export const Users: React.FC = () => {
   const { t, translateRole, translateStatus } = useAdminLanguage();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null);
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ['admin-users', roleFilter],
@@ -89,8 +94,8 @@ export const Users: React.FC = () => {
     },
   });
 
+  const { isSuperAdmin } = useAdminAuth();
   const [permissionModalUser, setPermissionModalUser] = useState<{ user: User; targetRole: UserRole } | null>(null);
-  const [selectedUserDetailsUser, setSelectedUserDetailsUser] = useState<User | null>(null);
   const [selectedMenus, setSelectedMenus] = useState<string[]>([]);
 
   const updateRoleMutation = useMutation({
@@ -106,8 +111,12 @@ export const Users: React.FC = () => {
   });
 
   const handleRoleChange = (targetUser: User, newRole: UserRole) => {
-    if (newRole === 'ADMIN' || newRole === 'COORDINATOR') {
-      setPermissionModalUser({ user: targetUser, targetRole: 'ADMIN' });
+    if (newRole === 'ADMIN') {
+      if (!isSuperAdmin) {
+        alert('Only the Super Administrator has authorization to appoint Co-Administrators and grant permissions.');
+        return;
+      }
+      setPermissionModalUser({ user: targetUser, targetRole: newRole });
       setSelectedMenus(
         targetUser.allowedMenus && targetUser.allowedMenus.length > 0
           ? targetUser.allowedMenus
@@ -119,6 +128,10 @@ export const Users: React.FC = () => {
   };
 
   const handleOpenPermissions = (targetUser: User) => {
+    if (!isSuperAdmin) {
+      alert('Only the Super Administrator has authorization to configure Co-Administrator permissions.');
+      return;
+    }
     setPermissionModalUser({ user: targetUser, targetRole: targetUser.role });
     setSelectedMenus(
       targetUser.allowedMenus && targetUser.allowedMenus.length > 0
@@ -258,7 +271,7 @@ export const Users: React.FC = () => {
               {coordinatorsCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              {translateRole('COORDINATOR')}
+              Co-Administrators
             </div>
           </div>
         </div>
@@ -278,22 +291,21 @@ export const Users: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
-          {[
-            { id: 'all', label: t('users.filterAllRoles', 'All') },
-            { id: 'MEMBER', label: translateRole('MEMBER') },
-            { id: 'PRESENTER', label: translateRole('PRESENTER') },
-            { id: 'ADMIN', label: 'Co-Admins' },
-          ].map((item) => (
+          {['all', 'MEMBER', 'PRESENTER', 'ADMIN'].map((r) => (
             <button
-              key={item.id}
-              onClick={() => setRoleFilter(item.id)}
-              className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                roleFilter === item.id
+              key={r}
+              onClick={() => setRoleFilter(r)}
+              className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors ${
+                roleFilter === r
                   ? 'bg-indigo-600 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
               }`}
             >
-              {item.label}
+              {r === 'all'
+                ? t('users.filterAllRoles', 'All')
+                : r === 'ADMIN'
+                ? 'Co-Admins'
+                : translateRole(r)}
             </button>
           ))}
         </div>
@@ -331,14 +343,15 @@ export const Users: React.FC = () => {
                       <td className="py-3 px-4">
                         <button
                           type="button"
-                          onClick={() => setSelectedUserDetailsUser(u)}
-                          className="font-bold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 text-left rtl:text-right transition-colors cursor-pointer group flex items-center gap-1.5"
-                          title="Click to view full dossier & profile"
+                          onClick={() => setSelectedUserDetail(u)}
+                          className="text-left group"
                         >
-                          <span className="underline decoration-dotted underline-offset-2 group-hover:decoration-solid">{u.name}</span>
-                          <Info className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 shrink-0" />
+                          <div className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+                            {u.name}
+                            <Eye className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500" />
+                          </div>
+                          <div className="text-[11px] text-slate-500">{u.email}</div>
                         </button>
-                        <div className="text-[11px] text-slate-500">{u.email}</div>
                       </td>
                       <td className="py-3 px-4">
                         <div>{u.country || t('dash.global', 'Global')}</div>
@@ -347,12 +360,13 @@ export const Users: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {u.role === 'SUPER_ADMIN' ? (
-                            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                              Super Administrator
-                            </span>
-                          ) : (
+                        {u.role === 'SUPER_ADMIN' ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 font-bold text-xs shadow-xs">
+                            <Shield className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                            <span>Super Admin</span>
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-2 flex-wrap">
                             <select
                               value={u.role === 'COORDINATOR' ? 'ADMIN' : u.role}
                               onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
@@ -360,32 +374,34 @@ export const Users: React.FC = () => {
                             >
                               <option value="MEMBER">{translateRole('MEMBER')}</option>
                               <option value="PRESENTER">{translateRole('PRESENTER')}</option>
-                              <option value="ADMIN">Co-Admin</option>
+                              {isSuperAdmin && <option value="ADMIN">Co-Admin</option>}
                             </select>
-                          )}
 
-                          {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
-                            <button
-                              type="button"
-                              onClick={() => handleOpenPermissions(u)}
-                              title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
-                              className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 transition-colors inline-flex items-center gap-1.5 text-xs font-bold shadow-xs"
-                            >
-                              <Shield className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                              <span>{t('users.perms', 'Permissions')} ({u.allowedMenus ? u.allowedMenus.length : 11}/11)</span>
-                            </button>
-                          ) : u.role !== 'SUPER_ADMIN' && (
-                            <button
-                              type="button"
-                              onClick={() => handleRoleChange(u, 'ADMIN')}
-                              title={t('users.assignCoAdmin', 'Promote to Co-Admin and configure permissions')}
-                              className="px-2 py-1 rounded-lg text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-100 dark:border-indigo-900/60 transition-colors inline-flex items-center gap-1"
-                            >
-                              <Shield className="w-3 h-3 text-indigo-500" />
-                              <span>{t('users.grantCoAdmin', 'Grant Co-Admin')}</span>
-                            </button>
-                          )}
-                        </div>
+                            {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
+                              isSuperAdmin && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenPermissions(u)}
+                                  title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
+                                  className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 transition-colors inline-flex items-center gap-1.5 text-xs font-bold shadow-xs"
+                                >
+                                  <Shield className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                                  <span>{t('users.perms', 'Permissions')} ({u.allowedMenus ? u.allowedMenus.length : 11}/11)</span>
+                                </button>
+                              )
+                            ) : isSuperAdmin && (
+                              <button
+                                type="button"
+                                onClick={() => handleRoleChange(u, 'ADMIN')}
+                                title={t('users.assignCoAdmin', 'Promote to Co-Admin and configure permissions')}
+                                className="px-2 py-1 rounded-lg text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-100 dark:border-indigo-900/60 transition-colors inline-flex items-center gap-1"
+                              >
+                                <Shield className="w-3 h-3 text-indigo-500" />
+                                <span>{t('users.grantCoAdmin', 'Grant Co-Admin')}</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 px-4">
                         <span
@@ -456,11 +472,13 @@ export const Users: React.FC = () => {
                       <div>
                         <button
                           type="button"
-                          onClick={() => setSelectedUserDetailsUser(u)}
-                          className="font-bold text-sm text-slate-900 dark:text-white hover:text-indigo-600 leading-tight text-left rtl:text-right flex items-center gap-1"
+                          onClick={() => setSelectedUserDetail(u)}
+                          className="text-left group"
                         >
-                          <span>{u.name}</span>
-                          <Info className="w-3 h-3 text-slate-400 shrink-0" />
+                          <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+                            {u.name}
+                            <Eye className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500" />
+                          </h4>
                         </button>
                         <p className="text-[11px] text-slate-500 mt-0.5">{u.email}</p>
                       </div>
@@ -482,42 +500,47 @@ export const Users: React.FC = () => {
                   </div>
 
                   <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-slate-800/60 flex-wrap">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {u.role === 'SUPER_ADMIN' ? (
-                        <span className="px-2 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200">
-                          Super Admin
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 font-bold text-xs">
+                          <Shield className="w-3 h-3 text-amber-500 shrink-0" />
+                          <span>Super Admin</span>
                         </span>
                       ) : (
-                        <select
-                          value={u.role === 'COORDINATOR' ? 'ADMIN' : u.role}
-                          onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
-                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
-                        >
-                          <option value="MEMBER">{translateRole('MEMBER')}</option>
-                          <option value="PRESENTER">{translateRole('PRESENTER')}</option>
-                          <option value="ADMIN">Co-Admin</option>
-                        </select>
-                      )}
+                        <>
+                          <select
+                            value={u.role === 'COORDINATOR' ? 'ADMIN' : u.role}
+                            onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                            className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
+                          >
+                            <option value="MEMBER">{translateRole('MEMBER')}</option>
+                            <option value="PRESENTER">{translateRole('PRESENTER')}</option>
+                            {isSuperAdmin && <option value="ADMIN">Co-Admin</option>}
+                          </select>
 
-                      {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenPermissions(u)}
-                          title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
-                          className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 text-xs font-bold"
-                        >
-                          <Shield className="w-3.5 h-3.5" />
-                          <span>Permissions</span>
-                        </button>
-                      ) : u.role !== 'SUPER_ADMIN' && (
-                        <button
-                          type="button"
-                          onClick={() => handleRoleChange(u, 'ADMIN')}
-                          className="px-2 py-1 text-[11px] rounded-lg border border-dashed border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 font-semibold"
-                        >
-                          <Shield className="w-3 h-3" />
-                          <span>Grant Co-Admin</span>
-                        </button>
+                          {(u.role === 'COORDINATOR' || u.role === 'ADMIN') ? (
+                            isSuperAdmin && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenPermissions(u)}
+                                title={t('users.configurePermissions', 'Configure Co-Admin Permissions')}
+                                className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 text-xs font-bold"
+                              >
+                                <Shield className="w-3.5 h-3.5" />
+                                <span>Permissions</span>
+                              </button>
+                            )
+                          ) : isSuperAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => handleRoleChange(u, 'ADMIN')}
+                              className="px-2 py-1 text-[11px] rounded-lg border border-dashed border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 hover:bg-indigo-100 transition-colors inline-flex items-center gap-1 font-semibold"
+                            >
+                              <Shield className="w-3 h-3" />
+                              <span>Grant Co-Admin</span>
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
 
@@ -561,139 +584,147 @@ export const Users: React.FC = () => {
         )}
       </div>
 
-      {/* Complete User Details Dossier Modal (NO password displayed) */}
-      {selectedUserDetailsUser && (
+      {/* User Detail Modal */}
+      {selectedUserDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 overflow-hidden max-h-[90vh] flex flex-col gap-4">
             {/* Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+            <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-md shrink-0">
-                  {selectedUserDetailsUser.name ? selectedUserDetailsUser.name.charAt(0).toUpperCase() : 'U'}
+                <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                  {selectedUserDetail.name ? selectedUserDetail.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-2">
-                    <span>{selectedUserDetailsUser.name}</span>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                        selectedUserDetailsUser.status === 'active'
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                          : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
-                      }`}
-                    >
-                      {translateStatus(selectedUserDetailsUser.status)}
-                    </span>
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{selectedUserDetailsUser.email}</span>
-                    <span>•</span>
-                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                      {selectedUserDetailsUser.role === 'SUPER_ADMIN' ? 'Super Administrator' : selectedUserDetailsUser.role === 'ADMIN' ? 'Co-Admin' : translateRole(selectedUserDetailsUser.role)}
-                    </span>
-                  </div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">{selectedUserDetail.name}</h3>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mt-1 ${
+                    selectedUserDetail.status === 'active'
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                      : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                  }`}>
+                    {translateStatus(selectedUserDetail.status)}
+                  </span>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedUserDetailsUser(null)}
+                onClick={() => setSelectedUserDetail(null)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Dossier Body */}
-            <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-1 no-scrollbar text-xs">
-              {/* Geographic & Institutional Information */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                    Country Representation
-                  </span>
-                  <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Globe className="w-4 h-4 text-slate-400" />
-                    <span>{selectedUserDetailsUser.country || 'Global Delegate'}</span>
+            {/* Details Grid */}
+            <div className="flex-1 overflow-y-auto no-scrollbar space-y-3">
+              {/* Role badge */}
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-indigo-500 shrink-0" />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  {selectedUserDetail.role === 'SUPER_ADMIN' ? 'Super Administrator' :
+                   selectedUserDetail.role === 'ADMIN' || selectedUserDetail.role === 'COORDINATOR' ? 'Co-Administrator' :
+                   selectedUserDetail.role === 'PRESENTER' ? 'Keynote Presenter' : 'Member / Youth Scholar'}
+                </span>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-300 break-all">{selectedUserDetail.email}</span>
+              </div>
+
+              {/* Country */}
+              {selectedUserDetail.country && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="text-xs text-slate-700 dark:text-slate-300">{selectedUserDetail.country}</span>
+                </div>
+              )}
+
+              {/* Organization */}
+              {selectedUserDetail.organization && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="text-xs text-slate-700 dark:text-slate-300">{selectedUserDetail.organization}</span>
+                </div>
+              )}
+
+              {/* Bio */}
+              {(selectedUserDetail as any).bio && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Bio</div>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{(selectedUserDetail as any).bio}</p>
+                </div>
+              )}
+
+              {/* Interested Fields */}
+              {(() => {
+                const fields = (selectedUserDetail as any).areasOfInterest?.length
+                  ? (selectedUserDetail as any).areasOfInterest
+                  : (selectedUserDetail as any).interests?.length
+                  ? (selectedUserDetail as any).interests
+                  : [];
+                return (
+                  <div className="p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-2">
+                      <Heart className="w-3 h-3" />
+                      <span>Interested Fields & Focus Areas</span>
+                    </div>
+                    {fields.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {fields.map((field: string, i: number) => (
+                          <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">
+                            {field}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-500 italic">No specific interest fields recorded</p>
+                    )}
                   </div>
+                );
+              })()}
+
+              {/* Experience */}
+              <div className="p-3 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
+                  <Star className="w-3 h-3" />
+                  <span>Academic & Delegate Experience</span>
                 </div>
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                    Organization / Academic Affiliation
-                  </span>
-                  <div className="font-semibold text-slate-800 dark:text-slate-200">
-                    {selectedUserDetailsUser.organization || 'Independent Researcher'}
-                  </div>
-                </div>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  {(selectedUserDetail as any).experience || (selectedUserDetail as any).bio || 'Not provided in application'}
+                </p>
               </div>
 
-              {/* Interested Fields & Thematic Areas */}
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Thematic Interests & Specializations
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {(selectedUserDetailsUser.interests && selectedUserDetailsUser.interests.length > 0) ? (
-                    selectedUserDetailsUser.interests.map((interest, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-100 dark:border-indigo-900/60 text-[11px]"
-                      >
-                        {interest}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-slate-500 italic">Global Dialogue, International Diplomacy & Cross-Cultural Exchange</span>
-                  )}
+              {/* Motivation */}
+              <div className="p-3 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40">
+                <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
+                  Statement of Motivation & Goals
                 </div>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  {(selectedUserDetail as any).motivation || 'Not provided in application'}
+                </p>
               </div>
 
-              {/* Experience & Background */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Academic & Professional Experience
-                </span>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {(selectedUserDetailsUser as any).experience || selectedUserDetailsUser.bio || 'Verified academic delegate active in the Qatar ISDC7 / GYDE international delegation.'}
-                </div>
+              {/* Joined date */}
+              <div className="text-[11px] text-slate-400 pt-1">
+                Member since {new Date(selectedUserDetail.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
               </div>
 
-              {/* Motivation & Statement of Purpose */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Motivation & Engagement Statement
-                </span>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {(selectedUserDetailsUser as any).motivation || 'Committed to representing national dialogue perspectives, participating in multilateral chambers, and authoring academic policy briefs.'}
-                </div>
-              </div>
-
-              {/* Account Meta & Security Check */}
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500">
-                <div>
-                  <span className="font-medium text-slate-400">Member Since:</span>{' '}
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">
-                    {new Date(selectedUserDetailsUser.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-slate-400">Account Security:</span>{' '}
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    Bcrypt Hash Secured • Password Confidential
-                  </span>
-                </div>
+              {/* Security notice */}
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40">
+                <Lock className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                <span className="text-[10px] text-rose-700 dark:text-rose-400">Password is encrypted and never displayed for security.</span>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 shrink-0">
-              <div className="text-[11px] text-slate-400">
-                Platform ID: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-[10px]">{selectedUserDetailsUser.id}</code>
-              </div>
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
-                onClick={() => setSelectedUserDetailsUser(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 text-xs font-bold transition-colors"
+                onClick={() => setSelectedUserDetail(null)}
+                className="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
-                Close Dossier
+                Close
               </button>
             </div>
           </div>

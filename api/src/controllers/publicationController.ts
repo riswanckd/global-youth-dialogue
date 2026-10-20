@@ -96,13 +96,15 @@ export async function createPublication(req: Request, res: Response, next: NextF
     }
 
     const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;
-    const finalStatus = isStaff ? (status || 'published') : 'draft';
+    // Non-staff presenters submit academic work for admin review; admins can publish directly or save draft
+    const publicationStatus = isStaff ? (status || 'published') : 'under_review';
 
-    const defaultAuthors = authors && authors.length > 0 ? authors : [
+    const authorList = authors && authors.length > 0 ? authors : [
       {
         name: req.user!.name,
-        email: req.user!.email,
-        affiliation: req.user!.organization || 'GYDE Fellow',
+        country: (req.user as any).country || 'Global',
+        role: req.user!.role === ROLES.PRESENTER ? 'Keynote Presenter' : 'GYDE Scholar',
+        affiliation: (req.user as any).organization || 'Global Youth Dialogue Secretariat',
       }
     ];
 
@@ -115,14 +117,14 @@ export async function createPublication(req: Request, res: Response, next: NextF
       sections: sections || [],
       content: content || '',
       contentAr: contentAr || '',
-      authors: defaultAuthors,
+      authors: authorList,
       category,
       coverImage: coverImage || '',
       documentUrl: documentUrl || '',
       citation: citation || '',
-      status: finalStatus,
+      status: publicationStatus,
       visibility: visibility || 'public',
-      publishedAt: finalStatus === 'published' ? new Date() : undefined,
+      publishedAt: publicationStatus === 'published' ? new Date() : undefined,
       createdBy: req.user!._id,
     });
 

@@ -11,7 +11,7 @@ const router = Router();
 router.get('/', optionalAuthenticate, publicationController.listPublications);
 router.get('/:slug', optionalAuthenticate, publicationController.getPublicationBySlug);
 
-// Staff publication management & Presenter proposal submission
+// Staff publication management
 router.post(
   '/',
   authenticate,

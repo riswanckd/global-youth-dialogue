@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { Topic } from '../types';
-import { TOPIC_BANK } from '../constants/topicBank';
 import {
   Lightbulb,
   Search,
@@ -45,6 +44,25 @@ const ACTIVITY_FORMATS = [
   'Academic Discussion / Policy Roundtable',
 ];
 
+const CATEGORIES = [
+  { id: 'global-affairs', name: 'Geopolitics & International Relations', subTopics: ['Multilateral Diplomacy & UN Reform', 'Territorial Sovereignty & Statehood', 'Economic Sanctions & Financial Sovereignty', 'Climate Migration & International Border Law', 'Rise of Multipolar Global Orders'] },
+  { id: 'tech-ai', name: 'Technology & AI Ethics', subTopics: ['Generative AI in Classrooms & Academia', 'Autonomous Weapons & Warfare Ethics', 'Algorithmic Bias & Platform Regulation', 'Surveillance Capitalism & Personal Privacy', 'Deepfakes & Disinformation Countermeasures'] },
+  { id: 'education', name: 'Education & Future of Learning', subTopics: ['Competency-Based vs Standardized Testing', 'The Digital Learning Divide in the Global South', 'Tuition-Free Public Higher Education', 'Critical Inquiry & Media Literacy in Schools', 'Vocational Excellence vs Academic Pathways'] },
+  { id: 'environment', name: 'Climate, Environment & Energy', subTopics: ['Loss and Damage Climate Financing (COP Protocols)', 'Nuclear Energy vs Renewable Integration', 'Transboundary Water Rights & Dam Politics', 'Carbon Offsets vs Absolute Emission Caps', 'Indigenous Land Stewardship & Conservation'] },
+  { id: 'economy', name: 'Economy, Trade & Labor', subTopics: ['Universal Basic Income in the Age of Automation', 'De-Dollarization & Bilateral Trade Agreements', 'Global Minimum Corporate Tax Enforcement', 'Gig Economy Worker Rights & Classification', 'Supply Chain Nationalism vs Free Trade'] },
+  { id: 'governance', name: 'Governance, Law & Human Rights', subTopics: ['Lowering the Voting Age to 16 Globally', 'Judicial Independence in Polarized Democracies', 'Digital Civil Liberties vs Counter-Terrorism Laws', 'Prison Reform vs Retributive Justice', 'Whistleblower Protections in National Security'] },
+  { id: 'culture', name: 'Culture, Identity & Global Media', subTopics: ['Repatriation of Colonial Museum Artifacts', 'Preserving Indigenous & Endangered Languages', 'Monopolization of Global Entertainment Platforms', 'Cultural Appropriation vs Hybrid Globalization', 'Diaspora Identity & Transnational Belonging'] },
+  { id: 'health', name: 'Public Health, Bioethics & Science', subTopics: ['TRIPS Waiver & Global Vaccine Equity', 'CRISPR Gene Editing in Human Embryos', 'Universal Mental Healthcare for Adolescents', 'Private Health Insurance vs Single-Payer Models', 'Antibiotic Resistance & Global Biosecurity'] },
+  { id: 'space', name: 'Space Governance & Astro-Politics', subTopics: ['Militarization of Earth Orbit & Anti-Satellite Weapons', 'Private Mega-Constellations vs Global Astronomy', 'Lunar Resource Extraction & The Artemis Accords', 'Asteroid Mining Property Rights under International Law', 'Orbital Space Debris Liability & Active Removal Treaties'] },
+  { id: 'cybersecurity', name: 'Cybersecurity & Digital Sovereignty', subTopics: ['State-Sponsored Cyber Warfare & Digital Geneva Conventions', 'Protection of Submarine Internet Cables & Data Highways', 'Quantum Decryption & Post-Quantum Cryptographic Standards', 'Cross-Border Ransomware & Multilateral Police Jurisdiction', 'Sovereign Cloud Architectures vs Global Tech Monopolies'] },
+  { id: 'youth', name: 'Youth Leadership & Future Generations', subTopics: ['Constitutional Rights & Guardianship for Future Generations', 'Youth Parliamentary Quotas & Age-Neutral Candidacy Laws', 'Student Union Protections in Transitional Democracies', 'Participatory Budgeting & Citizen Assemblies for Youth', 'Digital Civic Mobilization vs Traditional Political Partisanship'] },
+  { id: 'peace-security', name: 'Peacebuilding, Disarmament & Humanitarian Law', subTopics: ['International Criminal Court (ICC) Enforcement & Universal Jurisdiction', 'Civilian Protection Protocols in Dense Urban Warfare', 'Truth, Reconciliation & Restorative Justice Frameworks Post-Conflict', 'Small Arms Proliferation & Illicit Border Arms Trade', 'Youth, Peace and Security (UNSCR 2250) in Peace Treaties'] },
+  { id: 'biotech', name: 'Synthetic Biology & Genetic Horizons', subTopics: ['Gene Drive Deployment for Wild Vector Pest Eradication', 'De-Extinction of Keystone Species: Ecological Restoration or Hazard', 'Direct-to-Consumer Genetic Profiling & Insurance Discrimination', 'Open-Source Genomic Research & Decentralized Medicine Synthesis', 'Laboratory Biosafety Standards & Dual-Use Pathogen Research'] },
+  { id: 'food-oceans', name: 'Food Sovereignty & Ocean Ecosystems', subTopics: ['Deep-Sea Bed Mining Moratorium in International Waters', 'Cellular Agriculture & Lab-Grown Protein Regulatory Standards', 'Water-Intensive Export Crops vs Domestic Food Security in Arid Lands', 'High Seas Biodiversity Treaty Enforcement & Marine Protected Areas', 'Regenerative Farming Subsidies vs Monoculture Industrial Agriculture'] },
+  { id: 'philosophy', name: 'Philosophy, Epistemology & Applied Ethics', subTopics: ['Sentience & Legal Personhood Criteria for Non-Human Species', 'Epistemic Injustice & The Validation of Non-Western Epistemologies', 'Solar Radiation Management & The Ethics of Global Climate Geoengineering', 'Moral Boundaries of Transhumanism & Cognitive Neuro-Enhancements', 'The Value of Intellectual Humility and Philosophical Scepticism in Public Discourse'] },
+  { id: 'urban-futures', name: 'Urban Futures & Smart Habitats', subTopics: ['Social Housing Decommodification vs Real Estate Speculation', 'The 15-Minute City Model: Neighborhood Equity vs Spatial Segregation', 'Algorithmic Surveillance, Facial Recognition & Civil Space in Smart Cities', 'Sponge Cities & Extreme Rainfall Urban Drainage Engineering', 'Polycentric Urban Development to Mitigate Megacity Strain'] },
+];
+
 const INITIAL_FORM = {
   title: '',
   motion: '',
@@ -57,16 +75,29 @@ const INITIAL_FORM = {
 
 export const Topics: React.FC = () => {
   const queryClient = useQueryClient();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t, translateCategory, translateStatus, isArabic } = useAdminLanguage();
 
   const [search, setSearch] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [createSuccess, setCreateSuccess] = useState(false);
   const [formError, setFormError] = useState('');
+  const [activeTab, setActiveTab] = useState<'submissions' | 'categories'>(() => {
+    return location.pathname.includes('/pipeline') ? 'submissions' : 'categories';
+  });
+
+  useEffect(() => {
+    if (location.pathname.includes('/pipeline')) {
+      setActiveTab('submissions');
+    } else {
+      setActiveTab('categories');
+    }
+  }, [location.pathname]);
 
   // Automatically open modal if ?add=true is present in the URL
   useEffect(() => {
@@ -75,42 +106,10 @@ export const Topics: React.FC = () => {
     }
   }, [searchParams]);
 
-  const { data: remoteTopics = [], isLoading } = useQuery<Topic[]>({
+  const { data: topics = [], isLoading } = useQuery<Topic[]>({
     queryKey: ['admin-topics'],
     queryFn: () => apiRequest<Topic[]>('/admin/topics'),
   });
-
-  const canonicalTopics: Topic[] = useMemo(() => {
-    return TOPIC_BANK.map((tb) => ({
-      id: tb.id,
-      title: tb.title,
-      motion: tb.title,
-      category: tb.categoryName,
-      format: (tb.recommendedFormats && tb.recommendedFormats[0]) || 'Academic Discussion / Policy Roundtable',
-      status: 'approved',
-      description: tb.description,
-      subtopics: tb.subtopics,
-      regionalPerspective: 'Global',
-      proposedBy: {
-        name: tb.addedBy || 'Academic Advisory Board',
-        country: 'Global',
-      },
-      createdAt: tb.dateAdded || '2024-05-15',
-    } as any));
-  }, []);
-
-  const topics: Topic[] = useMemo(() => {
-    const remoteTitles = new Set(remoteTopics.map((t) => t.title.toLowerCase().trim()));
-    const remoteIds = new Set(remoteTopics.map((t) => (t as any).id || (t as any)._id));
-
-    const combined = [...remoteTopics];
-    canonicalTopics.forEach((ct) => {
-      if (!remoteTitles.has(ct.title.toLowerCase().trim()) && !remoteIds.has(ct.id)) {
-        combined.push(ct);
-      }
-    });
-    return combined;
-  }, [remoteTopics, canonicalTopics]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -177,8 +176,7 @@ export const Topics: React.FC = () => {
       tItem.title.toLowerCase().includes(q) ||
       tItem.category.toLowerCase().includes(q) ||
       (tItem.motion && tItem.motion.toLowerCase().includes(q)) ||
-      (tItem.description && tItem.description.toLowerCase().includes(q)) ||
-      ((tItem as any).subtopics && (tItem as any).subtopics.some((st: string) => st.toLowerCase().includes(q)));
+      (tItem.description && tItem.description.toLowerCase().includes(q));
 
     const matchesStatus =
       statusFilter === 'all'
@@ -219,6 +217,30 @@ export const Topics: React.FC = () => {
         >
           <Plus className="w-4 h-4" />
           <span>{t('topics.addTopicBtn', 'Add Topic')}</span>
+        </button>
+      </div>
+
+      {/* Tab Switcher */}
+      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl self-start">
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+            activeTab === 'categories'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+          }`}
+        >
+          📚 Category Library (16 Disciplines)
+        </button>
+        <button
+          onClick={() => setActiveTab('submissions')}
+          className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+            activeTab === 'submissions'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+          }`}
+        >
+          📬 Topic Submissions ({topics.length})
         </button>
       </div>
 
@@ -312,8 +334,74 @@ export const Topics: React.FC = () => {
         </div>
       </div>
 
+      {/* Category Library View */}
+      {activeTab === 'categories' && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
+              <input
+                type="text"
+                placeholder="Search across 16 disciplines and subtopics..."
+                value={categorySearch}
+                onChange={(e) => setCategorySearch(e.target.value)}
+                className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none"
+              />
+            </div>
+            <div className="text-xs text-slate-500 font-semibold">
+              Showing 16 Official Academic Disciplines & 80+ Subtopics
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {CATEGORIES.filter((cat) => {
+              if (!categorySearch.trim()) return true;
+              const q = categorySearch.toLowerCase();
+              return (
+                cat.name.toLowerCase().includes(q) ||
+                cat.subTopics.some((sub) => sub.toLowerCase().includes(q))
+              );
+            }).map((cat) => (
+              <div
+                key={cat.id}
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="font-bold text-sm text-slate-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+                    {cat.name}
+                  </div>
+                  <div className="space-y-1.5">
+                    {cat.subTopics.map((sub, i) => (
+                      <div key={i} className="flex items-start gap-1.5">
+                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-indigo-400 dark:bg-indigo-500 shrink-0" />
+                        <span className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">{sub}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {cat.subTopics.length} subtopics
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData({ ...INITIAL_FORM, category: cat.name });
+                      setShowCreateModal(true);
+                    }}
+                    className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                  >
+                    + Add Topic
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Topics Table Container with Search & Filters */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+      {activeTab === 'submissions' && <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
@@ -444,18 +532,6 @@ export const Topics: React.FC = () => {
                           <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
                             {topicItem.description}
                           </div>
-                          {((topicItem as any).subtopics && (topicItem as any).subtopics.length > 0) && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {(topicItem as any).subtopics.map((st: string, idx: number) => (
-                                <span
-                                  key={idx}
-                                  className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium"
-                                >
-                                  • {st}
-                                </span>
-                              ))}
-                            </div>
-                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
@@ -566,19 +642,6 @@ export const Topics: React.FC = () => {
                       </p>
                     )}
 
-                    {((topicItem as any).subtopics && (topicItem as any).subtopics.length > 0) && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {(topicItem as any).subtopics.map((st: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium"
-                          >
-                            • {st}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
                     <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/60">
                       <span>
                         {topicItem.proposedBy?.name || 'Administrator'} ({topicItem.proposedBy?.country || t('dash.global', 'Global')})
@@ -609,7 +672,7 @@ export const Topics: React.FC = () => {
             </div>
           </>
         )}
-      </div>
+      </div>}
 
       {/* Add New Topic Modal */}
       {showCreateModal && (

@@ -115,7 +115,7 @@ export async function purgeTrialData(_req: Request, res: Response, next: NextFun
     // Delete all users except Super Administrator(s)
     const deleteResult = await User.deleteMany({
       role: { $ne: ROLES.SUPER_ADMIN },
-      email: { $nin: ['admin@thegyde.in', '3681mubashircp@gmail.com'] },
+      email: { $ne: 'admin@thegyde.in' },
     });
 
     await Application.deleteMany({});
