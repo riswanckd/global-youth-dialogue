@@ -40,7 +40,7 @@ export default {
       },
       fontFamily: {
         serif: ['"Sora"', 'sans-serif'],
-        arabic: ['"Cairo"', 'sans-serif'],
+        arabic: ['"Noto Kufi Arabic"', '"IBM Plex Sans Arabic"', 'sans-serif'],
         sans: ['"Sora"', 'system-ui', 'sans-serif'],
       },
     },

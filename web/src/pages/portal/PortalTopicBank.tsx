@@ -242,7 +242,7 @@ export const PortalTopicBank: React.FC = () => {
                     {topic.title}
                   </h3>
                   {topic.titleAr && (
-                    <div style={{ fontSize: '0.9rem', color: '#4851BA', fontFamily: "'Cairo', sans-serif", fontWeight: 600, marginBottom: '0.65rem' }}>
+                    <div style={{ fontSize: '0.9rem', color: '#4851BA', fontFamily: "'Noto Kufi Arabic', sans-serif", fontWeight: 600, marginBottom: '0.65rem' }}>
                       {topic.titleAr}
                     </div>
                   )}

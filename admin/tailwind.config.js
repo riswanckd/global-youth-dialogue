@@ -25,7 +25,7 @@ export default {
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
-        arabic: ['"Cairo"', 'sans-serif'],
+        arabic: ['"Noto Kufi Arabic"', '"IBM Plex Sans Arabic"', 'sans-serif'],
         sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
     },
