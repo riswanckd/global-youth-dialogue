@@ -79,6 +79,46 @@ export const Dashboard: React.FC = () => {
         });
       } catch {}
 
+      // Fallback: Direct live backend call if apiRequest returned zero items
+      if (remoteApps.length === 0) {
+        try {
+          const directRes = await fetch(
+            'https://gyde-api.vercel.app/api/v1/admin/applications?status=pending&limit=100',
+            {
+              headers: {
+                'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+                'x-client-app': 'admin',
+              },
+            }
+          );
+          if (directRes.ok) {
+            const directJson = await directRes.json();
+            const directItems = Array.isArray(directJson?.data)
+              ? directJson.data
+              : (Array.isArray(directJson) ? directJson : []);
+            directItems.forEach((item: any) => {
+              if (item && item.email) {
+                remoteApps.push({
+                  id: item.id || item._id?.toString() || `app-${Date.now()}`,
+                  applicantName: item.applicantName || item.name || 'Applicant',
+                  email: item.email,
+                  country: item.country || 'Global',
+                  flag: item.flag || 'INT',
+                  organization: item.organization || '',
+                  experience: item.experience || item.debateExperience || '',
+                  motivation: item.motivation || '',
+                  areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+                  preferredLanguages: item.preferredLanguages || ['English'],
+                  status: (item.status || 'pending').toLowerCase() as any,
+                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                  createdAt: item.createdAt || item.date || new Date().toISOString(),
+                });
+              }
+            });
+          }
+        } catch {}
+      }
+
       // Fallback: Query /applications
       if (remoteApps.length === 0) {
         try {

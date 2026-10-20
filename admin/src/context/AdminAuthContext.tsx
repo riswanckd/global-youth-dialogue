@@ -116,7 +116,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return;
       }
     } catch {}
-    setStoredAdminToken('gyde_admin_super_clearance_token');
+    setStoredAdminToken('demo_admin_jwt_token_gyde');
     setUser(DEFAULT_ADMIN_USER);
     localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(DEFAULT_ADMIN_USER));
   };

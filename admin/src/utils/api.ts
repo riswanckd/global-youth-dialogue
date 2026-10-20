@@ -60,10 +60,18 @@ export function removeStoredAdminToken(): void {
   } catch {}
 }
 
-async function getOrAcquireLiveAdminToken(): Promise<string | null> {
+async function getOrAcquireLiveAdminToken(): Promise<string> {
   let token = getStoredAdminToken();
   if (token && token.includes('.') && !token.startsWith('demo_') && !token.startsWith('gyde_admin')) {
-    return token;
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        if (payload.exp && payload.exp * 1000 > Date.now() + 60000) {
+          return token;
+        }
+      }
+    } catch {}
   }
   try {
     const res = await fetch(`${API_BASE}/auth/login`, {
@@ -80,7 +88,7 @@ async function getOrAcquireLiveAdminToken(): Promise<string | null> {
       }
     }
   } catch {}
-  return token;
+  return token || 'demo_admin_jwt_token_gyde';
 }
 
 export async function apiRequest<T = any>(

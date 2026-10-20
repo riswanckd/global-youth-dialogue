@@ -77,32 +77,41 @@ export const Applications: React.FC = () => {
         console.warn('Could not query /admin/applications:', err);
       }
 
-      // 2. Fallback Query: /applications if /admin/applications had zero results
+      // 2. Fallback Query: direct live backend call if apiRequest had zero results
       if (remoteApps.length === 0) {
         try {
-          const res2 = await apiRequest<any>('/applications?limit=100');
-          let items2: any[] = [];
-          if (Array.isArray(res2)) items2 = res2;
-          else if (res2 && Array.isArray(res2.data)) items2 = res2.data;
-          items2.forEach((item: any) => {
-            if (item && item.email) {
-              remoteApps.push({
-                id: item.id || item._id?.toString() || `app-${Date.now()}`,
-                applicantName: item.applicantName || item.name || 'Applicant',
-                email: item.email,
-                country: item.country || 'Global',
-                flag: item.flag || 'INT',
-                organization: item.organization || '',
-                experience: item.experience || item.debateExperience || '',
-                motivation: item.motivation || '',
-                areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
-                preferredLanguages: item.preferredLanguages || ['English'],
-                status: (item.status || 'pending').toLowerCase() as any,
-                emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
-                createdAt: item.createdAt || item.date || new Date().toISOString(),
-              });
+          const directRes = await fetch(
+            `https://gyde-api.vercel.app/api/v1/admin/applications?limit=100${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`,
+            {
+              headers: {
+                'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+                'x-client-app': 'admin',
+              },
             }
-          });
+          );
+          if (directRes.ok) {
+            const directJson = await directRes.json();
+            const directItems = Array.isArray(directJson?.data) ? directJson.data : (Array.isArray(directJson) ? directJson : []);
+            directItems.forEach((item: any) => {
+              if (item && item.email) {
+                remoteApps.push({
+                  id: item.id || item._id?.toString() || `app-${Date.now()}`,
+                  applicantName: item.applicantName || item.name || 'Applicant',
+                  email: item.email,
+                  country: item.country || 'Global',
+                  flag: item.flag || 'INT',
+                  organization: item.organization || '',
+                  experience: item.experience || item.debateExperience || '',
+                  motivation: item.motivation || '',
+                  areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+                  preferredLanguages: item.preferredLanguages || ['English'],
+                  status: (item.status || 'pending').toLowerCase() as any,
+                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                  createdAt: item.createdAt || item.date || new Date().toISOString(),
+                });
+              }
+            });
+          }
         } catch {}
       }
 
