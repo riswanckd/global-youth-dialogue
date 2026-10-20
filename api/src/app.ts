@@ -14,6 +14,14 @@ const app = express();
 // Security HTTP headers
 app.use(helmet());
 
+// Strict Cache Control: bypass edge/CDN caches and isolate browser sessions
+app.use((_req, res, next) => {
+  res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 // CORS configuration with explicit frontend allowlist and Vercel preview support
 const allowedOrigins = [
   env.WEB_ORIGIN,

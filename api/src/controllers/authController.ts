@@ -15,7 +15,7 @@ import { env } from '../config/env';
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),
+  sameSite: 'lax' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
@@ -187,7 +187,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     // Bootstrap or authenticate founding Super Administrator
     if (
       normalizedEmail === 'admin@thegyde.in' &&
-      (password === 'thegyde@2026' || !password)
+      password === 'thegyde@2026'
     ) {
       if (!user) {
         user = await User.create({

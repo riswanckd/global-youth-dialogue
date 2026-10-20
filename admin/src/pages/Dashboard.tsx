@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
-import { apiRequest } from '../utils/api';
+import { apiRequest, getStoredAdminToken } from '../utils/api';
 import { DashboardStats, Application } from '../types';
 import {
   Users,
@@ -82,11 +82,12 @@ export const Dashboard: React.FC = () => {
       // Fallback: Direct live backend call if apiRequest returned zero items
       if (remoteApps.length === 0) {
         try {
+          const token = getStoredAdminToken();
           const directRes = await fetch(
             'https://gyde-api.vercel.app/api/v1/admin/applications?status=pending&limit=100',
             {
               headers: {
-                'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 'x-client-app': 'admin',
               },
             }
@@ -248,11 +249,12 @@ export const Dashboard: React.FC = () => {
 
       if (!remoteSuccess) {
         try {
+          const token = getStoredAdminToken();
           const directRes = await fetch(`https://gyde-api.vercel.app/api/v1/admin/applications/${id}/status`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
               'x-client-app': 'admin',
             },
             body: JSON.stringify({ status, email }),

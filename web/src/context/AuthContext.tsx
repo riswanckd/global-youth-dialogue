@@ -35,14 +35,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = getStoredToken();
     const cachedSession = localStorage.getItem(USER_SESSION_KEY);
 
-    // If no token and no cached session at all, definitely not authenticated
-    if (!token && !cachedSession) {
+    // If no token, browser is completely unauthenticated
+    if (!token) {
       setUser(null);
+      localStorage.removeItem(USER_SESSION_KEY);
       setLoading(false);
       return;
     }
 
-    // Immediately restore cached session so page refresh NEVER resets or flickers
+    // Temporarily restore cached session while validating with server
     if (cachedSession) {
       try {
         const parsed = JSON.parse(cachedSession);
@@ -53,22 +54,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // If we have a live real token, refresh user data from API
-      if (token && !token.startsWith('demo_') && !token.startsWith('gyde_super_admin')) {
-        const res = await apiRequest<{ user: User }>('/auth/me');
-        if (res?.user) {
-          setUser(res.user);
-          localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
-          return;
-        }
-      }
-    } catch (err: any) {
-      // Only clear if the server explicitly invalidated a real authenticated user token
-      if (err?.statusCode === 401 && token && !token.startsWith('demo_') && !token.startsWith('gyde_super_admin')) {
+      const res = await apiRequest<{ user: User }>('/auth/me');
+      if (res?.user) {
+        setUser(res.user);
+        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
+      } else {
         removeStoredToken();
         localStorage.removeItem(USER_SESSION_KEY);
         setUser(null);
-        return;
+      }
+    } catch (err: any) {
+      if (err?.statusCode === 401 || err?.statusCode === 403) {
+        removeStoredToken();
+        localStorage.removeItem(USER_SESSION_KEY);
+        setUser(null);
       }
     } finally {
       setLoading(false);
@@ -80,88 +79,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
+    const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (res.token) {
-        setStoredToken(res.token);
-      }
-      if (res.user) {
-        setUser(res.user);
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
-      }
-    } catch (err: any) {
-      const cleanEmail = (email || '').trim().toLowerCase();
-      if (cleanEmail === 'admin@thegyde.in' || cleanEmail === 'superadmin@thegyde.in') {
-        if (password === 'thegyde@2026' || !password) {
-          const superAdminUser: User = {
-            id: 'gyde-super-admin-01',
-            name: 'GYDE Super Administrator',
-            email: 'admin@thegyde.in',
-            role: 'SUPER_ADMIN',
-            status: 'active',
-            emailVerified: true,
-            country: 'India',
-            organization: 'Global Youth Dialogue & Exchange Secretariat',
-            bio: 'Founding Coordinator and Chief Platform Administrator',
-            createdAt: new Date().toISOString(),
-          };
-          setStoredToken('gyde_super_admin_jwt_token');
-          setUser(superAdminUser);
-          localStorage.setItem(USER_SESSION_KEY, JSON.stringify(superAdminUser));
-          return;
-        }
-      }
-      if (
-        cleanEmail === 'debater.demo@thegyde.in' ||
-        cleanEmail === 'member@thegyde.in' ||
-        cleanEmail === 'demo@thegyde.in' ||
-        cleanEmail === 'member@gyde.org' ||
-        cleanEmail === 'demo@gyde.org'
-      ) {
-        const demoMember: User = {
-          id: 'demo-member-kofi',
-          name: 'Kofi Mensah',
-          email: cleanEmail,
-          role: 'member',
-          status: 'active',
-          emailVerified: true,
-          country: 'Ghana',
-          organization: 'University of Ghana Youth Forum',
-          bio: 'Youth fellow and academic researcher, Qatar ISDC7 participant.',
-          createdAt: new Date().toISOString(),
-        };
-        setStoredToken('demo_member_jwt_token');
-        setUser(demoMember);
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(demoMember));
-        return;
-      }
-      if (
-        cleanEmail === 'presenter.demo@thegyde.in' ||
-        cleanEmail === 'presenter@thegyde.in' ||
-        cleanEmail === 'presenter@gyde.org'
-      ) {
-        const demoPresenter: User = {
-          id: 'demo-presenter-layla',
-          name: 'Dr. Layla Al-Mansouri',
-          email: cleanEmail,
-          role: 'PRESENTER',
-          status: 'active',
-          emailVerified: true,
-          country: 'Qatar',
-          organization: 'Georgetown University Qatar / ISDC7',
-          bio: 'Keynote Orator & International Dialogue Fellow.',
-          createdAt: new Date().toISOString(),
-        };
-        setStoredToken('demo_presenter_jwt_token');
-        setUser(demoPresenter);
-        localStorage.setItem(USER_SESSION_KEY, JSON.stringify(demoPresenter));
-        return;
-      }
-      throw err;
+    if (res.token) {
+      setStoredToken(res.token);
+    }
+    if (res.user) {
+      setUser(res.user);
+      localStorage.setItem(USER_SESSION_KEY, JSON.stringify(res.user));
     }
   };
 

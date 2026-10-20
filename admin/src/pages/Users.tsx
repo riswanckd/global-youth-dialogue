@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { useAdminAuth } from '../context/AdminAuthContext';
-import { apiRequest } from '../utils/api';
+import { apiRequest, getStoredAdminToken } from '../utils/api';
 import { User, UserRole } from '../types';
 import {
   Users as UsersIcon,
@@ -138,11 +138,12 @@ export const Users: React.FC = () => {
 
       if (!remoteSuccess) {
         try {
+          const token = getStoredAdminToken();
           const directRes = await fetch(`https://gyde-api.vercel.app/api/v1/admin/users/${id}/role`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
               'x-client-app': 'admin',
             },
             body: JSON.stringify({ role, allowedMenus, email }),

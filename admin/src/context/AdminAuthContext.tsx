@@ -37,41 +37,47 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const refreshUser = async () => {
     try {
-      // 1. Check local session cache first
-      const cached = localStorage.getItem(ADMIN_SESSION_KEY);
-      if (cached) {
+      const storedToken = localStorage.getItem('gyde_admin_token');
+      const cachedSession = localStorage.getItem(ADMIN_SESSION_KEY);
+
+      // If no token exists in this browser instance, strictly remain unauthenticated
+      if (!storedToken || storedToken.startsWith('demo_') || storedToken.startsWith('gyde_admin_super_clearance')) {
+        removeStoredAdminToken();
+        localStorage.removeItem(ADMIN_SESSION_KEY);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // Check if JWT token is expired
+      try {
+        const parts = storedToken.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          if (payload.exp && payload.exp * 1000 <= Date.now()) {
+            removeStoredAdminToken();
+            localStorage.removeItem(ADMIN_SESSION_KEY);
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch {}
+
+      // Fast restore of existing browser session
+      if (cachedSession) {
         try {
-          const parsed = JSON.parse(cached);
+          const parsed = JSON.parse(cachedSession);
           if (parsed && (parsed.role === 'ADMIN' || parsed.role === 'SUPER_ADMIN' || parsed.role === 'COORDINATOR')) {
             setUser(parsed);
           }
         } catch {}
       }
 
-      // 2. Ensure we have a valid JWT token; if missing or demo token, auto-acquire live token
-      let currentToken = localStorage.getItem('gyde_admin_token');
-      if (!currentToken || currentToken === 'demo_admin_jwt_token_gyde') {
-        try {
-          const loginRes = await apiRequest<{ user: User; token?: string }>('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ email: 'admin@thegyde.in', password: 'thegyde@2026' }),
-          });
-          if (loginRes.token) {
-            setStoredAdminToken(loginRes.token);
-            currentToken = loginRes.token;
-            if (loginRes.user) {
-              setUser(loginRes.user);
-              localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(loginRes.user));
-              return;
-            }
-          }
-        } catch {}
-      }
-
-      // 3. Attempt remote session verification if token exists
+      // Verify session with backend using this browser's credentials
       const res = await apiRequest<{ user: User }>('/auth/me');
-      const u = res.user;
-      const roleUpper = u.role?.toUpperCase();
+      const u = res?.user;
+      const roleUpper = u?.role?.toUpperCase();
       if (roleUpper === 'ADMIN' || roleUpper === 'SUPER_ADMIN' || roleUpper === 'COORDINATOR') {
         setUser(u);
         localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
@@ -81,17 +87,10 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setUser(null);
       }
     } catch {
-      // If offline or network error, keep cached session if valid
-      const cached = localStorage.getItem(ADMIN_SESSION_KEY);
-      if (cached) {
-        try {
-          setUser(JSON.parse(cached));
-        } catch {
-          setUser(null);
-        }
-      } else {
-        setUser(DEFAULT_ADMIN_USER);
-      }
+      // If server explicitly rejects token (401/403), invalidate session
+      removeStoredAdminToken();
+      localStorage.removeItem(ADMIN_SESSION_KEY);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -101,67 +100,40 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     refreshUser();
   }, []);
 
-  const instantCoordinatorLogin = async () => {
-    try {
-      const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email: 'admin@thegyde.in', password: 'thegyde@2026' }),
-      });
-      if (res?.token) {
-        setStoredAdminToken(res.token);
-      }
-      if (res?.user) {
-        setUser(res.user);
-        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(res.user));
-        return;
-      }
-    } catch {}
-    setStoredAdminToken('demo_admin_jwt_token_gyde');
-    setUser(DEFAULT_ADMIN_USER);
-    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(DEFAULT_ADMIN_USER));
-  };
-
   const login = async (rawEmail: string, rawPassword: string) => {
     const email = (rawEmail || '').trim().toLowerCase();
     const password = (rawPassword || '').trim();
 
-    try {
-      const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
-      const u = res?.user;
-      const roleUpper = u?.role?.toUpperCase();
-      if (roleUpper !== 'ADMIN' && roleUpper !== 'SUPER_ADMIN' && roleUpper !== 'COORDINATOR') {
-        if (email === 'admin@thegyde.in') {
-          await instantCoordinatorLogin();
-          return;
-        }
-        await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
-        removeStoredAdminToken();
-        localStorage.removeItem(ADMIN_SESSION_KEY);
-        throw new Error('Access denied. The Admin Panel is strictly restricted to platform administrators.');
-      }
-      if (res?.token) {
-        setStoredAdminToken(res.token);
-      }
-      if (u) {
-        setUser(u);
-        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
-      }
-    } catch (err: any) {
-      // Robust fallback for primary Super Administrator credentials
-      if (email === 'admin@thegyde.in' && (password === 'thegyde@2026' || !password)) {
-        await instantCoordinatorLogin();
-        return;
-      }
-      throw err;
+    const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+
+    const u = res?.user;
+    const roleUpper = u?.role?.toUpperCase();
+    if (roleUpper !== 'ADMIN' && roleUpper !== 'SUPER_ADMIN' && roleUpper !== 'COORDINATOR') {
+      await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
+      removeStoredAdminToken();
+      localStorage.removeItem(ADMIN_SESSION_KEY);
+      throw new Error('Access denied. The Admin Panel is strictly restricted to platform administrators.');
     }
+
+    if (res?.token) {
+      setStoredAdminToken(res.token);
+    }
+    if (u) {
+      setUser(u);
+      localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
+    }
+  };
+
+  const instantCoordinatorLogin = () => {
+    // Deprecated for cross-device security; redirect to explicit credentials login
   };
 
   const logout = async () => {
     try {
-      await apiRequest('/auth/logout', { method: 'POST' });
+      await apiRequest('/auth/logout', { method: 'POST' }).catch(() => {});
     } finally {
       removeStoredAdminToken();
       localStorage.removeItem(ADMIN_SESSION_KEY);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
-import { apiRequest } from '../utils/api';
+import { apiRequest, getStoredAdminToken } from '../utils/api';
 import { Application } from '../types';
 import {
   Inbox,
@@ -86,11 +86,12 @@ export const Applications: React.FC = () => {
       // 2. Fallback Query: direct live backend call if apiRequest had zero results
       if (remoteApps.length === 0) {
         try {
+          const token = getStoredAdminToken();
           const directRes = await fetch(
             `https://gyde-api.vercel.app/api/v1/admin/applications?limit=100${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`,
             {
               headers: {
-                'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 'x-client-app': 'admin',
               },
             }
@@ -253,11 +254,12 @@ export const Applications: React.FC = () => {
 
       if (!remoteSuccess) {
         try {
+          const token = getStoredAdminToken();
           const directRes = await fetch(`https://gyde-api.vercel.app/api/v1/admin/applications/${id}/status`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer demo_admin_jwt_token_gyde',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
               'x-client-app': 'admin',
             },
             body: JSON.stringify({
