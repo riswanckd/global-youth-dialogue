@@ -152,13 +152,13 @@ export const AdminLayout: React.FC = () => {
       )}
 
       {/* TOP NAVBAR */}
-      <header className="shrink-0 z-40 w-full h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
-          {/* Left: Brand Logo */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <header className="shrink-0 z-30 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
+          {/* Left: Brand Logo & Mobile Trigger */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 -ml-1 rtl:-ml-0 rtl:-mr-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              className="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -167,7 +167,7 @@ export const AdminLayout: React.FC = () => {
               <img
                 src="/assets/images/gyde_official_logo.svg"
                 alt="GYDE Official Logo"
-                className="h-8 sm:h-10 w-auto object-contain dark:hidden"
+                className="h-7 sm:h-9 w-auto object-contain dark:hidden"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo.png';
                 }}
@@ -175,7 +175,7 @@ export const AdminLayout: React.FC = () => {
               <img
                 src="/assets/images/gyde_official_logo_dark.svg"
                 alt="GYDE Official Logo"
-                className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
+                className="h-7 sm:h-9 w-auto object-contain hidden dark:block"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo_dark.png';
                 }}
@@ -184,9 +184,9 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2.5">
             {/* Search Pill (Hidden on mobile) */}
-            <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-xs text-slate-500 hover:border-slate-300 transition-colors">
+            <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-xs text-slate-500 hover:border-slate-300 transition-colors">
               <Search className="w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
@@ -199,7 +199,7 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={toggleTheme}
               title={t('nav.lightDark', 'Toggle Light / Dark mode')}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
@@ -208,7 +208,7 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={() => setNotificationsOpen(true)}
               title={t('nav.notifications', 'Notifications')}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0 cursor-pointer"
             >
               <Bell className="w-4 h-4" />
               {!notificationsRead && (
@@ -220,19 +220,21 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={toggleLanguage}
               title={t('nav.switchLanguage', 'Switch Language / تغيير اللغة')}
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shrink-0"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
             >
               <Globe className="w-3.5 h-3.5 text-slate-500 shrink-0" />
               <span className="hidden sm:inline">{isArabic ? 'English' : 'العربية'}</span>
-              <span className="sm:hidden text-[11px] font-bold">{isArabic ? 'EN' : 'عربي'}</span>
+              <span className="sm:hidden font-bold">{isArabic ? 'EN' : 'عربي'}</span>
             </button>
 
             {/* Sign Out Button */}
             <button
               onClick={handleLogout}
-              className="px-2.5 sm:px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+              title={t('nav.signOut', 'Sign Out')}
             >
-              {t('nav.signOut', 'Sign Out')}
+              <LogOut className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <span className="hidden sm:inline">{t('nav.signOut', 'Sign Out')}</span>
             </button>
           </div>
         </div>
@@ -240,17 +242,55 @@ export const AdminLayout: React.FC = () => {
 
       {/* BODY WITH SIDEBAR AND MAIN CONTENT */}
       <div className="flex-1 flex max-w-[1600px] w-full mx-auto overflow-hidden relative">
-        {/* SIDEBAR DESKTOP & MOBILE DRAWER */}
+        {/* MOBILE BACKDROP OVERLAY */}
+        {mobileMenuOpen && (
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs lg:hidden transition-opacity"
+            aria-hidden="true"
+          />
+        )}
+
+        {/* SIDEBAR DESKTOP & FULL-HEIGHT MOBILE DRAWER */}
         <aside
           className={`
-            fixed lg:static top-[72px] bottom-0 left-0 rtl:left-auto rtl:right-0 z-30 lg:z-10
-            h-[calc(100vh-72px)] lg:h-full w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
-            flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200 select-none
-            ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
+            fixed inset-y-0 left-0 rtl:left-auto rtl:right-0 z-50 lg:static lg:z-10
+            h-full w-[290px] max-w-[85vw] lg:w-64 bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
+            flex flex-col justify-between py-4 px-3 shrink-0 transition-transform duration-200 select-none shadow-2xl lg:shadow-none
+            ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0'}
           `}
         >
-          {/* Upper Sidebar: Profile Card & Menu */}
+          {/* Upper Sidebar: Drawer Top Bar + Profile Card + Menu */}
           <div className="flex flex-col flex-1 overflow-y-auto space-y-3 overscroll-contain no-scrollbar">
+            {/* Mobile Drawer Top Bar with Close Button */}
+            <div className="lg:hidden flex items-center justify-between pb-2 px-1 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/assets/images/gyde_official_logo.svg"
+                  alt="GYDE Official Logo"
+                  className="h-7 w-auto object-contain dark:hidden"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo.png';
+                  }}
+                />
+                <img
+                  src="/assets/images/gyde_official_logo_dark.svg"
+                  alt="GYDE Official Logo"
+                  className="h-7 w-auto object-contain hidden dark:block"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/images/gyde_full_logo_dark.png';
+                  }}
+                />
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Close Navigation"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             {/* User Profile Card */}
             <div className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-slate-800/50 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-[#1e2540] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
@@ -281,7 +321,7 @@ export const AdminLayout: React.FC = () => {
                     <div
                       key={item.label}
                       title={t('access.restrictedTooltip', 'Module access restricted by Super Administrator')}
-                      className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-400 dark:text-slate-600 bg-slate-50/40 dark:bg-slate-900/40 opacity-40 cursor-not-allowed select-none border border-transparent"
+                      className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 dark:text-slate-600 bg-slate-50/40 dark:bg-slate-900/40 opacity-40 cursor-not-allowed select-none border border-transparent"
                     >
                       <div className="flex items-center gap-3 truncate">
                         <Icon className="w-4 h-4 shrink-0 text-slate-400 dark:text-slate-600" />
@@ -300,7 +340,7 @@ export const AdminLayout: React.FC = () => {
                     key={item.label}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-colors ${
                       isActive
                         ? 'bg-[#f1f5f9] dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white font-medium'
@@ -317,8 +357,11 @@ export const AdminLayout: React.FC = () => {
           {/* Lower Sidebar: Delete Trial Data & Sign Out */}
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
             <button
-              onClick={() => setDeleteModalOpen(true)}
-              className="w-full rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-rose-100/60 dark:hover:bg-rose-900/30 transition-colors"
+              onClick={() => {
+                setDeleteModalOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 hover:bg-rose-100/60 dark:hover:bg-rose-900/30 transition-colors"
             >
               <Trash2 className="w-4 h-4 text-rose-500 shrink-0" />
               <span>{t('menu.deleteTrialData', 'Delete Trial Data')}</span>
@@ -326,7 +369,7 @@ export const AdminLayout: React.FC = () => {
 
             <button
               onClick={handleLogout}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               <LogOut className="w-4 h-4 text-slate-500 shrink-0" />
               <span>{t('nav.signOut', 'Sign Out')}</span>
@@ -334,16 +377,8 @@ export const AdminLayout: React.FC = () => {
           </div>
         </aside>
 
-        {/* Mobile Backdrop */}
-        {mobileMenuOpen && (
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 z-20 bg-slate-950/40 backdrop-blur-sm lg:hidden"
-          />
-        )}
-
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-w-0 h-full p-4 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
+        <main className="flex-1 min-w-0 h-full p-3.5 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
           {!isCurrentRouteAuthorized ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm max-w-lg mx-auto my-12">
               <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">

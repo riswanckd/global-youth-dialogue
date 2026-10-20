@@ -40,6 +40,24 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const cleanTopic = proposedTopic.trim();
+    const cleanExp = experience.trim();
+    const cleanIntent = statementOfIntent.trim();
+
+    if (!cleanTopic) {
+      setError(isArabic ? 'يرجى كتابة الموضوع أو الأطروحة المقترحة' : 'Please provide a proposed topic or thesis.');
+      return;
+    }
+    if (!cleanExp) {
+      setError(isArabic ? 'يرجى كتابة نبذة عن خلفيتك الأكاديمية أو الخطابية' : 'Please provide your academic, public speaking, or debate background.');
+      return;
+    }
+    if (!cleanIntent) {
+      setError(isArabic ? 'يرجى كتابة بيان القصد' : 'Please provide your statement of intent.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -48,11 +66,11 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
         body: JSON.stringify({
           countryChapter,
           sphere,
-          proposedTopic,
-          experience,
+          proposedTopic: cleanTopic,
+          experience: cleanExp,
           dossierUrl: dossierUrl.trim() || undefined,
           preferredFormat,
-          statementOfIntent,
+          statementOfIntent: cleanIntent,
         }),
       });
 
@@ -61,7 +79,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
       setTimeout(() => {
         setSuccessMsg(null);
         onClose();
-      }, 2500);
+      }, 2000);
     } catch (err: any) {
       setError(err?.message || 'Failed to submit presenter application. Please try again.');
     } finally {
@@ -71,36 +89,13 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
 
   return (
     <div
-      className="modal-overlay"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.25rem',
-        overflowY: 'auto',
-      }}
+      className="modal-overlay p-2 sm:p-4 fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 backdrop-blur-xs overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="modal-dialog modal-wide"
-        style={{
-          background: 'var(--bg-card, #ffffff)',
-          borderRadius: '16px',
-          width: '100%',
-          maxWidth: '680px',
-          maxHeight: '92vh',
-          overflowY: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          padding: '2rem',
-          position: 'relative',
-        }}
+        className="modal-dialog modal-wide bg-white dark:bg-slate-900 rounded-2xl w-full max-w-[620px] max-h-[92dvh] overflow-y-auto shadow-2xl p-4 sm:p-7 relative border border-slate-100 dark:border-slate-800"
       >
         <button
           className="modal-close-btn"

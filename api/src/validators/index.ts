@@ -66,13 +66,13 @@ export const reviewApplicationSchema = z.object({
 });
 
 export const presenterApplicationSchema = z.object({
-  countryChapter: z.string().min(2, 'Country & Chapter Affiliation is required'),
-  sphere: z.string().min(2, 'Primary Academic Sphere is required'),
-  proposedTopic: z.string().min(3, 'Proposed Topic or Thesis is required'),
-  experience: z.string().min(10, 'Academic, public speaking, or debate background is required'),
+  countryChapter: z.string().min(1, 'Country & Chapter Affiliation is required'),
+  sphere: z.string().min(1, 'Primary Academic Sphere is required'),
+  proposedTopic: z.string().min(1, 'Proposed Topic or Thesis is required'),
+  experience: z.string().min(1, 'Academic, public speaking, or debate background is required'),
   dossierUrl: z.string().optional().or(z.literal('')),
   preferredFormat: z.string().optional(),
-  statementOfIntent: z.string().min(10, 'Statement of Intent is required'),
+  statementOfIntent: z.string().min(1, 'Statement of Intent is required'),
 });
 
 // Session Validators
