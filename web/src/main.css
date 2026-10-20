@@ -282,6 +282,12 @@ button, input, select, textarea {
   font-size: inherit;
 }
 
+button {
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
 img {
   max-width: 100%;
   height: auto;

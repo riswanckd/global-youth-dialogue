@@ -167,11 +167,11 @@ export const PortalLayout: React.FC = () => {
           </div>
 
           {/* Center: Multi-Dashboard Access Controller / Switcher (Hidden on mobile, placed inside drawer) */}
-          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-slate-100/80 dark:bg-slate-800/80">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border-0 border-none">
             <button
               type="button"
               onClick={() => toggleDashboardMode('member')}
-              className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border-0 border-none outline-none ${
                 activeDashboardMode === 'member'
                   ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -184,7 +184,7 @@ export const PortalLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => toggleDashboardMode('presenter')}
-              className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border-0 border-none outline-none ${
                 activeDashboardMode === 'presenter'
                   ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -204,7 +204,7 @@ export const PortalLayout: React.FC = () => {
                 href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174/dashboard' : 'https://gyde-admin.vercel.app/dashboard'}
                 target={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? undefined : '_blank'}
                 rel={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? undefined : 'noopener noreferrer'}
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50/90 dark:bg-amber-950/60 hover:bg-amber-100/90 transition-colors"
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50/90 dark:bg-amber-950/60 hover:bg-amber-100/90 transition-colors border-0 border-none outline-none"
                 title="Universal Admin Access"
               >
                 <Shield className="w-3.5 h-3.5 text-amber-600" />
@@ -216,7 +216,7 @@ export const PortalLayout: React.FC = () => {
           {/* Right: Actions (Borderless, low-opacity professional fills) */}
           <div className="flex items-center gap-1 sm:gap-2.5">
             {/* Search Pill (Hidden on mobile) */}
-            <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-xs text-slate-500 hover:bg-slate-200/70 transition-colors">
+            <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-xs text-slate-500 hover:bg-slate-200/70 transition-colors border-0 border-none outline-none">
               <Search className="w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
@@ -229,7 +229,7 @@ export const PortalLayout: React.FC = () => {
             <button
               onClick={toggleTheme}
               title={isArabic ? 'تبديل المظهر' : 'Toggle Light / Dark mode'}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer border-0 border-none outline-none"
             >
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
@@ -239,7 +239,7 @@ export const PortalLayout: React.FC = () => {
               type="button"
               onClick={() => setNotificationsOpen(true)}
               title={isArabic ? 'الإشعارات' : 'Notifications'}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 relative transition-colors shrink-0 cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 relative transition-colors shrink-0 cursor-pointer border-0 border-none outline-none"
             >
               <Bell className="w-4 h-4" />
               {!notificationsRead && (
@@ -251,7 +251,7 @@ export const PortalLayout: React.FC = () => {
             <button
               onClick={toggleLanguage}
               title={isArabic ? 'Switch Language' : 'تغيير اللغة'}
-              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100/80 dark:bg-slate-800/80 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer border-0 border-none outline-none"
             >
               <Globe className="w-3.5 h-3.5 text-slate-500 shrink-0" />
               <span className="hidden sm:inline">{isArabic ? 'English' : 'العربية'}</span>
@@ -261,7 +261,7 @@ export const PortalLayout: React.FC = () => {
             {/* Sign Out Button */}
             <button
               onClick={handleLogout}
-              className="px-2.5 sm:px-3.5 py-1.5 rounded-full bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-950/60 text-[11px] sm:text-xs font-bold text-rose-600 dark:text-rose-400 transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-full bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-950/60 text-[11px] sm:text-xs font-bold text-rose-600 dark:text-rose-400 transition-colors shrink-0 flex items-center gap-1 cursor-pointer border-0 border-none outline-none"
               title={isArabic ? 'تسجيل الخروج' : 'Sign Out'}
             >
               <LogOut className="w-3.5 h-3.5 text-rose-500 shrink-0" />
@@ -414,7 +414,7 @@ export const PortalLayout: React.FC = () => {
                   setPresenterModalOpen(true);
                   setMobileMenuOpen(false);
                 }}
-                className="w-full rounded-xl bg-indigo-50/70 hover:bg-indigo-100/80 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 transition-colors cursor-pointer"
+                className="w-full rounded-xl bg-indigo-50/70 hover:bg-indigo-100/80 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 transition-colors cursor-pointer border-0 border-none outline-none"
               >
                 <Shield className="w-4 h-4 text-indigo-500 shrink-0" />
                 <span className="truncate">{isArabic ? 'طلب الاعتماد كمتحدث' : 'Request to be Presenter'}</span>
@@ -426,13 +426,13 @@ export const PortalLayout: React.FC = () => {
                   toggleDashboardMode('presenter');
                   setMobileMenuOpen(false);
                 }}
-                className="w-full rounded-xl bg-emerald-50/70 hover:bg-emerald-100/80 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 transition-colors cursor-pointer"
+                className="w-full rounded-xl bg-emerald-50/70 hover:bg-emerald-100/80 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 transition-colors cursor-pointer border-0 border-none outline-none"
               >
                 <Mic className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span className="truncate">{isArabic ? 'التبديل إلى لوحة المتحدث' : 'Switch to Presenter Dashboard'}</span>
               </button>
             ) : (
-              <div className="w-full rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5">
+              <div className="w-full rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2.5 px-3 py-2.5 border-0 border-none" stroke-none="true">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span className="truncate">{isArabic ? 'متحدث رسمي معتمد' : 'Accredited Presenter'}</span>
               </div>
@@ -441,7 +441,7 @@ export const PortalLayout: React.FC = () => {
             {/* Red color effect/shade for sign out button (Borderless, low opacity) */}
             <button
               onClick={handleLogout}
-              className="w-full rounded-xl bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2.5 px-3 py-2.5 transition-all cursor-pointer"
+              className="w-full rounded-xl bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2.5 px-3 py-2.5 transition-all cursor-pointer border-0 border-none outline-none"
             >
               <LogOut className="w-4 h-4 text-rose-500 shrink-0" />
               <span>{isArabic ? 'تسجيل الخروج' : 'Sign Out'}</span>
