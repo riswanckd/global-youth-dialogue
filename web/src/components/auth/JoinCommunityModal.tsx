@@ -252,13 +252,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
       try {
         const newRecord: any = {
           id: appData?.id || appData?._id || `app-${Date.now()}`,
+          name: applicantName,
           applicantName,
           email: normalizedEmail,
           country,
           organization: organization.trim() || 'Independent Scholar',
           experience: experience.trim() || 'Youth fellow applicant',
+          debateExperience: experience.trim() || 'Youth fellow applicant',
           motivation: motivation.trim() || 'Desire to contribute to international youth dialogue & academic exchange.',
           areasOfInterest,
+          interests: areasOfInterest,
           status: 'pending',
           emailVerified: true,
           createdAt: new Date().toISOString(),

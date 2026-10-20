@@ -733,7 +733,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Handle New Application Submission (action: 'submitApplication' or standard form post)
-      const name = (body.name || '').trim();
+      const name = (body.name || body.applicantName || '').trim();
       const email = (body.email || '').trim();
       const country = (body.country || 'Global').trim();
 
@@ -744,12 +744,16 @@ module.exports = async function handler(req, res) {
       const newApp = {
         id: body.id || ('app_' + Date.now().toString(36)),
         name,
+        applicantName: name,
         email,
         password: body.password || '',
         country,
         flag: body.flag || 'INT',
-        interests: Array.isArray(body.interests) ? body.interests : (body.interests ? [body.interests] : ['Global Affairs']),
-        debateExperience: body.debateExperience || '',
+        organization: body.organization || '',
+        interests: Array.isArray(body.interests) ? body.interests : (Array.isArray(body.areasOfInterest) ? body.areasOfInterest : ['Global Affairs']),
+        areasOfInterest: Array.isArray(body.areasOfInterest) ? body.areasOfInterest : (Array.isArray(body.interests) ? body.interests : ['Global Affairs']),
+        debateExperience: body.debateExperience || body.experience || '',
+        experience: body.experience || body.debateExperience || '',
         motivation: body.motivation || '',
         status: body.status || 'Pending',
         emailVerified: body.emailVerified !== undefined ? body.emailVerified : true,

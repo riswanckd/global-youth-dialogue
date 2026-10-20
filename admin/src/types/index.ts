@@ -26,6 +26,8 @@ export interface Application {
   experience: string;
   motivation: string;
   areasOfInterest: string[];
+  flag?: string;
+  preferredLanguages?: string[];
   status: 'pending' | 'under_review' | 'approved' | 'rejected' | 'deleted';
   reviewedBy?: {
     id: string;

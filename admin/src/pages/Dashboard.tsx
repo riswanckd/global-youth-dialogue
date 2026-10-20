@@ -43,10 +43,89 @@ export const Dashboard: React.FC = () => {
     queryFn: () => apiRequest<DashboardStats>('/admin/dashboard/stats').catch(() => null as any),
   });
 
-  // Fetch pending applications
+  // Fetch pending applications with multi-source synchronization (MongoDB + Serverless + Local Cache)
   const { data: applications = [] } = useQuery<Application[]>({
     queryKey: ['admin-applications', 'pending'],
-    queryFn: () => apiRequest<Application[]>('/admin/applications?status=pending').catch(() => []),
+    queryFn: async () => {
+      let remoteApps: Application[] = [];
+      try {
+        const res = await apiRequest<any>('/admin/applications?status=pending');
+        if (Array.isArray(res)) {
+          remoteApps = res;
+        } else if (res && Array.isArray(res.data)) {
+          remoteApps = res.data;
+        }
+      } catch {}
+
+      // Fallback: Query /applications
+      if (remoteApps.length === 0) {
+        try {
+          const res2 = await apiRequest<any>('/applications');
+          if (Array.isArray(res2)) {
+            remoteApps = res2;
+          } else if (res2 && Array.isArray(res2.data)) {
+            remoteApps = res2.data;
+          }
+        } catch {}
+      }
+
+      // Query Vercel Serverless Function /api/applications
+      try {
+        const sRes = await fetch('/api/applications');
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (Array.isArray(sData)) {
+            sData.forEach((item: any) => {
+              if (item && item.email) {
+                remoteApps.push({
+                  id: item.id || `app-${Date.now()}`,
+                  applicantName: item.applicantName || item.name || 'Applicant',
+                  email: item.email,
+                  country: item.country || 'Global',
+                  flag: item.flag || 'INT',
+                  organization: item.organization || '',
+                  experience: item.experience || item.debateExperience || '',
+                  motivation: item.motivation || '',
+                  areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+                  preferredLanguages: item.preferredLanguages || ['English'],
+                  status: (item.status || 'pending').toLowerCase() as any,
+                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                  createdAt: item.createdAt || item.date || new Date().toISOString(),
+                });
+              }
+            });
+          }
+        }
+      } catch {}
+
+      // Check local shared applications cache
+      let localApps: Application[] = [];
+      try {
+        const cached = localStorage.getItem('gyde_cached_applications');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) localApps = parsed;
+        }
+      } catch {}
+
+      const mergedMap = new Map<string, Application>();
+      remoteApps.forEach((app) => {
+        if (app && app.email) mergedMap.set(app.email.toLowerCase(), app);
+      });
+      localApps.forEach((app) => {
+        if (!app || !app.email) return;
+        const existing = mergedMap.get(app.email.toLowerCase());
+        if (!existing) {
+          mergedMap.set(app.email.toLowerCase(), app);
+        } else if (app.status === 'pending' && existing.status !== 'pending') {
+          mergedMap.set(app.email.toLowerCase(), { ...existing, ...app });
+        }
+      });
+
+      return Array.from(mergedMap.values()).filter(
+        (a) => a.status === 'pending' || (a.status as any) === 'Pending'
+      );
+    },
   });
 
   // Approve / Decline mutation

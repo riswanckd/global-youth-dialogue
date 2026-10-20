@@ -53,17 +53,34 @@ export const Applications: React.FC = () => {
         console.warn('Could not query /admin/applications:', err);
       }
 
-      // If remote returned nothing, try querying /applications as resilient fallback
-      if (remoteApps.length === 0) {
-        try {
-          const fallbackRes = await apiRequest<any>('/applications');
-          if (Array.isArray(fallbackRes)) {
-            remoteApps = fallbackRes;
-          } else if (fallbackRes && Array.isArray(fallbackRes.data)) {
-            remoteApps = fallbackRes.data;
+      // Query Vercel Serverless Function /api/applications
+      try {
+        const sRes = await fetch('/api/applications');
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (Array.isArray(sData)) {
+            sData.forEach((item: any) => {
+              if (item && item.email) {
+                remoteApps.push({
+                  id: item.id || `app-${Date.now()}`,
+                  applicantName: item.applicantName || item.name || 'Applicant',
+                  email: item.email,
+                  country: item.country || 'Global',
+                  flag: item.flag || 'INT',
+                  organization: item.organization || '',
+                  experience: item.experience || item.debateExperience || '',
+                  motivation: item.motivation || '',
+                  areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+                  preferredLanguages: item.preferredLanguages || ['English'],
+                  status: (item.status || 'pending').toLowerCase() as any,
+                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+                  createdAt: item.createdAt || item.date || new Date().toISOString(),
+                });
+              }
+            });
           }
-        } catch {}
-      }
+        }
+      } catch {}
 
       // Check local shared applications cache (inter-connected across web & admin)
       let localApps: Application[] = [];

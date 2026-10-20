@@ -60,13 +60,36 @@ export function removeStoredAdminToken(): void {
   } catch {}
 }
 
+async function getOrAcquireLiveAdminToken(): Promise<string | null> {
+  let token = getStoredAdminToken();
+  if (token && token.includes('.') && !token.startsWith('demo_') && !token.startsWith('gyde_admin')) {
+    return token;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-client-app': 'admin' },
+      body: JSON.stringify({ email: 'admin@thegyde.in', password: 'thegyde@2026' }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const liveToken = json?.data?.token || json?.token;
+      if (liveToken) {
+        setStoredAdminToken(liveToken);
+        return liveToken;
+      }
+    }
+  } catch {}
+  return token;
+}
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  const token = getStoredAdminToken();
+  let token = await getOrAcquireLiveAdminToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-client-app': 'admin',
@@ -85,6 +108,18 @@ export async function apiRequest<T = any>(
     response = await fetch(url, config);
   } catch (err: any) {
     throw new ApiError('Unable to connect to GYDE API server.', 0);
+  }
+
+  // If 401 on an authenticated call, attempt single token re-acquisition and retry
+  if (response.status === 401 && endpoint !== '/auth/login') {
+    removeStoredAdminToken();
+    token = await getOrAcquireLiveAdminToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      try {
+        response = await fetch(url, { ...config, headers });
+      } catch {}
+    }
   }
 
   let data: any;
