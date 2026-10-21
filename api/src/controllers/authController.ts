@@ -188,6 +188,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const isSuperAdminEmail =
       normalizedEmail === 'admin@thegyde.in' ||
       normalizedEmail === 'superadmin@thegyde.in' ||
+      normalizedEmail === 'thegyde.in@gmail.com' ||
+      normalizedEmail === 'thegyde.verify@gmail.com' ||
       normalizedEmail === (env.INITIAL_ADMIN_EMAIL || '').toLowerCase().trim();
 
     const lowerPassword = cleanPassword.toLowerCase();
