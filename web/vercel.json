@@ -6,6 +6,14 @@
       "destination": "https://gyde-api.vercel.app/api/:path*"
     },
     {
+      "source": "/admin",
+      "destination": "https://gyde-admin.vercel.app"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "https://gyde-admin.vercel.app/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
