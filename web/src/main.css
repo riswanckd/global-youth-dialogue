@@ -5469,11 +5469,19 @@ body.rtl-mode .mobile-nav-drawer {
   .w-sections-preview,
   .debate-chamber-grid,
   .speakers-matrix-grid,
-  .home-session-details-grid,
-  .analytics-hero-grid,
-  .badges-showcase-grid {
+  .home-session-details-grid {
     grid-template-columns: 1fr !important;
     gap: 1rem !important;
+  }
+
+  /* 2x2 Stats, Badges, and Free-Space Metric Grids on Mobile */
+  .analytics-hero-grid,
+  .badges-showcase-grid,
+  .coord-kpi-grid,
+  .metrics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem 0.75rem !important;
   }
 
   /* "Inside GYDE" Peek Carousel on Mobile: Half Box 1, Full Box 2, Half Box 3 */
@@ -9924,7 +9932,8 @@ html[dir="rtl"] .mobile-nav-drawer.open {
   .kpi-number,
   .stat-value,
   .metric-number-animated,
-  .stat-metric {
+  .stat-metric,
+  .analytics-stat-num {
     font-family: 'Sora', sans-serif !important;
     font-size: 1.45rem !important;
     font-weight: 800 !important;
@@ -9934,11 +9943,37 @@ html[dir="rtl"] .mobile-nav-drawer.open {
 
   .kpi-label,
   .stat-label,
-  .metric-label {
+  .metric-label,
+  .analytics-stat-label {
     font-family: 'Inter', sans-serif !important;
     font-size: 0.7rem !important;
     font-weight: 500 !important;
     color: #64748b !important;
+  }
+
+  /* 2x2 Mobile Free-Space Grids (Journey, Badges, Metrics) */
+  .analytics-hero-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem 0.75rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .analytics-stat-card {
+    padding: 0.85rem 0.65rem !important;
+    border-radius: 14px !important;
+    text-align: center !important;
+  }
+
+  .badges-showcase-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem 0.75rem !important;
+  }
+
+  .badge-honor-card {
+    padding: 0.75rem 0.65rem !important;
+    border-radius: 14px !important;
   }
 
   /* 7. Buttons & Action Elements */

@@ -97,12 +97,12 @@ export const PortalJourney: React.FC = () => {
   return (
     <div className="portal-subview-content" style={{ animation: 'fadeIn 0.3s ease' }}>
       {/* Page Header */}
-      <div className="portal-page-header" style={{ marginBottom: '1.75rem' }}>
+      <div className="portal-page-header mb-4 sm:mb-6">
         <div className="portal-page-title">
-          <h2 className="serif-text" style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, color: 'var(--brand-navy, #0f172a)' }}>
+          <h1 className="text-base sm:text-2xl font-bold font-heading text-slate-900 dark:text-white m-0">
             {isArabic ? 'مسيرتي الحوارية والأوسمة' : 'My Dialogue Journey & Badges'}
-          </h2>
-          <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted, #64748b)', fontSize: '0.95rem' }}>
+          </h1>
+          <p className="text-[11px] sm:text-sm font-sans text-slate-500 dark:text-slate-400 mt-1 mb-0">
             {isArabic
               ? 'سجلك في الحوارات الأكاديمية ومساهماتك والتقدير الدولي المحقق.'
               : 'Your academic dialogue track record, contributions, and international recognition.'}
@@ -110,61 +110,60 @@ export const PortalJourney: React.FC = () => {
         </div>
       </div>
 
-      {/* Analytics Hero Stats Strip */}
-      <div className="analytics-hero-grid" style={{ marginBottom: '2rem' }}>
-        <div className="analytics-stat-card">
-          <div className="analytics-stat-num">{dialoguesAttended}</div>
-          <div className="analytics-stat-label">{isArabic ? 'جلسات تم حضورها' : 'Dialogues Attended'}</div>
+      {/* Analytics Hero Stats Strip: 2x2 on mobile, 4-col on desktop */}
+      <div className="analytics-hero-grid grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
+        <div className="analytics-stat-card bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3 sm:p-5 shadow-xs text-center flex flex-col items-center justify-center">
+          <div className="analytics-stat-num text-xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-heading leading-tight mb-0.5">{dialoguesAttended}</div>
+          <div className="analytics-stat-label text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 font-sans leading-tight">{isArabic ? 'جلسات تم حضورها' : 'Dialogues Attended'}</div>
         </div>
 
-        <div className="analytics-stat-card">
-          <div className="analytics-stat-num">{sessionsSpoken}</div>
-          <div className="analytics-stat-label">{isArabic ? 'جلسات حوار تم التحدث فيها' : 'Sessions Spoken'}</div>
+        <div className="analytics-stat-card bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3 sm:p-5 shadow-xs text-center flex flex-col items-center justify-center">
+          <div className="analytics-stat-num text-xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-heading leading-tight mb-0.5">{sessionsSpoken}</div>
+          <div className="analytics-stat-label text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 font-sans leading-tight">{isArabic ? 'جلسات حوار تم التحدث فيها' : 'Sessions Spoken'}</div>
         </div>
 
-        <div className="analytics-stat-card">
-          <div className="analytics-stat-num">{papersAuthored}</div>
-          <div className="analytics-stat-label">{isArabic ? 'أوراق أكاديمية منشورة' : 'Academic Papers Authored'}</div>
+        <div className="analytics-stat-card bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3 sm:p-5 shadow-xs text-center flex flex-col items-center justify-center">
+          <div className="analytics-stat-num text-xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-heading leading-tight mb-0.5">{papersAuthored}</div>
+          <div className="analytics-stat-label text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 font-sans leading-tight">{isArabic ? 'أوراق أكاديمية منشورة' : 'Academic Papers Authored'}</div>
         </div>
 
-        <div className="analytics-stat-card">
-          <div className="analytics-stat-num">{communityScore}%</div>
-          <div className="analytics-stat-label">{isArabic ? 'نقاط التفاعل المجتمعي' : 'Community Score'}</div>
+        <div className="analytics-stat-card bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3 sm:p-5 shadow-xs text-center flex flex-col items-center justify-center">
+          <div className="analytics-stat-num text-xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-heading leading-tight mb-0.5">{communityScore}%</div>
+          <div className="analytics-stat-label text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 font-sans leading-tight">{isArabic ? 'نقاط التفاعل المجتمعي' : 'Community Score'}</div>
         </div>
       </div>
 
       {/* Honorary Dialogue Badges Showcase */}
-      <div className="card-panel">
-        <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
-          <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--brand-navy, #0f172a)' }}>
-            {isArabic ? 'أوسمة الحوار الشرفية' : 'Honorary Dialogue Badges'}
-          </h4>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #64748b)' }}>
-            {isArabic ? 'تقدير التميز في الحوار والمساهمات الأكاديمية' : 'Recognizing dialogue excellence and academic contributions'}
-          </span>
+      <div className="card-panel bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-6 shadow-xs">
+        <div className="panel-header flex justify-between items-center flex-wrap gap-2 pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h2 className="m-0 text-xs sm:text-base font-bold font-heading text-slate-900 dark:text-white">
+              {isArabic ? 'أوسمة الحوار الشرفية' : 'Honorary Dialogue Badges'}
+            </h2>
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-sans mb-0">
+              {isArabic ? 'تقدير التميز في الحوار والمساهمات الأكاديمية' : 'Recognizing dialogue excellence and academic contributions'}
+            </p>
+          </div>
         </div>
 
-        <div className="badges-showcase-grid">
+        <div className="badges-showcase-grid grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {badges.map((b) => (
-            <div key={b.id} className={`badge-honor-card ${b.unlocked ? '' : 'locked'}`}>
+            <div key={b.id} className={`badge-honor-card ${b.unlocked ? '' : 'locked'} p-3 sm:p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col justify-between`}>
               <div>
-                <div className="badge-icon-header">
-                  <div className="badge-icon-box">{b.icon}</div>
+                <div className="badge-icon-header flex items-center justify-between gap-1 mb-2">
+                  <div className="badge-icon-box w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 shrink-0">
+                    {b.icon}
+                  </div>
                   <span
-                    className={`badge-status-pill ${b.unlocked ? 'status-approved' : 'status-review'}`}
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      padding: '0.2rem 0.55rem',
-                      borderRadius: '999px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.3rem',
-                    }}
+                    className={`badge-status-pill text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                      b.unlocked
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
+                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    }`}
                   >
                     {b.unlocked ? (
                       <>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         <span>{isArabic ? 'تم الحصول عليه' : 'UNLOCKED'}</span>
@@ -175,27 +174,25 @@ export const PortalJourney: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="badge-title" style={{ fontSize: '1rem', fontWeight: 700, marginTop: '0.75rem', marginBottom: '0.35rem', color: 'var(--brand-navy, #0f172a)' }}>
+                <div className="badge-title text-xs sm:text-sm font-bold font-heading text-slate-900 dark:text-white line-clamp-1 mb-1">
                   {b.title}
                 </div>
-                <p className="badge-desc" style={{ fontSize: '0.825rem', color: 'var(--text-muted, #64748b)', lineHeight: 1.45, marginBottom: '1.25rem' }}>
+                <p className="badge-desc text-[10px] sm:text-xs font-sans text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
                   {b.desc}
                 </p>
               </div>
 
-              <div className="badge-progress-wrap" style={{ marginTop: 'auto' }}>
-                <div className="badge-progress-bar" style={{ height: '6px', background: 'var(--bg-subtle, #e2e8f0)', borderRadius: '999px', overflow: 'hidden' }}>
+              <div className="badge-progress-wrap mt-auto">
+                <div className="badge-progress-bar h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div
-                    className="badge-progress-fill"
+                    className="badge-progress-fill h-full rounded-full transition-all duration-500"
                     style={{
                       width: b.progress,
-                      height: '100%',
                       background: b.unlocked ? 'linear-gradient(90deg, #4851BA, #9E59AC)' : '#94a3b8',
-                      borderRadius: '999px',
                     }}
                   ></div>
                 </div>
-                <div className="badge-progress-label" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', marginTop: '0.4rem' }}>
+                <div className="badge-progress-label flex justify-between text-[9px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-400 font-sans mt-1">
                   <span>{isArabic ? 'التقدم' : 'Progress'}</span>
                   <span>{b.progress}</span>
                 </div>
