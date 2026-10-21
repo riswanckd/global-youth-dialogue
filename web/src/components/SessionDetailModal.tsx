@@ -312,7 +312,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
           </div>
 
           {/* Dialogue Motion / Theme Quote Box */}
-          {session.motion && (
+          {(session.motion || (session as any).topic?.motion || (session as any).debateMotion) && (
             <div
               style={{
                 padding: '1rem 1.25rem',
@@ -326,7 +326,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                 {isArabic ? 'قضية الحوار والمناظرة (Motion)' : 'Dialogue Motion & Core Proposition'}
               </div>
               <div style={{ fontSize: '0.92rem', fontWeight: 600, color: isDark ? '#fef3c7' : '#78350f', lineHeight: 1.5, fontStyle: 'italic' }}>
-                &ldquo;{session.motion}&rdquo;
+                &ldquo;{session.motion || (session as any).topic?.motion || (session as any).debateMotion}&rdquo;
               </div>
             </div>
           )}

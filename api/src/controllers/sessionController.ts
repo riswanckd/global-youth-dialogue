@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { DialogueSession } from '../models/DialogueSession';
+import { Topic } from '../models/Topic';
 import { sendSuccess } from '../utils/response';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
 import { ROLES } from '../constants/roles';
@@ -117,8 +118,24 @@ export async function createSession(req: Request, res: Response, next: NextFunct
     const isStaff = ['admin', 'super_admin', 'coordinator'].includes(userRole);
     const sessionStatus = isStaff ? (req.body.status || 'scheduled') : 'proposed';
 
+    // Auto-populate motion from matching topic in topic bank if not explicitly provided
+    let motion = req.body.motion?.trim() || '';
+    if (!motion && req.body.title) {
+      const cleanTitle = req.body.title.trim();
+      const linkedTopic = await Topic.findOne({
+        $or: [
+          { title: { $regex: new RegExp(`^${cleanTitle}$`, 'i') } },
+          { slug: cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') },
+        ],
+      });
+      if (linkedTopic?.motion) {
+        motion = linkedTopic.motion;
+      }
+    }
+
     const session = await DialogueSession.create({
       ...req.body,
+      motion,
       status: sessionStatus,
       isPresenterProposal: !isStaff,
       createdBy: req.user!._id,
@@ -183,6 +200,20 @@ export async function updateSession(req: Request, res: Response, next: NextFunct
     }
     if (['scheduled', 'approved', 'published', 'live'].includes(updateData.status)) {
       updateData.isPresenterProposal = false;
+    }
+
+    // If motion is empty or missing, check if linked topic has a motion
+    if (!updateData.motion && !session.motion) {
+      const cleanTitle = (updateData.title || session.title).trim();
+      const linkedTopic = await Topic.findOne({
+        $or: [
+          { title: { $regex: new RegExp(`^${cleanTitle}$`, 'i') } },
+          { slug: cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') },
+        ],
+      });
+      if (linkedTopic?.motion) {
+        updateData.motion = linkedTopic.motion;
+      }
     }
 
     Object.assign(session, updateData);

@@ -69,6 +69,7 @@ export const Sessions: React.FC = () => {
 
   const [formData, setFormData] = useState({
     title: '',
+    motion: '',
     sessionCategory: 'Topic Presentation' as 'Topic Presentation' | 'Structural Debate' | 'Structured Dialogue' | 'Discussion' | 'Guest Talk' | 'Guest Talks',
     academicSphere: 'Technology & AI Ethics',
     description: '',
@@ -177,6 +178,7 @@ export const Sessions: React.FC = () => {
         academicSphere: createdTopic?.category || newTopicForm.category,
         description: createdTopic?.description || newTopicForm.description,
         sessionCategory: matchedFormat,
+        motion: createdTopic?.motion || newTopicForm.motion || prev.motion || '',
       }));
       setTopicCreateSuccess(t('sessions.topicAddedSuccess', 'New topic created and selected for this session!'));
       setTimeout(() => {
@@ -223,6 +225,7 @@ export const Sessions: React.FC = () => {
         academicSphere: found.category || prev.academicSphere,
         description: found.description || prev.description,
         sessionCategory: matchedFormat,
+        motion: found.motion || prev.motion || '',
       }));
     }
   };
@@ -236,6 +239,7 @@ export const Sessions: React.FC = () => {
     setTopicCreateError('');
     setFormData({
       title: '',
+      motion: '',
       sessionCategory: 'Topic Presentation',
       academicSphere: 'Technology & AI Ethics',
       description: '',
@@ -307,6 +311,7 @@ export const Sessions: React.FC = () => {
 
     setFormData({
       title: session.title || '',
+      motion: session.motion || '',
       sessionCategory: cat,
       academicSphere: session.category || 'Technology & AI Ethics',
       description: session.description || (session as any).proposalNotes || '',
@@ -331,6 +336,7 @@ export const Sessions: React.FC = () => {
     mutationFn: (data: typeof formData) => {
       const payload: any = {
         title: data.title,
+        motion: data.motion?.trim() || selectedTopic?.motion?.trim() || undefined,
         category: data.academicSphere,
         format: data.sessionCategory,
         description: data.description,
@@ -406,6 +412,7 @@ export const Sessions: React.FC = () => {
 
       const payload: any = {
         title: data.title,
+        motion: data.motion !== undefined ? data.motion.trim() : ((editingSession as any).motion || selectedTopic?.motion || ''),
         category: data.academicSphere,
         format: data.sessionCategory,
         description: data.description,
@@ -1694,19 +1701,59 @@ export const Sessions: React.FC = () => {
                 </div>
               </div>
 
-              {/* 3. TITLE / MOTION */}
+              {/* 3. SESSION TITLE / TOPIC */}
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {t('sessions.motionLabel', 'Session Motion / Title')} *
+                  {t('sessions.sessionTitleLabel', 'Session Topic / Title')} *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. AI Sovereignty & Civil Liberties in the Global South"
+                  placeholder="e.g. Youth Representation in Policy Making"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full mt-1 p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                 />
+              </div>
+
+              {/* 3B. DIALOGUE MOTION / CORE PROPOSITION */}
+              <div className="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                    <span>{isArabic ? 'قضية الحوار والمناظرة (Motion)' : 'Dialogue Motion & Core Proposition'}</span>
+                    {formData.sessionCategory === 'Structural Debate' || (formData.sessionCategory as any) === 'Structured Dialogue' ? (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-200/80 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200">
+                        {isArabic ? 'موصى به للمناظرة' : 'Debate Motion'}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 dark:text-slate-500 text-[10px] font-normal">(Optional)</span>
+                    )}
+                  </label>
+                  {selectedTopic?.motion && formData.motion !== selectedTopic.motion && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, motion: selectedTopic.motion || '' })}
+                      className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 hover:underline cursor-pointer"
+                    >
+                      {t('sessions.resetTopicMotion', '↺ Reset to Topic Motion')}
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  rows={2}
+                  placeholder={t(
+                    'sessions.motionPlaceholder',
+                    'e.g. "This House believes that youth councils should have formal influence over government policymaking"'
+                  )}
+                  value={formData.motion}
+                  onChange={(e) => setFormData({ ...formData, motion: e.target.value })}
+                  className="w-full p-2 text-xs rounded-lg border border-amber-200 dark:border-amber-800/80 bg-white dark:bg-slate-800 text-slate-900 dark:text-white italic focus:ring-2 focus:ring-amber-500/20 outline-none"
+                />
+                <p className="text-[10px] text-amber-800/80 dark:text-amber-300/70 mt-1">
+                  {isArabic
+                    ? 'سيتم عرض هذا النص بشكل بارز في تفاصيل الجلسة كقضية الحوار الأساسية.'
+                    : 'This motion will be prominently displayed in the session details dialog and cards.'}
+                </p>
               </div>
 
               {/* 4. DYNAMIC PARTICIPANTS SECTION BASED ON FORMAT */}
