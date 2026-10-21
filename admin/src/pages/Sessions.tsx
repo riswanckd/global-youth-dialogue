@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
@@ -86,10 +86,43 @@ export const Sessions: React.FC = () => {
     status: 'scheduled' as string,
   });
 
-  const { data: sessions = [], isLoading } = useQuery<DialogueSession[]>({
+  const isDemoSession = (title?: string): boolean => {
+    if (!title) return false;
+    const t = title.toLowerCase().trim();
+    const demoPatterns = [
+      'ai sovereignty, algorithmic governance',
+      'post-dollar multilateralism',
+      'climate migration & cross-border legal status',
+      'digital surveillance capitalism',
+      'ai sovereignty & international human rights',
+    ];
+    return demoPatterns.some((pattern) => t.includes(pattern));
+  };
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('gyde_cached_sessions');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((s: any) => !isDemoSession(s?.title));
+          if (cleaned.length !== parsed.length) {
+            localStorage.setItem('gyde_cached_sessions', JSON.stringify(cleaned));
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
+  const { data: rawSessions = [], isLoading } = useQuery<DialogueSession[]>({
     queryKey: ['admin-sessions'],
     queryFn: () => apiRequest<DialogueSession[]>('/admin/sessions'),
   });
+
+  const sessions: DialogueSession[] = useMemo(() => {
+    const list = Array.isArray(rawSessions) ? rawSessions : [];
+    return list.filter((s: DialogueSession) => !isDemoSession(s?.title));
+  }, [rawSessions]);
 
   const { data: topics = [] } = useQuery<Topic[]>({
     queryKey: ['admin-topics'],

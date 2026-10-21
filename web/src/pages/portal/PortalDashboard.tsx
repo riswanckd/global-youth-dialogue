@@ -22,7 +22,10 @@ import {
   Clock,
   CheckCircle2,
   Plus,
+  Layers,
 } from 'lucide-react';
+import { isDemoSession } from '../public/Sessions';
+import { SessionDetailModal } from '../../components/SessionDetailModal';
 import { ApplyPresenterModal } from '../../components/portal/ApplyPresenterModal';
 import { PresentTopicModal } from '../../components/portal/PresentTopicModal';
 
@@ -69,12 +72,23 @@ export const PortalDashboard: React.FC = () => {
   });
 
   const [cachedSessions, setCachedSessions] = useState<DialogueSession[]>([]);
+  const [selectedDashboardSession, setSelectedDashboardSession] = useState<DialogueSession | null>(null);
 
   useEffect(() => {
     const readCache = () => {
       try {
         const stored = localStorage.getItem('gyde_cached_sessions');
-        if (stored) setCachedSessions(JSON.parse(stored));
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            const cleaned = parsed.filter((s: any) => !isDemoSession(s?.title));
+            if (cleaned.length !== parsed.length) {
+              localStorage.setItem('gyde_cached_sessions', JSON.stringify(cleaned));
+            }
+            setCachedSessions(cleaned);
+            return;
+          }
+        }
       } catch {}
     };
     readCache();
@@ -84,10 +98,12 @@ export const PortalDashboard: React.FC = () => {
 
   const sessions = useMemo(() => {
     const list = Array.isArray(apiSessions) ? apiSessions : [];
-    const combined = [...cachedSessions, ...list];
+    const validApi = list.filter((s: any) => !isDemoSession(s?.title));
+    const combined = [...cachedSessions, ...validApi];
     const seen = new Set<string>();
     const unique: DialogueSession[] = [];
     for (const s of combined) {
+      if (isDemoSession(s?.title)) continue;
       const key = (s.id || (s as any)._id || s.title || '').toString();
       if (key && !seen.has(key)) {
         seen.add(key);
@@ -409,10 +425,15 @@ export const PortalDashboard: React.FC = () => {
             {nextSession ? (
               <div className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-5 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
                       {isArabic ? 'جلسة حوارية قادمة' : 'Next Scheduled Session'}
+                    </span>
+                    {/* FORMAT BADGE DISPLAYED ON UPCOMING SESSION */}
+                    <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 inline-flex items-center gap-1">
+                      <Layers className="w-3 h-3" />
+                      <span>{nextSession.format || 'Youth Chamber Debate'}</span>
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -421,7 +442,10 @@ export const PortalDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                  <h3
+                    className="text-lg font-bold text-slate-900 dark:text-white leading-snug cursor-pointer hover:text-indigo-600 transition-colors"
+                    onClick={() => setSelectedDashboardSession(nextSession)}
+                  >
                     {isArabic && nextSession.titleAr ? nextSession.titleAr : nextSession.title}
                   </h3>
                   {nextSession.motion && (
@@ -446,6 +470,15 @@ export const PortalDashboard: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                  {/* SESSION DETAILS POPUP BUTTON */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDashboardSession(nextSession)}
+                    className="px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>{isArabic ? 'تفاصيل الجلسة' : 'Session Details'}</span>
+                  </button>
+
                   {nextSession.meetingUrl ? (
                     <a
                       href={nextSession.meetingUrl}
@@ -707,6 +740,13 @@ export const PortalDashboard: React.FC = () => {
               : 'Presentation application submitted successfully to the Secretariat!'
           );
         }}
+      />
+
+      {/* Pop-up Session Detail Modal */}
+      <SessionDetailModal
+        isOpen={!!selectedDashboardSession}
+        onClose={() => setSelectedDashboardSession(null)}
+        session={selectedDashboardSession}
       />
     </div>
   );
