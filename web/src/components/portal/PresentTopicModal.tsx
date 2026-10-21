@@ -35,10 +35,11 @@ const PRESENTATION_FORMATS = [
 ];
 
 const TIME_SLOTS = [
+  { id: '12:00 UTC', nameEn: '12:00 UTC (15:00 Doha/Riyadh - Early Afternoon Chamber)', nameAr: '١٢:٠٠ غرينتش (١٥:٠٠ الدوحة/الرياض - الجلسة الأولى)' },
+  { id: '14:00 UTC', nameEn: '14:00 UTC (17:00 Doha/Riyadh - European & African Track)', nameAr: '١٤:٠٠ غرينتش (١٧:٠٠ الدوحة/الرياض - المسار الإقليمي)' },
   { id: '16:00 UTC', nameEn: '16:00 UTC (19:00 Doha/Riyadh - Prime Keynote Chamber)', nameAr: '١٦:٠٠ غرينتش (١٩:٠٠ الدوحة/الرياض - القاعة الرئيسية)' },
-  { id: '14:00 UTC', nameEn: '14:00 UTC (17:00 Doha/Riyadh - European / African Track)', nameAr: '١٤:٠٠ غرينتش (١٧:٠٠ الدوحة/الرياض - المسار الإقليمي)' },
-  { id: '18:00 UTC', nameEn: '18:00 UTC (21:00 Doha/Riyadh - Atlantic / Americas Track)', nameAr: '١٨:٠٠ غرينتش (٢١:٠٠ الدوحة/الرياض - المسار المسائي)' },
   { id: 'Flexible', nameEn: 'Flexible / Next Available Weekend Session', nameAr: 'مرن / أقرب جلسة نهاية أسبوع متاحة' },
+  { id: 'manual', nameEn: '+ Manual Time (Specify Your Own UTC Slot)', nameAr: '+ تحديد وقت مخصص يدوياً' },
 ];
 
 export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
@@ -76,6 +77,7 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
     return d.toISOString().split('T')[0];
   });
   const [preferredTimeSlot, setPreferredTimeSlot] = useState(TIME_SLOTS[0].id);
+  const [manualTime, setManualTime] = useState('');
   const [format, setFormat] = useState(PRESENTATION_FORMATS[0].id);
   const [presentationLanguage, setPresentationLanguage] = useState<'English' | 'Arabic' | 'Bilingual'>('English');
   const [presentationNotes, setPresentationNotes] = useState('');
@@ -119,6 +121,16 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
       return;
     }
 
+    let finalTimeSlot = preferredTimeSlot;
+    if (preferredTimeSlot === 'manual') {
+      const trimmed = manualTime.trim();
+      if (!trimmed) {
+        setError(isArabic ? 'يرجى كتابة التوقيت المفضل يدوياً' : 'Please enter your custom preferred time slot.');
+        return;
+      }
+      finalTimeSlot = /utc/i.test(trimmed) ? trimmed : `${trimmed} UTC`;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -134,7 +146,7 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
         isCustom,
         interestedToPresent: true,
         preferredDate,
-        preferredTimeSlot,
+        preferredTimeSlot: finalTimeSlot,
         presentationLanguage,
         presentationNotes,
         dossierUrl,
@@ -159,7 +171,7 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
             motion: motion || title,
             format,
             scheduledAt: new Date(preferredDate).toISOString(),
-            preferredTimeSlot,
+            preferredTimeSlot: finalTimeSlot,
             presentationLanguage,
             proposalNotes: presentationNotes,
             dossierUrl,
@@ -513,7 +525,12 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
                   </label>
                   <select
                     value={preferredTimeSlot}
-                    onChange={(e) => setPreferredTimeSlot(e.target.value)}
+                    onChange={(e) => {
+                      setPreferredTimeSlot(e.target.value);
+                      if (e.target.value !== 'manual') {
+                        setManualTime('');
+                      }
+                    }}
                     className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs border-0 border-none outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     {TIME_SLOTS.map((slot) => (
@@ -522,6 +539,35 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
                       </option>
                     ))}
                   </select>
+
+                  {/* Manual / Custom Time Input */}
+                  {preferredTimeSlot === 'manual' && (
+                    <div className="mt-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <label className="block text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
+                        {isArabic ? 'أدخل الوقت المفضل يدوياً (بتوقيت غرينتش UTC):' : 'Specify Custom Dialogue Time (UTC):'}
+                      </label>
+                      <div className="relative flex items-center">
+                        <Clock className="w-3.5 h-3.5 text-indigo-500 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3 pointer-events-none" />
+                        <input
+                          type="text"
+                          required
+                          value={manualTime}
+                          onChange={(e) => setManualTime(e.target.value)}
+                          placeholder={isArabic ? 'مثال: 13:30 UTC أو 15:00 UTC' : 'e.g., 13:30 UTC, 15:00 UTC, or 18:30 UTC'}
+                          className="w-full pl-9 pr-14 rtl:pl-14 rtl:pr-9 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs border border-indigo-300 dark:border-indigo-700 outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs"
+                          autoFocus
+                        />
+                        <span className="absolute right-3 rtl:right-auto rtl:left-3 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                          UTC
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        {isArabic
+                          ? 'أدخل التوقيت المناسب لك، وسيقوم المنسقون بمراجعته والتنسيق معك.'
+                          : 'Enter your preferred timing in UTC. Secretariat will review and coordinate the slot.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

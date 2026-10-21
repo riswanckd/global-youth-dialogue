@@ -327,7 +327,7 @@ export const PortalDashboard: React.FC = () => {
                         </span>
                         {app.preferredDate && (
                           <span className="text-[11px] text-slate-400">
-                            {app.preferredDate} ({app.preferredTimeSlot || '16:00 UTC'})
+                            {app.preferredDate} ({app.preferredTimeSlot || '12:00 UTC'})
                           </span>
                         )}
                       </div>
