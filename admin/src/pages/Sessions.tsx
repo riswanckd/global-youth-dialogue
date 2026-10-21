@@ -333,21 +333,39 @@ export const Sessions: React.FC = () => {
   });
 
   const deleteSessionMutation = useMutation({
-    mutationFn: (id: string) =>
-      apiRequest(`/admin/sessions/${id}`, {
-        method: 'DELETE',
-      }),
-    onSuccess: (_, deletedId) => {
-      queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    onMutate: (id: string) => {
+      // Optimistic cache update
+      queryClient.setQueryData<DialogueSession[]>(['admin-sessions'], (old = []) =>
+        old.filter((s: any) => (s.id || s._id) !== id)
+      );
       try {
         const stored = localStorage.getItem('gyde_cached_sessions');
         if (stored) {
-          const currentList = JSON.parse(stored).filter((s: any) => (s.id || s._id) !== deletedId);
+          const currentList = JSON.parse(stored).filter((s: any) => (s.id || s._id) !== id);
           localStorage.setItem('gyde_cached_sessions', JSON.stringify(currentList));
           window.dispatchEvent(new Event('storage'));
         }
       } catch {}
+      setSelectedProposal(null);
+    },
+    mutationFn: async (id: string) => {
+      let success = false;
+      try {
+        await apiRequest(`/admin/sessions/${id}`, { method: 'DELETE' });
+        success = true;
+      } catch (err) {
+        console.warn('API delete session failed on /admin/sessions, trying /sessions fallback:', err);
+      }
+      if (!success) {
+        try {
+          await apiRequest(`/sessions/${id}`, { method: 'DELETE' });
+        } catch {}
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      setSelectedProposal(null);
     },
   });
 
@@ -857,21 +875,36 @@ export const Sessions: React.FC = () => {
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
+                                <button
+                                  onClick={() => {
+                                    const sid = s.id || (s as any)._id;
+                                    if (confirm(isArabic ? 'هل تريد حذف هذا الطلب نهائياً؟' : 'Permanently delete this session proposal?')) {
+                                      deleteSessionMutation.mutate(sid);
+                                    }
+                                  }}
+                                  disabled={deleteSessionMutation.isPending}
+                                  className="p-1 text-xs font-bold rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </>
                             ) : s.status === 'rejected' ? (
                               <>
                                 <button
-                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id || (s as any)._id, status: 'scheduled' })}
                                   className="px-2 py-1 text-xs font-bold rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300"
                                 >
                                   {isArabic ? 'إعادة قبول' : 'Re-Approve'}
                                 </button>
                                 <button
                                   onClick={() => {
+                                    const sid = s.id || (s as any)._id;
                                     if (confirm('Delete this denied session?')) {
-                                      deleteSessionMutation.mutate(s.id);
+                                      deleteSessionMutation.mutate(sid);
                                     }
                                   }}
+                                  disabled={deleteSessionMutation.isPending}
                                   className="p-1 text-xs font-bold rounded bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/60 dark:text-rose-400"
                                   title="Delete"
                                 >
@@ -882,7 +915,7 @@ export const Sessions: React.FC = () => {
                               <>
                                 {s.status === 'scheduled' && (
                                   <button
-                                    onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'completed' })}
+                                    onClick={() => updateSessionStatusMutation.mutate({ id: s.id || (s as any)._id, status: 'completed' })}
                                     className="px-2 py-1 text-xs font-medium rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300"
                                   >
                                     {isArabic ? 'إكمال' : 'Complete'}
@@ -890,10 +923,12 @@ export const Sessions: React.FC = () => {
                                 )}
                                 <button
                                   onClick={() => {
+                                    const sid = s.id || (s as any)._id;
                                     if (confirm('Delete this chamber?')) {
-                                      deleteSessionMutation.mutate(s.id);
+                                      deleteSessionMutation.mutate(sid);
                                     }
                                   }}
+                                  disabled={deleteSessionMutation.isPending}
                                   className="p-1 text-xs font-semibold rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                                   title="Delete"
                                 >
@@ -1105,22 +1140,37 @@ export const Sessions: React.FC = () => {
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
+                            <button
+                              onClick={() => {
+                                const sid = s.id || (s as any)._id;
+                                if (confirm(isArabic ? 'هل تريد حذف هذا الطلب نهائياً؟' : 'Permanently delete this session proposal?')) {
+                                  deleteSessionMutation.mutate(sid);
+                                }
+                              }}
+                              disabled={deleteSessionMutation.isPending}
+                              className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       ) : isRejected ? (
                         <div className="flex items-center justify-between gap-2">
                           <button
-                            onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                            onClick={() => updateSessionStatusMutation.mutate({ id: s.id || (s as any)._id, status: 'scheduled' })}
                             className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
                           >
                             Re-Approve & Schedule
                           </button>
                           <button
                             onClick={() => {
+                              const sid = s.id || (s as any)._id;
                               if (confirm('Delete this denied session?')) {
-                                deleteSessionMutation.mutate(s.id);
+                                deleteSessionMutation.mutate(sid);
                               }
                             }}
+                            disabled={deleteSessionMutation.isPending}
                             className="p-2 rounded-lg text-rose-600 bg-rose-50 dark:bg-rose-950/40"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1141,10 +1191,12 @@ export const Sessions: React.FC = () => {
                           )}
                           <button
                             onClick={() => {
+                              const sid = s.id || (s as any)._id;
                               if (confirm('Delete this chamber?')) {
-                                deleteSessionMutation.mutate(s.id);
+                                deleteSessionMutation.mutate(sid);
                               }
                             }}
+                            disabled={deleteSessionMutation.isPending}
                             className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -2201,21 +2253,38 @@ export const Sessions: React.FC = () => {
 
             {/* Modal Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() =>
-                  updateSessionStatusMutation.mutate({
-                    id: selectedProposal.id || (selectedProposal as any)._id,
-                    status: 'rejected',
-                    isPresenterProposal: false,
-                  })
-                }
-                disabled={updateSessionStatusMutation.isPending}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-                <span>Deny Application</span>
-              </button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateSessionStatusMutation.mutate({
+                      id: selectedProposal.id || (selectedProposal as any)._id,
+                      status: 'rejected',
+                      isPresenterProposal: false,
+                    })
+                  }
+                  disabled={updateSessionStatusMutation.isPending}
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Deny Application</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sid = selectedProposal.id || (selectedProposal as any)._id;
+                    if (confirm(isArabic ? 'هل تريد حذف مقترح الجلسة نهائياً؟' : 'Permanently delete this session proposal? This action cannot be undone.')) {
+                      deleteSessionMutation.mutate(sid);
+                    }
+                  }}
+                  disabled={deleteSessionMutation.isPending}
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-colors cursor-pointer"
+                  title="Permanently Delete Proposal"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>{isArabic ? 'حذف المقترح' : 'Delete'}</span>
+                </button>
+              </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button

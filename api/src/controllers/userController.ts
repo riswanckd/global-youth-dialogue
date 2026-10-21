@@ -247,14 +247,61 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
 
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) throw new NotFoundError('User not found');
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    let user: any = null;
 
-    if (user.role === ROLES.SUPER_ADMIN) {
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      user = await User.findById(rawId);
+    }
+    if (!user && rawId.includes('@')) {
+      user = await User.findOne({ email: rawId.toLowerCase().trim() });
+    }
+    if (!user) {
+      user = await User.findOne({
+        $or: [{ email: rawId.toLowerCase().trim() }, { _id: mongoose.Types.ObjectId.isValid(rawId) ? rawId : undefined }],
+      });
+    }
+
+    // Also look up if this id was an Application ID that created this user
+    if (!user && mongoose.Types.ObjectId.isValid(rawId)) {
+      const app = await Application.findById(rawId);
+      if (app?.email) {
+        user = await User.findOne({ email: app.email.toLowerCase().trim() });
+      }
+    }
+
+    if (!user) {
+      // If user document isn't in DB, check if an Application with this ID/email exists and clean it up
+      let deletedApp = false;
+      if (mongoose.Types.ObjectId.isValid(rawId)) {
+        const appRes = await Application.findByIdAndDelete(rawId);
+        if (appRes) deletedApp = true;
+      }
+      if (!deletedApp && rawId.includes('@')) {
+        const appRes = await Application.deleteMany({ email: rawId.toLowerCase().trim() });
+        if (appRes.deletedCount > 0) deletedApp = true;
+      }
+      if (deletedApp) {
+        return sendSuccess(res, null, 'User and pending credentials removed successfully');
+      }
+      throw new NotFoundError('User not found');
+    }
+
+    if (user.role === ROLES.SUPER_ADMIN || user.email === 'admin@thegyde.in') {
       throw new BadRequestError('Super Administrator cannot be deleted');
     }
 
-    await User.findByIdAndDelete(req.params.id);
+    await User.findByIdAndDelete(user._id);
+
+    // Also cascade remove any corresponding Application so user does not re-appear from application sync
+    try {
+      await Application.deleteMany({
+        $or: [
+          { linkedUser: user._id },
+          { email: user.email.toLowerCase().trim() },
+        ],
+      });
+    } catch {}
 
     await logAuditEvent({
       action: 'USER_DELETED',
@@ -265,7 +312,8 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
         role: req.user!.role,
       },
       targetType: 'user',
-      targetId: req.params.id as string,
+      targetId: user._id.toString(),
+      details: { email: user.email, name: user.name, role: user.role },
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
     });

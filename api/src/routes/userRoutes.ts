@@ -42,7 +42,7 @@ router.patch(
 router.delete(
   '/:id',
   authenticate,
-  requireRole(ROLES.SUPER_ADMIN),
+  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN),
   userController.deleteUser
 );
 

@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
 import { Feedback as FeedbackType } from '../types';
-import { MessageSquareQuote, Search, Star, CheckCircle2, Calendar } from 'lucide-react';
+import { MessageSquareQuote, Search, Star, CheckCircle2, Calendar, Trash2 } from 'lucide-react';
 
 export const Feedback: React.FC = () => {
+  const queryClient = useQueryClient();
   const { t } = useAdminLanguage();
   const [search, setSearch] = useState('');
 
   const { data: feedback = [], isLoading } = useQuery<FeedbackType[]>({
     queryKey: ['admin-feedback'],
     queryFn: () => apiRequest<FeedbackType[]>('/admin/feedback'),
+  });
+
+  const deleteFeedbackMutation = useMutation({
+    onMutate: (id: string) => {
+      queryClient.setQueryData<FeedbackType[]>(['admin-feedback'], (old = []) =>
+        old.filter((f: any) => (f.id || f._id) !== id)
+      );
+    },
+    mutationFn: async (id: string) => {
+      let success = false;
+      try {
+        await apiRequest(`/admin/feedback/${id}`, { method: 'DELETE' });
+        success = true;
+      } catch {}
+      if (!success) {
+        await apiRequest(`/feedback/${id}`, { method: 'DELETE' }).catch(() => {});
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-feedback'] });
+    },
   });
 
   const filtered = feedback.filter((f) => {
@@ -164,7 +186,23 @@ export const Feedback: React.FC = () => {
                     <div>
                       Review by: <strong className="text-slate-600 dark:text-slate-300">{item.submittedBy?.name || 'Anonymous'}</strong> ({item.submittedBy?.country || t('dash.global', 'Global')})
                     </div>
-                    <div>{new Date(item.createdAt).toLocaleDateString()}</div>
+                    <div className="flex items-center gap-3">
+                      <div>{new Date(item.createdAt).toLocaleDateString()}</div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const fid = (item as any).id || (item as any)._id;
+                          if (window.confirm('Delete this peer feedback entry permanently?')) {
+                            deleteFeedbackMutation.mutate(fid);
+                          }
+                        }}
+                        disabled={deleteFeedbackMutation.isPending}
+                        className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                        title="Delete Feedback"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

@@ -240,7 +240,18 @@ export async function updatePublication(req: Request, res: Response, next: NextF
 
 export async function deletePublication(req: Request, res: Response, next: NextFunction) {
   try {
-    const publication = await Publication.findByIdAndDelete(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    let publication: any = null;
+
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      publication = await Publication.findByIdAndDelete(rawId);
+    }
+    if (!publication) {
+      publication = await Publication.findOneAndDelete({
+        $or: [{ slug: rawId }, { title: rawId }, { id: rawId }],
+      });
+    }
+
     if (!publication) throw new NotFoundError('Publication not found');
 
     await logAuditEvent({
@@ -252,7 +263,8 @@ export async function deletePublication(req: Request, res: Response, next: NextF
         role: req.user!.role,
       },
       targetType: 'publication',
-      targetId: req.params.id as string,
+      targetId: publication._id.toString(),
+      details: { title: publication.title, slug: publication.slug },
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
     });

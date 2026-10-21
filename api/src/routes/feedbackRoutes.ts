@@ -17,4 +17,11 @@ router.get(
   feedbackController.listAllFeedback
 );
 
+router.delete(
+  '/:id',
+  authenticate,
+  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN),
+  feedbackController.deleteFeedback
+);
+
 export default router;

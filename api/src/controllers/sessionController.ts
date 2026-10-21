@@ -214,7 +214,18 @@ export async function updateSession(req: Request, res: Response, next: NextFunct
 
 export async function deleteSession(req: Request, res: Response, next: NextFunction) {
   try {
-    const session = await DialogueSession.findByIdAndDelete(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    let session: any = null;
+
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      session = await DialogueSession.findByIdAndDelete(rawId);
+    }
+    if (!session) {
+      session = await DialogueSession.findOneAndDelete({
+        $or: [{ id: rawId }, { title: rawId }],
+      });
+    }
+
     if (!session) throw new NotFoundError('Session not found');
 
     await logAuditEvent({
@@ -226,7 +237,8 @@ export async function deleteSession(req: Request, res: Response, next: NextFunct
         role: req.user!.role,
       },
       targetType: 'session',
-      targetId: req.params.id as string,
+      targetId: session._id.toString(),
+      details: { title: session.title, category: session.category },
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
     });

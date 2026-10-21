@@ -18,7 +18,8 @@ import {
   Mic,
   Award,
   FileText,
-  X
+  X,
+  Trash2,
 } from 'lucide-react';
 
 function mapRawToApp(item: any): Application {
@@ -352,6 +353,56 @@ export const Applications: React.FC = () => {
       setSelectedApp(null);
       setReviewNotes('');
       setIsPresenter(false);
+    },
+  });
+
+  const deleteApplicationMutation = useMutation({
+    onMutate: (app: Application) => {
+      const targetId = app.id || (app as any)._id;
+      const targetEmail = app.email?.toLowerCase();
+      // Optimistic cache update
+      queryClient.setQueryData<Application[]>(['admin-applications'], (old = []) =>
+        old.filter((a) => (a.id || (a as any)._id) !== targetId && a.email?.toLowerCase() !== targetEmail)
+      );
+      try {
+        const raw = localStorage.getItem('gyde_cached_applications');
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list)) {
+            const updated = list.filter((a: any) => (a.id || a._id) !== targetId && a.email?.toLowerCase() !== targetEmail);
+            localStorage.setItem('gyde_cached_applications', JSON.stringify(updated));
+            window.dispatchEvent(new Event('storage'));
+          }
+        }
+      } catch {}
+      setSelectedApp(null);
+    },
+    mutationFn: async (app: Application) => {
+      const targetId = app.id || (app as any)._id;
+      let success = false;
+      try {
+        await apiRequest(`/admin/applications/${targetId}`, { method: 'DELETE' });
+        success = true;
+      } catch (err) {
+        console.warn('API delete application failed on /admin/applications:', err);
+      }
+      if (!success && app.email) {
+        try {
+          await apiRequest(`/admin/applications/${encodeURIComponent(app.email)}`, { method: 'DELETE' });
+          success = true;
+        } catch {}
+      }
+      if (!success) {
+        try {
+          await apiRequest(`/applications/${targetId}`, { method: 'DELETE' });
+        } catch {}
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      setSelectedApp(null);
     },
   });
 
@@ -753,6 +804,19 @@ export const Applications: React.FC = () => {
                             <Eye className="w-3.5 h-3.5" />
                             <span>{t('apps.reviewBtn', 'Inspect')}</span>
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Permanently delete application for "${app.applicantName}" (${app.email})?`)) {
+                                deleteApplicationMutation.mutate(app);
+                              }
+                            }}
+                            disabled={deleteApplicationMutation.isPending}
+                            className="p-1 text-xs font-semibold rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                            title="Delete Application"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -895,6 +959,19 @@ export const Applications: React.FC = () => {
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>{t('apps.reviewBtn', 'Inspect')}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`Permanently delete application for "${app.applicantName}" (${app.email})?`)) {
+                          deleteApplicationMutation.mutate(app);
+                        }
+                      }}
+                      disabled={deleteApplicationMutation.isPending}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 transition-colors"
+                      title="Delete Application"
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -1095,13 +1172,29 @@ export const Applications: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800 flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedApp(null)}
-                className="px-4 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                {t('apps.closeModal', 'Close')}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedApp(null)}
+                  className="px-4 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  {t('apps.closeModal', 'Close')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Permanently delete application for "${selectedApp.applicantName}" (${selectedApp.email})? This action cannot be undone.`)) {
+                      deleteApplicationMutation.mutate(selectedApp);
+                    }
+                  }}
+                  disabled={deleteApplicationMutation.isPending}
+                  className="px-3.5 py-2 text-xs font-bold rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Permanently Delete Application"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>{isArabic ? 'حذف الطلب نهائياً' : 'Delete Application'}</span>
+                </button>
+              </div>
 
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Presenter decline button */}

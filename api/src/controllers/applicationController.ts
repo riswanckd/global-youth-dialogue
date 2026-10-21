@@ -381,7 +381,18 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
 
 export async function deleteApplication(req: Request, res: Response, next: NextFunction) {
   try {
-    const application = await Application.findByIdAndDelete(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    let application: any = null;
+
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      application = await Application.findByIdAndDelete(rawId);
+    }
+    if (!application) {
+      application = await Application.findOneAndDelete({
+        $or: [{ email: rawId.toLowerCase().trim() }, { applicantName: rawId }, { id: rawId }],
+      });
+    }
+
     if (!application) {
       throw new NotFoundError('Application not found');
     }
@@ -395,7 +406,8 @@ export async function deleteApplication(req: Request, res: Response, next: NextF
         role: req.user!.role,
       },
       targetType: 'application',
-      targetId: req.params.id as string,
+      targetId: application._id.toString(),
+      details: { email: application.email, applicantName: application.applicantName },
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
     });

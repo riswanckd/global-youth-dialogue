@@ -15,6 +15,7 @@ import {
   BookOpen,
   Filter,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 
 const SPHERES = [
@@ -149,6 +150,42 @@ export const Topics: React.FC = () => {
     },
     onError: (err: any) => {
       showToast(err?.message || 'Failed to update topic status', 'error');
+    },
+  });
+
+  const deleteTopicMutation = useMutation({
+    onMutate: (id: string) => {
+      // Optimistic cache update
+      queryClient.setQueryData<Topic[]>(['admin-topics'], (old = []) =>
+        old.filter((t: any) => (t.id || t._id) !== id && t.slug !== id)
+      );
+      try {
+        const stored = localStorage.getItem('gyde_cached_topics');
+        if (stored) {
+          const list = JSON.parse(stored).filter((t: any) => (t.id || t._id) !== id && t.slug !== id);
+          localStorage.setItem('gyde_cached_topics', JSON.stringify(list));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
+      showToast(isArabic ? 'تم حذف الموضوع نهائياً.' : 'Topic deleted permanently from Topic Bank.');
+    },
+    mutationFn: async (id: string) => {
+      let success = false;
+      try {
+        await apiRequest(`/admin/topics/${id}`, { method: 'DELETE' });
+        success = true;
+      } catch (err) {
+        console.warn('API delete topic on /admin/topics failed, trying /topics fallback:', err);
+      }
+      if (!success) {
+        try {
+          await apiRequest(`/topics/${id}`, { method: 'DELETE' });
+        } catch {}
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
     },
   });
 
@@ -648,6 +685,19 @@ export const Topics: React.FC = () => {
                                 {translateStatus('approved')}
                               </span>
                             )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(isArabic ? `هل تريد حذف موضوع "${topicItem.title}" نهائياً من بنك المواضيع؟` : `Permanently delete topic "${topicItem.title}" from Topic Bank?`)) {
+                                  deleteTopicMutation.mutate(topicId);
+                                }
+                              }}
+                              disabled={deleteTopicMutation.isPending}
+                              className="p-1 text-xs font-semibold rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                              title="Delete Topic"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -729,6 +779,19 @@ export const Topics: React.FC = () => {
                             {t('topics.rejectMotion', 'Decline')}
                           </button>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(isArabic ? `هل تريد حذف موضوع "${topicItem.title}" نهائياً من بنك المواضيع؟` : `Permanently delete topic "${topicItem.title}" from Topic Bank?`)) {
+                              deleteTopicMutation.mutate(topicId);
+                            }
+                          }}
+                          disabled={deleteTopicMutation.isPending}
+                          className="p-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                          title="Delete Topic"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   </div>

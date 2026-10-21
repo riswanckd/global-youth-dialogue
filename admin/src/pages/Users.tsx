@@ -225,14 +225,51 @@ export const Users: React.FC = () => {
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: async (targetUser: User) => {
-      await apiRequest(`/admin/users/${targetUser.id}`, { method: 'DELETE' }).catch(() => {});
-      await apiRequest('/api/applications', {
-        method: 'POST',
-        body: JSON.stringify({ action: 'deleteUser', email: targetUser.email, id: targetUser.id }),
-      }).catch(() => {});
+    onMutate: (targetUser: User) => {
+      // Optimistic cache update
+      queryClient.setQueryData<User[]>(['admin-users', roleFilter], (old = []) =>
+        old.filter((u) => u.id !== targetUser.id && u.email?.toLowerCase() !== targetUser.email?.toLowerCase())
+      );
+      // Clean up localStorage cached applications so user does not re-appear on query refetch
+      try {
+        const raw = localStorage.getItem('gyde_cached_applications');
+        if (raw) {
+          const apps = JSON.parse(raw);
+          if (Array.isArray(apps)) {
+            const updated = apps.filter(
+              (a: any) =>
+                (a.id || a._id) !== targetUser.id &&
+                a.email?.toLowerCase() !== targetUser.email?.toLowerCase()
+            );
+            localStorage.setItem('gyde_cached_applications', JSON.stringify(updated));
+            window.dispatchEvent(new Event('storage'));
+          }
+        }
+      } catch {}
+      setSelectedUserDetail(null);
+      showToast(isArabic ? 'تم حذف المستخدم نهائياً.' : 'User deleted permanently.');
     },
-    onSuccess: () => {
+    mutationFn: async (targetUser: User) => {
+      let success = false;
+      try {
+        await apiRequest(`/admin/users/${targetUser.id}`, { method: 'DELETE' });
+        success = true;
+      } catch (err) {
+        console.warn('API delete user by ID failed, trying email fallback:', err);
+      }
+      if (!success && targetUser.email) {
+        try {
+          await apiRequest(`/admin/users/${encodeURIComponent(targetUser.email)}`, { method: 'DELETE' });
+          success = true;
+        } catch {}
+      }
+      if (!success) {
+        try {
+          await apiRequest(`/users/${targetUser.id}`, { method: 'DELETE' });
+        } catch {}
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
     },
@@ -777,11 +814,27 @@ export const Users: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+              {selectedUserDetail.role !== 'SUPER_ADMIN' && selectedUserDetail.email !== 'admin@thegyde.in' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Permanently delete user "${selectedUserDetail.name}" (${selectedUserDetail.email})? This action cannot be undone.`)) {
+                      deleteUserMutation.mutate(selectedUserDetail);
+                    }
+                  }}
+                  disabled={deleteUserMutation.isPending}
+                  className="px-3 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{isArabic ? 'حذف المستخدم نهائياً' : 'Delete User Permanently'}</span>
+                </button>
+              ) : <div />}
+
               <button
                 type="button"
                 onClick={() => setSelectedUserDetail(null)}
-                className="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 Close
               </button>

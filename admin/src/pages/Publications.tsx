@@ -18,6 +18,7 @@ import {
   Layers,
   Sparkles,
   XCircle,
+  Trash2,
 } from 'lucide-react';
 
 const SPHERES = [
@@ -114,6 +115,44 @@ export const Publications: React.FC = () => {
     },
     onError: (err: any) => {
       showToast(err?.message || 'Failed to update publication status', 'error');
+    },
+  });
+
+  const deletePublicationMutation = useMutation({
+    onMutate: (id: string) => {
+      // Optimistic cache update
+      queryClient.setQueryData<Publication[]>(['admin-publications'], (old = []) =>
+        old.filter((p: any) => (p.id || p._id) !== id && p.slug !== id)
+      );
+      try {
+        const stored = localStorage.getItem('gyde_cached_publications');
+        if (stored) {
+          const list = JSON.parse(stored).filter((p: any) => (p.id || p._id) !== id && p.slug !== id);
+          localStorage.setItem('gyde_cached_publications', JSON.stringify(list));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
+      setReviewModalPaper(null);
+      showToast(isArabic ? 'تم حذف الورقة البحثية نهائياً.' : 'Academic publication deleted permanently.');
+    },
+    mutationFn: async (id: string) => {
+      let success = false;
+      try {
+        await apiRequest(`/admin/publications/${id}`, { method: 'DELETE' });
+        success = true;
+      } catch (err) {
+        console.warn('API delete on /admin/publications failed, trying /publications fallback:', err);
+      }
+      if (!success) {
+        try {
+          await apiRequest(`/publications/${id}`, { method: 'DELETE' });
+        } catch {}
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-publications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      setReviewModalPaper(null);
     },
   });
 
@@ -497,6 +536,20 @@ export const Publications: React.FC = () => {
                           </button>
                         </div>
                       )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(isArabic ? `هل أنت متأكد من حذف هذه الورقة البحثية "${paper.title}" نهائياً؟` : `Are you sure you want to permanently delete "${paper.title}"?`)) {
+                            deletePublicationMutation.mutate(paperId || paper.slug);
+                          }
+                        }}
+                        disabled={deletePublicationMutation.isPending}
+                        className="p-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-200 dark:hover:border-rose-900 transition-colors cursor-pointer"
+                        title={isArabic ? 'حذف الورقة نهائياً' : 'Delete Paper'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -742,13 +795,30 @@ export const Publications: React.FC = () => {
 
             {/* Footer actions */}
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setReviewModalPaper(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
-              >
-                {t('common.close', 'Close')}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setReviewModalPaper(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  {t('common.close', 'Close')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const modalPaperId = (reviewModalPaper as any).id || (reviewModalPaper as any)._id || reviewModalPaper.slug;
+                    if (window.confirm(isArabic ? `هل تريد حذف هذا البحث نهائياً: "${reviewModalPaper.title}"؟` : `Permanently delete this paper: "${reviewModalPaper.title}"? This cannot be undone.`)) {
+                      deletePublicationMutation.mutate(modalPaperId);
+                    }
+                  }}
+                  disabled={deletePublicationMutation.isPending}
+                  className="px-3.5 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  title="Delete Paper"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>{isArabic ? 'حذف الورقة نهائياً' : 'Delete Paper'}</span>
+                </button>
+              </div>
 
               <div className="flex items-center gap-2">
                 {(() => {

@@ -81,3 +81,15 @@ export async function listAllFeedback(req: Request, res: Response, next: NextFun
     next(err);
   }
 }
+
+export async function deleteFeedback(req: Request, res: Response, next: NextFunction) {
+  try {
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    const feedback = await Feedback.findByIdAndDelete(rawId);
+    if (!feedback) throw new NotFoundError('Feedback entry not found');
+
+    return sendSuccess(res, null, 'Feedback removed successfully');
+  } catch (err) {
+    next(err);
+  }
+}

@@ -349,7 +349,18 @@ export async function updateTopicStatus(req: Request, res: Response, next: NextF
 
 export async function deleteTopic(req: Request, res: Response, next: NextFunction) {
   try {
-    const topic = await Topic.findByIdAndDelete(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
+    let topic: any = null;
+
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      topic = await Topic.findByIdAndDelete(rawId);
+    }
+    if (!topic) {
+      topic = await Topic.findOneAndDelete({
+        $or: [{ slug: rawId }, { title: rawId }, { id: rawId }],
+      });
+    }
+
     if (!topic) throw new NotFoundError('Topic not found');
 
     await logAuditEvent({
@@ -361,7 +372,8 @@ export async function deleteTopic(req: Request, res: Response, next: NextFunctio
         role: req.user!.role,
       },
       targetType: 'topic',
-      targetId: req.params.id as string,
+      targetId: topic._id.toString(),
+      details: { title: topic.title, category: topic.category },
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
     });
