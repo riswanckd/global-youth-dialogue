@@ -127,6 +127,8 @@ export const PortalLayout: React.FC = () => {
       label: isArabic ? 'مسيرتي والأوسمة' : 'My Journey & Badges',
       path: '/portal/journey',
       icon: Award,
+      disabled: true,
+      badge: isArabic ? 'قريباً' : 'Soon',
     },
     {
       label: isArabic ? 'الملف الشخصي' : 'My Profile & Settings',
@@ -405,12 +407,30 @@ export const PortalLayout: React.FC = () => {
 
             {/* Navigation Menu List (Exact Admin Pill Style) */}
             <nav className="space-y-0.5">
-              {navItems.map((item) => {
+              {navItems.map((item: any) => {
                 const Icon = item.icon;
                 const isActive = item.exact
                   ? location.pathname === item.path
                   : location.pathname === item.path ||
                     (item.path !== '/portal' && location.pathname.startsWith(item.path));
+
+                if (item.disabled) {
+                  return (
+                    <div
+                      key={item.path}
+                      title={isArabic ? 'قيد التطوير والتحديث - قريباً' : 'Under development & maintenance - Coming soon'}
+                      className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-xs text-slate-400 dark:text-slate-500 opacity-60 cursor-not-allowed select-none bg-slate-50/50 dark:bg-slate-900/40"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Icon className="w-4 h-4 shrink-0 text-slate-400 dark:text-slate-500" />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      <span className="ms-2 shrink-0 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700/80 tracking-wider">
+                        {item.badge || (isArabic ? 'قريباً' : 'Soon')}
+                      </span>
+                    </div>
+                  );
+                }
 
                 return (
                   <Link

@@ -110,7 +110,28 @@ export const PortalJourney: React.FC = () => {
         </div>
       </div>
 
-      {/* Analytics Hero Stats Strip: 2x2 on mobile, 4-col on desktop */}
+      {/* Maintenance / Coming Soon Banner */}
+      <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 font-bold text-sm">
+          ⏳
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2">
+            <span>{isArabic ? 'قيد التطوير والتحديث الأكاديمي' : 'Under Development & Maintenance'}</span>
+            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 tracking-wider">
+              {isArabic ? 'قريباً' : 'Soon'}
+            </span>
+          </div>
+          <p className="text-[11px] text-amber-700 dark:text-amber-300/90 mt-0.5 m-0 font-sans">
+            {isArabic
+              ? 'يجري حالياً تحديث مسار الأوسمة وسجل المشاركات الأكاديمية. سيتم إعادة تفعيل هذه الوحدة قريباً.'
+              : 'The dialogue milestone and honors system is currently being upgraded and will be available shortly.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="opacity-60 pointer-events-none select-none">
+        {/* Analytics Hero Stats Strip: 2x2 on mobile, 4-col on desktop */}
       <div className="analytics-hero-grid grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
         <div className="analytics-stat-card bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3 sm:p-5 shadow-xs text-center flex flex-col items-center justify-center">
           <div className="analytics-stat-num text-xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-heading leading-tight mb-0.5">{dialoguesAttended}</div>
@@ -200,6 +221,7 @@ export const PortalJourney: React.FC = () => {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );
