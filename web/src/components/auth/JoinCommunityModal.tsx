@@ -254,6 +254,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             areasOfInterest,
             interests: areasOfInterest,
             preferredLanguages: ['English'],
+            isApprovedPresenter: false,
+            role: 'member',
+            type: 'membership',
           }),
         });
       } catch (submitErr) {
@@ -275,6 +278,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
           areasOfInterest,
           interests: areasOfInterest,
           status: 'pending',
+          isApprovedPresenter: false,
+          role: 'member',
+          type: 'membership',
           emailVerified: true,
           createdAt: new Date().toISOString(),
         };

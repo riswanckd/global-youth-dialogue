@@ -101,13 +101,12 @@ export const PortalLayout: React.FC = () => {
 
   // 2. Pending Member & Presenter Applications (for admin/coordinators)
   const pendingMemberApps = applications.filter(
-    (a) => a.status === 'pending' && !(a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter
+    (a) => a.status === 'pending' && !(a as any).presenterProposal?.proposedTopic
   );
   const pendingPresenterApps = applications.filter(
     (a) =>
-      (a as any).presenterProposal?.status === 'pending' ||
-      ((a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter) ||
-      (a.status === 'pending' && a.isApprovedPresenter)
+      Boolean((a as any).presenterProposal?.proposedTopic) &&
+      ((a as any).presenterProposal?.status === 'pending' || !a.isApprovedPresenter)
   );
 
   // 3. Academic Writing Applications

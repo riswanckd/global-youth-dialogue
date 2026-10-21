@@ -54,6 +54,9 @@ export const createApplicationSchema = z.object({
   areasOfInterest: z.array(z.string()).optional(),
   interests: z.array(z.string()).optional(),
   preferredLanguages: z.array(z.string()).optional(),
+  role: z.string().optional(),
+  type: z.string().optional(),
+  isApprovedPresenter: z.boolean().optional(),
 });
 
 export const reviewApplicationSchema = z.object({

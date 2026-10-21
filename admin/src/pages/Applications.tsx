@@ -408,12 +408,13 @@ export const Applications: React.FC = () => {
 
   const pendingPresenterCount = applications.filter(
     (a) =>
-      (a as any).presenterProposal?.status === 'pending' ||
-      ((a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter) ||
-      (a.status === 'pending' && a.isApprovedPresenter)
+      Boolean((a as any).presenterProposal?.proposedTopic) &&
+      ((a as any).presenterProposal?.status === 'pending' || !a.isApprovedPresenter)
   ).length;
 
-  const pendingMemberCount = applications.filter((a) => (a.status || '').toLowerCase() === 'pending').length;
+  const pendingMemberCount = applications.filter(
+    (a) => (a.status || '').toLowerCase() === 'pending' && !(a as any).presenterProposal?.proposedTopic
+  ).length;
   const underReviewCount = applications.filter((a) => (a.status || '').toLowerCase() === 'under_review').length;
   const approvedCount = applications.filter((a) => (a.status || '').toLowerCase() === 'approved').length;
   const rejectedCount = applications.filter((a) => ['rejected', 'declined'].includes((a.status || '').toLowerCase())).length;
@@ -422,13 +423,12 @@ export const Applications: React.FC = () => {
     if (!app) return false;
     const st = (app.status || '').toLowerCase();
     const hasPresenterProposal = Boolean(
-      (app as any).presenterProposal?.status === 'pending' ||
-      ((app as any).presenterProposal?.proposedTopic && !app.isApprovedPresenter) ||
-      (app.status === 'pending' && app.isApprovedPresenter)
+      (app as any).presenterProposal?.proposedTopic &&
+      ((app as any).presenterProposal?.status === 'pending' || !app.isApprovedPresenter)
     );
 
     if (statusFilter === 'presenter') {
-      if (!hasPresenterProposal && !(app as any).presenterProposal && !app.isApprovedPresenter) return false;
+      if (!hasPresenterProposal && !(app as any).presenterProposal?.proposedTopic) return false;
     } else if (statusFilter === 'rejected') {
       if (!['rejected', 'declined'].includes(st)) return false;
     } else if (statusFilter === 'pending') {
@@ -667,10 +667,15 @@ export const Applications: React.FC = () => {
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-bold text-slate-900 dark:text-white">{app.applicantName}</span>
-                          {app.presenterProposal && (
+                          {app.presenterProposal?.proposedTopic ? (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                               <Mic className="w-3 h-3" />
                               <span>{isArabic ? 'طلب متحدث' : 'Presenter Request'}</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                              <ShieldCheck className="w-3 h-3" />
+                              <span>{isArabic ? 'طلب عضوية' : 'Membership Application'}</span>
                             </span>
                           )}
                         </div>
@@ -725,8 +730,8 @@ export const Applications: React.FC = () => {
                       </td>
                       <td className="py-3 px-4 text-right rtl:text-left">
                         <div className="inline-flex items-center gap-1.5 justify-end flex-wrap">
-                          {/* Presenter Quick Approve */}
-                          {app.presenterProposal && (app.presenterProposal.status === 'pending' || (!app.isApprovedPresenter && app.presenterProposal.status !== 'rejected')) && (
+                          {/* Presenter Quick Approve - exclusively for existing members with pending proposal */}
+                          {app.presenterProposal?.proposedTopic && app.presenterProposal.status === 'pending' && (
                             <button
                               type="button"
                               disabled={updateMutation.isPending}
@@ -735,6 +740,7 @@ export const Applications: React.FC = () => {
                                   id: app.id,
                                   status: 'approved',
                                   approvePresenter: true,
+                                  scope: 'presenter',
                                   email: app.email,
                                 })
                               }
@@ -750,9 +756,9 @@ export const Applications: React.FC = () => {
                               <button
                                 type="button"
                                 disabled={updateMutation.isPending}
-                                onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                                onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', approvePresenter: false, scope: 'membership', email: app.email })}
                                 className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors"
-                                title="Approve"
+                                title="Approve Membership"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                 <span>{t('dash.approve', 'Approve')}</span>
@@ -760,7 +766,7 @@ export const Applications: React.FC = () => {
                               <button
                                 type="button"
                                 disabled={updateMutation.isPending}
-                                onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                                onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', scope: 'membership', email: app.email })}
                                 className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors"
                                 title="Decline / Deny"
                               >
@@ -797,7 +803,7 @@ export const Applications: React.FC = () => {
                             onClick={() => {
                               setSelectedApp(app);
                               setReviewNotes(app.reviewNotes || '');
-                              setIsPresenter(app.isApprovedPresenter || Boolean(app.presenterProposal));
+                              setIsPresenter(Boolean(app.isApprovedPresenter && app.presenterProposal?.proposedTopic));
                             }}
                             className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
                           >
@@ -838,10 +844,15 @@ export const Applications: React.FC = () => {
                         <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
                           {app.applicantName}
                         </h4>
-                        {app.presenterProposal && (
+                        {app.presenterProposal?.proposedTopic ? (
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300">
                             <Mic className="w-2.5 h-2.5" />
-                            <span>{isArabic ? 'متحدث' : 'Presenter'}</span>
+                            <span>{isArabic ? 'طلب متحدث' : 'Presenter Request'}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                            <ShieldCheck className="w-2.5 h-2.5" />
+                            <span>{isArabic ? 'طلب عضوية' : 'Membership Application'}</span>
                           </span>
                         )}
                       </div>
@@ -886,8 +897,8 @@ export const Applications: React.FC = () => {
                   )}
 
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
-                    {/* Mobile Presenter Quick Approve */}
-                    {app.presenterProposal && (app.presenterProposal.status === 'pending' || (!app.isApprovedPresenter && app.presenterProposal.status !== 'rejected')) && (
+                    {/* Mobile Presenter Quick Approve - only for existing members with pending proposal */}
+                    {app.presenterProposal?.proposedTopic && app.presenterProposal.status === 'pending' && (
                       <button
                         type="button"
                         disabled={updateMutation.isPending}
@@ -896,6 +907,7 @@ export const Applications: React.FC = () => {
                             id: app.id,
                             status: 'approved',
                             approvePresenter: true,
+                            scope: 'presenter',
                             email: app.email,
                           })
                         }
@@ -910,7 +922,7 @@ export const Applications: React.FC = () => {
                         <button
                           type="button"
                           disabled={updateMutation.isPending}
-                          onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                          onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', approvePresenter: false, scope: 'membership', email: app.email })}
                           className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -919,7 +931,7 @@ export const Applications: React.FC = () => {
                         <button
                           type="button"
                           disabled={updateMutation.isPending}
-                          onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                          onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', scope: 'membership', email: app.email })}
                           className="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
                         >
                           <XCircle className="w-3.5 h-3.5" />
@@ -1016,8 +1028,8 @@ export const Applications: React.FC = () => {
               </div>
             ) : null}
 
-            {/* Presenter Accreditation Dossier (if candidate applied for Presenter role) */}
-            {selectedApp.presenterProposal && (
+            {/* Presenter Accreditation Dossier (ONLY if existing member applied for Presenter role with proposed topic) */}
+            {selectedApp.presenterProposal?.proposedTopic ? (
               <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/60 dark:bg-purple-950/30 space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
@@ -1103,6 +1115,22 @@ export const Applications: React.FC = () => {
                   </div>
                 )}
               </div>
+            ) : (
+              <div className="p-3.5 rounded-xl border border-blue-200 dark:border-blue-800/60 bg-blue-50/50 dark:bg-blue-950/30 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-blue-950 dark:text-blue-200">
+                    {isArabic ? 'طلب عضوية رسمي (صلاحيات عضو فقط)' : 'Official Membership Application (Member Access Only)'}
+                  </h4>
+                  <p className="text-[11px] text-blue-800/80 dark:text-blue-300/80 mt-0.5 leading-relaxed">
+                    {isArabic
+                      ? 'مقدم الطلب يتقدم بطلب عضوية في المجتمع. عند الاعتماد يحصل على صلاحيات عضو رسمي. يمكنه التقدم لطلب صفة متحدث رسمي لاحقاً بعد نيل العضوية.'
+                      : 'Candidate is applying for community membership. Upon approval, they receive official Member access only. Presenter accreditation may only be requested post-membership from their portal.'}
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* Experience */}
@@ -1156,19 +1184,21 @@ export const Applications: React.FC = () => {
               />
             </div>
 
-            {/* Presenter Accreditation Checkbox */}
-            <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800/40">
-              <input
-                type="checkbox"
-                id="modalPresenterCheck"
-                checked={isPresenter}
-                onChange={(e) => setIsPresenter(e.target.checked)}
-                className="w-4 h-4 text-indigo-600 rounded"
-              />
-              <label htmlFor="modalPresenterCheck" className="text-xs font-bold text-amber-900 dark:text-amber-200 cursor-pointer">
-                {t('apps.accreditPresenter', 'Accredit as Keynote Presenter (permits slide upload and motion presentations)')}
-              </label>
-            </div>
+            {/* Presenter Accreditation Checkbox - ONLY for existing members with a submitted proposal */}
+            {selectedApp.presenterProposal?.proposedTopic && (
+              <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800/40">
+                <input
+                  type="checkbox"
+                  id="modalPresenterCheck"
+                  checked={isPresenter}
+                  onChange={(e) => setIsPresenter(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 rounded"
+                />
+                <label htmlFor="modalPresenterCheck" className="text-xs font-bold text-amber-900 dark:text-amber-200 cursor-pointer">
+                  {t('apps.accreditPresenter', 'Accredit as Keynote Presenter (permits slide upload and motion presentations)')}
+                </label>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800 flex-wrap gap-2">
@@ -1198,7 +1228,7 @@ export const Applications: React.FC = () => {
 
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Presenter decline button */}
-                {selectedApp.presenterProposal && selectedApp.presenterProposal.status === 'pending' && (
+                {selectedApp.presenterProposal?.proposedTopic && selectedApp.presenterProposal.status === 'pending' && (
                   <button
                     type="button"
                     disabled={updateMutation.isPending}
@@ -1218,7 +1248,7 @@ export const Applications: React.FC = () => {
                   </button>
                 )}
 
-                {(selectedApp.status === 'pending' || selectedApp.status === 'under_review' || (selectedApp.status === 'approved' && !selectedApp.presenterProposal)) && (
+                {(selectedApp.status === 'pending' || selectedApp.status === 'under_review' || (selectedApp.status === 'approved' && !selectedApp.presenterProposal?.proposedTopic)) && (
                   <button
                     type="button"
                     disabled={updateMutation.isPending}
@@ -1226,6 +1256,7 @@ export const Applications: React.FC = () => {
                       updateMutation.mutate({
                         id: selectedApp.id,
                         status: 'rejected',
+                        scope: 'membership',
                         notes: reviewNotes,
                         email: selectedApp.email,
                       })
@@ -1245,6 +1276,7 @@ export const Applications: React.FC = () => {
                       updateMutation.mutate({
                         id: selectedApp.id,
                         status: 'rejected',
+                        scope: 'membership',
                         notes: reviewNotes,
                         email: selectedApp.email,
                       })
@@ -1264,25 +1296,26 @@ export const Applications: React.FC = () => {
                       id: selectedApp.id,
                       status: 'approved',
                       notes: reviewNotes,
-                      approvePresenter: isPresenter || Boolean(selectedApp.presenterProposal),
+                      approvePresenter: Boolean(selectedApp.presenterProposal?.proposedTopic && isPresenter),
+                      scope: selectedApp.presenterProposal?.proposedTopic ? 'presenter' : 'membership',
                       email: selectedApp.email,
                     })
                   }
                   className={`px-5 py-2 text-xs font-bold rounded-lg text-white shadow-sm flex items-center gap-1.5 ${
-                    isPresenter || selectedApp.presenterProposal
+                    selectedApp.presenterProposal?.proposedTopic && isPresenter
                       ? 'bg-purple-600 hover:bg-purple-700'
                       : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
-                    {isPresenter || selectedApp.presenterProposal
+                    {selectedApp.presenterProposal?.proposedTopic && isPresenter
                       ? (isArabic ? 'اعتماد المتحدث وترقية الصلاحيات' : 'Approve & Accredit Presenter')
                       : selectedApp.status === 'approved'
                       ? t('apps.updateAccreditation', 'Update Accreditation')
                       : selectedApp.status === 'rejected'
-                      ? t('apps.reApproveApp', 'Re-Approve & Onboard')
-                      : t('apps.approveApplication', 'Approve & Onboard')}
+                      ? t('apps.reApproveApp', 'Re-Approve Membership')
+                      : (isArabic ? 'اعتماد العضوية (صلاحيات عضو)' : 'Approve Membership (Member Access Only)')}
                   </span>
                 </button>
               </div>

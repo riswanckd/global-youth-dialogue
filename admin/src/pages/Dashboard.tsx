@@ -240,7 +240,7 @@ export const Dashboard: React.FC = () => {
       try {
         await apiRequest(`/admin/applications/${id}/status`, {
           method: 'PATCH',
-          body: JSON.stringify({ status, email }),
+          body: JSON.stringify({ status, email, approvePresenter: false, scope: 'membership' }),
         });
         remoteSuccess = true;
       } catch (err) {
@@ -257,7 +257,7 @@ export const Dashboard: React.FC = () => {
               ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
               'x-client-app': 'admin',
             },
-            body: JSON.stringify({ status, email }),
+            body: JSON.stringify({ status, email, approvePresenter: false, scope: 'membership' }),
           });
           if (directRes.ok) remoteSuccess = true;
         } catch {}
@@ -480,15 +480,16 @@ export const Dashboard: React.FC = () => {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => updateAppMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                      onClick={() => updateAppMutation.mutate({ id: app.id, status: 'approved', approvePresenter: false, scope: 'membership', email: app.email } as any)}
                       disabled={updateAppMutation.isPending}
                       className="px-4 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                      title={isArabic ? 'اعتماد العضوية (صلاحيات عضو فقط)' : 'Approve Membership (Member Access Only)'}
                     >
                       <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>{t('dash.approve', 'Approve')}</span>
                     </button>
                     <button
-                      onClick={() => updateAppMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                      onClick={() => updateAppMutation.mutate({ id: app.id, status: 'rejected', scope: 'membership', email: app.email } as any)}
                       disabled={updateAppMutation.isPending}
                       className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
                     >

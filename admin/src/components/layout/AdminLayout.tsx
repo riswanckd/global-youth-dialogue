@@ -76,15 +76,14 @@ export const AdminLayout: React.FC = () => {
   // Calculate live dynamic notification categories
   // 1. Pending Member Applications
   const pendingMemberApps = applications.filter(
-    (a) => a.status === 'pending' && !(a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter
+    (a) => a.status === 'pending' && !(a as any).presenterProposal?.proposedTopic
   );
 
   // 2. Pending Presenter Applications (Accreditation proposals)
   const pendingPresenterApps = applications.filter(
     (a) =>
-      (a as any).presenterProposal?.status === 'pending' ||
-      ((a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter) ||
-      (a.status === 'pending' && a.isApprovedPresenter)
+      Boolean((a as any).presenterProposal?.proposedTopic) &&
+      ((a as any).presenterProposal?.status === 'pending' || !a.isApprovedPresenter)
   );
 
   // 3. Proposed Topic Suggestions from delegates

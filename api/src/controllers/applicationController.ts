@@ -40,6 +40,8 @@ export async function submitApplication(req: Request, res: Response, next: NextF
       if (password) application.password = password;
       application.status = 'pending';
       application.emailVerified = true;
+      application.isApprovedPresenter = false;
+      application.presenterProposal = undefined;
       await application.save();
     } else {
       application = await Application.create({
@@ -54,6 +56,7 @@ export async function submitApplication(req: Request, res: Response, next: NextF
         preferredLanguages,
         status: 'pending',
         emailVerified: true,
+        isApprovedPresenter: false,
       });
     }
 
@@ -217,16 +220,35 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
       throw new NotFoundError('Application not found');
     }
 
+    // Find linked user early to establish membership status
+    let user = await User.findOne({
+      $or: [
+        { email: application.email.toLowerCase().trim() },
+        ...(application.linkedUser ? [{ _id: application.linkedUser }] : []),
+      ],
+    });
+
+    // An applicant is an existing approved member only if they already have an active user account with approved membership
+    const isExistingApprovedMember = Boolean(
+      user &&
+      application.status === 'approved' &&
+      [ROLES.MEMBER, ROLES.PRESENTER, ROLES.COORDINATOR, ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(user.role as any)
+    );
+
+    // Presenter elevation can ONLY be evaluated if the candidate is ALREADY an approved member who submitted a valid presenter topic proposal
+    const hasValidPresenterProposal = Boolean(
+      isExistingApprovedMember &&
+      application.presenterProposal?.proposedTopic &&
+      application.presenterProposal?.status === 'pending'
+    );
+
     const isPresenterApproval =
-      assignRole === ROLES.PRESENTER ||
-      reqTargetRole?.toUpperCase() === 'PRESENTER' ||
-      isApprovedPresenter === true ||
-      (status === 'approved' && application.presenterProposal?.status === 'pending');
+      hasValidPresenterProposal &&
+      (assignRole === ROLES.PRESENTER || reqTargetRole?.toUpperCase() === 'PRESENTER' || isApprovedPresenter === true);
 
     const isPresenterRejectionOnly =
-      scope === 'presenter' ||
-      reqTargetRole?.toUpperCase() === 'PRESENTER' ||
-      (status === 'rejected' && application.status === 'approved' && application.presenterProposal?.status === 'pending');
+      isExistingApprovedMember &&
+      (scope === 'presenter' || reqTargetRole?.toUpperCase() === 'PRESENTER' || (status === 'rejected' && hasValidPresenterProposal));
 
     if (req.user?._id) {
       application.reviewedBy = req.user._id as any;
@@ -240,6 +262,12 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
         application.isApprovedPresenter = true;
         if (application.presenterProposal) {
           application.presenterProposal.status = 'approved';
+        }
+      } else {
+        // Initial membership approval: candidate can only apply for membership, not presentership
+        application.isApprovedPresenter = false;
+        if (!isExistingApprovedMember) {
+          application.presenterProposal = undefined;
         }
       }
     } else if (status === 'rejected') {
@@ -261,19 +289,13 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
 
     await application.save();
 
-    // Find linked user
-    let user = await User.findOne({
-      $or: [
-        { email: application.email.toLowerCase().trim() },
-        ...(application.linkedUser ? [{ _id: application.linkedUser }] : []),
-      ],
-    });
-
     // If approved, create or activate user account with credentials
     if (status === 'approved') {
-      const targetRole: UserRole = isPresenterApproval
+      // New user can ONLY be approved as a MEMBER with member-only access.
+      // After becoming an official member, they can request to be a presenter.
+      const targetRole: UserRole = (isPresenterApproval && isExistingApprovedMember)
         ? ROLES.PRESENTER
-        : (assignRole || (application.isApprovedPresenter ? ROLES.PRESENTER : ROLES.MEMBER));
+        : ROLES.MEMBER;
 
       if (!user) {
         const tempPassword = application.password || 'gydeMember2026!';
