@@ -33,7 +33,7 @@ export const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <AdminLanguageProvider>
         <AdminAuthProvider>
-          <BrowserRouter>
+          <BrowserRouter basename="/admin">
             <Routes>
               <Route path="/login" element={<Login />} />
 

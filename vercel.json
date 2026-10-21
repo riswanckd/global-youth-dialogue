@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "vite build || (cd web && npm install && npm run build && cd .. && node -e \"require('fs').cpSync('web/dist', 'dist', {recursive: true})\")",
+  "buildCommand": "node scripts/build-all.cjs",
   "outputDirectory": "dist",
   "rewrites": [
     {
@@ -14,6 +14,18 @@
     {
       "source": "/api/:path*",
       "destination": "https://gyde-api.vercel.app/api/:path*"
+    },
+    {
+      "source": "/admin/assets/:path*",
+      "destination": "/admin/assets/:path*"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/admin/index.html"
     },
     {
       "source": "/(.*)",

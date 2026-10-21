@@ -26,6 +26,8 @@ app.use((_req, res, next) => {
 const allowedOrigins = [
   env.WEB_ORIGIN,
   env.ADMIN_ORIGIN,
+  'https://thegyde.in',
+  'https://www.thegyde.in',
   'http://localhost:5173',
   'http://localhost:5174',
 ];
@@ -33,11 +35,13 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, server-to-server) or in allowlist or vercel previews
+      // Allow requests with no origin (e.g. mobile apps, server-to-server) or in allowlist or vercel previews or thegyde.in
       if (
         !origin ||
         allowedOrigins.includes(origin) ||
         origin.endsWith('.vercel.app') ||
+        origin.endsWith('.thegyde.in') ||
+        origin === 'https://thegyde.in' ||
         env.NODE_ENV !== 'production'
       ) {
         callback(null, true);
