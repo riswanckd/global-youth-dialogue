@@ -1,10 +1,10 @@
 import { UserRole } from '../constants/roles';
 
 export type ApplicationStatus = 'pending' | 'under_review' | 'approved' | 'rejected' | 'deleted';
-export type SessionStatus = 'draft' | 'scheduled' | 'live' | 'completed' | 'cancelled';
+export type SessionStatus = 'draft' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'proposed' | 'rejected';
 export type RecordingVisibility = 'public' | 'members_only' | 'private';
 export type TopicStatus = 'proposed' | 'reviewing' | 'shortlisted' | 'approved' | 'published' | 'scheduled' | 'completed' | 'rejected';
-export type PublicationStatus = 'draft' | 'under_review' | 'published' | 'archived';
+export type PublicationStatus = 'draft' | 'under_review' | 'published' | 'archived' | 'rejected';
 export type PublicationVisibility = 'public' | 'members_only';
 
 export interface UserDTO {

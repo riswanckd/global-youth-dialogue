@@ -22,7 +22,11 @@ import {
   Shield,
   Layers,
   Image as ImageIcon,
-  BookOpen
+  BookOpen,
+  Check,
+  AlertCircle,
+  FileText,
+  Globe
 } from 'lucide-react';
 
 const SPHERES = [
@@ -56,6 +60,10 @@ export const Sessions: React.FC = () => {
   const { t, translateCategory, translateStatus, isArabic } = useAdminLanguage();
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedProposal, setSelectedProposal] = useState<DialogueSession | null>(null);
+  const [proposalScheduleDate, setProposalScheduleDate] = useState<string>('');
+  const [proposalMeetingUrl, setProposalMeetingUrl] = useState<string>('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -270,14 +278,82 @@ export const Sessions: React.FC = () => {
     },
   });
 
-  const filtered = sessions.filter((s) => {
-    const q = search.toLowerCase();
-    return s.title.toLowerCase().includes(q) || s.category.toLowerCase().includes(q);
+  const updateSessionStatusMutation = useMutation({
+    mutationFn: ({
+      id,
+      status,
+      meetingUrl,
+      scheduledAt,
+    }: {
+      id: string;
+      status: string;
+      meetingUrl?: string;
+      scheduledAt?: string;
+    }) =>
+      apiRequest(`/admin/sessions/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status,
+          ...(meetingUrl !== undefined ? { meetingUrl } : {}),
+          ...(scheduledAt !== undefined ? { scheduledAt } : {}),
+        }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      setSelectedProposal(null);
+    },
   });
 
+  const deleteSessionMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest(`/admin/sessions/${id}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+    },
+  });
+
+  const proposedCount = sessions.filter((s) => s.status === 'proposed' || (s as any).isPresenterProposal).length;
   const scheduledCount = sessions.filter((s) => s.status === 'scheduled').length;
   const completedCount = sessions.filter((s) => s.status === 'completed').length;
   const liveCount = sessions.filter((s) => s.status === 'live').length;
+  const rejectedCount = sessions.filter((s) => s.status === 'rejected').length;
+
+  const filtered = sessions.filter((s) => {
+    const q = search.toLowerCase();
+    const matchesSearch =
+      s.title.toLowerCase().includes(q) ||
+      s.category.toLowerCase().includes(q) ||
+      (s.presenters && s.presenters.some((p) => p.name.toLowerCase().includes(q)));
+
+    const matchesStatus =
+      statusFilter === 'all'
+        ? true
+        : statusFilter === 'proposed'
+        ? s.status === 'proposed' || (s as any).isPresenterProposal
+        : s.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const openProposalReview = (session: DialogueSession) => {
+    setSelectedProposal(session);
+    setProposalMeetingUrl(session.meetingUrl || '');
+    if (session.scheduledAt) {
+      try {
+        const d = new Date(session.scheduledAt);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        setProposalScheduleDate(
+          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+        );
+      } catch {
+        setProposalScheduleDate('');
+      }
+    } else {
+      setProposalScheduleDate('');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -323,11 +399,19 @@ export const Sessions: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Cards Grid (2x2 on mobile, 4 in a row on desktop) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Total Chambers */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <button
+          type="button"
+          onClick={() => setStatusFilter('all')}
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 text-left transition-all cursor-pointer ${
+            statusFilter === 'all'
+              ? 'border-indigo-500 ring-2 ring-indigo-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -338,12 +422,52 @@ export const Sessions: React.FC = () => {
               {t('sessions.title', 'Chambers')}
             </div>
           </div>
-        </div>
+        </button>
+
+        {/* Floor Proposals (Presenter & Member Applications) */}
+        <button
+          type="button"
+          onClick={() => setStatusFilter('proposed')}
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 text-left transition-all cursor-pointer ${
+            statusFilter === 'proposed'
+              ? 'border-amber-500 ring-2 ring-amber-500/20'
+              : proposedCount > 0
+              ? 'border-amber-300 dark:border-amber-800/80 bg-amber-50/30 dark:bg-amber-950/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                {proposedCount}
+              </span>
+              {proposedCount > 0 && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-500 text-white animate-pulse">
+                  New
+                </span>
+              )}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {isArabic ? 'طلبات التقديم' : 'Floor Proposals'}
+            </div>
+          </div>
+        </button>
 
         {/* Scheduled */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+        <button
+          type="button"
+          onClick={() => setStatusFilter('scheduled')}
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 text-left transition-all cursor-pointer ${
+            statusFilter === 'scheduled'
+              ? 'border-indigo-500 ring-2 ring-indigo-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <Video className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
@@ -353,11 +477,42 @@ export const Sessions: React.FC = () => {
               {translateStatus('scheduled')}
             </div>
           </div>
-        </div>
+        </button>
+
+        {/* In Session / Active */}
+        <button
+          type="button"
+          onClick={() => setStatusFilter('live')}
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 text-left transition-all cursor-pointer ${
+            statusFilter === 'live'
+              ? 'border-rose-500 ring-2 ring-rose-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {liveCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {t('common.active', 'Active Live')}
+            </div>
+          </div>
+        </button>
 
         {/* Completed */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <button
+          type="button"
+          onClick={() => setStatusFilter('completed')}
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 text-left transition-all cursor-pointer ${
+            statusFilter === 'completed'
+              ? 'border-emerald-500 ring-2 ring-emerald-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -368,26 +523,89 @@ export const Sessions: React.FC = () => {
               {translateStatus('completed')}
             </div>
           </div>
-        </div>
-
-        {/* In Session / Active */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-            <Video className="w-4 h-4 sm:w-5 sm:h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              {liveCount}
-            </div>
-            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              {t('common.active', 'Active Live')}
-            </div>
-          </div>
-        </div>
+        </button>
       </div>
 
-      {/* Search and List */}
+      {/* Search and List with Tabs */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        {/* Status Filter Tabs */}
+        <div className="flex items-center gap-1.5 p-2.5 sm:p-3 overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+              statusFilter === 'all'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {isArabic ? 'جميع الجلسات' : 'All Chambers'} ({sessions.length})
+          </button>
+          <button
+            onClick={() => setStatusFilter('proposed')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+              statusFilter === 'proposed'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : proposedCount > 0
+                ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80 hover:bg-amber-100'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>{isArabic ? 'طلبات التقديم المقترحة' : 'Floor Proposals & Applications'}</span>
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
+                statusFilter === 'proposed'
+                  ? 'bg-amber-800 text-white'
+                  : 'bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-200'
+              }`}
+            >
+              {proposedCount}
+            </span>
+          </button>
+          <button
+            onClick={() => setStatusFilter('scheduled')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+              statusFilter === 'scheduled'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {translateStatus('scheduled')} ({scheduledCount})
+          </button>
+          <button
+            onClick={() => setStatusFilter('live')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+              statusFilter === 'live'
+                ? 'bg-rose-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {t('common.active', 'Active Live')} ({liveCount})
+          </button>
+          <button
+            onClick={() => setStatusFilter('completed')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+              statusFilter === 'completed'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {translateStatus('completed')} ({completedCount})
+          </button>
+          {rejectedCount > 0 && (
+            <button
+              onClick={() => setStatusFilter('rejected')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                statusFilter === 'rejected'
+                  ? 'bg-slate-700 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              {isArabic ? 'المرفوضة' : 'Denied'} ({rejectedCount})
+            </button>
+          )}
+        </div>
+
         <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
@@ -512,12 +730,31 @@ export const Sessions: React.FC = () => {
                         </td>
                         <td className="py-3 px-4">
                           <div>{new Date(s.scheduledAt).toLocaleDateString()}</div>
-                          <div className="text-[11px] text-slate-500">{new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({s.durationMinutes}m)</div>
+                          <div className="text-[11px] text-slate-500">
+                            {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({s.durationMinutes}m)
+                          </div>
+                          {(s.preferredTimeSlot || (s as any).preferredTimeSlot) && (
+                            <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                              Pref: {s.preferredTimeSlot || (s as any).preferredTimeSlot}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3 px-4">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800">
-                            {translateStatus(s.status)}
-                          </span>
+                          {s.status === 'proposed' || (s as any).isPresenterProposal ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                              <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                              <span>{isArabic ? 'طلب قيد المراجعة' : 'Pending Review'}</span>
+                            </span>
+                          ) : s.status === 'rejected' ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                              <XCircle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                              <span>{isArabic ? 'مرفوض' : 'Denied'}</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800">
+                              {translateStatus(s.status)}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           {s.meetingUrl ? (
@@ -528,11 +765,92 @@ export const Sessions: React.FC = () => {
                           ) : (
                             <span className="text-slate-400 text-xs">Unassigned</span>
                           )}
+                          {(s.dossierUrl || (s as any).dossierUrl) && (
+                            <div className="mt-1">
+                              <a
+                                href={s.dossierUrl || (s as any).dossierUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Dossier / Outline</span>
+                              </a>
+                            </div>
+                          )}
                         </td>
                         <td className="py-3 px-4 text-right rtl:text-left">
-                          <button className="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200">
-                            {t('apps.colActions', 'Edit')}
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            {s.status === 'proposed' || (s as any).isPresenterProposal ? (
+                              <>
+                                <button
+                                  onClick={() => openProposalReview(s)}
+                                  className="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition-colors cursor-pointer"
+                                  title="Review Application"
+                                >
+                                  {isArabic ? 'مراجعة وتحديد موعد' : 'Review & Schedule'}
+                                </button>
+                                <button
+                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                                  disabled={updateSessionStatusMutation.isPending}
+                                  className="p-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors cursor-pointer"
+                                  title={isArabic ? 'قبول ونشر' : 'Quick Approve & Publish'}
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'rejected' })}
+                                  disabled={updateSessionStatusMutation.isPending}
+                                  className="p-1 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors cursor-pointer"
+                                  title={isArabic ? 'رفض الطلب' : 'Deny Application'}
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : s.status === 'rejected' ? (
+                              <>
+                                <button
+                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                                  className="px-2 py-1 text-xs font-bold rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                >
+                                  {isArabic ? 'إعادة قبول' : 'Re-Approve'}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (confirm('Delete this denied session?')) {
+                                      deleteSessionMutation.mutate(s.id);
+                                    }
+                                  }}
+                                  className="p-1 text-xs font-bold rounded bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/60 dark:text-rose-400"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                {s.status === 'scheduled' && (
+                                  <button
+                                    onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'completed' })}
+                                    className="px-2 py-1 text-xs font-medium rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                  >
+                                    {isArabic ? 'إكمال' : 'Complete'}
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    if (confirm('Delete this chamber?')) {
+                                      deleteSessionMutation.mutate(s.id);
+                                    }
+                                  }}
+                                  className="p-1 text-xs font-semibold rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -545,10 +863,19 @@ export const Sessions: React.FC = () => {
             <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 p-3 space-y-3">
               {filtered.map((s) => {
                 const sessionCat = s.format || 'Topic Presentation';
+                const isProposal = s.status === 'proposed' || (s as any).isPresenterProposal;
+                const isRejected = s.status === 'rejected';
+
                 return (
                   <div
                     key={s.id}
-                    className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 space-y-2.5 shadow-xs"
+                    className={`p-3.5 rounded-xl border space-y-2.5 shadow-xs ${
+                      isProposal
+                        ? 'border-amber-200 dark:border-amber-800/60 bg-amber-50/20 dark:bg-amber-950/10'
+                        : isRejected
+                        ? 'border-rose-200 dark:border-rose-900/60 bg-rose-50/20 dark:bg-rose-950/10'
+                        : 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -556,15 +883,17 @@ export const Sessions: React.FC = () => {
                           {s.title}
                         </h4>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
-                            sessionCat === 'Topic Presentation'
-                              ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400'
-                              : (sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate')
-                              ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
-                              : sessionCat === 'Discussion'
-                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
-                              : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400'
-                          }`}>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                              sessionCat === 'Topic Presentation'
+                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400'
+                                : sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate'
+                                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
+                                : sessionCat === 'Discussion'
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
+                                : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400'
+                            }`}
+                          >
                             <span>{translateCategory(sessionCat)}</span>
                           </span>
                           <span className="text-[10px] text-slate-500 font-medium">
@@ -572,36 +901,97 @@ export const Sessions: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 shrink-0">
-                        {translateStatus(s.status)}
-                      </span>
+
+                      {isProposal ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 shrink-0">
+                          <Clock className="w-2.5 h-2.5" />
+                          <span>Pending Review</span>
+                        </span>
+                      ) : isRejected ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 shrink-0">
+                          Denied
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 shrink-0">
+                          {translateStatus(s.status)}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Proposal Details if applicable */}
+                    {isProposal && (
+                      <div className="p-2 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 text-xs space-y-1 text-slate-700 dark:text-slate-300">
+                        {(s.preferredTimeSlot || (s as any).preferredTimeSlot) && (
+                          <div>
+                            <strong className="text-amber-900 dark:text-amber-300">Preferred Slot:</strong>{' '}
+                            {s.preferredTimeSlot || (s as any).preferredTimeSlot}
+                          </div>
+                        )}
+                        {(s.presentationLanguage || (s as any).presentationLanguage) && (
+                          <div>
+                            <strong className="text-amber-900 dark:text-amber-300">Language:</strong>{' '}
+                            {s.presentationLanguage || (s as any).presentationLanguage}
+                          </div>
+                        )}
+                        {(s.dossierUrl || (s as any).dossierUrl) && (
+                          <div>
+                            <a
+                              href={s.dossierUrl || (s as any).dossierUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span>View Attached Dossier / Outline</span>
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Participant summary for mobile card */}
                     <div className="text-xs text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-slate-900/60 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
                       {sessionCat === 'Topic Presentation' && (
                         <div className="space-y-0.5">
-                          {s.moderator && <div><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</div>}
+                          {s.moderator && (
+                            <div>
+                              <strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}
+                            </div>
+                          )}
                           {s.presenters && s.presenters.length > 0 && (
-                            <div><strong className="text-slate-700 dark:text-slate-300">Presenters:</strong> {s.presenters.map((p) => p.name).join(', ')}</div>
+                            <div>
+                              <strong className="text-slate-700 dark:text-slate-300">Presenters:</strong>{' '}
+                              {s.presenters.map((p) => p.name).join(', ')}
+                            </div>
                           )}
                         </div>
                       )}
                       {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && (
                         <div className="space-y-1">
                           {s.propositionTeam && s.propositionTeam.length > 0 && (
-                            <div className="text-indigo-600 dark:text-indigo-400 font-medium">Team 1: {s.propositionTeam.join(', ')}</div>
+                            <div className="text-indigo-600 dark:text-indigo-400 font-medium">
+                              Team 1: {s.propositionTeam.join(', ')}
+                            </div>
                           )}
                           {s.oppositionTeam && s.oppositionTeam.length > 0 && (
-                            <div className="text-amber-600 dark:text-amber-400 font-medium">Team 2: {s.oppositionTeam.join(', ')}</div>
+                            <div className="text-amber-600 dark:text-amber-400 font-medium">
+                              Team 2: {s.oppositionTeam.join(', ')}
+                            </div>
                           )}
                         </div>
                       )}
                       {sessionCat === 'Discussion' && (
                         <div className="space-y-0.5">
-                          {s.moderator && <div><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</div>}
+                          {s.moderator && (
+                            <div>
+                              <strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}
+                            </div>
+                          )}
                           {s.presenters && s.presenters.length > 0 && (
-                            <div><strong className="text-slate-700 dark:text-slate-300">Speakers:</strong> {s.presenters.map((p) => p.name).join(', ')}</div>
+                            <div>
+                              <strong className="text-slate-700 dark:text-slate-300">Speakers:</strong>{' '}
+                              {s.presenters.map((p) => p.name).join(', ')}
+                            </div>
                           )}
                         </div>
                       )}
@@ -618,21 +1008,87 @@ export const Sessions: React.FC = () => {
                     </div>
 
                     <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                      <span>{new Date(s.scheduledAt).toLocaleDateString()} at {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span>
+                        {new Date(s.scheduledAt).toLocaleDateString()} at{' '}
+                        {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                       <span>{s.durationMinutes}m</span>
                     </div>
 
-                    {s.meetingUrl && (
-                      <a
-                        href={s.meetingUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                      >
-                        <Video className="w-3.5 h-3.5" />
-                        <span>{t('sessions.joinChamber', 'Join Dialogue Chamber')}</span>
-                      </a>
-                    )}
+                    {/* Actions for Mobile */}
+                    <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                      {isProposal ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => openProposalReview(s)}
+                            className="w-full py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer"
+                          >
+                            <span>Review & Schedule</span>
+                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                              disabled={updateSessionStatusMutation.isPending}
+                              className="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Approve</span>
+                            </button>
+                            <button
+                              onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'rejected' })}
+                              disabled={updateSessionStatusMutation.isPending}
+                              className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center shadow-xs transition-colors cursor-pointer"
+                              title="Deny"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : isRejected ? (
+                        <div className="flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
+                          >
+                            Re-Approve & Schedule
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm('Delete this denied session?')) {
+                                deleteSessionMutation.mutate(s.id);
+                              }
+                            }}
+                            className="p-2 rounded-lg text-rose-600 bg-rose-50 dark:bg-rose-950/40"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          {s.meetingUrl && (
+                            <a
+                              href={s.meetingUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex-1 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                            >
+                              <Video className="w-3.5 h-3.5" />
+                              <span>{t('sessions.joinChamber', 'Join Dialogue Chamber')}</span>
+                            </a>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (confirm('Delete this chamber?')) {
+                                deleteSessionMutation.mutate(s.id);
+                              }
+                            }}
+                            className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -1529,6 +1985,198 @@ export const Sessions: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Proposal Review Modal */}
+      {selectedProposal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-4 sm:p-6 space-y-4 shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300">
+                  <Clock className="w-3 h-3 text-amber-600" />
+                  <span>Presenter Floor Application</span>
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                  {selectedProposal.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedProposal(null)}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
+              {/* Applicant Details */}
+              {selectedProposal.presenters && selectedProposal.presenters.length > 0 && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    Applicant / Presenter
+                  </div>
+                  {selectedProposal.presenters.map((p, idx) => (
+                    <div key={idx} className="flex items-center justify-between gap-2">
+                      <div>
+                        <span className="font-bold text-slate-900 dark:text-white text-sm">{p.name}</span>
+                        {p.country && <span className="text-slate-500 ml-1.5">({p.country})</span>}
+                        {p.bio && <p className="text-slate-500 text-[11px] mt-0.5">{p.bio}</p>}
+                      </div>
+                      {p.role && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                          {p.role}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Proposal Metadata Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Academic Discipline</div>
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                    {translateCategory(selectedProposal.category)}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Dialogue Format</div>
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                    {selectedProposal.format || 'Topic Presentation'}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Applicant's Preferred Slot</div>
+                  <div className="font-semibold text-amber-700 dark:text-amber-400 mt-0.5">
+                    {selectedProposal.preferredTimeSlot || (selectedProposal as any).preferredTimeSlot || 'Not specified'}
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Presentation Language</div>
+                  <div className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                    {selectedProposal.presentationLanguage || (selectedProposal as any).presentationLanguage || 'English'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Dossier / External Outline URL */}
+              {(selectedProposal.dossierUrl || (selectedProposal as any).dossierUrl) && (
+                <div className="p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="font-bold text-indigo-900 dark:text-indigo-200">Presentation Dossier / Outline</div>
+                    <div className="text-[11px] text-indigo-700 dark:text-indigo-400 truncate max-w-sm">
+                      {selectedProposal.dossierUrl || (selectedProposal as any).dossierUrl}
+                    </div>
+                  </div>
+                  <a
+                    href={selectedProposal.dossierUrl || (selectedProposal as any).dossierUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shrink-0 shadow-xs"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open Dossier</span>
+                  </a>
+                </div>
+              )}
+
+              {/* Proposal Notes / Description */}
+              {(selectedProposal.proposalNotes || (selectedProposal as any).proposalNotes || selectedProposal.description) && (
+                <div className="space-y-1">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    Applicant's Rationale & Presentation Notes
+                  </div>
+                  <div className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 whitespace-pre-wrap leading-relaxed">
+                    {selectedProposal.proposalNotes || (selectedProposal as any).proposalNotes || selectedProposal.description}
+                  </div>
+                </div>
+              )}
+
+              {/* Scheduling Confirmation Controls */}
+              <div className="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/30 dark:bg-indigo-950/20 space-y-3">
+                <div className="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-indigo-600" />
+                  <span>Admin Scheduling & Dialogue Room Settings</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Scheduled Date & Time (UTC) *
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={proposalScheduleDate}
+                      onChange={(e) => setProposalScheduleDate(e.target.value)}
+                      className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                      Virtual Chamber URL (Zoom / Meet)
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://meet.google.com/... or Zoom"
+                      value={proposalMeetingUrl}
+                      onChange={(e) => setProposalMeetingUrl(e.target.value)}
+                      className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => updateSessionStatusMutation.mutate({ id: selectedProposal.id, status: 'rejected' })}
+                disabled={updateSessionStatusMutation.isPending}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+                <span>Deny Application</span>
+              </button>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedProposal(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={updateSessionStatusMutation.isPending}
+                  onClick={() => {
+                    const scheduledAt = proposalScheduleDate
+                      ? new Date(proposalScheduleDate).toISOString()
+                      : selectedProposal.scheduledAt;
+                    updateSessionStatusMutation.mutate({
+                      id: selectedProposal.id,
+                      status: 'scheduled',
+                      scheduledAt,
+                      meetingUrl: proposalMeetingUrl || undefined,
+                    });
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{isArabic ? 'قبول وجدولة (نشر في الموقع)' : 'Approve & Schedule (Publish to Site)'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

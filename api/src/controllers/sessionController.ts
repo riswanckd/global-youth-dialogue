@@ -14,14 +14,46 @@ export async function listSessions(req: Request, res: Response, next: NextFuncti
     const search = req.query.search as string;
 
     const query: any = {};
+    const userRole = (req.user?.role || '').toLowerCase();
+    const isStaff = ['admin', 'super_admin', 'coordinator'].includes(userRole);
+    const publicStatuses = ['scheduled', 'live', 'completed'];
+
+    if (!isStaff) {
+      if (req.user) {
+        // Authenticated users see public sessions OR their own proposed sessions
+        if (status && status !== 'all') {
+          query.$and = [
+            { status },
+            { $or: [{ status: { $in: publicStatuses } }, { createdBy: req.user._id }] },
+          ];
+        } else {
+          query.$or = [{ status: { $in: publicStatuses } }, { createdBy: req.user._id }];
+        }
+      } else {
+        // Public unauthenticated visitors see only scheduled, live, and completed sessions
+        if (status && status !== 'all') {
+          query.status = publicStatuses.includes(status) ? status : { $in: [] };
+        } else {
+          query.status = { $in: publicStatuses };
+        }
+      }
+    } else if (status && status !== 'all') {
+      query.status = status;
+    }
+
     if (category && category !== 'all') query.category = category;
-    if (status && status !== 'all') query.status = status;
     if (search) {
-      query.$or = [
+      const searchCond = [
         { title: { $regex: search, $options: 'i' } },
         { motion: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
       ];
+      if (query.$or) {
+        query.$and = (query.$and || []).concat([{ $or: query.$or }, { $or: searchCond }]);
+        delete query.$or;
+      } else {
+        query.$or = searchCond;
+      }
     }
 
     const total = await DialogueSession.countDocuments(query);
@@ -80,8 +112,14 @@ export async function getSessionById(req: Request, res: Response, next: NextFunc
 
 export async function createSession(req: Request, res: Response, next: NextFunction) {
   try {
+    const userRole = (req.user?.role || '').toLowerCase();
+    const isStaff = ['admin', 'super_admin', 'coordinator'].includes(userRole);
+    const sessionStatus = isStaff ? (req.body.status || 'scheduled') : 'proposed';
+
     const session = await DialogueSession.create({
       ...req.body,
+      status: sessionStatus,
+      isPresenterProposal: !isStaff,
       createdBy: req.user!._id,
     });
 

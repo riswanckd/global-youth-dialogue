@@ -36,6 +36,11 @@ export interface IDialogueSession extends Document {
   summaryAr?: string;
   keyTakeaways?: string[];
   outcomes?: string;
+  isPresenterProposal?: boolean;
+  proposalNotes?: string;
+  preferredTimeSlot?: string;
+  presentationLanguage?: string;
+  dossierUrl?: string;
   assignedCoordinator?: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -58,7 +63,7 @@ const DialogueSessionSchema = new Schema<IDialogueSession>(
     timezone: { type: String, default: 'UTC' },
     status: {
       type: String,
-      enum: ['draft', 'scheduled', 'live', 'completed', 'cancelled'],
+      enum: ['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected'],
       default: 'scheduled',
       index: true,
     },
@@ -89,6 +94,11 @@ const DialogueSessionSchema = new Schema<IDialogueSession>(
     summaryAr: { type: String, default: '' },
     keyTakeaways: [{ type: String }],
     outcomes: { type: String, default: '' },
+    isPresenterProposal: { type: Boolean, default: false },
+    proposalNotes: { type: String, default: '' },
+    preferredTimeSlot: { type: String, default: '' },
+    presentationLanguage: { type: String, default: 'English' },
+    dossierUrl: { type: String, default: '' },
     assignedCoordinator: { type: Schema.Types.ObjectId, ref: 'User' },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },

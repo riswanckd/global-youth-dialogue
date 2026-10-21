@@ -53,10 +53,15 @@ export interface DialogueSession {
   scheduledAt: string;
   durationMinutes: number;
   timezone: string;
-  status: 'draft' | 'scheduled' | 'live' | 'completed' | 'cancelled';
+  status: 'draft' | 'proposed' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'rejected';
   meetingUrl?: string;
   recordingUrl?: string;
   recordingVisibility: 'public' | 'members_only' | 'private';
+  isPresenterProposal?: boolean;
+  proposalNotes?: string;
+  preferredTimeSlot?: string;
+  presentationLanguage?: string;
+  dossierUrl?: string;
   presenters: Array<{
     userId?: string;
     name: string;
@@ -122,7 +127,8 @@ export interface Publication {
   }>;
   content?: string;
   category: string;
-  status: 'draft' | 'under_review' | 'published' | 'archived';
+  status: 'draft' | 'under_review' | 'published' | 'archived' | 'rejected';
+  reviewNotes?: string;
   visibility: 'public' | 'members_only';
   publishedAt?: string;
   createdAt: string;

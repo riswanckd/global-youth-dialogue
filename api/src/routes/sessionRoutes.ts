@@ -12,11 +12,11 @@ const router = Router();
 router.get('/', optionalAuthenticate, sessionController.listSessions);
 router.get('/:id', optionalAuthenticate, sessionController.getSessionById);
 
-// Staff session creation, editing and deletion
+// Session creation and proposal submission
 router.post(
   '/',
   authenticate,
-  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.COORDINATOR),
+  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.COORDINATOR, ROLES.PRESENTER, ROLES.MEMBER),
   validate(createSessionSchema),
   sessionController.createSession
 );

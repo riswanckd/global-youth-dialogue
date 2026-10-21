@@ -29,6 +29,7 @@ export interface IPublication extends Document {
   documentUrl?: string;
   citation?: string;
   status: PublicationStatus;
+  reviewNotes?: string;
   visibility: PublicationVisibility;
   publishedAt?: Date;
   createdBy?: mongoose.Types.ObjectId;
@@ -68,10 +69,11 @@ const PublicationSchema = new Schema<IPublication>(
     citation: { type: String, default: '' },
     status: {
       type: String,
-      enum: ['draft', 'under_review', 'published', 'archived'],
+      enum: ['draft', 'under_review', 'published', 'archived', 'rejected'],
       default: 'draft',
       index: true,
     },
+    reviewNotes: { type: String, default: '' },
     visibility: {
       type: String,
       enum: ['public', 'members_only'],

@@ -116,12 +116,18 @@ export const createSessionSchema = z.object({
   summaryAr: z.string().optional(),
   keyTakeaways: z.array(z.string()).optional(),
   outcomes: z.string().optional(),
+  isPresenterProposal: z.boolean().optional(),
+  proposalNotes: z.string().optional(),
+  preferredTimeSlot: z.string().optional(),
+  presentationLanguage: z.string().optional(),
+  dossierUrl: z.string().optional(),
+  status: z.enum(['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected']).optional(),
   assignedCoordinator: z.string().optional(),
   assignedCoordinatorId: z.string().optional(),
 });
 
 export const updateSessionSchema = createSessionSchema.partial().extend({
-  status: z.enum(['draft', 'scheduled', 'live', 'completed', 'cancelled']).optional(),
+  status: z.enum(['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected']).optional(),
 });
 
 // Topic Validators
@@ -212,7 +218,7 @@ export const createPublicationSchema = z.object({
   coverImage: z.string().optional(),
   documentUrl: z.string().optional(),
   citation: z.string().optional(),
-  status: z.enum(['draft', 'under_review', 'published', 'archived']).default('draft'),
+  status: z.enum(['draft', 'under_review', 'published', 'archived', 'rejected']).default('draft'),
   visibility: z.enum(['public', 'members_only']).default('public'),
 });
 

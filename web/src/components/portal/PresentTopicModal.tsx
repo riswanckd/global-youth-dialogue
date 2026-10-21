@@ -146,6 +146,39 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
         body: JSON.stringify(payload),
       });
 
+      // Submit session application into session pipeline for Secretariat Admin review
+      try {
+        await apiRequest<any>('/sessions', {
+          method: 'POST',
+          body: JSON.stringify({
+            title,
+            titleAr: isCustom ? '' : (activeBankItem?.titleAr || ''),
+            category,
+            description: description || 'Presenter session application submitted via Presenter Workspace for Secretariat approval.',
+            descriptionAr: isCustom ? '' : (activeBankItem?.descriptionAr || ''),
+            motion: motion || title,
+            format,
+            scheduledAt: new Date(preferredDate).toISOString(),
+            preferredTimeSlot,
+            presentationLanguage,
+            proposalNotes: presentationNotes,
+            dossierUrl,
+            isPresenterProposal: true,
+            status: 'proposed',
+            presenters: [
+              {
+                name: user?.name || 'Applicant Presenter',
+                country: user?.country || 'Global',
+                role: 'Session Speaker',
+                bio: presentationNotes || 'Keynote and dialogue presentation application.',
+              },
+            ],
+          }),
+        });
+      } catch (sessionErr) {
+        console.warn('Session pipeline registration note:', sessionErr);
+      }
+
       setSubmittedData({
         ...payload,
         id: res?.id || res?.data?.id || `APP-${Date.now().toString().slice(-6)}`,

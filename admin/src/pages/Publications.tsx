@@ -588,7 +588,7 @@ export const Publications: React.FC = () => {
             </div>
 
             {/* Footer actions */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => setReviewModalPaper(null)}
@@ -597,22 +597,46 @@ export const Publications: React.FC = () => {
                 {t('common.close', 'Close')}
               </button>
 
-              {reviewModalPaper.status !== 'published' ? (
-                <button
-                  type="button"
-                  onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'published' })}
-                  disabled={publishMutation.isPending}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>{publishMutation.isPending ? t('common.loading', 'Publishing...') : t('pubs.approveAndPublishBtn', 'Approve & Publish to Public Site')}</span>
-                </button>
-              ) : (
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isArabic ? 'معتمد ومنشور على الموقع' : 'Approved & Live on Website'}</span>
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {reviewModalPaper.status !== 'published' ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'rejected' })}
+                      disabled={publishMutation.isPending}
+                      className="px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-700 dark:text-rose-300 text-xs font-bold border border-rose-200 dark:border-rose-900 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>{isArabic ? 'رفض الطلب' : 'Deny Submission'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'published' })}
+                      disabled={publishMutation.isPending}
+                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>{publishMutation.isPending ? t('common.loading', 'Publishing...') : (isArabic ? 'اعتماد ونشر في الموقع' : 'Approve & Publish to Public Site')}</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{isArabic ? 'معتمد ومنشور على الموقع' : 'Approved & Live on Website'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'rejected' })}
+                      disabled={publishMutation.isPending}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                    >
+                      {isArabic ? 'إلغاء النشر' : 'Unpublish'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -137,18 +137,16 @@ export const PortalPublications: React.FC = () => {
           </p>
         </div>
 
-        {isPresenter && (
-          <button
-            type="button"
-            onClick={() => setIsSubmitModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>
-              {isArabic ? 'كتابة وتقديم ورقة أكاديمية' : 'Submit Academic Work / Piece'}
-            </span>
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setIsSubmitModalOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>
+            {isArabic ? 'كتابة وتقديم ورقة أكاديمية' : 'Submit Academic Work / Piece'}
+          </span>
+        </button>
       </div>
 
       {/* Presenter Callout Banner (If presenter) */}

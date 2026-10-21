@@ -295,16 +295,16 @@ export const PortalDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* Presenter's Submitted Applications (if any) */}
-          {isPresenter && myPresentationApplications.length > 0 && (
+          {/* Member & Presenter Submitted Applications & Requests */}
+          {myPresentationApplications.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                    {isArabic ? 'طلبات التقديم ومواعيد الكلمات الخاصة بك' : 'My Presentation Applications & Floor Requests'}
+                    {isArabic ? 'طلبات التقديم واقتراحات المواضيع الخاصة بك' : 'My Submissions & Applications Tracker'}
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    {isArabic ? 'متابعة حالة الطلبات المقدمة للأمانة العامة وجدولتها' : 'Track review and scheduling status with the Coordinator Secretariat'}
+                    {isArabic ? 'متابعة حالة الطلبات المقدمة للأمانة العامة واعتماد الإدارة' : 'Track review, approval, and scheduling status with the Secretariat Admin'}
                   </p>
                 </div>
                 <button
@@ -325,9 +325,11 @@ export const PortalDashboard: React.FC = () => {
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
                           {app.category}
                         </span>
-                        <span className="text-[11px] text-slate-400">
-                          {app.preferredDate ? `${app.preferredDate} (${app.preferredTimeSlot || '16:00 UTC'})` : 'Date under scheduling'}
-                        </span>
+                        {app.preferredDate && (
+                          <span className="text-[11px] text-slate-400">
+                            {app.preferredDate} ({app.preferredTimeSlot || '16:00 UTC'})
+                          </span>
+                        )}
                       </div>
                       <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                         {app.title}
@@ -335,15 +337,19 @@ export const PortalDashboard: React.FC = () => {
                     </div>
                     <div className="shrink-0">
                       <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                        app.status === 'scheduled' || app.status === 'approved'
+                        app.status === 'scheduled' || app.status === 'approved' || app.status === 'published'
                           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                          : app.status === 'rejected'
+                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
                           : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
                       }`}>
                         {app.status === 'scheduled'
-                          ? (isArabic ? 'تمت الجدولة بنجاح' : 'Scheduled on Floor')
-                          : app.status === 'approved'
-                          ? (isArabic ? 'معتمد' : 'Approved')
-                          : (isArabic ? 'قيد مراجعة الأمانة' : 'Pending Secretariat Review')}
+                          ? (isArabic ? 'معتمد ومجدول' : 'Scheduled on Floor')
+                          : app.status === 'approved' || app.status === 'published'
+                          ? (isArabic ? 'معتمد ومنشور' : 'Approved & Published')
+                          : app.status === 'rejected'
+                          ? (isArabic ? 'مرفوض من الإدارة' : 'Denied by Admin')
+                          : (isArabic ? 'قيد مراجعة الإدارة' : 'Pending Admin Review')}
                       </span>
                     </div>
                   </div>
