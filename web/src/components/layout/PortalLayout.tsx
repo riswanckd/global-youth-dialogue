@@ -141,19 +141,34 @@ export const PortalLayout: React.FC = () => {
   const userCountry = user?.country || 'Ghana';
   const countryMeta = getCountryMeta(userCountry);
 
+  // Prevent background scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   return (
-    <div className="h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans overflow-hidden">
+    <div className="min-h-screen min-h-[100dvh] lg:h-screen lg:overflow-hidden bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
       {/* TOP WORKSPACE NAVBAR (Mirroring Admin Portal Design) */}
-      <header className="shrink-0 z-50 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative">
+      <header className="shrink-0 z-40 sticky top-0 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="w-full px-3 sm:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: Brand Logo & Mobile Trigger */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Prominent Three-Line Menu Button for all mobile phones */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-              aria-label="Toggle Navigation"
+              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer shrink-0 shadow-xs border border-slate-200/60 dark:border-slate-700/60"
+              aria-label="Toggle Navigation Menu"
+              id="portalMobileMenuBtn"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-slate-800 dark:text-slate-100" /> : <Menu className="w-5 h-5 text-slate-800 dark:text-slate-100" />}
             </button>
             <Link to="/portal" className="flex items-center gap-2">
               <img
@@ -281,7 +296,7 @@ export const PortalLayout: React.FC = () => {
       </header>
 
       {/* BODY WITH LEFT MENU BAR & SCROLLABLE MAIN CONTENT */}
-      <div className="flex-1 flex w-full overflow-hidden relative">
+      <div className="flex-1 min-h-0 flex w-full lg:overflow-hidden relative">
         {/* MOBILE BACKDROP OVERLAY */}
         {mobileMenuOpen && (
           <div
@@ -459,7 +474,7 @@ export const PortalLayout: React.FC = () => {
         </aside>
 
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-w-0 h-full p-3.5 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
+        <main className="flex-1 min-w-0 w-full p-3.5 sm:p-6 lg:p-8 lg:h-full lg:overflow-y-auto overscroll-contain pb-28 lg:pb-8">
           <Outlet
             context={{
               openPresenterModal: () => setPresenterModalOpen(true),

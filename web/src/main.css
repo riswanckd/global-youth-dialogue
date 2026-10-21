@@ -4907,7 +4907,7 @@ body.rtl-mode .mobile-nav-drawer {
   .brand-sub { display: none !important; }
   .main-nav { display: none !important; }
   .mobile-menu-btn,
-  #mobileMenuToggleBtn { display: none !important; }
+  #mobileMenuToggleBtn { display: inline-flex !important; }
   #headerNotifBtn { display: none !important; }
   
   .categories-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem; }
@@ -4978,10 +4978,7 @@ body.rtl-mode .mobile-nav-drawer {
   .site-header { margin-bottom: 0.75rem !important; }
   .header-inner { padding: 0 1.25rem !important; height: 68px !important; min-height: 68px !important; gap: 0.75rem !important; }
   .search-btn-label { display: none !important; }
-  .mobile-menu-btn,
-  #mobileMenuToggleBtn {
-    display: none !important;
-  }
+
   .btn-lang,
   .header-control-btn,
   #themeToggleBtn,
@@ -6529,7 +6526,16 @@ body.rtl-mode .mobile-nav-drawer {
   #themeToggleIcon svg { width: 14px; height: 14px; }
   .header-inner { gap: 0.2rem; height: 44px; padding: 0 0.45rem; }
   .header-actions { gap: 0.2rem; flex-shrink: 0; }
-  .mobile-menu-btn, #mobileMenuToggleBtn { display: none !important; }
+  .mobile-menu-btn {
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+  }
+  .mobile-menu-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
 
   /* Hero Section Small Mobile */
   .hero-section { padding: 1.25rem 0 0.9rem; }
@@ -6650,7 +6656,16 @@ body.rtl-mode .mobile-nav-drawer {
   .brand-title { font-size: 0.72rem; }
   .brand-icon-wrapper { width: 24px; height: 24px; font-size: 0.66rem; }
   .btn-lang { padding: 0.12rem 0.2rem; font-size: 0.62rem; }
-  .mobile-menu-btn, #mobileMenuToggleBtn { display: none !important; }
+  .mobile-menu-btn {
+    width: 30px !important;
+    height: 30px !important;
+    display: inline-flex !important;
+  }
+  .mobile-menu-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
   .mobile-tab-btn span:last-child { font-size: 0.52rem; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
   .metric-item { padding: 10px 6px !important; }
