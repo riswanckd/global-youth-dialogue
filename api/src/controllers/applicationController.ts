@@ -128,11 +128,25 @@ export async function listApplications(req: Request, res: Response, next: NextFu
     const page = parseInt(req.query.page as string, 10) || 1;
     const limit = parseInt(req.query.limit as string, 10) || 100;
     const status = req.query.status as string;
+    const type = req.query.type as string;
     const search = req.query.search as string;
 
     const query: any = {};
-    if (status && status !== 'all') {
-      query.status = { $regex: new RegExp(`^${status}$`, 'i') };
+    if (type === 'presenter') {
+      query.$or = [
+        { isApprovedPresenter: true },
+        { 'presenterProposal.status': { $in: ['pending', 'approved', 'rejected'] } },
+        { 'presenterProposal.proposedTopic': { $exists: true, $ne: '' } },
+      ];
+    } else if (status && status !== 'all') {
+      if (status.toLowerCase() === 'pending') {
+        query.$or = [
+          { status: { $regex: /^pending$/i } },
+          { 'presenterProposal.status': 'pending' },
+        ];
+      } else {
+        query.status = { $regex: new RegExp(`^${status}$`, 'i') };
+      }
     }
     if (search) {
       query.$or = [
@@ -176,7 +190,7 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
   try {
     const rawStatus = (req.body.status || '').toLowerCase();
     const status = rawStatus === 'declined' ? 'rejected' : rawStatus;
-    const { reviewNotes, assignRole, isApprovedPresenter } = req.body;
+    const { reviewNotes, assignRole, isApprovedPresenter, scope, targetRole: reqTargetRole } = req.body;
     const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '')) as string;
     const lookupEmail = req.body.email ? String(req.body.email).toLowerCase().trim() : null;
 
@@ -203,33 +217,63 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
       throw new NotFoundError('Application not found');
     }
 
-    application.status = status;
-    application.reviewNotes = reviewNotes !== undefined ? reviewNotes : application.reviewNotes;
+    const isPresenterApproval =
+      assignRole === ROLES.PRESENTER ||
+      reqTargetRole?.toUpperCase() === 'PRESENTER' ||
+      isApprovedPresenter === true ||
+      (status === 'approved' && application.presenterProposal?.status === 'pending');
+
+    const isPresenterRejectionOnly =
+      scope === 'presenter' ||
+      reqTargetRole?.toUpperCase() === 'PRESENTER' ||
+      (status === 'rejected' && application.status === 'approved' && application.presenterProposal?.status === 'pending');
+
     if (req.user?._id) {
       application.reviewedBy = req.user._id as any;
     }
     application.reviewedAt = new Date();
+    application.reviewNotes = reviewNotes !== undefined ? reviewNotes : application.reviewNotes;
 
     if (status === 'approved') {
-      if (assignRole === ROLES.PRESENTER || isApprovedPresenter === true) {
+      application.status = 'approved';
+      if (isPresenterApproval) {
         application.isApprovedPresenter = true;
-      }
-      if (application.presenterProposal) {
-        application.presenterProposal.status = 'approved';
+        if (application.presenterProposal) {
+          application.presenterProposal.status = 'approved';
+        }
       }
     } else if (status === 'rejected') {
-      application.isApprovedPresenter = false;
-      if (application.presenterProposal) {
-        application.presenterProposal.status = 'rejected';
+      if (isPresenterRejectionOnly) {
+        // Keep active membership, reject presenter proposal only
+        application.status = 'approved';
+        application.isApprovedPresenter = false;
+        if (application.presenterProposal) {
+          application.presenterProposal.status = 'rejected';
+        }
+      } else {
+        application.status = 'rejected';
+        application.isApprovedPresenter = false;
+        if (application.presenterProposal) {
+          application.presenterProposal.status = 'rejected';
+        }
       }
     }
 
     await application.save();
 
+    // Find linked user
+    let user = await User.findOne({
+      $or: [
+        { email: application.email.toLowerCase().trim() },
+        ...(application.linkedUser ? [{ _id: application.linkedUser }] : []),
+      ],
+    });
+
     // If approved, create or activate user account with credentials
     if (status === 'approved') {
-      let user = await User.findOne({ email: application.email });
-      const targetRole: UserRole = assignRole || (application.isApprovedPresenter ? ROLES.PRESENTER : ROLES.MEMBER);
+      const targetRole: UserRole = isPresenterApproval
+        ? ROLES.PRESENTER
+        : (assignRole || (application.isApprovedPresenter ? ROLES.PRESENTER : ROLES.MEMBER));
 
       if (!user) {
         const tempPassword = application.password || 'gydeMember2026!';
@@ -302,6 +346,16 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
       }).catch(err => {
         logger.error({ err, email: application.email }, 'Failed to send approval email to applicant');
       });
+    } else if (status === 'rejected') {
+      if (isPresenterRejectionOnly) {
+        if (user && user.role === ROLES.PRESENTER) {
+          user.role = ROLES.MEMBER;
+          await user.save();
+        }
+      } else if (user) {
+        user.status = 'disabled';
+        await user.save();
+      }
     }
 
     await logAuditEvent({

@@ -76,6 +76,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     refreshUser();
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === USER_SESSION_KEY) {
+        try {
+          if (e.newValue) {
+            setUser(JSON.parse(e.newValue));
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -119,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAuthenticated = !!user;
   const roleLower = user?.role?.toLowerCase() || '';
-  const isPresenter = roleLower === 'presenter' || roleLower === 'coordinator' || roleLower === 'admin' || roleLower === 'super_admin';
+  const isPresenter = roleLower === 'presenter' || roleLower === 'coordinator' || roleLower === 'admin' || roleLower === 'super_admin' || !!(user as any)?.isApprovedPresenter;
   const isCoordinator = roleLower === 'coordinator' || roleLower === 'admin' || roleLower === 'super_admin';
   const isAdmin = roleLower === 'admin' || roleLower === 'super_admin';
 

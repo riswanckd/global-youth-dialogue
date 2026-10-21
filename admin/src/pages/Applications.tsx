@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest, getStoredAdminToken } from '../utils/api';
@@ -14,13 +15,41 @@ import {
   AlertCircle,
   UserCheck,
   RotateCw,
+  Mic,
+  Award,
+  FileText,
   X
 } from 'lucide-react';
 
+function mapRawToApp(item: any): Application {
+  return {
+    id: item.id || item._id?.toString() || `app-${Date.now()}`,
+    applicantName: item.applicantName || item.name || 'Applicant',
+    email: item.email,
+    country: item.country || 'Global',
+    flag: item.flag || 'INT',
+    organization: item.organization || '',
+    experience: item.experience || item.debateExperience || '',
+    motivation: item.motivation || '',
+    areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
+    preferredLanguages: item.preferredLanguages || ['English'],
+    status: (item.status || 'pending').toLowerCase() as any,
+    isApprovedPresenter: item.isApprovedPresenter !== undefined ? item.isApprovedPresenter : Boolean(item.presenterProposal?.status === 'approved'),
+    presenterProposal: item.presenterProposal,
+    reviewNotes: item.reviewNotes || '',
+    emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
+    createdAt: item.createdAt || item.date || new Date().toISOString(),
+  };
+}
+
 export const Applications: React.FC = () => {
   const queryClient = useQueryClient();
-  const { t, translateStatus, translateCategory } = useAdminLanguage();
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const { isArabic, t, translateStatus, translateCategory } = useAdminLanguage();
+  const [searchParams] = useSearchParams();
+  const urlFilter = searchParams.get('filter') || searchParams.get('type') || searchParams.get('tab');
+  const urlId = searchParams.get('id') || searchParams.get('appId');
+
+  const [statusFilter, setStatusFilter] = useState<string>(urlFilter === 'presenter' ? 'presenter' : (urlFilter || 'all'));
   const [search, setSearch] = useState('');
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
@@ -62,21 +91,7 @@ export const Applications: React.FC = () => {
         }
         items.forEach((item: any) => {
           if (item && item.email) {
-            remoteApps.push({
-              id: item.id || item._id?.toString() || `app-${Date.now()}`,
-              applicantName: item.applicantName || item.name || 'Applicant',
-              email: item.email,
-              country: item.country || 'Global',
-              flag: item.flag || 'INT',
-              organization: item.organization || '',
-              experience: item.experience || item.debateExperience || '',
-              motivation: item.motivation || '',
-              areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
-              preferredLanguages: item.preferredLanguages || ['English'],
-              status: (item.status || 'pending').toLowerCase() as any,
-              emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
-              createdAt: item.createdAt || item.date || new Date().toISOString(),
-            });
+            remoteApps.push(mapRawToApp(item));
           }
         });
       } catch (err) {
@@ -101,21 +116,7 @@ export const Applications: React.FC = () => {
             const directItems = Array.isArray(directJson?.data) ? directJson.data : (Array.isArray(directJson) ? directJson : []);
             directItems.forEach((item: any) => {
               if (item && item.email) {
-                remoteApps.push({
-                  id: item.id || item._id?.toString() || `app-${Date.now()}`,
-                  applicantName: item.applicantName || item.name || 'Applicant',
-                  email: item.email,
-                  country: item.country || 'Global',
-                  flag: item.flag || 'INT',
-                  organization: item.organization || '',
-                  experience: item.experience || item.debateExperience || '',
-                  motivation: item.motivation || '',
-                  areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
-                  preferredLanguages: item.preferredLanguages || ['English'],
-                  status: (item.status || 'pending').toLowerCase() as any,
-                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
-                  createdAt: item.createdAt || item.date || new Date().toISOString(),
-                });
+                remoteApps.push(mapRawToApp(item));
               }
             });
           }
@@ -130,21 +131,7 @@ export const Applications: React.FC = () => {
           if (Array.isArray(sData)) {
             sData.forEach((item: any) => {
               if (item && item.email) {
-                remoteApps.push({
-                  id: item.id || item._id?.toString() || `app-${Date.now()}`,
-                  applicantName: item.applicantName || item.name || 'Applicant',
-                  email: item.email,
-                  country: item.country || 'Global',
-                  flag: item.flag || 'INT',
-                  organization: item.organization || '',
-                  experience: item.experience || item.debateExperience || '',
-                  motivation: item.motivation || '',
-                  areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
-                  preferredLanguages: item.preferredLanguages || ['English'],
-                  status: (item.status || 'pending').toLowerCase() as any,
-                  emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
-                  createdAt: item.createdAt || item.date || new Date().toISOString(),
-                });
+                remoteApps.push(mapRawToApp(item));
               }
             });
           }
@@ -158,21 +145,7 @@ export const Applications: React.FC = () => {
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed)) {
-            localApps = parsed.map((item: any) => ({
-              id: item.id || item._id?.toString() || `app-${Date.now()}`,
-              applicantName: item.applicantName || item.name || 'Applicant',
-              email: item.email,
-              country: item.country || 'Global',
-              flag: item.flag || 'INT',
-              organization: item.organization || '',
-              experience: item.experience || item.debateExperience || '',
-              motivation: item.motivation || '',
-              areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
-              preferredLanguages: item.preferredLanguages || ['English'],
-              status: (item.status || 'pending').toLowerCase() as any,
-              emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
-              createdAt: item.createdAt || item.date || new Date().toISOString(),
-            }));
+            localApps = parsed.map((item: any) => mapRawToApp(item));
           }
         }
       } catch {}
@@ -187,6 +160,12 @@ export const Applications: React.FC = () => {
         const key = app.email.toLowerCase();
         if (!mergedMap.has(key)) {
           mergedMap.set(key, app);
+        } else {
+          // If local has newer presenter proposal, preserve it
+          const remote = mergedMap.get(key)!;
+          if (app.presenterProposal && !remote.presenterProposal) {
+            mergedMap.set(key, { ...remote, presenterProposal: app.presenterProposal });
+          }
         }
       });
 
@@ -199,25 +178,65 @@ export const Applications: React.FC = () => {
     },
   });
 
+  // Handle URL deep-linking for direct notifications
+  useEffect(() => {
+    if (urlFilter) {
+      setStatusFilter(urlFilter.toLowerCase());
+    }
+    if (urlId && applications.length > 0) {
+      const target = applications.find((a) => a.id === urlId || (a as any)._id === urlId);
+      if (target) {
+        setSelectedApp(target);
+        setReviewNotes(target.reviewNotes || '');
+        setIsPresenter(target.isApprovedPresenter || Boolean(target.presenterProposal));
+      }
+    }
+  }, [urlFilter, urlId, applications]);
+
   const updateMutation = useMutation({
-    onMutate: async ({ id, status, email }: { id: string; status: string; notes?: string; approvePresenter?: boolean; email?: string }) => {
+    onMutate: async ({
+      id,
+      status,
+      email,
+      approvePresenter,
+      scope,
+    }: {
+      id: string;
+      status: string;
+      notes?: string;
+      approvePresenter?: boolean;
+      scope?: 'membership' | 'presenter';
+      email?: string;
+    }) => {
       const targetEmail = (email || selectedApp?.email || '').toLowerCase();
       const nextStatus = status === 'declined' ? 'rejected' : status;
+      const isPresApproval = approvePresenter === true;
+      const isPresReject = scope === 'presenter';
+
       // Optimistic update in 0ms across all views
       queryClient.setQueryData<Application[]>(['admin-applications'], (old = []) =>
         old.map((a) => {
           if (a.id === id || (targetEmail && a.email?.toLowerCase() === targetEmail)) {
+            const nextPresenterStatus = isPresApproval ? 'approved' : (nextStatus === 'rejected' ? 'rejected' : a.presenterProposal?.status);
             return {
               ...a,
-              status: nextStatus as any,
-              isApprovedPresenter: nextStatus === 'rejected' ? false : a.isApprovedPresenter,
+              status: isPresReject ? a.status : (nextStatus as any),
+              isApprovedPresenter: isPresApproval ? true : (nextStatus === 'rejected' ? false : a.isApprovedPresenter),
+              presenterProposal: a.presenterProposal
+                ? {
+                    ...a.presenterProposal,
+                    status: nextPresenterStatus as any,
+                  }
+                : undefined,
             };
           }
           return a;
         })
       );
       showToast(
-        nextStatus === 'approved'
+        isPresApproval
+          ? (isArabic ? 'تم اعتماد المتحدث وترقية الصلاحيات بنجاح.' : 'Presenter accredited & role elevated successfully.')
+          : nextStatus === 'approved'
           ? t('dash.appApprovedToast', 'Application approved successfully.')
           : t('dash.appDeclinedToast', 'Application declined / denied.')
       );
@@ -227,15 +246,18 @@ export const Applications: React.FC = () => {
       status,
       notes,
       approvePresenter,
+      scope,
       email,
     }: {
       id: string;
       status: string;
       notes?: string;
       approvePresenter?: boolean;
+      scope?: 'membership' | 'presenter';
       email?: string;
     }) => {
       const targetEmail = (email || selectedApp?.email || '').toLowerCase();
+      const assignRole = approvePresenter ? 'PRESENTER' : undefined;
       let remoteSuccess = false;
 
       // 1. Remote API call with direct live backend fallback
@@ -245,7 +267,9 @@ export const Applications: React.FC = () => {
           body: JSON.stringify({
             status,
             reviewNotes: notes,
+            assignRole,
             isApprovedPresenter: approvePresenter,
+            scope,
             email: targetEmail,
           }),
         });
@@ -267,7 +291,9 @@ export const Applications: React.FC = () => {
             body: JSON.stringify({
               status,
               reviewNotes: notes,
+              assignRole,
               isApprovedPresenter: approvePresenter,
+              scope,
               email: targetEmail,
             }),
           });
@@ -281,13 +307,21 @@ export const Applications: React.FC = () => {
         if (raw) {
           const list = JSON.parse(raw);
           const nextStatus = status === 'declined' ? 'rejected' : status;
+          const isPresApproval = approvePresenter === true;
+          const isPresReject = scope === 'presenter';
           const updated = list.map((a: Application) => {
             if (a.id === id || (targetEmail && a.email?.toLowerCase() === targetEmail)) {
               return {
                 ...a,
-                status: nextStatus,
+                status: isPresReject ? a.status : nextStatus,
                 reviewNotes: notes !== undefined ? notes : a.reviewNotes,
-                isApprovedPresenter: nextStatus === 'rejected' ? false : (approvePresenter !== undefined ? approvePresenter : a.isApprovedPresenter),
+                isApprovedPresenter: isPresApproval ? true : (nextStatus === 'rejected' ? false : a.isApprovedPresenter),
+                presenterProposal: a.presenterProposal
+                  ? {
+                      ...a.presenterProposal,
+                      status: isPresApproval ? 'approved' : (nextStatus === 'rejected' ? 'rejected' : a.presenterProposal.status),
+                    }
+                  : undefined,
               };
             }
             return a;
@@ -296,6 +330,20 @@ export const Applications: React.FC = () => {
           window.dispatchEvent(new Event('storage'));
         }
       } catch {}
+
+      // If presenter approved, also update user session role if active
+      if (approvePresenter) {
+        try {
+          const storedSession = localStorage.getItem('gyde_user_session');
+          if (storedSession) {
+            const parsed = JSON.parse(storedSession);
+            if (parsed.email?.toLowerCase() === targetEmail) {
+              parsed.role = 'PRESENTER';
+              localStorage.setItem('gyde_user_session', JSON.stringify(parsed));
+            }
+          }
+        } catch {}
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-applications'] });
@@ -307,7 +355,14 @@ export const Applications: React.FC = () => {
     },
   });
 
-  const pendingCount = applications.filter((a) => (a.status || '').toLowerCase() === 'pending').length;
+  const pendingPresenterCount = applications.filter(
+    (a) =>
+      (a as any).presenterProposal?.status === 'pending' ||
+      ((a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter) ||
+      (a.status === 'pending' && a.isApprovedPresenter)
+  ).length;
+
+  const pendingMemberCount = applications.filter((a) => (a.status || '').toLowerCase() === 'pending').length;
   const underReviewCount = applications.filter((a) => (a.status || '').toLowerCase() === 'under_review').length;
   const approvedCount = applications.filter((a) => (a.status || '').toLowerCase() === 'approved').length;
   const rejectedCount = applications.filter((a) => ['rejected', 'declined'].includes((a.status || '').toLowerCase())).length;
@@ -315,8 +370,18 @@ export const Applications: React.FC = () => {
   const filtered = applications.filter((app) => {
     if (!app) return false;
     const st = (app.status || '').toLowerCase();
-    if (statusFilter === 'rejected') {
+    const hasPresenterProposal = Boolean(
+      (app as any).presenterProposal?.status === 'pending' ||
+      ((app as any).presenterProposal?.proposedTopic && !app.isApprovedPresenter) ||
+      (app.status === 'pending' && app.isApprovedPresenter)
+    );
+
+    if (statusFilter === 'presenter') {
+      if (!hasPresenterProposal && !(app as any).presenterProposal && !app.isApprovedPresenter) return false;
+    } else if (statusFilter === 'rejected') {
       if (!['rejected', 'declined'].includes(st)) return false;
+    } else if (statusFilter === 'pending') {
+      if (st !== 'pending' && !hasPresenterProposal) return false;
     } else if (statusFilter !== 'all') {
       if (st !== statusFilter.toLowerCase()) return false;
     }
@@ -324,7 +389,8 @@ export const Applications: React.FC = () => {
     const name = (app.applicantName || (app as any).name || '').toLowerCase();
     const email = (app.email || '').toLowerCase();
     const country = (app.country || '').toLowerCase();
-    return name.includes(q) || email.includes(q) || country.includes(q);
+    const topic = ((app as any).presenterProposal?.proposedTopic || '').toLowerCase();
+    return name.includes(q) || email.includes(q) || country.includes(q) || topic.includes(q);
   });
 
   return (
@@ -358,8 +424,8 @@ export const Applications: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Cards Grid (2x2 on mobile, 5 in a row on desktop) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      {/* KPI Cards Grid (2x3 on mobile, 6 in a row on desktop) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {/* Total Dossiers */}
         <div
           onClick={() => setStatusFilter('all')}
@@ -380,6 +446,26 @@ export const Applications: React.FC = () => {
           </div>
         </div>
 
+        {/* Presenter Requests */}
+        <div
+          onClick={() => setStatusFilter('presenter')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all ${
+            statusFilter === 'presenter' ? 'border-purple-500 ring-2 ring-purple-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-purple-200'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 leading-tight">
+              {pendingPresenterCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {isArabic ? 'طلبات المتحدثين' : 'Presenter Requests'}
+            </div>
+          </div>
+        </div>
+
         {/* Pending Review */}
         <div
           onClick={() => setStatusFilter('pending')}
@@ -392,7 +478,7 @@ export const Applications: React.FC = () => {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 leading-tight">
-              {pendingCount}
+              {pendingMemberCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
               {t('apps.tabPending', 'Pending')}
@@ -443,7 +529,7 @@ export const Applications: React.FC = () => {
         {/* Rejected / Denied */}
         <div
           onClick={() => setStatusFilter('rejected')}
-          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all col-span-2 sm:col-span-1 ${
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all ${
             statusFilter === 'rejected' ? 'border-rose-500 ring-2 ring-rose-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-rose-200'
           }`}
         >
@@ -477,7 +563,8 @@ export const Applications: React.FC = () => {
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
           {[
             { id: 'all', label: t('common.all', 'All') },
-            { id: 'pending', label: `${t('apps.tabPending', 'Pending')} (${pendingCount})` },
+            { id: 'presenter', label: `${isArabic ? 'طلبات المتحدثين' : 'Presenter Requests'} (${pendingPresenterCount})` },
+            { id: 'pending', label: `${t('apps.tabPending', 'Pending')} (${pendingMemberCount})` },
             { id: 'under_review', label: `${t('apps.tabUnderReview', 'Under Review')} (${underReviewCount})` },
             { id: 'approved', label: `${t('apps.tabApproved', 'Approved')} (${approvedCount})` },
             { id: 'rejected', label: `${t('apps.tabRejected', 'Declined')} (${rejectedCount})` },
@@ -527,8 +614,21 @@ export const Applications: React.FC = () => {
                   {filtered.map((app) => (
                     <tr key={app.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white">{app.applicantName}</div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-slate-900 dark:text-white">{app.applicantName}</span>
+                          {app.presenterProposal && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                              <Mic className="w-3 h-3" />
+                              <span>{isArabic ? 'طلب متحدث' : 'Presenter Request'}</span>
+                            </span>
+                          )}
+                        </div>
                         <div className="text-[11px] text-slate-500">{app.email}</div>
+                        {app.presenterProposal?.proposedTopic && (
+                          <div className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold line-clamp-1 mt-0.5" title={app.presenterProposal.proposedTopic}>
+                            {app.presenterProposal.proposedTopic}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 px-4">
                         <div>{app.country}</div>
@@ -573,7 +673,27 @@ export const Applications: React.FC = () => {
                         {new Date(app.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4 text-right rtl:text-left">
-                        <div className="inline-flex items-center gap-1.5 justify-end">
+                        <div className="inline-flex items-center gap-1.5 justify-end flex-wrap">
+                          {/* Presenter Quick Approve */}
+                          {app.presenterProposal && (app.presenterProposal.status === 'pending' || (!app.isApprovedPresenter && app.presenterProposal.status !== 'rejected')) && (
+                            <button
+                              type="button"
+                              disabled={updateMutation.isPending}
+                              onClick={() =>
+                                updateMutation.mutate({
+                                  id: app.id,
+                                  status: 'approved',
+                                  approvePresenter: true,
+                                  email: app.email,
+                                })
+                              }
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition-colors"
+                              title={isArabic ? 'اعتماد كمتحدث رسمي' : 'Approve Presenter Accreditation'}
+                            >
+                              <Mic className="w-3.5 h-3.5" />
+                              <span>{isArabic ? 'اعتماد كمتحدث' : 'Approve Presenter'}</span>
+                            </button>
+                          )}
                           {(app.status === 'pending' || app.status === 'under_review') && (
                             <>
                               <button
@@ -598,7 +718,7 @@ export const Applications: React.FC = () => {
                               </button>
                             </>
                           )}
-                          {app.status === 'approved' && (
+                          {app.status === 'approved' && !app.presenterProposal && (
                             <button
                               type="button"
                               disabled={updateMutation.isPending}
@@ -626,7 +746,7 @@ export const Applications: React.FC = () => {
                             onClick={() => {
                               setSelectedApp(app);
                               setReviewNotes(app.reviewNotes || '');
-                              setIsPresenter(app.isApprovedPresenter || false);
+                              setIsPresenter(app.isApprovedPresenter || Boolean(app.presenterProposal));
                             }}
                             className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
                           >
@@ -650,10 +770,23 @@ export const Applications: React.FC = () => {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
-                        {app.applicantName}
-                      </h4>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
+                          {app.applicantName}
+                        </h4>
+                        {app.presenterProposal && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300">
+                            <Mic className="w-2.5 h-2.5" />
+                            <span>{isArabic ? 'متحدث' : 'Presenter'}</span>
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[11px] text-slate-500 mt-0.5">{app.email}</p>
+                      {app.presenterProposal?.proposedTopic && (
+                        <p className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold mt-0.5">
+                          {app.presenterProposal.proposedTopic}
+                        </p>
+                      )}
                     </div>
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
@@ -688,7 +821,26 @@ export const Applications: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    {/* Mobile Presenter Quick Approve */}
+                    {app.presenterProposal && (app.presenterProposal.status === 'pending' || (!app.isApprovedPresenter && app.presenterProposal.status !== 'rejected')) && (
+                      <button
+                        type="button"
+                        disabled={updateMutation.isPending}
+                        onClick={() =>
+                          updateMutation.mutate({
+                            id: app.id,
+                            status: 'approved',
+                            approvePresenter: true,
+                            email: app.email,
+                          })
+                        }
+                        className="w-full py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                        <span>{isArabic ? 'اعتماد كمتحدث رسمي' : 'Approve Presenter Role'}</span>
+                      </button>
+                    )}
                     {(app.status === 'pending' || app.status === 'under_review') && (
                       <>
                         <button
@@ -711,7 +863,7 @@ export const Applications: React.FC = () => {
                         </button>
                       </>
                     )}
-                    {app.status === 'approved' && (
+                    {app.status === 'approved' && !app.presenterProposal && (
                       <button
                         type="button"
                         disabled={updateMutation.isPending}
@@ -737,7 +889,7 @@ export const Applications: React.FC = () => {
                       onClick={() => {
                         setSelectedApp(app);
                         setReviewNotes(app.reviewNotes || '');
-                        setIsPresenter(app.isApprovedPresenter || false);
+                        setIsPresenter(app.isApprovedPresenter || Boolean(app.presenterProposal));
                       }}
                       className="flex-1 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 text-xs font-bold flex items-center justify-center gap-1 transition-colors shadow-xs"
                     >
@@ -786,6 +938,95 @@ export const Applications: React.FC = () => {
                 <span>This application dossier is currently <strong>Approved & Onboarded</strong>.</span>
               </div>
             ) : null}
+
+            {/* Presenter Accreditation Dossier (if candidate applied for Presenter role) */}
+            {selectedApp.presenterProposal && (
+              <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/60 dark:bg-purple-950/30 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center">
+                      <Mic className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-purple-900 dark:text-purple-200">
+                        {isArabic ? 'ملف اعتماد المتحدث الرسمي' : 'Presenter Accreditation Dossier'}
+                      </h4>
+                      <p className="text-[11px] text-purple-700 dark:text-purple-300">
+                        {isArabic ? 'طلب ترقية للدور وإلقاء كلمة افتتاحية' : 'Role Elevation & Keynote Presentation Application'}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                      selectedApp.presenterProposal.status === 'approved'
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                        : selectedApp.presenterProposal.status === 'rejected'
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                    }`}
+                  >
+                    {selectedApp.presenterProposal.status === 'approved'
+                      ? (isArabic ? 'معتمد' : 'Approved')
+                      : selectedApp.presenterProposal.status === 'rejected'
+                      ? (isArabic ? 'مرفوض' : 'Rejected')
+                      : (isArabic ? 'بانتظار المراجعة' : 'Pending Review')}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                  <div>
+                    <span className="text-slate-400 font-semibold">{isArabic ? 'الموضوع المقترح:' : 'Proposed Topic:'}</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedApp.presenterProposal.proposedTopic}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold">{isArabic ? 'المجال الأكاديمي:' : 'Sphere / Domain:'}</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedApp.presenterProposal.sphere}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold">{isArabic ? 'صيغة العرض:' : 'Preferred Format:'}</span>
+                    <p className="text-slate-700 dark:text-slate-200 mt-0.5">{selectedApp.presenterProposal.preferredFormat}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold">{isArabic ? 'الفرع / الوفد:' : 'Chapter Delegation:'}</span>
+                    <p className="text-slate-700 dark:text-slate-200 mt-0.5">{selectedApp.presenterProposal.countryChapter || selectedApp.country}</p>
+                  </div>
+                </div>
+
+                {selectedApp.presenterProposal.statementOfIntent && (
+                  <div>
+                    <span className="text-slate-400 font-semibold text-xs">{isArabic ? 'بيان النوايا والأهداف:' : 'Statement of Intent / Abstract:'}</span>
+                    <p className="text-xs text-slate-700 dark:text-slate-200 mt-1 leading-relaxed bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900/60">
+                      {selectedApp.presenterProposal.statementOfIntent}
+                    </p>
+                  </div>
+                )}
+
+                {selectedApp.presenterProposal.experience && selectedApp.presenterProposal.experience !== selectedApp.experience && (
+                  <div>
+                    <span className="text-slate-400 font-semibold text-xs">{isArabic ? 'الخبرة البحثية للمتحدث:' : 'Presenter Research Experience:'}</span>
+                    <p className="text-xs text-slate-700 dark:text-slate-200 mt-1 leading-relaxed bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900/60">
+                      {selectedApp.presenterProposal.experience}
+                    </p>
+                  </div>
+                )}
+
+                {selectedApp.presenterProposal.dossierUrl && (
+                  <div>
+                    <span className="text-slate-400 font-semibold text-xs">{isArabic ? 'رابط الملف البحثي / العرض:' : 'Research Dossier / Slides URL:'}</span>
+                    <div className="mt-1">
+                      <a
+                        href={selectedApp.presenterProposal.dossierUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-indigo-600 dark:text-indigo-400 underline font-semibold break-all"
+                      >
+                        {selectedApp.presenterProposal.dossierUrl} &rarr;
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Experience */}
             <div className="space-y-1">
@@ -853,7 +1094,7 @@ export const Applications: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800 flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedApp(null)}
@@ -862,8 +1103,29 @@ export const Applications: React.FC = () => {
                 {t('apps.closeModal', 'Close')}
               </button>
 
-              <div className="flex items-center gap-2">
-                {(selectedApp.status === 'pending' || selectedApp.status === 'under_review' || selectedApp.status === 'approved') && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Presenter decline button */}
+                {selectedApp.presenterProposal && selectedApp.presenterProposal.status === 'pending' && (
+                  <button
+                    type="button"
+                    disabled={updateMutation.isPending}
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: selectedApp.id,
+                        status: 'rejected',
+                        scope: 'presenter',
+                        notes: reviewNotes,
+                        email: selectedApp.email,
+                      })
+                    }
+                    className="px-3.5 py-2 text-xs font-bold rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 shadow-xs flex items-center gap-1.5"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    <span>{isArabic ? 'رفض طلب المتحدث فقط' : 'Decline Presenter Only'}</span>
+                  </button>
+                )}
+
+                {(selectedApp.status === 'pending' || selectedApp.status === 'under_review' || (selectedApp.status === 'approved' && !selectedApp.presenterProposal)) && (
                   <button
                     type="button"
                     disabled={updateMutation.isPending}
@@ -900,6 +1162,7 @@ export const Applications: React.FC = () => {
                   </button>
                 )}
 
+                {/* Main Approval Button */}
                 <button
                   type="button"
                   disabled={updateMutation.isPending}
@@ -908,15 +1171,21 @@ export const Applications: React.FC = () => {
                       id: selectedApp.id,
                       status: 'approved',
                       notes: reviewNotes,
-                      approvePresenter: isPresenter,
+                      approvePresenter: isPresenter || Boolean(selectedApp.presenterProposal),
                       email: selectedApp.email,
                     })
                   }
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5"
+                  className={`px-5 py-2 text-xs font-bold rounded-lg text-white shadow-sm flex items-center gap-1.5 ${
+                    isPresenter || selectedApp.presenterProposal
+                      ? 'bg-purple-600 hover:bg-purple-700'
+                      : 'bg-emerald-600 hover:bg-emerald-700'
+                  }`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
-                    {selectedApp.status === 'approved'
+                    {isPresenter || selectedApp.presenterProposal
+                      ? (isArabic ? 'اعتماد المتحدث وترقية الصلاحيات' : 'Approve & Accredit Presenter')
+                      : selectedApp.status === 'approved'
                       ? t('apps.updateAccreditation', 'Update Accreditation')
                       : selectedApp.status === 'rejected'
                       ? t('apps.reApproveApp', 'Re-Approve & Onboard')

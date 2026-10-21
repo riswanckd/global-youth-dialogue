@@ -51,7 +51,7 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
     setLoading(true);
 
     try {
-      await apiRequest('/applications/presenter', {
+      const res: any = await apiRequest('/applications/presenter', {
         method: 'POST',
         body: JSON.stringify({
           countryChapter: cleanCountry,
@@ -63,6 +63,48 @@ export const ApplyPresenterModal: React.FC<ApplyPresenterModalProps> = ({
           statementOfIntent: cleanIntent,
         }),
       });
+
+      // Synchronize in-browser application cache so Admin queue picks it up instantaneously
+      try {
+        const stored = localStorage.getItem('gyde_cached_applications');
+        const updatedData = res?.data || res;
+        if (stored && updatedData) {
+          const list = JSON.parse(stored);
+          if (Array.isArray(list)) {
+            const idx = list.findIndex(
+              (a: any) =>
+                (a.id && a.id === (updatedData.id || updatedData._id)) ||
+                (a._id && a._id === (updatedData.id || updatedData._id)) ||
+                (a.email && a.email.toLowerCase() === user?.email?.toLowerCase())
+            );
+            const proposalObj = updatedData.presenterProposal || {
+              countryChapter: cleanCountry,
+              sphere,
+              proposedTopic: cleanTopic,
+              experience: cleanExp,
+              dossierUrl: dossierUrl.trim() || undefined,
+              preferredFormat,
+              statementOfIntent: cleanIntent,
+              appliedAt: new Date().toISOString(),
+              status: 'pending',
+            };
+            if (idx >= 0) {
+              list[idx] = {
+                ...list[idx],
+                ...updatedData,
+                presenterProposal: proposalObj,
+              };
+            } else {
+              list.unshift({
+                ...updatedData,
+                presenterProposal: proposalObj,
+              });
+            }
+            localStorage.setItem('gyde_cached_applications', JSON.stringify(list));
+            window.dispatchEvent(new Event('storage'));
+          }
+        }
+      } catch {}
 
       setSuccessMsg(
         isArabic

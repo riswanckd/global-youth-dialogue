@@ -157,6 +157,17 @@ export interface Application {
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
   reviewNotes?: string;
   isApprovedPresenter?: boolean;
+  presenterProposal?: {
+    countryChapter?: string;
+    sphere?: string;
+    proposedTopic?: string;
+    experience?: string;
+    dossierUrl?: string;
+    preferredFormat?: string;
+    statementOfIntent?: string;
+    appliedAt?: string;
+    status?: 'pending' | 'approved' | 'rejected';
+  };
   emailVerified: boolean;
   createdAt: string;
 }

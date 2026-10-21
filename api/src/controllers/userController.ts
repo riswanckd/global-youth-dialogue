@@ -203,6 +203,27 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
     }
     await user.save();
 
+    // Synchronize linked Application document if promoted to or demoted from PRESENTER
+    try {
+      const linkedApp = await Application.findOne({
+        $or: [{ linkedUser: user._id }, { email: user.email.toLowerCase().trim() }],
+      });
+      if (linkedApp) {
+        if (role === ROLES.PRESENTER) {
+          linkedApp.isApprovedPresenter = true;
+          if (linkedApp.presenterProposal) {
+            linkedApp.presenterProposal.status = 'approved';
+          }
+        } else if (role === ROLES.MEMBER) {
+          linkedApp.isApprovedPresenter = false;
+          if (linkedApp.presenterProposal && linkedApp.presenterProposal.status === 'approved') {
+            linkedApp.presenterProposal.status = 'rejected';
+          }
+        }
+        await linkedApp.save();
+      }
+    } catch {}
+
     await logAuditEvent({
       action: 'USER_ROLE_CHANGED',
       performedBy: {

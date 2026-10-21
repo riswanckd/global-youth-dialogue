@@ -610,7 +610,7 @@ export const AdminLayout: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setNotificationsOpen(false);
-                    navigate('/applications');
+                    navigate(`/applications?filter=presenter&id=${a.id || (a as any)._id}`);
                   }}
                   className="w-full text-left rtl:text-right p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 bg-indigo-50/40 dark:bg-indigo-950/20 hover:bg-indigo-50/80 transition-all flex items-start gap-3 group cursor-pointer"
                 >

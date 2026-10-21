@@ -37,6 +37,17 @@ export interface Application {
   reviewedAt?: string;
   reviewNotes?: string;
   isApprovedPresenter?: boolean;
+  presenterProposal?: {
+    countryChapter?: string;
+    sphere?: string;
+    proposedTopic?: string;
+    experience?: string;
+    dossierUrl?: string;
+    preferredFormat?: string;
+    statementOfIntent?: string;
+    appliedAt?: string;
+    status?: 'pending' | 'approved' | 'rejected';
+  };
   emailVerified: boolean;
   createdAt: string;
 }

@@ -61,6 +61,8 @@ export const reviewApplicationSchema = z.object({
   reviewNotes: z.string().optional().or(z.literal('')),
   assignRole: z.enum([ROLES.MEMBER, ROLES.PRESENTER, ROLES.COORDINATOR]).optional(),
   isApprovedPresenter: z.boolean().optional(),
+  scope: z.enum(['membership', 'presenter']).optional(),
+  targetRole: z.string().optional(),
   email: z.string().optional(),
   applicantName: z.string().optional(),
 });
