@@ -54,6 +54,18 @@ export const AdminLayout: React.FC = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Lock background scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
                    document.documentElement.classList.contains('dark');
@@ -148,7 +160,7 @@ export const AdminLayout: React.FC = () => {
   const avatarLetter = (displayName[0] || 'A').toUpperCase();
 
   return (
-    <div className="h-screen bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans overflow-hidden">
+    <div className="min-h-screen min-h-[100dvh] lg:h-screen lg:overflow-hidden bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
       {/* Toast Notification */}
       {deleteSuccessToast && (
         <div className="fixed top-20 right-6 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
@@ -157,7 +169,7 @@ export const AdminLayout: React.FC = () => {
       )}
 
       {/* TOP NAVBAR */}
-      <header className="shrink-0 z-50 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative">
+      <header className="shrink-0 z-30 sticky top-0 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
           {/* Left: Brand Logo & Mobile Trigger */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -246,7 +258,7 @@ export const AdminLayout: React.FC = () => {
       </header>
 
       {/* BODY WITH SIDEBAR AND MAIN CONTENT */}
-      <div className="flex-1 flex max-w-[1600px] w-full mx-auto overflow-hidden relative">
+      <div className="flex-1 min-h-0 flex max-w-[1600px] w-full mx-auto lg:overflow-hidden relative">
         {/* MOBILE BACKDROP OVERLAY */}
         {mobileMenuOpen && (
           <div
@@ -259,14 +271,14 @@ export const AdminLayout: React.FC = () => {
         {/* SIDEBAR DESKTOP & FULL-HEIGHT MOBILE DRAWER */}
         <aside
           className={`
-            ${mobileMenuOpen ? 'flex fixed top-16 bottom-0 left-0 rtl:left-auto rtl:right-0 z-40 w-[280px] max-w-[85vw] shadow-2xl' : 'hidden'}
+            ${mobileMenuOpen ? 'flex fixed top-16 bottom-0 left-0 rtl:left-auto rtl:right-0 z-40 w-[285px] max-w-[85vw] shadow-2xl' : 'hidden'}
             lg:flex lg:static lg:top-auto lg:bottom-auto lg:z-10 lg:w-64 lg:shadow-none
             h-[calc(100dvh-64px)] lg:h-full bg-white dark:bg-slate-900 border-r rtl:border-r-0 rtl:border-l border-slate-100 dark:border-slate-800
-            flex-col justify-between py-4 px-3 shrink-0 select-none
+            flex-col justify-between py-4 px-3 shrink-0 select-none overflow-y-auto overscroll-contain
           `}
         >
           {/* Upper Sidebar: Drawer Top Bar + Profile Card + Menu */}
-          <div className="flex flex-col flex-1 overflow-y-auto space-y-3 overscroll-contain no-scrollbar">
+          <div className="flex flex-col flex-1 space-y-3">
             {/* Mobile Drawer Top Bar with Close Button */}
             <div className="lg:hidden flex items-center justify-between pb-2 px-1 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -345,7 +357,7 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           {/* Lower Sidebar: Delete Trial Data & Sign Out */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 pb-6 lg:pb-0 shrink-0">
             <button
               onClick={() => {
                 setDeleteModalOpen(true);
@@ -368,7 +380,7 @@ export const AdminLayout: React.FC = () => {
         </aside>
 
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-w-0 h-full p-3.5 sm:p-6 lg:p-8 overflow-y-auto overscroll-contain">
+        <main className="flex-1 min-w-0 w-full p-3.5 sm:p-6 lg:p-8 lg:h-full lg:overflow-y-auto overscroll-contain pb-28 lg:pb-8">
           {!isCurrentRouteAuthorized ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm max-w-lg mx-auto my-12">
               <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
