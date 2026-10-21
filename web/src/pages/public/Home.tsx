@@ -1,12 +1,67 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { apiRequest } from '../../utils/api';
+import { DialogueSession } from '../../types';
 
 export const Home: React.FC = () => {
   const { isArabic } = useLanguage();
   const { isDark } = useTheme();
   const highlightsRef = useRef<HTMLDivElement>(null);
+
+  // Fetch approved & scheduled dialogue sessions for live homepage integration
+  const { data: apiSessions = [] } = useQuery<DialogueSession[]>({
+    queryKey: ['public-home-sessions'],
+    queryFn: () => apiRequest<DialogueSession[]>('/sessions').catch(() => []),
+  });
+
+  const [cachedSessions, setCachedSessions] = useState<DialogueSession[]>([]);
+
+  useEffect(() => {
+    const readCache = () => {
+      try {
+        const stored = localStorage.getItem('gyde_cached_sessions');
+        if (stored) setCachedSessions(JSON.parse(stored));
+      } catch {}
+    };
+    readCache();
+    window.addEventListener('storage', readCache);
+    return () => window.removeEventListener('storage', readCache);
+  }, []);
+
+  const nextUpcomingSession = useMemo(() => {
+    const list = Array.isArray(apiSessions) ? apiSessions : [];
+    const combined = [...cachedSessions, ...list];
+    const now = Date.now();
+    const seen = new Set<string>();
+    const futureSessions: DialogueSession[] = [];
+
+    for (const s of combined) {
+      const key = (s.id || (s as any)._id || s.title || '').toString();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+
+      const isApprovedOrScheduled = ['scheduled', 'approved', 'published', 'live'].includes(s.status);
+      if (!isApprovedOrScheduled) continue;
+
+      const sessionTime = s.scheduledAt ? new Date(s.scheduledAt).getTime() : 0;
+      // Consider session upcoming if it is in future or within recent live window (last 3 hours)
+      if (sessionTime >= now - 3 * 60 * 60 * 1000) {
+        futureSessions.push(s);
+      }
+    }
+
+    // Sort earliest upcoming first
+    futureSessions.sort((a, b) => {
+      const ta = a.scheduledAt ? new Date(a.scheduledAt).getTime() : Infinity;
+      const tb = b.scheduledAt ? new Date(b.scheduledAt).getTime() : Infinity;
+      return ta - tb;
+    });
+
+    return futureSessions.length > 0 ? futureSessions[0] : null;
+  }, [apiSessions, cachedSessions]);
 
   // Auto-center the middle highlight card on mobile view
   useEffect(() => {
@@ -28,7 +83,7 @@ export const Home: React.FC = () => {
     };
   }, []);
 
-  // Live countdown timer matching original GYDE calculation
+  // Live countdown timer matching upcoming session or falling back gracefully
   const [timeLeft, setTimeLeft] = useState({
     days: '03',
     hours: '14',
@@ -38,19 +93,25 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const now = new Date().getTime();
-    let target = localStorage.getItem('gyde_next_dialogue_time') || localStorage.getItem('gyde_next_debate_time');
-    if (!target || parseInt(target) <= now) {
-      target = String(now + 3 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 28 * 60 * 1000);
-      localStorage.setItem('gyde_next_dialogue_time', target);
+    let target = nextUpcomingSession?.scheduledAt
+      ? new Date(nextUpcomingSession.scheduledAt).getTime()
+      : null;
+
+    if (!target || target <= now) {
+      const stored = localStorage.getItem('gyde_next_dialogue_time');
+      if (stored && parseInt(stored) > now) {
+        target = parseInt(stored);
+      } else {
+        target = now + 3 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 28 * 60 * 1000;
+        localStorage.setItem('gyde_next_dialogue_time', String(target));
+      }
     }
 
-    const timer = setInterval(() => {
+    const updateTimer = () => {
       const current = new Date().getTime();
-      let diff = parseInt(target!) - current;
+      let diff = target! - current;
       if (diff <= 0) {
-        target = String(current + 7 * 24 * 60 * 60 * 1000);
-        localStorage.setItem('gyde_next_dialogue_time', target);
-        diff = parseInt(target) - current;
+        diff = 0;
       }
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -64,10 +125,12 @@ export const Home: React.FC = () => {
         minutes: String(minutes).padStart(2, '0'),
         seconds: String(seconds).padStart(2, '0')
       });
-    }, 1000);
+    };
 
+    updateTimer();
+    const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [nextUpcomingSession]);
 
   return (
     <div className="public-section active" id="home">
@@ -478,7 +541,9 @@ export const Home: React.FC = () => {
               <span>{isArabic ? 'جلسة الحوار القادمة' : 'Next Global Dialogue Forum'}</span>
             </div>
             <h4 className="countdown-topic-title">
-              {isArabic ? 'السيادة التكنولوجية للذكاء الاصطناعي وحقوق الإنسان الدولية' : 'AI Sovereignty & International Human Rights'}
+              {nextUpcomingSession
+                ? (isArabic && nextUpcomingSession.titleAr ? nextUpcomingSession.titleAr : nextUpcomingSession.title)
+                : (isArabic ? 'السيادة التكنولوجية للذكاء الاصطناعي وحقوق الإنسان الدولية' : 'AI Sovereignty & International Human Rights')}
             </h4>
           </div>
 
@@ -647,25 +712,49 @@ export const Home: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
                 <div style={{ flex: '1 1 400px' }}>
                   <div style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', background: 'rgba(72, 81, 186, 0.1)', color: 'var(--color-primary-1)', fontWeight: 700, fontSize: '0.78rem', marginBottom: '0.75rem' }}>
-                    {isArabic ? 'الذكاء الاصطناعي والأخلاقيات' : 'Technology & AI Ethics'}
+                    {nextUpcomingSession
+                      ? ((isArabic && nextUpcomingSession.categoryNameAr ? nextUpcomingSession.categoryNameAr : nextUpcomingSession.category) || (isArabic ? 'حوار دولي' : 'International Dialogue'))
+                      : (isArabic ? 'الذكاء الاصطناعي والأخلاقيات' : 'Technology & AI Ethics')}
                   </div>
                   <h3 className="serif-text" style={{ fontSize: '1.65rem', marginBottom: '0.75rem', color: 'var(--text-main)' }}>
-                    {isArabic
-                      ? 'السيادة التكنولوجية للذكاء الاصطناعي ومستقبل القانون الدولي'
-                      : 'AI Sovereignty, Algorithmic Governance & The Future of International Law'}
+                    {nextUpcomingSession
+                      ? (isArabic && nextUpcomingSession.titleAr ? nextUpcomingSession.titleAr : nextUpcomingSession.title)
+                      : (isArabic
+                          ? 'السيادة التكنولوجية للذكاء الاصطناعي ومستقبل القانون الدولي'
+                          : 'AI Sovereignty, Algorithmic Governance & The Future of International Law')}
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                    {isArabic
-                      ? 'جلسة حوارية تركز على تقاطع خوارزميات الذكاء الاصطناعي التوليدي مع السيادة الوطنية وحماية الحريات المدنية في الفضاء الرقمي.'
-                      : 'A high-level dialogue exploring generative AI systems, territorial regulatory jurisdiction, and cross-border digital sovereignty.'}
+                    {nextUpcomingSession
+                      ? (isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description)
+                      : (isArabic
+                          ? 'جلسة حوارية تركز على تقاطع خوارزميات الذكاء الاصطناعي التوليدي مع السيادة الوطنية وحماية الحريات المدنية في الفضاء الرقمي.'
+                          : 'A high-level dialogue exploring generative AI systems, territorial regulatory jurisdiction, and cross-border digital sovereignty.')}
                   </p>
                   <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
-                    <div><strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong> {isArabic ? 'السبت، ٢٤ أكتوبر ٢٠٢٦' : 'Saturday, Oct 24, 2026'}</div>
-                    <div><strong>{isArabic ? 'الوقت:' : 'Time:'}</strong> {isArabic ? '١٦:٠٠ بتوقيت غرينتش (١٩:٠٠ بتوقيت الدوحة)' : '16:00 UTC (19:00 Doha / Riyadh)'}</div>
-                    <div><strong>{isArabic ? 'المتحدث:' : 'Presenter:'}</strong> {isArabic ? 'مبشر سي بي والوفد الدبلوماسي' : 'Mubashir CP & Delegation'}</div>
+                    <div>
+                      <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}
+                      {nextUpcomingSession?.scheduledAt
+                        ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })
+                        : (isArabic ? 'السبت، ٢٤ أكتوبر ٢٠٢٦' : 'Saturday, Oct 24, 2026')}
+                    </div>
+                    <div>
+                      <strong>{isArabic ? 'الوقت:' : 'Time:'}</strong>{' '}
+                      {nextUpcomingSession?.scheduledAt
+                        ? `${String(new Date(nextUpcomingSession.scheduledAt).getUTCHours()).padStart(2, '0')}:${String(new Date(nextUpcomingSession.scheduledAt).getUTCMinutes()).padStart(2, '0')} UTC`
+                        : (isArabic ? '١٦:٠٠ بتوقيت غرينتش (١٩:٠٠ بتوقيت الدوحة)' : '16:00 UTC (19:00 Doha / Riyadh)')}
+                    </div>
+                    <div>
+                      <strong>{isArabic ? 'المتحدث:' : 'Presenter:'}</strong>{' '}
+                      {nextUpcomingSession?.presenters && nextUpcomingSession.presenters.length > 0
+                        ? nextUpcomingSession.presenters.map((p) => p.name).join(', ')
+                        : (isArabic ? 'مبشر سي بي والوفد الدبلوماسي' : 'Mubashir CP & Delegation')}
+                    </div>
                   </div>
                 </div>
                 <div className="home-upcoming-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <Link to="/sessions" className="btn btn-outline" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <span>{isArabic ? 'تفاصيل الجلسة' : 'Session Details'}</span>
+                  </Link>
                   <Link to="/apply" className="btn btn-primary" id="upcomingApplyBtn" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                     <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
                   </Link>

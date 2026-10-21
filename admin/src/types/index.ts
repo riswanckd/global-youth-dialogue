@@ -53,7 +53,7 @@ export interface DialogueSession {
   scheduledAt: string;
   durationMinutes: number;
   timezone: string;
-  status: 'draft' | 'proposed' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'rejected' | 'published';
+  status: 'draft' | 'proposed' | 'scheduled' | 'approved' | 'live' | 'completed' | 'cancelled' | 'rejected' | 'published';
   meetingUrl?: string;
   recordingUrl?: string;
   recordingVisibility: 'public' | 'members_only' | 'private';

@@ -54,7 +54,7 @@ export const PortalSessions: React.FC = () => {
       const coordId = typeof s.assignedCoordinator === 'object' ? (s.assignedCoordinator?.id || (s.assignedCoordinator as any)?._id) : s.assignedCoordinator;
       return coordId === user?.id || !s.assignedCoordinator;
     }
-    if (filter === 'scheduled') return s.status === 'scheduled' || s.status === 'live' || (s.status as any) === 'published';
+    if (filter === 'scheduled') return s.status === 'scheduled' || s.status === 'approved' || s.status === 'live' || (s.status as any) === 'published';
     if (filter === 'completed') return s.status === 'completed';
     return true;
   });
@@ -135,7 +135,7 @@ export const PortalSessions: React.FC = () => {
                     className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
                       session.status === 'live'
                         ? 'bg-red-500 text-white animate-pulse'
-                        : session.status === 'scheduled'
+                        : session.status === 'scheduled' || session.status === 'approved' || (session.status as any) === 'published'
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                         : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                     }`}
@@ -143,10 +143,10 @@ export const PortalSessions: React.FC = () => {
                     {isArabic
                       ? session.status === 'live'
                         ? 'مباشر الآن'
-                        : session.status === 'scheduled'
+                        : session.status === 'scheduled' || session.status === 'approved' || (session.status as any) === 'published'
                         ? 'مجدولة'
                         : 'منعقدة'
-                      : session.status}
+                      : (session.status === 'approved' || (session.status as any) === 'published' ? 'Scheduled' : session.status)}
                   </span>
                   <span className="text-xs font-semibold text-gyde-gold">
                     {session.category}

@@ -17,7 +17,7 @@ export async function listSessions(req: Request, res: Response, next: NextFuncti
     const query: any = {};
     const userRole = (req.user?.role || '').toLowerCase();
     const isStaff = ['admin', 'super_admin', 'coordinator'].includes(userRole);
-    const publicStatuses = ['scheduled', 'live', 'completed', 'published'];
+    const publicStatuses = ['scheduled', 'approved', 'live', 'completed', 'published'];
 
     if (!isStaff) {
       if (req.user) {
@@ -181,11 +181,14 @@ export async function updateSession(req: Request, res: Response, next: NextFunct
       updateData.assignedCoordinator = updateData.assignedCoordinatorId;
       delete updateData.assignedCoordinatorId;
     }
-    if (['scheduled', 'published', 'live'].includes(updateData.status)) {
+    if (['scheduled', 'approved', 'published', 'live'].includes(updateData.status)) {
       updateData.isPresenterProposal = false;
     }
 
     Object.assign(session, updateData);
+    if (['scheduled', 'approved', 'published', 'live'].includes(session.status)) {
+      session.isPresenterProposal = false;
+    }
     await session.save();
 
     await logAuditEvent({

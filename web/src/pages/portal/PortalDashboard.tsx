@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
@@ -63,10 +63,39 @@ export const PortalDashboard: React.FC = () => {
   const isPresenter = activeDashboardMode ? activeDashboardMode === 'presenter' : user?.role === 'PRESENTER';
 
   // Fetch dialogue sessions
-  const { data: sessions = [] } = useQuery<DialogueSession[]>({
+  const { data: apiSessions = [] } = useQuery<DialogueSession[]>({
     queryKey: ['portal-sessions'],
     queryFn: () => apiRequest<DialogueSession[]>('/sessions').catch(() => []),
   });
+
+  const [cachedSessions, setCachedSessions] = useState<DialogueSession[]>([]);
+
+  useEffect(() => {
+    const readCache = () => {
+      try {
+        const stored = localStorage.getItem('gyde_cached_sessions');
+        if (stored) setCachedSessions(JSON.parse(stored));
+      } catch {}
+    };
+    readCache();
+    window.addEventListener('storage', readCache);
+    return () => window.removeEventListener('storage', readCache);
+  }, []);
+
+  const sessions = useMemo(() => {
+    const list = Array.isArray(apiSessions) ? apiSessions : [];
+    const combined = [...cachedSessions, ...list];
+    const seen = new Set<string>();
+    const unique: DialogueSession[] = [];
+    for (const s of combined) {
+      const key = (s.id || (s as any)._id || s.title || '').toString();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        unique.push(s);
+      }
+    }
+    return unique;
+  }, [apiSessions, cachedSessions]);
 
   // Fetch topics
   const { data: topics = [], refetch: refetchTopics } = useQuery<Topic[]>({
@@ -84,8 +113,8 @@ export const PortalDashboard: React.FC = () => {
     t.interestedToPresent || (t.proposedBy?.userId && user?.id && String(t.proposedBy.userId) === String(user.id))
   );
 
-  const nextSession = sessions.find((s) => s.status === 'scheduled' || s.status === 'live');
-  const upcomingSessionsCount = sessions.filter((s) => s.status === 'scheduled' || s.status === 'live').length || 1;
+  const nextSession = sessions.find((s: DialogueSession) => ['scheduled', 'approved', 'published', 'live'].includes(s.status));
+  const upcomingSessionsCount = sessions.filter((s: DialogueSession) => ['scheduled', 'approved', 'published', 'live'].includes(s.status)).length || 1;
   const activeEvaluationsCount = 4;
   const topicLibraryCount = topics.length || 16;
   const academicPapersCount = publications.length || 8;
@@ -408,7 +437,7 @@ export const PortalDashboard: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
                   <div className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{nextSession.presenters?.map((p) => p.name).join(', ') || 'Assigned Fellows'}</span>
+                    <span>{nextSession.presenters?.map((p: any) => p.name).join(', ') || 'Assigned Fellows'}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />

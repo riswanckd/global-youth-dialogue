@@ -121,13 +121,13 @@ export const createSessionSchema = z.object({
   preferredTimeSlot: z.string().optional(),
   presentationLanguage: z.string().optional(),
   dossierUrl: z.string().optional(),
-  status: z.enum(['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected', 'published']).optional(),
+  status: z.enum(['draft', 'scheduled', 'approved', 'live', 'completed', 'cancelled', 'proposed', 'rejected', 'published']).optional(),
   assignedCoordinator: z.string().optional(),
   assignedCoordinatorId: z.string().optional(),
 });
 
 export const updateSessionSchema = createSessionSchema.partial().extend({
-  status: z.enum(['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected', 'published']).optional(),
+  status: z.enum(['draft', 'scheduled', 'approved', 'live', 'completed', 'cancelled', 'proposed', 'rejected', 'published']).optional(),
 });
 
 // Topic Validators

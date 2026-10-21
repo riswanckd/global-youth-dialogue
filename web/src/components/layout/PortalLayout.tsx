@@ -117,7 +117,7 @@ export const PortalLayout: React.FC = () => {
 
   // 4. Upcoming scheduled sessions
   const scheduledSessions = sessions.filter(
-    (s) => s.status === 'scheduled' || s.status === 'live'
+    (s) => s.status === 'scheduled' || s.status === 'approved' || (s.status as any) === 'published' || s.status === 'live'
   );
 
   const totalPortalNotifications = isAdmin

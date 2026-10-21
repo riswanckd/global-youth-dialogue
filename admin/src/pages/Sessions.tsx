@@ -294,27 +294,31 @@ export const Sessions: React.FC = () => {
       status,
       meetingUrl,
       scheduledAt,
+      isPresenterProposal,
     }: {
       id: string;
       status: string;
       meetingUrl?: string;
       scheduledAt?: string;
+      isPresenterProposal?: boolean;
     }) =>
       apiRequest(`/admin/sessions/${id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           status,
+          isPresenterProposal: isPresenterProposal !== undefined ? isPresenterProposal : (['scheduled', 'approved', 'published', 'live'].includes(status) ? false : undefined),
           ...(meetingUrl !== undefined ? { meetingUrl } : {}),
           ...(scheduledAt !== undefined ? { scheduledAt } : {}),
         }),
       }),
     onSuccess: (data: any, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       try {
         const updatedSession = data?.data || data;
         const stored = localStorage.getItem('gyde_cached_sessions');
         let currentList = stored ? JSON.parse(stored) : [];
-        if (['scheduled', 'published', 'live', 'completed'].includes(variables.status)) {
+        if (['scheduled', 'approved', 'published', 'live', 'completed'].includes(variables.status)) {
           if (updatedSession) {
             currentList = [updatedSession, ...currentList.filter((s: any) => (s.id || s._id) !== variables.id)];
           }
@@ -335,6 +339,7 @@ export const Sessions: React.FC = () => {
       }),
     onSuccess: (_, deletedId) => {
       queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       try {
         const stored = localStorage.getItem('gyde_cached_sessions');
         if (stored) {
@@ -346,8 +351,8 @@ export const Sessions: React.FC = () => {
     },
   });
 
-  const proposedCount = sessions.filter((s) => s.status === 'proposed' || (s as any).isPresenterProposal).length;
-  const scheduledCount = sessions.filter((s) => s.status === 'scheduled').length;
+  const proposedCount = sessions.filter((s) => s.status === 'proposed').length;
+  const scheduledCount = sessions.filter((s) => s.status === 'scheduled' || s.status === 'approved' || (s.status as any) === 'published').length;
   const completedCount = sessions.filter((s) => s.status === 'completed').length;
   const liveCount = sessions.filter((s) => s.status === 'live').length;
   const rejectedCount = sessions.filter((s) => s.status === 'rejected').length;
@@ -363,7 +368,9 @@ export const Sessions: React.FC = () => {
       statusFilter === 'all'
         ? true
         : statusFilter === 'proposed'
-        ? s.status === 'proposed' || (s as any).isPresenterProposal
+        ? s.status === 'proposed'
+        : statusFilter === 'scheduled'
+        ? s.status === 'scheduled' || s.status === 'approved' || (s.status as any) === 'published'
         : s.status === statusFilter;
 
     return matchesSearch && matchesStatus;
@@ -772,7 +779,7 @@ export const Sessions: React.FC = () => {
                           )}
                         </td>
                         <td className="py-3 px-4">
-                          {s.status === 'proposed' || (s as any).isPresenterProposal ? (
+                          {s.status === 'proposed' ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                               <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                               <span>{isArabic ? 'طلب قيد المراجعة' : 'Pending Review'}</span>
@@ -813,7 +820,7 @@ export const Sessions: React.FC = () => {
                         </td>
                         <td className="py-3 px-4 text-right rtl:text-left">
                           <div className="flex items-center justify-end gap-1.5">
-                            {s.status === 'proposed' || (s as any).isPresenterProposal ? (
+                            {s.status === 'proposed' ? (
                               <>
                                 <button
                                   onClick={() => openProposalReview(s)}
@@ -823,7 +830,13 @@ export const Sessions: React.FC = () => {
                                   {isArabic ? 'مراجعة وتحديد موعد' : 'Review & Schedule'}
                                 </button>
                                 <button
-                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                                  onClick={() =>
+                                    updateSessionStatusMutation.mutate({
+                                      id: s.id || (s as any)._id,
+                                      status: 'scheduled',
+                                      isPresenterProposal: false,
+                                    })
+                                  }
                                   disabled={updateSessionStatusMutation.isPending}
                                   className="p-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-colors cursor-pointer"
                                   title={isArabic ? 'قبول ونشر' : 'Quick Approve & Publish'}
@@ -831,7 +844,13 @@ export const Sessions: React.FC = () => {
                                   <Check className="w-3.5 h-3.5" />
                                 </button>
                                 <button
-                                  onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'rejected' })}
+                                  onClick={() =>
+                                    updateSessionStatusMutation.mutate({
+                                      id: s.id || (s as any)._id,
+                                      status: 'rejected',
+                                      isPresenterProposal: false,
+                                    })
+                                  }
                                   disabled={updateSessionStatusMutation.isPending}
                                   className="p-1 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors cursor-pointer"
                                   title={isArabic ? 'رفض الطلب' : 'Deny Application'}
@@ -895,7 +914,7 @@ export const Sessions: React.FC = () => {
             <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 p-3 space-y-3">
               {filtered.map((s) => {
                 const sessionCat = s.format || 'Topic Presentation';
-                const isProposal = s.status === 'proposed' || (s as any).isPresenterProposal;
+                const isProposal = s.status === 'proposed';
                 const isRejected = s.status === 'rejected';
 
                 return (
@@ -1059,7 +1078,13 @@ export const Sessions: React.FC = () => {
                           </button>
                           <div className="flex items-center gap-1">
                             <button
-                              onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'scheduled' })}
+                              onClick={() =>
+                                updateSessionStatusMutation.mutate({
+                                  id: s.id || (s as any)._id,
+                                  status: 'scheduled',
+                                  isPresenterProposal: false,
+                                })
+                              }
                               disabled={updateSessionStatusMutation.isPending}
                               className="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer"
                             >
@@ -1067,7 +1092,13 @@ export const Sessions: React.FC = () => {
                               <span>Approve</span>
                             </button>
                             <button
-                              onClick={() => updateSessionStatusMutation.mutate({ id: s.id, status: 'rejected' })}
+                              onClick={() =>
+                                updateSessionStatusMutation.mutate({
+                                  id: s.id || (s as any)._id,
+                                  status: 'rejected',
+                                  isPresenterProposal: false,
+                                })
+                              }
                               disabled={updateSessionStatusMutation.isPending}
                               className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center shadow-xs transition-colors cursor-pointer"
                               title="Deny"
@@ -2172,7 +2203,13 @@ export const Sessions: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               <button
                 type="button"
-                onClick={() => updateSessionStatusMutation.mutate({ id: selectedProposal.id, status: 'rejected' })}
+                onClick={() =>
+                  updateSessionStatusMutation.mutate({
+                    id: selectedProposal.id || (selectedProposal as any)._id,
+                    status: 'rejected',
+                    isPresenterProposal: false,
+                  })
+                }
                 disabled={updateSessionStatusMutation.isPending}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors cursor-pointer"
               >
@@ -2196,8 +2233,9 @@ export const Sessions: React.FC = () => {
                       ? new Date(proposalScheduleDate).toISOString()
                       : selectedProposal.scheduledAt;
                     updateSessionStatusMutation.mutate({
-                      id: selectedProposal.id,
+                      id: selectedProposal.id || (selectedProposal as any)._id,
                       status: 'scheduled',
+                      isPresenterProposal: false,
                       scheduledAt,
                       meetingUrl: proposalMeetingUrl || undefined,
                     });
