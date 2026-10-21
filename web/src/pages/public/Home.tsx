@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const Home: React.FC = () => {
   const { isArabic } = useLanguage();
+  const { isDark } = useTheme();
   const highlightsRef = useRef<HTMLDivElement>(null);
 
   // Auto-center the middle highlight card on mobile view
@@ -80,36 +82,89 @@ export const Home: React.FC = () => {
             ========================================================================= */}
         <div className="block md:hidden px-4 pt-3 pb-8 overflow-hidden relative">
           {/* Ambient Background Decorative Glows */}
-          <div className="w-56 h-56 rounded-full bg-purple-200/40 dark:bg-purple-900/20 blur-3xl absolute -top-10 -right-10 pointer-events-none" />
-          <div className="w-40 h-40 rounded-full border border-purple-200/60 dark:border-purple-800/40 absolute top-[45%] -left-14 pointer-events-none" />
-          <div className="w-64 h-64 rounded-full bg-indigo-100/50 dark:bg-indigo-950/30 blur-2xl absolute top-[52%] left-1/2 -translate-x-1/2 pointer-events-none" />
+          <div
+            className="w-56 h-56 rounded-full blur-3xl absolute -top-10 -right-10 pointer-events-none"
+            style={{
+              background: isDark
+                ? 'radial-gradient(circle, rgba(158,89,172,0.18) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(158,89,172,0.15) 0%, transparent 70%)',
+            }}
+          />
+          <div
+            className="w-40 h-40 rounded-full absolute top-[45%] -left-14 pointer-events-none"
+            style={{
+              border: isDark ? '1px solid rgba(158,89,172,0.2)' : '1px solid rgba(72,81,186,0.15)',
+            }}
+          />
+          <div
+            className="w-64 h-64 rounded-full blur-2xl absolute top-[52%] left-1/2 -translate-x-1/2 pointer-events-none"
+            style={{
+              background: isDark
+                ? 'radial-gradient(circle, rgba(72,81,186,0.15) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(72,81,186,0.1) 0%, transparent 70%)',
+            }}
+          />
 
           {/* 1. Community Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold tracking-wider uppercase mb-3.5 border-0 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse-soft shrink-0" />
+          <div
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase mb-3.5 shadow-xs"
+            style={{
+              background: isDark ? 'rgba(158, 89, 172, 0.16)' : 'rgba(72, 81, 186, 0.08)',
+              border: isDark ? '1px solid rgba(158, 89, 172, 0.38)' : '1px solid rgba(72, 81, 186, 0.22)',
+              color: isDark ? '#d8b4fe' : '#4851ba',
+            }}
+          >
+            <span
+              className="w-2 h-2 rounded-full animate-pulse-soft shrink-0"
+              style={{ background: isDark ? '#c084fc' : '#4851ba' }}
+            />
             <span className="truncate">{isArabic ? 'مجتمع الحوار الشبابي العالمي' : 'GLOBAL YOUTH DIALOGUE COMMUNITY'}</span>
           </div>
 
           {/* 2. Bold Hero Heading */}
           <h1
-            style={{ fontFamily: isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Sora', sans-serif" }}
-            className="text-[34px] font-black text-slate-950 dark:text-white leading-[1.12] tracking-tight mb-3"
+            style={{
+              fontFamily: isArabic ? "'Noto Kufi Arabic', sans-serif" : "'Sora', sans-serif",
+              color: isDark ? '#FFFFFF' : '#000000',
+            }}
+            className="text-[34px] font-black leading-[1.12] tracking-tight mb-3"
           >
             {isArabic ? (
               <>
-                حيث تلتقي العقول الشابة <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500">بالعالم.</span>
+                <span style={{ color: isDark ? '#FFFFFF' : '#000000' }}>حيث تلتقي العقول الشابة</span>
+                <span
+                  style={{
+                    display: 'block',
+                    color: isDark ? '#c084fc' : '#4851ba',
+                    fontWeight: 900,
+                  }}
+                >
+                  بالعالم.
+                </span>
               </>
             ) : (
               <>
-                Where young minds <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500">meet the world.</span>
+                <span style={{ color: isDark ? '#FFFFFF' : '#000000' }}>Where young minds</span>
+                <span
+                  style={{
+                    display: 'block',
+                    color: isDark ? '#c084fc' : '#4851ba',
+                    fontWeight: 900,
+                  }}
+                >
+                  meet the world.
+                </span>
               </>
             )}
           </h1>
 
           {/* 3. Description Subheading */}
-          <p className="text-slate-600 dark:text-slate-300 text-[14px] leading-[1.65] font-normal mb-5">
+          <p
+            className="text-[14px] leading-[1.65] font-normal mb-5"
+            style={{
+              color: isDark ? 'rgba(255, 255, 255, 0.88)' : 'rgba(0, 0, 0, 0.78)',
+            }}
+          >
             {isArabic
               ? 'مجتمع دولي يقوده الشباب، حيث يستكشف المفكرون والعقول الشابة القضايا العالمية، ويتبادلون الرؤى ويطورون أفكاراً محكمة عبر الحوار المنظم.'
               : 'A youth-led international community where young minds and thinkers explore global issues, exchange perspectives and develop well-reasoned ideas through structured dialogue.'}
@@ -119,23 +174,52 @@ export const Home: React.FC = () => {
           <div className="space-y-3 mb-8">
             <Link
               to="/apply"
-              className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#5046e5] via-[#7c3aed] to-[#9333ea] hover:opacity-95 text-white font-bold text-sm shadow-[0_8px_20px_rgba(114,75,236,0.32)] flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] border-0 border-none outline-none"
+              id="mobileHeroApplyBtn"
+              className="w-full py-3.5 px-6 rounded-full flex items-center justify-center gap-2 font-bold text-sm shadow-md transition-all active:scale-[0.98] outline-none"
+              style={{
+                background: 'linear-gradient(135deg, #4851BA 0%, #7038B0 50%, #9E59AC 100%)',
+                color: '#FFFFFF',
+                boxShadow: '0 8px 24px rgba(72, 81, 186, 0.38)',
+                border: 'none',
+                textDecoration: 'none',
+              }}
             >
-              <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span>
-              <span className="rtl:rotate-180 inline-block font-bold text-base">&rarr;</span>
+              <span style={{ color: '#FFFFFF', fontWeight: 700 }}>
+                {isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}
+              </span>
+              <span className="rtl:rotate-180 inline-block font-bold text-base" style={{ color: '#FFFFFF' }}>
+                &rarr;
+              </span>
             </Link>
             <Link
               to="/sessions"
-              className="w-full py-3.5 px-6 rounded-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-100 font-bold text-sm shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center transition-all active:scale-[0.98] outline-none"
+              id="mobileHeroExploreBtn"
+              className="w-full py-3.5 px-6 rounded-full flex items-center justify-center font-bold text-sm shadow-xs transition-all active:scale-[0.98] outline-none"
+              style={{
+                background: isDark ? 'rgba(255, 255, 255, 0.06)' : '#FFFFFF',
+                color: isDark ? '#FFFFFF' : '#000000',
+                border: isDark
+                  ? '1.5px solid rgba(158, 89, 172, 0.45)'
+                  : '1.5px solid rgba(72, 81, 186, 0.28)',
+                boxShadow: isDark
+                  ? '0 4px 14px rgba(0, 0, 0, 0.4)'
+                  : '0 2px 8px rgba(72, 81, 186, 0.06)',
+                textDecoration: 'none',
+              }}
             >
-              {isArabic ? 'استكشاف جلسات الحوار' : 'Explore Dialogue Sessions'}
+              <span style={{ color: isDark ? '#FFFFFF' : '#000000', fontWeight: 700 }}>
+                {isArabic ? 'استكشاف جلسات الحوار' : 'Explore Dialogue Sessions'}
+              </span>
             </Link>
           </div>
 
           {/* 5. Curated Photo Collage (Exact Composition from Mockup) */}
           <div className="relative pt-3 pb-6 w-full max-w-[360px] mx-auto">
             {/* Playful radiating dash sparks (Top-right of cards) */}
-            <div className="absolute -top-1 right-6 sm:right-10 text-indigo-500 dark:text-indigo-400 z-10 animate-spark-rotate pointer-events-none">
+            <div
+              className="absolute -top-1 right-6 sm:right-10 z-10 animate-spark-rotate pointer-events-none"
+              style={{ color: isDark ? '#c084fc' : '#4851ba' }}
+            >
               <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
                 <path d="M12 28L6 34" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                 <path d="M22 20L20 32" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
@@ -145,39 +229,74 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Main Card: Keynote Speaker at podium */}
-            <div className="w-[78%] rounded-[28px] overflow-hidden border-[3.5px] border-white dark:border-slate-800 shadow-[0_12px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] relative aspect-[4/4.8] bg-slate-100 dark:bg-slate-800">
+            <div
+              className="w-[78%] rounded-[28px] overflow-hidden relative aspect-[4/4.8]"
+              style={{
+                border: isDark ? '3.5px solid #1e293b' : '3.5px solid #FFFFFF',
+                boxShadow: isDark
+                  ? '0 12px 32px rgba(0,0,0,0.5)'
+                  : '0 12px 32px rgba(72,81,186,0.12)',
+                background: isDark ? '#0f172a' : '#f8fafc',
+              }}
+            >
               <img
                 src="/assets/images/delegate_floor_speech.jpg"
                 alt="Youth delegate delivering keynote address"
                 className="w-full h-full object-cover"
               />
               {/* Floor Keynote Speech Capsule Tag */}
-              <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-slate-800 dark:text-slate-100 shadow-md flex items-center gap-1.5 border border-white/60 dark:border-slate-700/60">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600 dark:text-indigo-400 shrink-0">
+              <div
+                className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 px-3 py-1.5 rounded-full text-xs font-bold shadow-md flex items-center gap-1.5 backdrop-blur-md"
+                style={{
+                  background: isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)',
+                  color: isDark ? '#FFFFFF' : '#000000',
+                  border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.08)',
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: isDark ? '#c084fc' : '#4851ba' }} className="shrink-0">
                   <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                   <line x1="12" y1="19" x2="12" y2="23"></line>
                   <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg>
-                <span className="text-[11px] font-bold truncate">
+                <span className="text-[11px] font-bold truncate" style={{ color: isDark ? '#FFFFFF' : '#000000' }}>
                   {isArabic ? 'كلمة المتحدث الرئيسي' : 'Floor Keynote Speech'}
                 </span>
               </div>
             </div>
 
             {/* Overlapping Card: International delegates walking together outdoors */}
-            <div className="absolute -bottom-2 right-0 sm:-right-2 z-20 w-[60%] rounded-[24px] overflow-hidden border-[3.5px] border-white dark:border-slate-800 shadow-[0_16px_36px_rgba(0,0,0,0.16)] dark:shadow-[0_16px_36px_rgba(0,0,0,0.5)] aspect-[4/3.4] bg-slate-100 dark:bg-slate-800 animate-float-slow">
+            <div
+              className="absolute -bottom-2 right-0 sm:-right-2 z-20 w-[60%] rounded-[24px] overflow-hidden aspect-[4/3.4] animate-float-slow"
+              style={{
+                border: isDark ? '3.5px solid #1e293b' : '3.5px solid #FFFFFF',
+                boxShadow: isDark
+                  ? '0 16px 36px rgba(0,0,0,0.6)'
+                  : '0 16px 36px rgba(72,81,186,0.18)',
+                background: isDark ? '#0f172a' : '#f8fafc',
+              }}
+            >
               <img
                 src="/assets/images/delegates_walk_outdoor.jpg"
                 alt="International youth delegates walking together"
                 className="w-full h-full object-cover"
               />
               {/* 18+ Nations Badge (Top Right) */}
-              <div className="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 bg-slate-900/90 dark:bg-slate-950/90 text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md flex items-center gap-1.5 backdrop-blur-xs">
-                <span className="bg-indigo-600 text-white font-extrabold text-[10px] px-1.5 py-0.5 rounded-full">
+              <div
+                className="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md flex items-center gap-1.5 backdrop-blur-xs"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.88)',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                }}
+              >
+                <span
+                  className="text-white font-extrabold text-[10px] px-1.5 py-0.5 rounded-full"
+                  style={{ background: '#4851BA' }}
+                >
                   18+
                 </span>
-                <span className="font-bold text-[10.5px]">
+                <span className="font-bold text-[10.5px]" style={{ color: '#FFFFFF' }}>
                   {isArabic ? 'دولة' : 'Nations'}
                 </span>
               </div>
@@ -188,14 +307,26 @@ export const Home: React.FC = () => {
           <div className="flex items-center justify-between mt-4 pt-1 max-w-[360px] mx-auto">
             {/* Pagination dots */}
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
-              <span className="w-2 h-2 rounded-full bg-indigo-200 dark:bg-indigo-900/60" />
-              <span className="w-2 h-2 rounded-full bg-indigo-200 dark:bg-indigo-900/60" />
+              <span
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ background: isDark ? '#c084fc' : '#4851ba' }}
+              />
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ background: isDark ? 'rgba(192, 132, 252, 0.28)' : 'rgba(72, 81, 186, 0.22)' }}
+              />
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ background: isDark ? 'rgba(192, 132, 252, 0.28)' : 'rgba(72, 81, 186, 0.22)' }}
+              />
             </div>
 
             {/* Subtle dividing line & delicate wireframe globe icon */}
             <div className="flex items-center gap-3 flex-1 ml-4 rtl:ml-0 rtl:mr-4">
-              <div className="flex-1 h-[1px] bg-slate-200/90 dark:bg-slate-800" />
+              <div
+                className="flex-1 h-[1px]"
+                style={{ background: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)' }}
+              />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -206,7 +337,8 @@ export const Home: React.FC = () => {
                 strokeWidth="1.6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-indigo-300 dark:text-indigo-700/80 shrink-0"
+                className="shrink-0"
+                style={{ color: isDark ? '#c084fc' : '#4851ba', opacity: 0.65 }}
               >
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="2" y1="12" x2="22" y2="12"></line>

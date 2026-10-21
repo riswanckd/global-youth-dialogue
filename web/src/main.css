@@ -9731,5 +9731,50 @@ html[dir="rtl"] .mobile-nav-drawer.open {
   }
 }
 
+/* ==========================================================================
+   MOBILE HERO SHOWCASE MICRO-ANIMATIONS
+   ========================================================================== */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 4s ease-in-out infinite !important;
+}
+
+@keyframes pulseSoft {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.15);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulseSoft 2.5s ease-in-out infinite !important;
+}
+
+@keyframes sparkRotate {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(6deg) scale(1.1);
+  }
+}
+
+.animate-spark-rotate {
+  animation: sparkRotate 4s ease-in-out infinite !important;
+}
+
+
 
 
