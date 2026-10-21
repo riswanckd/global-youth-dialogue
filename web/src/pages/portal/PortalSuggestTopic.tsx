@@ -200,14 +200,14 @@ export const PortalSuggestTopic: React.FC = () => {
   const pipelineSteps = ['Proposed', 'Under Review', 'Approved', 'Scheduled', 'Completed'];
 
   return (
-    <div className="portal-subview-content" style={{ animation: 'fadeIn 0.3s ease' }}>
+    <div className="portal-subview-content space-y-4 sm:space-y-6">
       {/* Page Header */}
-      <div className="portal-page-header" style={{ marginBottom: '1.75rem' }}>
+      <div className="portal-page-header mb-3 sm:mb-6">
         <div className="portal-page-title">
-          <h2 className="serif-text" style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, color: 'var(--brand-navy, #0f172a)' }}>
+          <h1 className="font-heading text-base sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight m-0">
             {isArabic ? 'اقتراح موضوع أو نشاط حواري' : 'Suggest a Topic or Dialogue Activity'}
-          </h2>
-          <p style={{ margin: '0.35rem 0 0', color: 'var(--text-muted, #64748b)', fontSize: '0.95rem' }}>
+          </h1>
+          <p className="text-[11px] sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl font-sans leading-relaxed">
             {isArabic
               ? 'اختر موضوعاً من بنك المواضيع أو اقترح محوراً أكاديمياً مخصصاً لمسار مراجعة المجتمع.'
               : 'Select a topic from the Topic Bank or propose a custom academic subject for the community review pipeline.'}
@@ -215,13 +215,13 @@ export const PortalSuggestTopic: React.FC = () => {
         </div>
       </div>
 
-      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
         {/* Left Form: Propose Dialogue Session Topic */}
-        <div className="card-panel" style={{ background: '#ffffff', borderRadius: '16px', padding: '1.75rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-          <div className="panel-header" style={{ marginBottom: '1.25rem' }}>
-            <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--brand-navy, #0f172a)' }}>
+        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-6 shadow-xs space-y-3.5 card-panel">
+          <div className="panel-header pb-2 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="m-0 text-xs sm:text-base font-bold font-heading text-slate-900 dark:text-white">
               {isArabic ? 'اقتراح موضوع جلسة حوارية' : 'Propose Dialogue Session Topic'}
-            </h4>
+            </h2>
           </div>
 
           {error && (
@@ -236,17 +236,16 @@ export const PortalSuggestTopic: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} id="memberTopicForm">
+          <form onSubmit={handleSubmit} id="memberTopicForm" className="space-y-3">
             {/* Topic Selection from Topic Bank */}
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+            <div className="form-group">
+              <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                 {isArabic ? 'اختيار الموضوع من بنك المواضيع' : 'Topic Selection from Topic Bank'}
               </label>
               <select
-                className="form-control"
+                className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans"
                 value={isCustom ? 'custom' : selectedBankId}
                 onChange={handleBankSelectChange}
-                style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#ffffff' }}
               >
                 <option value="" disabled>
                   -- {isArabic ? 'اختر موضوعاً من بنك المواضيع الأكاديمي' : 'Select a Topic from Academic Topic Bank'} --
@@ -270,15 +269,14 @@ export const PortalSuggestTopic: React.FC = () => {
 
             {/* Subtopic selector (when bank item chosen) */}
             {!isCustom && currentBankItem && currentBankItem.subtopics && currentBankItem.subtopics.length > 0 && (
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+              <div className="form-group">
+                <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                   {isArabic ? 'المحور الفرعي المركّز' : 'Selected Focus Subtopic'}
                 </label>
                 <select
-                  className="form-control"
+                  className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans"
                   value={selectedSubtopic}
                   onChange={(e) => setSelectedSubtopic(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#ffffff' }}
                 >
                   {currentBankItem.subtopics.map((st, idx) => (
                     <option key={idx} value={st}>
@@ -291,38 +289,36 @@ export const PortalSuggestTopic: React.FC = () => {
 
             {/* Custom Topic Fields (when 'Others' is selected) */}
             {isCustom && (
-              <div style={{ background: '#fdfbf7', border: '1px solid #fef3c7', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '0.85rem', color: '#92400e', marginBottom: '0.85rem', lineHeight: 1.45 }}>
+              <div className="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 rounded-xl p-3 sm:p-4 space-y-2.5">
+                <div className="text-[11px] sm:text-xs text-amber-800 dark:text-amber-200 font-medium leading-relaxed">
                   <strong>{isArabic ? 'اقتراح موضوع أكاديمي جديد:' : 'Suggesting a New Custom Topic:'}</strong>{' '}
                   {isArabic
                     ? 'تتم مراجعة المواضيع المخصصة من قبل أمانة التنسيق. وعند اعتمادها تضاف تلقائياً إلى بنك المواضيع الدولي!'
                     : 'Custom topics are vetted by the Coordinator Secretariat. When approved, this topic and its subtopics will automatically be added to the Global Youth Dialogue Topic Bank!'}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                  <label className="form-label" style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                <div className="form-group">
+                  <label className="form-label block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                     {isArabic ? 'عنوان الموضوع المخصص / القضية الأكاديمية' : 'Custom Topic Title / Academic Subject'}
                   </label>
                   <input
                     type="text"
                     required
-                    className="form-control"
+                    className="form-control w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans"
                     placeholder="e.g. Sovereign Algorithmic Governance in the Global South"
                     value={customTitle}
                     onChange={(e) => setCustomTitle(e.target.value)}
-                    style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#ffffff' }}
                   />
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                  <label className="form-label" style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                <div className="form-group">
+                  <label className="form-label block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                     {isArabic ? 'تصنيف الموضوع' : 'Topic Category'}
                   </label>
                   <select
-                    className="form-control"
+                    className="form-control w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans"
                     value={customCategory}
                     onChange={(e) => setCustomCategory(e.target.value)}
-                    style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#ffffff' }}
                   >
                     {CATEGORIES.map((cat) => (
                       <option key={cat.id} value={cat.id}>
@@ -333,31 +329,29 @@ export const PortalSuggestTopic: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label" style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.25rem' }}>
+                  <label className="form-label block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                     {isArabic ? 'المحاور الفرعية وأسئلة البحث (اختياري، مفصولة بفواصل)' : 'Subtopics & Research Questions (Optional, comma-separated)'}
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans"
                     placeholder="e.g. Legal jurisdiction, Data center sovereignty, Economic disparities"
                     value={customSubtopics}
                     onChange={(e) => setCustomSubtopics(e.target.value)}
-                    style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#ffffff' }}
                   />
                 </div>
               </div>
             )}
 
             {/* Proposed Activity Format */}
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+            <div className="form-group">
+              <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                 {isArabic ? 'شكل النشاط الحواري المقترح' : 'Proposed Activity Format'}
               </label>
               <select
-                className="form-control"
+                className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans"
                 value={format}
                 onChange={(e) => setFormat(e.target.value)}
-                style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', background: '#ffffff' }}
               >
                 <option value="Topic Presentation">
                   {isArabic ? 'عرض موضوع (مدير الجلسة ومقدم العرض - 1 أو أكثر)' : 'Topic Presentation (moderator and presenter - 1 or more)'}
@@ -375,108 +369,79 @@ export const PortalSuggestTopic: React.FC = () => {
             </div>
 
             {/* Suggested Dialogue Resolution or Theme (Optional) */}
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+            <div className="form-group">
+              <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                 {isArabic ? 'صيغة القضية أو الموضوع المقترح (اختياري)' : 'Suggested Dialogue Theme or Resolution (Optional)'}
               </label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans placeholder:text-slate-400 placeholder:text-xs"
                 value={motion}
                 onChange={(e) => setMotion(e.target.value)}
                 placeholder="e.g. Multilateral governance mechanisms for autonomous technologies..."
-                style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
               />
-              <span style={{ display: 'block', fontSize: '0.78rem', color: '#64748b', marginTop: '0.25rem' }}>
+              <span className="block text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-sans">
                 {isArabic ? 'اقتراح عنوان محدد أو صياغة واضحة لصلب الموضوع الحواري' : 'Provide a focused resolution or core thematic question for discussion'}
               </span>
             </div>
 
             {/* Academic Context & Why We Should Discuss This */}
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label className="form-label" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+            <div className="form-group">
+              <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                 {isArabic ? 'السياق الأكاديمي ولماذا يجب مناقشة هذا الموضوع (اختياري)' : 'Academic Context & Why We Should Discuss This (Optional)'}
               </label>
               <textarea
-                className="form-control"
+                className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans placeholder:text-slate-400 placeholder:text-xs"
                 rows={3}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Explain the global relevance, timeliness, and cross-border implications..."
-                style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', fontFamily: 'inherit' }}
               />
             </div>
 
             {/* 2-Column: Country / Regional Perspective & Relevant Sources */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '1.5rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                   {isArabic ? 'المنظور الإقليمي / الوطني (اختياري)' : 'Country / Regional Perspective (Optional)'}
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans placeholder:text-slate-400 placeholder:text-xs"
                   value={countryPerspective}
                   onChange={(e) => setCountryPerspective(e.target.value)}
                   placeholder="e.g. Gulf energy transition, Southeast Asian digital sovereignty..."
-                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.35rem' }}>
+                <label className="form-label block text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 font-sans">
                   {isArabic ? 'المصادر والأوراق ذات الصلة (اختياري)' : 'Relevant Sources / Papers (Optional)'}
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control w-full px-3 py-2 sm:py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-sans placeholder:text-slate-400 placeholder:text-xs"
                   value={sources}
                   onChange={(e) => setSources(e.target.value)}
                   placeholder="e.g. UN Reports, think-tank articles, academic journals..."
-                  style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
                 />
               </div>
             </div>
 
             {/* Presenter Interest Toggle (Shown if user is a presenter) */}
             {isPresenter && (
-              <div
-                style={{
-                  background: 'rgba(72, 81, 186, 0.05)',
-                  border: '1.5px solid rgba(72, 81, 186, 0.25)',
-                  borderRadius: '10px',
-                  padding: '0.85rem 1rem',
-                  marginBottom: '1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                }}
-              >
+              <div className="bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 rounded-xl p-3 flex items-center gap-2.5">
                 <input
                   type="checkbox"
                   id="interestedToPresent"
                   checked={interestedToPresent}
                   onChange={(e) => setInterestedToPresent(e.target.checked)}
-                  style={{
-                    width: '18px',
-                    height: '18px',
-                    cursor: 'pointer',
-                    accentColor: '#4851BA',
-                  }}
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                 />
                 <label
                   htmlFor="interestedToPresent"
-                  style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 600,
-                    color: '#0f172a',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                  }}
+                  className="text-xs font-semibold text-slate-900 dark:text-slate-100 cursor-pointer select-none flex items-center gap-1.5"
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="text-indigo-600 dark:text-indigo-400">
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                     <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                     <line x1="12" y1="19" x2="12" y2="23"></line>
@@ -494,18 +459,7 @@ export const PortalSuggestTopic: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="btn btn-primary btn-lg"
-              style={{
-                width: '100%',
-                padding: '0.8rem',
-                borderRadius: '10px',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                background: '#4851BA',
-                color: '#ffffff',
-                border: 'none',
-                cursor: submitting ? 'not-allowed' : 'pointer',
-              }}
+              className="w-full py-2.5 sm:py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 font-sans mt-2"
             >
               {submitting ? (isArabic ? 'جارٍ الإرسال...' : 'Submitting Proposal...') : (isArabic ? 'إرسال المقترح للمراجعة الأكاديمية' : 'Submit Proposal for Review')}
             </button>
@@ -513,21 +467,20 @@ export const PortalSuggestTopic: React.FC = () => {
         </div>
 
         {/* Right Panel: Proposal Review Lifecycle */}
-        <div>
-          <div className="card-panel" style={{ background: '#ffffff', borderRadius: '16px', padding: '1.75rem', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-            <div className="panel-header" style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-              <div>
-                <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--brand-navy, #0f172a)' }}>
-                  {isArabic ? 'مسار مراجعة المقترحات' : 'Proposal Review Lifecycle'}
-                </h4>
-                {isCoordinator && (
-                  <span style={{ fontSize: '0.72rem', color: '#4851BA', fontWeight: 600 }}>
-                    {isArabic ? 'صلاحيات منسق: مراجعة وتعديل القضايا المكلفة' : 'Coordinator: Edit & curate assigned motions'}
-                  </span>
-                )}
-              </div>
-
+        <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-6 shadow-xs space-y-3.5 card-panel">
+          <div className="panel-header pb-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-2">
+            <div>
+              <h2 className="m-0 text-xs sm:text-base font-bold font-heading text-slate-900 dark:text-white">
+                {isArabic ? 'مسار مراجعة المقترحات' : 'Proposal Review Lifecycle'}
+              </h2>
               {isCoordinator && (
+                <span className="text-[10px] text-indigo-600 font-semibold block mt-0.5">
+                  {isArabic ? 'صلاحيات منسق: مراجعة وتعديل القضايا المكلفة' : 'Coordinator: Edit & curate assigned motions'}
+                </span>
+              )}
+            </div>
+
+            {isCoordinator && (
                 <div style={{ display: 'flex', gap: '0.35rem', background: '#f1f5f9', padding: '0.2rem', borderRadius: '8px' }}>
                   <button
                     type="button"
@@ -781,7 +734,6 @@ export const PortalSuggestTopic: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
 
       <EditTopicModal
         isOpen={!!editingTopic}

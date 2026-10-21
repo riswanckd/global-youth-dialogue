@@ -9790,6 +9790,192 @@ html[dir="rtl"] .mobile-nav-drawer.open {
   animation: sparkRotate 4s ease-in-out infinite !important;
 }
 
+/* ==========================================================================
+   MOBILE UI PERFECTION ENGINE (Screens <= 768px)
+   Ultra-Refined Mobile Hierarchy: Creative Sora + Inter Combination
+   Compacted Card Geometry, Optical Kerning, Proportional Typography
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* 1. Global Page Structure & Containers */
+  .portal-subview-content,
+  .dashboard-container,
+  main {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
 
+  /* 2. Headings & Page Titles (Creative Sora Display) */
+  h1, .h1,
+  .portal-page-title h1, .portal-page-title h2,
+  .portal-page-header h1, .portal-page-header h2,
+  .section-title, .hero-title,
+  [class*="text-2xl"], [class*="text-3xl"] {
+    font-family: 'Sora', sans-serif !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.25rem !important;
+  }
 
+  h2, .h2 {
+    font-family: 'Sora', sans-serif !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.3 !important;
+  }
 
+  h3, .h3,
+  .panel-header h2, .panel-header h3, .panel-header h4,
+  .card-title,
+  [class*="text-xl"] {
+    font-family: 'Sora', sans-serif !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.015em !important;
+    line-height: 1.35 !important;
+  }
+
+  h4, .h4, h5, h6 {
+    font-family: 'Sora', sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 3. Subtitles & Body Copy (Inter Clean Reading) */
+  p, .subtitle,
+  .portal-page-title p, .portal-page-header p,
+  .section-desc, .text-muted,
+  [class*="text-sm"], [class*="text-base"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+  }
+
+  /* 4. Form Labels, Inputs, Dropdowns & Controls */
+  label, .form-label {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 0.74rem !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    letter-spacing: 0.01em !important;
+    margin-bottom: 0.25rem !important;
+    display: block !important;
+  }
+
+  [data-theme="dark"] label,
+  [data-theme="dark"] .form-label {
+    color: #cbd5e1 !important;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea,
+  .form-control {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 0.8rem !important;
+    padding: 0.52rem 0.75rem !important;
+    border-radius: 10px !important;
+    min-height: 38px !important;
+    line-height: 1.35 !important;
+    border: 1px solid #cbd5e1 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  select {
+    padding-right: 1.75rem !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  textarea {
+    min-height: 64px !important;
+    line-height: 1.4 !important;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* 5. Card Panels & Layout Structure: Compact Geometry */
+  .card-panel,
+  .portal-card,
+  .dashboard-card {
+    padding: 0.85rem 1rem !important;
+    border-radius: 14px !important;
+  }
+
+  .portal-page-header {
+    margin-bottom: 0.85rem !important;
+  }
+
+  /* 6. KPI Values & Metrics (Punchy Sora) */
+  .kpi-number,
+  .stat-value,
+  .metric-number-animated,
+  .stat-metric {
+    font-family: 'Sora', sans-serif !important;
+    font-size: 1.45rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.15 !important;
+  }
+
+  .kpi-label,
+  .stat-label,
+  .metric-label {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+  }
+
+  /* 7. Buttons & Action Elements */
+  button:not(.mobile-menu-btn):not(#mobileMenuToggleBtn):not(#portalMobileMenuBtn),
+  .btn:not(.mobile-menu-btn) {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.76rem !important;
+    border-radius: 10px !important;
+  }
+
+  .btn-lg {
+    padding: 0.55rem 0.95rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* 8. Badges, Tags & Status Pills */
+  .badge,
+  .pill,
+  [class*="rounded-full"][class*="text-"] {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  /* 9. Authentic Arabic Mobile Typography (RTL) */
+  html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] h4,
+  body.rtl-mode h1, body.rtl-mode h2, body.rtl-mode h3, body.rtl-mode h4 {
+    font-family: 'Noto Kufi Arabic', sans-serif !important;
+    font-size: 1.12rem !important;
+    line-height: 1.35 !important;
+  }
+
+  html[dir="rtl"] p, html[dir="rtl"] label, html[dir="rtl"] input, html[dir="rtl"] select,
+  html[dir="rtl"] textarea, html[dir="rtl"] button,
+  body.rtl-mode p, body.rtl-mode label, body.rtl-mode input, body.rtl-mode select,
+  body.rtl-mode textarea, body.rtl-mode button {
+    font-family: 'IBM Plex Sans Arabic', 'Noto Kufi Arabic', sans-serif !important;
+    font-size: 0.78rem !important;
+  }
+}
