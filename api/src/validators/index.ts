@@ -139,6 +139,11 @@ export const createTopicSchema = z.object({
   sources: z.string().optional(),
   isCustom: z.boolean().optional(),
   interestedToPresent: z.boolean().optional(),
+  preferredDate: z.string().optional().or(z.date()).optional(),
+  preferredTimeSlot: z.string().optional(),
+  presentationLanguage: z.string().optional(),
+  presentationNotes: z.string().optional(),
+  dossierUrl: z.string().optional(),
   status: z.string().optional(),
 });
 

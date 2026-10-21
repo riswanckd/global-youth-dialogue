@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -21,8 +21,10 @@ import {
   Users,
   Clock,
   CheckCircle2,
+  Plus,
 } from 'lucide-react';
 import { ApplyPresenterModal } from '../../components/portal/ApplyPresenterModal';
+import { PresentTopicModal } from '../../components/portal/PresentTopicModal';
 
 interface OutletContextType {
   openPresenterModal?: () => void;
@@ -34,10 +36,19 @@ export const PortalDashboard: React.FC = () => {
   const { user } = useAuth();
   const { isArabic } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const { openPresenterModal, activeDashboardMode, toggleDashboardMode } = useOutletContext<OutletContextType>() || {};
 
   const [localModalOpen, setLocalModalOpen] = useState(false);
+  const [presentModalOpen, setPresentModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('action') === 'present') {
+      setPresentModalOpen(true);
+    }
+  }, [location.search]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -58,7 +69,7 @@ export const PortalDashboard: React.FC = () => {
   });
 
   // Fetch topics
-  const { data: topics = [] } = useQuery<Topic[]>({
+  const { data: topics = [], refetch: refetchTopics } = useQuery<Topic[]>({
     queryKey: ['portal-topics'],
     queryFn: () => apiRequest<Topic[]>('/topics').catch(() => []),
   });
@@ -68,6 +79,10 @@ export const PortalDashboard: React.FC = () => {
     queryKey: ['portal-publications'],
     queryFn: () => apiRequest<Publication[]>('/publications').catch(() => []),
   });
+
+  const myPresentationApplications = topics.filter((t: any) =>
+    t.interestedToPresent || (t.proposedBy?.userId && user?.id && String(t.proposedBy.userId) === String(user.id))
+  );
 
   const nextSession = sessions.find((s) => s.status === 'scheduled' || s.status === 'live');
   const upcomingSessionsCount = sessions.filter((s) => s.status === 'scheduled' || s.status === 'live').length || 1;
@@ -150,13 +165,25 @@ export const PortalDashboard: React.FC = () => {
               <span className="truncate">{isArabic ? 'التبديل إلى لوحة المتحدث' : 'Switch to Presenter Dashboard'}</span>
             </button>
           ) : (
-            <button
-              onClick={() => navigate('/portal/sessions')}
-              className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-violet-50/90 hover:bg-violet-100 dark:bg-violet-950/60 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <Mic className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
-              <span className="truncate">{isArabic ? 'جدول الكلمات الرسمية' : 'Floor Speaking Schedule'}</span>
-            </button>
+            <>
+              {/* Primary Presenter Action: Apply to Present a Topic */}
+              <button
+                onClick={() => setPresentModalOpen(true)}
+                className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+              >
+                <Mic className="w-3.5 h-3.5 text-white shrink-0" />
+                <span className="truncate">{isArabic ? 'تقديم طلب إلقاء كلمة' : 'Present a Topic'}</span>
+              </button>
+
+              {/* Floor Speaking Schedule */}
+              <button
+                onClick={() => navigate('/portal/sessions')}
+                className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-violet-50/90 hover:bg-violet-100 dark:bg-violet-950/60 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Calendar className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+                <span className="truncate">{isArabic ? 'جدول الكلمات الرسمية' : 'Floor Speaking Schedule'}</span>
+              </button>
+            </>
           )}
 
           {/* Delegate Dossier (Light neutral tint pill, no stroke) */}
@@ -237,6 +264,94 @@ export const PortalDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start pt-2">
         {/* Left Column (2 Cols): Active Sessions & Research Papers */}
         <div className="lg:col-span-2 space-y-6">
+
+          {/* Presenter Primary Hero Banner */}
+          {isPresenter && (
+            <div className="rounded-2xl bg-gradient-to-r from-indigo-50/90 via-violet-50/90 to-purple-50/90 dark:from-indigo-950/40 dark:via-violet-950/40 dark:to-purple-950/40 p-5 sm:p-6 border-0 border-none shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
+                  <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wide">
+                    {isArabic ? 'الخيار الرئيسي للمتحدث' : 'Presenter Main Action'}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug">
+                  {isArabic ? 'هل ترغب في إلقاء كلمة أو تقديم جلسة حوارية؟' : 'Apply to Present a Topic or Lead an Academic Dialogue'}
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+                  {isArabic
+                    ? 'اختر موضوعاً من بنك المواضيع الـ ١٦ المعتمد أو اقترح موضوعك الخاص يدوياً، وحدد التاريخ والتوقيت المفضلين لك وقدم طلبك للأمانة العامة لاعتماد موعدك.'
+                    : 'Choose from our 16 curated research spheres or propose a custom motion, determine your preferred session date & time slot, and submit your official application to the Secretariat.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPresentModalOpen(true)}
+                className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 shrink-0 cursor-pointer border-0 border-none outline-none"
+              >
+                <Mic className="w-4 h-4" />
+                <span>{isArabic ? 'تقديم طلب إلقاء كلمة' : 'Apply to Present a Topic'}</span>
+              </button>
+            </div>
+          )}
+
+          {/* Presenter's Submitted Applications (if any) */}
+          {isPresenter && myPresentationApplications.length > 0 && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                    {isArabic ? 'طلبات التقديم ومواعيد الكلمات الخاصة بك' : 'My Presentation Applications & Floor Requests'}
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {isArabic ? 'متابعة حالة الطلبات المقدمة للأمانة العامة وجدولتها' : 'Track review and scheduling status with the Coordinator Secretariat'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPresentModalOpen(true)}
+                  className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 text-xs font-semibold flex items-center gap-1 border-0 border-none outline-none cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{isArabic ? 'طلب جديد' : 'New Request'}</span>
+                </button>
+              </div>
+
+              <div className="space-y-2.5">
+                {myPresentationApplications.map((app: any, idx: number) => (
+                  <div key={app.id || idx} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
+                          {app.category}
+                        </span>
+                        <span className="text-[11px] text-slate-400">
+                          {app.preferredDate ? `${app.preferredDate} (${app.preferredTimeSlot || '16:00 UTC'})` : 'Date under scheduling'}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {app.title}
+                      </h4>
+                    </div>
+                    <div className="shrink-0">
+                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                        app.status === 'scheduled' || app.status === 'approved'
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                      }`}>
+                        {app.status === 'scheduled'
+                          ? (isArabic ? 'تمت الجدولة بنجاح' : 'Scheduled on Floor')
+                          : app.status === 'approved'
+                          ? (isArabic ? 'معتمد' : 'Approved')
+                          : (isArabic ? 'قيد مراجعة الأمانة' : 'Pending Secretariat Review')}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Card 1: Active Debate Chambers & Scheduled Sessions */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
             <div className="flex items-center justify-between">
@@ -543,6 +658,20 @@ export const PortalDashboard: React.FC = () => {
       <ApplyPresenterModal
         isOpen={localModalOpen}
         onClose={() => setLocalModalOpen(false)}
+      />
+
+      {/* Present Topic Application Modal (Main Presenter Action) */}
+      <PresentTopicModal
+        isOpen={presentModalOpen}
+        onClose={() => setPresentModalOpen(false)}
+        onSuccess={() => {
+          refetchTopics();
+          showToast(
+            isArabic
+              ? 'تم تقديم طلب الجلسة بنجاح إلى الأمانة العامة!'
+              : 'Presentation application submitted successfully to the Secretariat!'
+          );
+        }}
       />
     </div>
   );

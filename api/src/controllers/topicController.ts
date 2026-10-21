@@ -174,6 +174,11 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
       sources,
       isCustom,
       interestedToPresent,
+      preferredDate,
+      preferredTimeSlot,
+      presentationLanguage,
+      presentationNotes,
+      dossierUrl,
       status: requestedStatus,
     } = req.body;
     let baseSlug = slugify(title);
@@ -205,6 +210,11 @@ export async function proposeTopic(req: Request, res: Response, next: NextFuncti
       sources: sources || '',
       isCustom: Boolean(isCustom),
       interestedToPresent: Boolean(interestedToPresent),
+      preferredDate: preferredDate || undefined,
+      preferredTimeSlot: preferredTimeSlot || '',
+      presentationLanguage: presentationLanguage || 'English',
+      presentationNotes: presentationNotes || '',
+      dossierUrl: dossierUrl || '',
       status: finalStatus,
       proposedBy: req.user
         ? {

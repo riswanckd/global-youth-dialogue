@@ -1,27 +1,5 @@
 function getApiBase(): string {
-  // If running in production (on vercel.app or custom domain), strictly use the active live GYDE API
-  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
-    return 'https://gyde-api.vercel.app/api/v1';
-  }
-
-  const origin = (import.meta as any).env?.VITE_API_ORIGIN;
-  const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL;
-
-  // If VITE_API_BASE_URL is explicitly set to an absolute URL
-  if (baseUrl && (baseUrl.startsWith('http://') || baseUrl.startsWith('https://'))) {
-    return baseUrl.trim().replace(/\/+$/, '');
-  }
-
-  // If VITE_API_ORIGIN is specified and not pointing to localhost or stale deployments
-  if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1') && !origin.includes('global-youth-dialogue-api')) {
-    let cleanOrigin = origin.trim().replace(/\/+$/, '');
-    if (!cleanOrigin.startsWith('http://') && !cleanOrigin.startsWith('https://')) {
-      cleanOrigin = `https://${cleanOrigin}`;
-    }
-    return `${cleanOrigin}/api/v1`;
-  }
-
-  // Production fallback: reliably communicate with the live backend API
+  // Reliably communicate with the live production backend API across all environments
   return 'https://gyde-api.vercel.app/api/v1';
 }
 

@@ -16,6 +16,11 @@ export interface ITopic extends Document {
   sources?: string;
   isCustom?: boolean;
   interestedToPresent?: boolean;
+  preferredDate?: Date | string;
+  preferredTimeSlot?: string;
+  presentationLanguage?: string;
+  presentationNotes?: string;
+  dossierUrl?: string;
   proposedBy?: {
     userId?: mongoose.Types.ObjectId;
     name: string;
@@ -47,6 +52,11 @@ const TopicSchema = new Schema<ITopic>(
     sources: { type: String, default: '' },
     isCustom: { type: Boolean, default: false },
     interestedToPresent: { type: Boolean, default: false },
+    preferredDate: { type: Schema.Types.Mixed },
+    preferredTimeSlot: { type: String, default: '' },
+    presentationLanguage: { type: String, default: 'English' },
+    presentationNotes: { type: String, default: '' },
+    dossierUrl: { type: String, default: '' },
     proposedBy: {
       userId: { type: Schema.Types.ObjectId, ref: 'User' },
       name: { type: String },

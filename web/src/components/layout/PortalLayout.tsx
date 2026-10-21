@@ -87,6 +87,15 @@ export const PortalLayout: React.FC = () => {
       exact: true,
       icon: LayoutDashboard,
     },
+    ...(isPresenter
+      ? [
+          {
+            label: isArabic ? 'تقديم طلب إلقاء كلمة' : 'Present a Topic',
+            path: '/portal?action=present',
+            icon: Mic,
+          },
+        ]
+      : []),
     {
       label: isArabic ? 'الجلسات والأرشيف' : 'Sessions & Chambers',
       path: '/portal/sessions',
