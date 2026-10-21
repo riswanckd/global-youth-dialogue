@@ -1,7 +1,7 @@
 import { UserRole } from '../constants/roles';
 
 export type ApplicationStatus = 'pending' | 'under_review' | 'approved' | 'rejected' | 'deleted';
-export type SessionStatus = 'draft' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'proposed' | 'rejected';
+export type SessionStatus = 'draft' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'proposed' | 'rejected' | 'published';
 export type RecordingVisibility = 'public' | 'members_only' | 'private';
 export type TopicStatus = 'proposed' | 'reviewing' | 'shortlisted' | 'approved' | 'published' | 'scheduled' | 'completed' | 'rejected';
 export type PublicationStatus = 'draft' | 'under_review' | 'published' | 'archived' | 'rejected';

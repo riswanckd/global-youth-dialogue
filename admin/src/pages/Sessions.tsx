@@ -271,8 +271,18 @@ export const Sessions: React.FC = () => {
         body: JSON.stringify(payload),
       });
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      try {
+        const created = data?.data || data;
+        if (created) {
+          const stored = localStorage.getItem('gyde_cached_sessions');
+          const currentList = stored ? JSON.parse(stored) : [];
+          const updated = [created, ...currentList];
+          localStorage.setItem('gyde_cached_sessions', JSON.stringify(updated));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
       setShowCreateModal(false);
       resetForm();
     },
@@ -298,8 +308,22 @@ export const Sessions: React.FC = () => {
           ...(scheduledAt !== undefined ? { scheduledAt } : {}),
         }),
       }),
-    onSuccess: () => {
+    onSuccess: (data: any, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      try {
+        const updatedSession = data?.data || data;
+        const stored = localStorage.getItem('gyde_cached_sessions');
+        let currentList = stored ? JSON.parse(stored) : [];
+        if (['scheduled', 'published', 'live', 'completed'].includes(variables.status)) {
+          if (updatedSession) {
+            currentList = [updatedSession, ...currentList.filter((s: any) => (s.id || s._id) !== variables.id)];
+          }
+        } else if (variables.status === 'rejected') {
+          currentList = currentList.filter((s: any) => (s.id || s._id) !== variables.id);
+        }
+        localStorage.setItem('gyde_cached_sessions', JSON.stringify(currentList));
+        window.dispatchEvent(new Event('storage'));
+      } catch {}
       setSelectedProposal(null);
     },
   });
@@ -309,8 +333,16 @@ export const Sessions: React.FC = () => {
       apiRequest(`/admin/sessions/${id}`, {
         method: 'DELETE',
       }),
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
       queryClient.invalidateQueries({ queryKey: ['admin-sessions'] });
+      try {
+        const stored = localStorage.getItem('gyde_cached_sessions');
+        if (stored) {
+          const currentList = JSON.parse(stored).filter((s: any) => (s.id || s._id) !== deletedId);
+          localStorage.setItem('gyde_cached_sessions', JSON.stringify(currentList));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
     },
   });
 

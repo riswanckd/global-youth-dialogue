@@ -63,7 +63,7 @@ const DialogueSessionSchema = new Schema<IDialogueSession>(
     timezone: { type: String, default: 'UTC' },
     status: {
       type: String,
-      enum: ['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected'],
+      enum: ['draft', 'scheduled', 'live', 'completed', 'cancelled', 'proposed', 'rejected', 'published'],
       default: 'scheduled',
       index: true,
     },

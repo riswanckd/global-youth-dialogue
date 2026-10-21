@@ -17,7 +17,7 @@ export async function listSessions(req: Request, res: Response, next: NextFuncti
     const query: any = {};
     const userRole = (req.user?.role || '').toLowerCase();
     const isStaff = ['admin', 'super_admin', 'coordinator'].includes(userRole);
-    const publicStatuses = ['scheduled', 'live', 'completed'];
+    const publicStatuses = ['scheduled', 'live', 'completed', 'published'];
 
     if (!isStaff) {
       if (req.user) {
@@ -180,6 +180,9 @@ export async function updateSession(req: Request, res: Response, next: NextFunct
     if (updateData.assignedCoordinatorId && isStaffAdmin) {
       updateData.assignedCoordinator = updateData.assignedCoordinatorId;
       delete updateData.assignedCoordinatorId;
+    }
+    if (['scheduled', 'published', 'live'].includes(updateData.status)) {
+      updateData.isPresenterProposal = false;
     }
 
     Object.assign(session, updateData);

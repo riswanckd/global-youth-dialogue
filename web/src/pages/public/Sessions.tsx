@@ -81,29 +81,82 @@ export const Sessions: React.FC = () => {
   const [sessions, setSessions] = useState<SessionItem[]>(FALLBACK_SESSIONS);
 
   useEffect(() => {
-    // Attempt to load from REST API if available
-    apiRequest<any>('/sessions')
-      .then((res: any) => {
-        if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
-          const mapped = res.data.map((s: any, idx: number) => ({
-            id: s._id || s.id,
-            sessionNumber: s.sessionNumber || idx + 1,
-            title: s.title,
-            topicTitle: s.topic?.title || 'Dialogue Topic',
-            date: new Date(s.scheduledAt || Date.now()).toLocaleDateString(),
-            time: '16:00 UTC',
-            status: s.status === 'scheduled' ? 'Upcoming' : s.status === 'completed' ? 'Completed' : 'Upcoming',
-            presenterName: s.presenter?.name || 'Assigned Delegate',
-            presenterCountry: s.presenter?.country || 'Global',
-            countries: ['IN', 'QA', 'UK', 'GH'],
-            summary: s.description || ''
-          }));
-          setSessions(mapped);
-        }
-      })
-      .catch(() => {
-        // Fallback already initialized
-      });
+    const loadSessions = () => {
+      let cachedSessions: any[] = [];
+      try {
+        const stored = localStorage.getItem('gyde_cached_sessions');
+        if (stored) cachedSessions = JSON.parse(stored);
+      } catch {}
+
+      apiRequest<any>('/sessions')
+        .then((res: any) => {
+          const rawItems = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
+          const combinedRaw = [...cachedSessions, ...rawItems];
+
+          if (combinedRaw.length > 0) {
+            const mapped: SessionItem[] = combinedRaw.map((s: any, idx: number) => {
+              const d = s.scheduledAt ? new Date(s.scheduledAt) : new Date();
+              const isPast = d.getTime() < Date.now();
+              const primaryPresenter = s.presenters?.[0] || s.presenter || {};
+              const formattedTime =
+                s.preferredTimeSlot ||
+                (s.scheduledAt
+                  ? `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')} UTC`
+                  : '12:00 UTC');
+
+              let status: 'Upcoming' | 'Completed' | 'In Progress' = 'Upcoming';
+              if (s.status === 'completed' || isPast) {
+                status = 'Completed';
+              } else if (s.status === 'live') {
+                status = 'In Progress';
+              } else {
+                status = 'Upcoming';
+              }
+
+              return {
+                id: s._id || s.id || `ses-${idx + 1}`,
+                sessionNumber: s.sessionNumber || idx + 1,
+                title: s.title,
+                topicTitle: s.category || s.topic?.title || 'Academic Dialogue',
+                date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                time: formattedTime,
+                status,
+                presenterName: primaryPresenter.name || s.moderator || 'Assigned Delegate',
+                presenterCountry: primaryPresenter.country || 'Global Delegation',
+                countries: ['IN', 'QA', 'UK', 'GH', 'BR', 'DE'],
+                summary: s.description || s.summary || '',
+                recordingUrl: s.recordingUrl,
+                materialsUrl: s.dossierUrl,
+              };
+            });
+
+            const seen = new Set<string>();
+            const unique: SessionItem[] = [];
+            for (const item of mapped) {
+              const key = item.title.toLowerCase().trim();
+              if (key && !seen.has(key)) {
+                seen.add(key);
+                unique.push(item);
+              }
+            }
+            for (const fallback of FALLBACK_SESSIONS) {
+              const key = fallback.title.toLowerCase().trim();
+              if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(fallback);
+              }
+            }
+            setSessions(unique);
+          }
+        })
+        .catch(() => {
+          // Fallback already initialized
+        });
+    };
+
+    loadSessions();
+    window.addEventListener('storage', loadSessions);
+    return () => window.removeEventListener('storage', loadSessions);
   }, []);
 
   const filteredSessions = sessions.filter((s) => {

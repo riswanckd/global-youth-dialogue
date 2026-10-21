@@ -70,10 +70,39 @@ export const PortalPublications: React.FC = () => {
     content: '',
   });
 
-  const { data: publications = [], isLoading } = useQuery<Publication[]>({
+  const { data: apiPubs = [], isLoading } = useQuery<Publication[]>({
     queryKey: ['portal-publications-all'],
     queryFn: () => apiRequest<Publication[]>('/publications'),
   });
+
+  const [cachedPubs, setCachedPubs] = useState<Publication[]>([]);
+
+  React.useEffect(() => {
+    const readCache = () => {
+      try {
+        const stored = localStorage.getItem('gyde_cached_publications');
+        if (stored) setCachedPubs(JSON.parse(stored));
+      } catch {}
+    };
+    readCache();
+    window.addEventListener('storage', readCache);
+    return () => window.removeEventListener('storage', readCache);
+  }, []);
+
+  const publications = React.useMemo(() => {
+    const list = Array.isArray(apiPubs) ? apiPubs : [];
+    const combined = [...cachedPubs, ...list];
+    const seen = new Set<string>();
+    const unique: Publication[] = [];
+    for (const p of combined) {
+      const key = (p.id || (p as any)._id || p.slug || p.title || '').toString();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        unique.push(p);
+      }
+    }
+    return unique;
+  }, [apiPubs, cachedPubs]);
 
   // Query my submissions
   const mySubmissions = publications.filter((p) => {

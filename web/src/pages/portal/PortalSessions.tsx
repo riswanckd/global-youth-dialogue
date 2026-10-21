@@ -15,17 +15,46 @@ export const PortalSessions: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'assigned' | 'scheduled' | 'completed'>('all');
   const [editingSession, setEditingSession] = useState<DialogueSession | null>(null);
 
-  const { data: sessions = [], isLoading } = useQuery<DialogueSession[]>({
+  const { data: apiSessions = [], isLoading } = useQuery<DialogueSession[]>({
     queryKey: ['portal-sessions-list'],
     queryFn: () => apiRequest<DialogueSession[]>('/sessions'),
   });
 
-  const filtered = sessions.filter((s) => {
+  const [cachedSessions, setCachedSessions] = useState<DialogueSession[]>([]);
+
+  React.useEffect(() => {
+    const readCache = () => {
+      try {
+        const stored = localStorage.getItem('gyde_cached_sessions');
+        if (stored) setCachedSessions(JSON.parse(stored));
+      } catch {}
+    };
+    readCache();
+    window.addEventListener('storage', readCache);
+    return () => window.removeEventListener('storage', readCache);
+  }, []);
+
+  const allSessions = React.useMemo(() => {
+    const list = Array.isArray(apiSessions) ? apiSessions : [];
+    const combined = [...cachedSessions, ...list];
+    const seen = new Set<string>();
+    const unique: DialogueSession[] = [];
+    for (const s of combined) {
+      const key = (s.id || (s as any)._id || s.title || '').toString();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        unique.push(s);
+      }
+    }
+    return unique;
+  }, [apiSessions, cachedSessions]);
+
+  const filtered = allSessions.filter((s) => {
     if (filter === 'assigned') {
-      const coordId = typeof s.assignedCoordinator === 'object' ? (s.assignedCoordinator?.id || s.assignedCoordinator?._id) : s.assignedCoordinator;
+      const coordId = typeof s.assignedCoordinator === 'object' ? (s.assignedCoordinator?.id || (s.assignedCoordinator as any)?._id) : s.assignedCoordinator;
       return coordId === user?.id || !s.assignedCoordinator;
     }
-    if (filter === 'scheduled') return s.status === 'scheduled' || s.status === 'live';
+    if (filter === 'scheduled') return s.status === 'scheduled' || s.status === 'live' || (s.status as any) === 'published';
     if (filter === 'completed') return s.status === 'completed';
     return true;
   });

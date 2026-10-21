@@ -124,9 +124,23 @@ export const Topics: React.FC = () => {
         method: 'PATCH',
         body: JSON.stringify({ status, title }),
       }),
-    onSuccess: (_, variables) => {
+    onSuccess: (data: any, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+
+      try {
+        const updated = data?.data || data || { id: variables.id, title: variables.title, status: variables.status };
+        const stored = localStorage.getItem('gyde_cached_topics');
+        let currentList = stored ? JSON.parse(stored) : [];
+        if (['approved', 'published', 'completed'].includes(variables.status)) {
+          currentList = [updated, ...currentList.filter((t: any) => (t.id || t._id) !== variables.id)];
+        } else if (variables.status === 'rejected') {
+          currentList = currentList.filter((t: any) => (t.id || t._id) !== variables.id);
+        }
+        localStorage.setItem('gyde_cached_topics', JSON.stringify(currentList));
+        window.dispatchEvent(new Event('storage'));
+      } catch {}
+
       showToast(
         variables.status === 'approved'
           ? (isArabic ? 'تم اعتماد موضوع الحوار بنجاح!' : 'Topic motion approved successfully!')
@@ -148,8 +162,18 @@ export const Topics: React.FC = () => {
           regionalPerspective: newTopic.regionalPerspective.trim() || undefined,
         }),
       }),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
+      try {
+        const created = data?.data || data;
+        if (created) {
+          const stored = localStorage.getItem('gyde_cached_topics');
+          const currentList = stored ? JSON.parse(stored) : [];
+          const updated = [created, ...currentList];
+          localStorage.setItem('gyde_cached_topics', JSON.stringify(updated));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
       setCreateSuccess(true);
       setFormError('');
       setTimeout(() => {

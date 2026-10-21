@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../../context/LanguageContext';
 import { CATEGORIES } from '../../constants';
 import { TOPIC_BANK, TopicBankItem } from '../../constants/topicBank';
+import { apiRequest } from '../../utils/api';
 
 export const PortalTopicBank: React.FC = () => {
   const { isArabic } = useLanguage();
@@ -11,9 +13,70 @@ export const PortalTopicBank: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  const { data: apiTopics = [] } = useQuery<any[]>({
+    queryKey: ['portal-topic-bank-topics'],
+    queryFn: () => apiRequest<any[]>('/topics').catch(() => []),
+  });
+
+  const [cachedTopics, setCachedTopics] = useState<any[]>([]);
+
+  useEffect(() => {
+    const readCache = () => {
+      try {
+        const stored = localStorage.getItem('gyde_cached_topics');
+        if (stored) setCachedTopics(JSON.parse(stored));
+      } catch {}
+    };
+    readCache();
+    window.addEventListener('storage', readCache);
+    return () => window.removeEventListener('storage', readCache);
+  }, []);
+
+  const allBankTopics = useMemo(() => {
+    const combinedRaw = [...cachedTopics, ...(Array.isArray(apiTopics) ? apiTopics : [])];
+    const mappedDbTopics: TopicBankItem[] = combinedRaw
+      .filter((t) => t && t.title)
+      .map((t) => {
+        const cat = CATEGORIES.find(
+          (c) => c.name.toLowerCase() === (t.category || '').toLowerCase() || c.id === t.category
+        );
+        return {
+          id: t.id || t._id || `tb_${Math.random()}`,
+          categoryId: cat ? cat.id : 'education',
+          categoryName: cat ? cat.name : (t.category || 'General Discussion'),
+          categoryNameAr: cat ? cat.nameAr : t.categoryNameAr,
+          title: t.title,
+          titleAr: t.titleAr,
+          description: t.description || t.motion || '',
+          descriptionAr: t.descriptionAr,
+          subtopics: Array.isArray(t.subtopics) && t.subtopics.length > 0 ? t.subtopics : (t.motion ? [t.motion] : []),
+          isCustom: true,
+          addedBy: t.proposedBy?.name || 'Academic Secretariat',
+        };
+      });
+
+    const seen = new Set<string>();
+    const unique: TopicBankItem[] = [];
+    for (const item of mappedDbTopics) {
+      const key = item.title.toLowerCase().trim();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        unique.push(item);
+      }
+    }
+    for (const item of TOPIC_BANK) {
+      const key = item.title.toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(item);
+      }
+    }
+    return unique;
+  }, [apiTopics, cachedTopics]);
+
   const filteredTopics = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return TOPIC_BANK.filter((item) => {
+    return allBankTopics.filter((item) => {
       const matchesCat = selectedCategory === 'all' || item.categoryId === selectedCategory;
       if (!matchesCat) return false;
       if (!q) return true;
@@ -24,7 +87,7 @@ export const PortalTopicBank: React.FC = () => {
 
       return titleMatch || descMatch || subMatch;
     });
-  }, [search, selectedCategory]);
+  }, [allBankTopics, search, selectedCategory]);
 
   const handleUseTopic = (topicId: string) => {
     navigate('/portal/suggest-topic');

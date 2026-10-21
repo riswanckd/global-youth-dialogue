@@ -27,9 +27,22 @@ export async function listPublications(req: Request, res: Response, next: NextFu
 
     const query: any = {};
     if (!isStaff) {
-      query.status = 'published';
-      if (!req.user) {
-        query.visibility = 'public';
+      if (req.user) {
+        // Authenticated users see all published papers + their own submissions
+        const authFilter = [
+          { status: 'published' },
+          { createdBy: req.user._id },
+          { 'authors.name': req.user.name },
+        ];
+        if (status && status !== 'all') {
+          query.$and = [{ status }, { $or: authFilter }];
+        } else {
+          query.$or = authFilter;
+        }
+      } else {
+        // Public unauthenticated visitors see only published papers
+        query.status = 'published';
+        query.visibility = { $ne: 'members_only' };
       }
     } else if (status && status !== 'all') {
       query.status = status;
@@ -37,11 +50,17 @@ export async function listPublications(req: Request, res: Response, next: NextFu
 
     if (category && category !== 'all') query.category = category;
     if (search) {
-      query.$or = [
+      const searchCond = [
         { title: { $regex: search, $options: 'i' } },
         { abstract: { $regex: search, $options: 'i' } },
         { 'authors.name': { $regex: search, $options: 'i' } },
       ];
+      if (query.$or) {
+        query.$and = (query.$and || []).concat([{ $or: query.$or }, { $or: searchCond }]);
+        delete query.$or;
+      } else {
+        query.$or = searchCond;
+      }
     }
 
     const total = await Publication.countDocuments(query);
@@ -63,7 +82,22 @@ export async function listPublications(req: Request, res: Response, next: NextFu
 
 export async function getPublicationBySlug(req: Request, res: Response, next: NextFunction) {
   try {
-    const publication = await Publication.findOne({ slug: req.params.slug });
+    const rawSlug = (Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug) as string;
+    let publication = null;
+    if (mongoose.Types.ObjectId.isValid(rawSlug)) {
+      publication = await Publication.findById(rawSlug);
+    }
+    if (!publication) {
+      publication = await Publication.findOne({ slug: rawSlug });
+    }
+    if (!publication) {
+      publication = await Publication.findOne({
+        $or: [
+          { slug: { $regex: `^${rawSlug}$`, $options: 'i' } },
+          { title: { $regex: rawSlug.replace(/-/g, ' '), $options: 'i' } },
+        ],
+      });
+    }
     if (!publication) throw new NotFoundError('Publication not found');
 
     const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;
@@ -169,13 +203,18 @@ export async function updatePublication(req: Request, res: Response, next: NextF
     }
     if (!publication) throw new NotFoundError('Publication not found');
 
-    if (req.body.status === 'published' && publication.status !== 'published') {
-      publication.publishedAt = new Date();
+    if (req.body.status === 'published') {
+      if (!publication.publishedAt) {
+        publication.publishedAt = new Date();
+      }
     } else if (req.body.status === 'rejected') {
       publication.publishedAt = undefined;
     }
 
     Object.assign(publication, req.body);
+    if (req.body.status === 'published' && (!publication.visibility || (publication.visibility as string) === 'private')) {
+      publication.visibility = 'public';
+    }
     await publication.save();
 
     await logAuditEvent({

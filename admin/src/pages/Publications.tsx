@@ -74,10 +74,38 @@ export const Publications: React.FC = () => {
         method: 'PATCH',
         body: JSON.stringify({ status, title }),
       }),
-    onSuccess: (_, variables) => {
+    onSuccess: (data: any, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-publications'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       setReviewModalPaper(null);
+
+      if (variables.status === 'published') {
+        try {
+          const publishedItem = data?.data || data || {
+            id: variables.id,
+            title: variables.title,
+            status: 'published',
+            visibility: 'public',
+            publishedAt: new Date().toISOString(),
+          };
+          const stored = localStorage.getItem('gyde_cached_publications');
+          const currentList = stored ? JSON.parse(stored) : [];
+          const updated = [publishedItem, ...currentList.filter((p: any) => (p.id || p._id) !== variables.id)];
+          localStorage.setItem('gyde_cached_publications', JSON.stringify(updated));
+          window.dispatchEvent(new Event('storage'));
+        } catch {}
+      } else if (variables.status === 'rejected') {
+        try {
+          const stored = localStorage.getItem('gyde_cached_publications');
+          if (stored) {
+            const currentList = JSON.parse(stored);
+            const updated = currentList.filter((p: any) => (p.id || p._id) !== variables.id);
+            localStorage.setItem('gyde_cached_publications', JSON.stringify(updated));
+            window.dispatchEvent(new Event('storage'));
+          }
+        } catch {}
+      }
+
       showToast(
         variables.status === 'published'
           ? (isArabic ? 'تم اعتماد ونشر الورقة البحثية بنجاح!' : 'Paper approved & published to website successfully!')
@@ -99,6 +127,8 @@ export const Publications: React.FC = () => {
           abstract: newPub.abstract,
           content: newPub.content,
           status: newPub.status,
+          visibility: 'public',
+          publishedAt: newPub.status === 'published' ? new Date().toISOString() : undefined,
           authors: [
             {
               name: newPub.authorName.trim() || 'GYDE Super Administrator',
@@ -109,8 +139,18 @@ export const Publications: React.FC = () => {
           ],
         }),
       }),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['admin-publications'] });
+      try {
+        const publishedItem = data?.data || data;
+        if (publishedItem) {
+          const stored = localStorage.getItem('gyde_cached_publications');
+          const currentList = stored ? JSON.parse(stored) : [];
+          const updated = [publishedItem, ...currentList];
+          localStorage.setItem('gyde_cached_publications', JSON.stringify(updated));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {}
       setIsCreateModalOpen(false);
       showToast(isArabic ? 'تم نشر الورقة البحثية بنجاح' : 'Academic piece created and published.');
       setFormData({

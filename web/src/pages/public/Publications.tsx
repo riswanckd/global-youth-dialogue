@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,7 +7,7 @@ import { apiRequest } from '../../utils/api';
 import { Publication } from '../../types';
 import { JoinCommunityModal } from '../../components/auth/JoinCommunityModal';
 
-const DEMO_PUBLICATIONS: Publication[] = [
+export const DEMO_PUBLICATIONS: Publication[] = [
   {
     id: 'pub-1',
     slug: 'ai-sovereignty-dilemma',
@@ -81,7 +81,46 @@ export const Publications: React.FC = () => {
     queryFn: () => apiRequest<Publication[]>(`/publications?search=${encodeURIComponent(search)}`).catch(() => []),
   });
 
-  const displayList = apiPubs.length > 0 ? apiPubs : DEMO_PUBLICATIONS;
+  const [cachedPubs, setCachedPubs] = useState<Publication[]>([]);
+
+  useEffect(() => {
+    const readCache = () => {
+      try {
+        const stored = localStorage.getItem('gyde_cached_publications');
+        if (stored) {
+          setCachedPubs(JSON.parse(stored));
+        }
+      } catch {}
+    };
+    readCache();
+    window.addEventListener('storage', readCache);
+    return () => window.removeEventListener('storage', readCache);
+  }, []);
+
+  const combinedPubs = React.useMemo(() => {
+    const apiList = Array.isArray(apiPubs) ? apiPubs : [];
+    const all = [...cachedPubs, ...apiList];
+    const seen = new Set<string>();
+    const unique: Publication[] = [];
+
+    for (const p of all) {
+      const key = (p.slug || p.id || p.title || '').toLowerCase().trim();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        unique.push(p);
+      }
+    }
+    for (const demo of DEMO_PUBLICATIONS) {
+      const key = (demo.slug || demo.id || demo.title || '').toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(demo);
+      }
+    }
+    return unique;
+  }, [apiPubs, cachedPubs]);
+
+  const displayList = combinedPubs;
   const filtered = displayList.filter(p => {
     const authorName = p.authors?.[0]?.name || p.author?.name || '';
     return (

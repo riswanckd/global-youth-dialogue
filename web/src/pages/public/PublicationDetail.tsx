@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { apiRequest } from '../../utils/api';
 import { Publication } from '../../types';
 import { JoinCommunityModal } from '../../components/auth/JoinCommunityModal';
+import { DEMO_PUBLICATIONS } from './Publications';
 import { ArrowLeft, BookOpen, Calendar, User, Share2, Quote, FileCheck, Lock } from 'lucide-react';
 
 export const PublicationDetail: React.FC = () => {
@@ -17,7 +18,28 @@ export const PublicationDetail: React.FC = () => {
 
   const { data: paper, isLoading, isError } = useQuery<Publication>({
     queryKey: ['publication', slug],
-    queryFn: () => apiRequest<Publication>(`/publications/${slug}`),
+    queryFn: async () => {
+      try {
+        const res = await apiRequest<Publication>(`/publications/${slug}`);
+        if (res && res.title) return res;
+      } catch (err) {}
+
+      // Fallback to localStorage cache
+      try {
+        const stored = localStorage.getItem('gyde_cached_publications');
+        if (stored) {
+          const list: Publication[] = JSON.parse(stored);
+          const found = list.find((p) => p.slug === slug || p.id === slug || (p as any)._id === slug);
+          if (found) return found;
+        }
+      } catch {}
+
+      // Fallback to DEMO_PUBLICATIONS
+      const demoFound = DEMO_PUBLICATIONS.find((p) => p.slug === slug || p.id === slug);
+      if (demoFound) return demoFound;
+
+      throw new Error('Publication not found');
+    },
     retry: false,
   });
 
