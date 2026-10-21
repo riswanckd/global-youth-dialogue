@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { Publication } from '../models/Publication';
 import { sendSuccess } from '../utils/response';
 import { NotFoundError, BadRequestError, ForbiddenError } from '../utils/errors';
@@ -155,11 +156,23 @@ export async function createPublication(req: Request, res: Response, next: NextF
 
 export async function updatePublication(req: Request, res: Response, next: NextFunction) {
   try {
-    const publication = await Publication.findById(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
+    let publication = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      publication = await Publication.findById(rawId);
+    }
+    if (!publication) {
+      publication = await Publication.findOne({ slug: rawId });
+    }
+    if (!publication && req.body.title) {
+      publication = await Publication.findOne({ title: req.body.title });
+    }
     if (!publication) throw new NotFoundError('Publication not found');
 
     if (req.body.status === 'published' && publication.status !== 'published') {
       publication.publishedAt = new Date();
+    } else if (req.body.status === 'rejected') {
+      publication.publishedAt = undefined;
     }
 
     Object.assign(publication, req.body);

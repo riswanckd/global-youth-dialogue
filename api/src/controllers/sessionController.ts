@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { DialogueSession } from '../models/DialogueSession';
 import { sendSuccess } from '../utils/response';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
@@ -146,7 +147,14 @@ export async function createSession(req: Request, res: Response, next: NextFunct
 
 export async function updateSession(req: Request, res: Response, next: NextFunction) {
   try {
-    const session = await DialogueSession.findById(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
+    let session = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      session = await DialogueSession.findById(rawId);
+    }
+    if (!session && req.body.title) {
+      session = await DialogueSession.findOne({ title: req.body.title });
+    }
     if (!session) throw new NotFoundError('Session not found');
 
     const userRole = (req.user?.role || '').toLowerCase();

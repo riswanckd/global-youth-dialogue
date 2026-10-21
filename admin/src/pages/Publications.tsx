@@ -17,6 +17,7 @@ import {
   ExternalLink,
   Layers,
   Sparkles,
+  XCircle,
 } from 'lucide-react';
 
 const SPHERES = [
@@ -45,6 +46,12 @@ export const Publications: React.FC = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [reviewModalPaper, setReviewModalPaper] = useState<Publication | null>(null);
+  const [toastMsg, setToastMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setToastMsg({ text, type });
+    setTimeout(() => setToastMsg(null), 3500);
+  };
 
   const [formData, setFormData] = useState({
     title: '',
@@ -62,14 +69,23 @@ export const Publications: React.FC = () => {
   });
 
   const publishMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
+    mutationFn: ({ id, status, title }: { id: string; status: string; title?: string }) =>
       apiRequest(`/admin/publications/${id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, title }),
       }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-publications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       setReviewModalPaper(null);
+      showToast(
+        variables.status === 'published'
+          ? (isArabic ? 'تم اعتماد ونشر الورقة البحثية بنجاح!' : 'Paper approved & published to website successfully!')
+          : (isArabic ? 'تم رفض الورقة واستبعادها من النشر.' : 'Academic paper submission declined/rejected.')
+      );
+    },
+    onError: (err: any) => {
+      showToast(err?.message || 'Failed to update publication status', 'error');
     },
   });
 
@@ -96,6 +112,7 @@ export const Publications: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-publications'] });
       setIsCreateModalOpen(false);
+      showToast(isArabic ? 'تم نشر الورقة البحثية بنجاح' : 'Academic piece created and published.');
       setFormData({
         title: '',
         category: SPHERES[0],
@@ -105,6 +122,9 @@ export const Publications: React.FC = () => {
         authorAffiliation: 'Founding Secretariat',
         status: 'published',
       });
+    },
+    onError: (err: any) => {
+      showToast(err?.message || 'Failed to publish piece', 'error');
     },
   });
 
@@ -119,16 +139,29 @@ export const Publications: React.FC = () => {
       selectedStatusFilter === 'all'
         ? true
         : selectedStatusFilter === 'review'
-        ? p.status !== 'published'
+        ? (p.status === 'under_review' || p.status === 'draft')
         : p.status === selectedStatusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const publishedCount = publications.filter((p) => p.status === 'published').length;
-  const reviewCount = publications.filter((p) => p.status !== 'published').length;
+  const reviewCount = publications.filter((p) => p.status === 'under_review' || p.status === 'draft').length;
+  const rejectedCount = publications.filter((p) => p.status === 'rejected').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div
+          className={`fixed top-20 right-6 z-50 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-top-4 ${
+            toastMsg.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
+          }`}
+        >
+          {toastMsg.type === 'error' ? <XCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+          <span>{toastMsg.text}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -155,9 +188,13 @@ export const Publications: React.FC = () => {
         {/* Total Papers */}
         <div
           onClick={() => setSelectedStatusFilter('all')}
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors"
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
+            selectedStatusFilter === 'all'
+              ? 'border-indigo-400 dark:border-indigo-600 ring-2 ring-indigo-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800'
+          }`}
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -173,7 +210,11 @@ export const Publications: React.FC = () => {
         {/* In Editorial Review */}
         <div
           onClick={() => setSelectedStatusFilter('review')}
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer hover:border-amber-300 dark:hover:border-amber-800 transition-colors"
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
+            selectedStatusFilter === 'review'
+              ? 'border-amber-400 dark:border-amber-600 ring-2 ring-amber-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-800'
+          }`}
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -191,9 +232,13 @@ export const Publications: React.FC = () => {
         {/* Published Online */}
         <div
           onClick={() => setSelectedStatusFilter('published')}
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer hover:border-emerald-300 dark:hover:border-emerald-800 transition-colors"
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
+            selectedStatusFilter === 'published'
+              ? 'border-emerald-400 dark:border-emerald-600 ring-2 ring-emerald-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800'
+          }`}
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -206,17 +251,24 @@ export const Publications: React.FC = () => {
           </div>
         </div>
 
-        {/* Core Disciplines */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-            <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
+        {/* Denied / Rejected Works */}
+        <div
+          onClick={() => setSelectedStatusFilter('rejected')}
+          className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
+            selectedStatusFilter === 'rejected'
+              ? 'border-rose-400 dark:border-rose-600 ring-2 ring-rose-500/20'
+              : 'border-slate-100 dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-800'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              16
+              {rejectedCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              {t('pubs.activeDisciplines', 'Active Disciplines')}
+              {isArabic ? 'المرفوضة' : 'Denied / Rejected'}
             </div>
           </div>
         </div>
@@ -245,7 +297,7 @@ export const Publications: React.FC = () => {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {t('pubs.allTab', 'All Papers')}
+              {t('pubs.allTab', 'All Papers')} ({publications.length})
             </button>
             <button
               onClick={() => setSelectedStatusFilter('review')}
@@ -255,7 +307,7 @@ export const Publications: React.FC = () => {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {t('pubs.requestsTab', 'Presenter Requests')}
+              {t('pubs.requestsTab', 'Presenter Requests')} ({reviewCount})
             </button>
             <button
               onClick={() => setSelectedStatusFilter('published')}
@@ -265,7 +317,17 @@ export const Publications: React.FC = () => {
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {t('pubs.publishedTab', 'Published Papers')}
+              {t('pubs.publishedTab', 'Published Papers')} ({publishedCount})
+            </button>
+            <button
+              onClick={() => setSelectedStatusFilter('rejected')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                selectedStatusFilter === 'rejected'
+                  ? 'bg-rose-600 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {isArabic ? 'المرفوضة' : 'Denied'} ({rejectedCount})
             </button>
           </div>
         </div>
@@ -279,80 +341,127 @@ export const Publications: React.FC = () => {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filtered.map((paper) => (
-              <div key={paper.id} className="p-4 space-y-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <button
-                      type="button"
-                      onClick={() => setReviewModalPaper(paper)}
-                      className="text-left rtl:text-right group"
+            {filtered.map((paper) => {
+              const paperId = (paper as any).id || (paper as any)._id;
+              const isRejected = paper.status === 'rejected';
+              const isPublished = paper.status === 'published';
+
+              return (
+                <div key={paperId || paper.slug} className="p-4 space-y-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => setReviewModalPaper(paper)}
+                        className="text-left rtl:text-right group cursor-pointer"
+                      >
+                        <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          {paper.title}
+                        </h4>
+                      </button>
+                      <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold block mt-0.5">
+                        {translateCategory(paper.category)}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        isPublished
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                          : isRejected
+                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                      }`}
                     >
-                      <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                        {paper.title}
-                      </h4>
-                    </button>
-                    <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold block mt-0.5">
-                      {translateCategory(paper.category)}
+                      {isPublished
+                        ? t('pubs.publishedBadge', 'Published Online')
+                        : isRejected
+                        ? (isArabic ? 'مرفوض' : 'Declined / Denied')
+                        : t('status.pending', 'Pending Review')}
                     </span>
                   </div>
 
-                  <span
-                    className={`shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      paper.status === 'published'
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                        : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                    }`}
-                  >
-                    {paper.status === 'published'
-                      ? t('pubs.publishedBadge', 'Published Online')
-                      : t('status.pending', 'Pending Review')}
-                  </span>
-                </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                    {paper.abstract}
+                  </p>
 
-                <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
-                  {paper.abstract}
-                </p>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800 flex-wrap gap-2">
+                    <div>
+                      {isArabic ? 'المؤلف:' : 'Author:'}{' '}
+                      <strong className="text-slate-700 dark:text-slate-300">
+                        {paper.authors?.map((a: any) => a.name).join(', ') || 'GYDE Scholar'}
+                      </strong>
+                      {paper.authors?.[0]?.affiliation && ` (${paper.authors[0].affiliation})`}
+                    </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800 flex-wrap gap-2">
-                  <div>
-                    {isArabic ? 'المؤلف:' : 'Author:'}{' '}
-                    <strong className="text-slate-700 dark:text-slate-300">
-                      {paper.authors?.map((a: any) => a.name).join(', ') || 'GYDE Scholar'}
-                    </strong>
-                    {paper.authors?.[0]?.affiliation && ` (${paper.authors[0].affiliation})`}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setReviewModalPaper(paper)}
-                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>{t('pubs.reviewAction', 'Review Details')}</span>
-                    </button>
-
-                    {paper.status !== 'published' ? (
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => publishMutation.mutate({ id: paper.id, status: 'published' })}
-                        disabled={publishMutation.isPending}
-                        className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                        onClick={() => setReviewModalPaper(paper)}
+                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1 cursor-pointer"
                       >
-                        <Check className="w-3.5 h-3.5" />
-                        <span>{t('pubs.publishBtn', 'Accredit & Publish')}</span>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{t('pubs.reviewAction', 'Review Details')}</span>
                       </button>
-                    ) : (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>{t('pubs.publishedOnSite', 'Visible on Site')}</span>
-                      </span>
-                    )}
+
+                      {isPublished ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-1 text-xs">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>{t('pubs.publishedOnSite', 'Visible on Site')}</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => publishMutation.mutate({ id: paperId, status: 'rejected', title: paper.title })}
+                            disabled={publishMutation.isPending}
+                            className="px-2.5 py-1 text-xs font-bold rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors cursor-pointer"
+                          >
+                            {isArabic ? 'إلغاء النشر ورفض' : 'Unpublish & Deny'}
+                          </button>
+                        </div>
+                      ) : isRejected ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-rose-600 dark:text-rose-400 font-semibold inline-flex items-center gap-1 text-xs">
+                            <XCircle className="w-3.5 h-3.5" />
+                            <span>{isArabic ? 'مرفوض' : 'Denied'}</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => publishMutation.mutate({ id: paperId, status: 'published', title: paper.title })}
+                            disabled={publishMutation.isPending}
+                            className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>{isArabic ? 'إعادة اعتماد ونشر' : 'Approve & Publish'}</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => publishMutation.mutate({ id: paperId, status: 'rejected', title: paper.title })}
+                            disabled={publishMutation.isPending}
+                            className="px-2.5 py-1 text-xs font-bold rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 border border-rose-200 dark:border-rose-900 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>{isArabic ? 'رفض' : 'Deny'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => publishMutation.mutate({ id: paperId, status: 'published', title: paper.title })}
+                            disabled={publishMutation.isPending}
+                            className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>{t('pubs.publishBtn', 'Accredit & Publish')}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -555,11 +664,15 @@ export const Publications: React.FC = () => {
                   className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                     reviewModalPaper.status === 'published'
                       ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                      : reviewModalPaper.status === 'rejected'
+                      ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
                       : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                   }`}
                 >
                   {reviewModalPaper.status === 'published'
                     ? t('pubs.publishedBadge', 'Published Online')
+                    : reviewModalPaper.status === 'rejected'
+                    ? (isArabic ? 'مرفوض' : 'Declined / Denied')
                     : t('status.pending', 'Pending Review')}
                 </span>
               </div>
@@ -592,50 +705,75 @@ export const Publications: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setReviewModalPaper(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
               >
                 {t('common.close', 'Close')}
               </button>
 
               <div className="flex items-center gap-2">
-                {reviewModalPaper.status !== 'published' ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'rejected' })}
-                      disabled={publishMutation.isPending}
-                      className="px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-700 dark:text-rose-300 text-xs font-bold border border-rose-200 dark:border-rose-900 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      <X className="w-4 h-4" />
-                      <span>{isArabic ? 'رفض الطلب' : 'Deny Submission'}</span>
-                    </button>
+                {(() => {
+                  const modalPaperId = (reviewModalPaper as any).id || (reviewModalPaper as any)._id;
+                  if (reviewModalPaper.status === 'published') {
+                    return (
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>{isArabic ? 'معتمد ومنشور على الموقع' : 'Approved & Live on Website'}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => publishMutation.mutate({ id: modalPaperId, status: 'rejected', title: reviewModalPaper.title })}
+                          disabled={publishMutation.isPending}
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 transition-colors cursor-pointer"
+                        >
+                          {isArabic ? 'إلغاء النشر ورفض' : 'Unpublish & Deny'}
+                        </button>
+                      </div>
+                    );
+                  }
+                  if (reviewModalPaper.status === 'rejected') {
+                    return (
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                          <XCircle className="w-4 h-4" />
+                          <span>{isArabic ? 'هذا المقترح مرفوض حالياً' : 'Submission currently Denied'}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => publishMutation.mutate({ id: modalPaperId, status: 'published', title: reviewModalPaper.title })}
+                          disabled={publishMutation.isPending}
+                          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>{publishMutation.isPending ? t('common.loading', 'Publishing...') : (isArabic ? 'إعادة الاعتماد والنشر' : 'Reconsider & Publish to Site')}</span>
+                        </button>
+                      </div>
+                    );
+                  }
+                  return (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => publishMutation.mutate({ id: modalPaperId, status: 'rejected', title: reviewModalPaper.title })}
+                        disabled={publishMutation.isPending}
+                        className="px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-700 dark:text-rose-300 text-xs font-bold border border-rose-200 dark:border-rose-900 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" />
+                        <span>{publishMutation.isPending ? (isArabic ? 'جاري المعالجة...' : 'Updating...') : (isArabic ? 'رفض الطلب واستبعاد' : 'Deny Submission')}</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'published' })}
-                      disabled={publishMutation.isPending}
-                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                    >
-                      <Check className="w-4 h-4" />
-                      <span>{publishMutation.isPending ? t('common.loading', 'Publishing...') : (isArabic ? 'اعتماد ونشر في الموقع' : 'Approve & Publish to Public Site')}</span>
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{isArabic ? 'معتمد ومنشور على الموقع' : 'Approved & Live on Website'}</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => publishMutation.mutate({ id: reviewModalPaper.id, status: 'rejected' })}
-                      disabled={publishMutation.isPending}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                    >
-                      {isArabic ? 'إلغاء النشر' : 'Unpublish'}
-                    </button>
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        onClick={() => publishMutation.mutate({ id: modalPaperId, status: 'published', title: reviewModalPaper.title })}
+                        disabled={publishMutation.isPending}
+                        className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>{publishMutation.isPending ? t('common.loading', 'Publishing...') : (isArabic ? 'اعتماد ونشر في الموقع' : 'Approve & Publish to Public Site')}</span>
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>

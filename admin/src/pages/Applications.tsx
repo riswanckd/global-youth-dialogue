@@ -44,15 +44,15 @@ export const Applications: React.FC = () => {
   }, [queryClient]);
 
   const { data: applications = [], isLoading, refetch, isFetching } = useQuery<Application[]>({
-    queryKey: ['admin-applications', statusFilter],
+    queryKey: ['admin-applications'],
     refetchInterval: 5000, // Synchronize incoming applications every 5 seconds
     queryFn: async () => {
       let remoteApps: Application[] = [];
 
-      // 1. Primary Query: /admin/applications with limit=100
+      // 1. Primary Query: /admin/applications with limit=200
       try {
         const res = await apiRequest<any>(
-          `/admin/applications?limit=100${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`
+          `/admin/applications?limit=200`
         );
         let items: any[] = [];
         if (Array.isArray(res)) {
@@ -88,7 +88,7 @@ export const Applications: React.FC = () => {
         try {
           const token = getStoredAdminToken();
           const directRes = await fetch(
-            `https://gyde-api.vercel.app/api/v1/admin/applications?limit=100${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`,
+            `https://gyde-api.vercel.app/api/v1/admin/applications?limit=200`,
             {
               headers: {
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -195,9 +195,6 @@ export const Applications: React.FC = () => {
         localStorage.setItem('gyde_cached_applications', JSON.stringify(all));
       } catch {}
 
-      if (statusFilter !== 'all') {
-        return all.filter((a) => (a.status || '').toLowerCase() === statusFilter.toLowerCase());
-      }
       return all;
     },
   });
@@ -205,19 +202,24 @@ export const Applications: React.FC = () => {
   const updateMutation = useMutation({
     onMutate: async ({ id, status, email }: { id: string; status: string; notes?: string; approvePresenter?: boolean; email?: string }) => {
       const targetEmail = (email || selectedApp?.email || '').toLowerCase();
-      // Optimistic update in 0ms
-      queryClient.setQueryData<Application[]>(['admin-applications', statusFilter], (old = []) =>
+      const nextStatus = status === 'declined' ? 'rejected' : status;
+      // Optimistic update in 0ms across all views
+      queryClient.setQueryData<Application[]>(['admin-applications'], (old = []) =>
         old.map((a) => {
           if (a.id === id || (targetEmail && a.email?.toLowerCase() === targetEmail)) {
-            return { ...a, status: status as any };
+            return {
+              ...a,
+              status: nextStatus as any,
+              isApprovedPresenter: nextStatus === 'rejected' ? false : a.isApprovedPresenter,
+            };
           }
           return a;
         })
       );
       showToast(
-        status === 'approved'
+        nextStatus === 'approved'
           ? t('dash.appApprovedToast', 'Application approved successfully.')
-          : t('dash.appDeclinedToast', 'Application declined.')
+          : t('dash.appDeclinedToast', 'Application declined / denied.')
       );
     },
     mutationFn: async ({
@@ -278,13 +280,14 @@ export const Applications: React.FC = () => {
         const raw = localStorage.getItem('gyde_cached_applications');
         if (raw) {
           const list = JSON.parse(raw);
+          const nextStatus = status === 'declined' ? 'rejected' : status;
           const updated = list.map((a: Application) => {
             if (a.id === id || (targetEmail && a.email?.toLowerCase() === targetEmail)) {
               return {
                 ...a,
-                status,
+                status: nextStatus,
                 reviewNotes: notes !== undefined ? notes : a.reviewNotes,
-                isApprovedPresenter: approvePresenter !== undefined ? approvePresenter : a.isApprovedPresenter,
+                isApprovedPresenter: nextStatus === 'rejected' ? false : (approvePresenter !== undefined ? approvePresenter : a.isApprovedPresenter),
               };
             }
             return a;
@@ -304,8 +307,19 @@ export const Applications: React.FC = () => {
     },
   });
 
+  const pendingCount = applications.filter((a) => (a.status || '').toLowerCase() === 'pending').length;
+  const underReviewCount = applications.filter((a) => (a.status || '').toLowerCase() === 'under_review').length;
+  const approvedCount = applications.filter((a) => (a.status || '').toLowerCase() === 'approved').length;
+  const rejectedCount = applications.filter((a) => ['rejected', 'declined'].includes((a.status || '').toLowerCase())).length;
+
   const filtered = applications.filter((app) => {
     if (!app) return false;
+    const st = (app.status || '').toLowerCase();
+    if (statusFilter === 'rejected') {
+      if (!['rejected', 'declined'].includes(st)) return false;
+    } else if (statusFilter !== 'all') {
+      if (st !== statusFilter.toLowerCase()) return false;
+    }
     const q = search.toLowerCase();
     const name = (app.applicantName || (app as any).name || '').toLowerCase();
     const email = (app.email || '').toLowerCase();
@@ -313,16 +327,13 @@ export const Applications: React.FC = () => {
     return name.includes(q) || email.includes(q) || country.includes(q);
   });
 
-  const pendingCount = applications.filter((a) => (a.status || '').toLowerCase() === 'pending').length;
-  const underReviewCount = applications.filter((a) => (a.status || '').toLowerCase() === 'under_review').length;
-  const approvedCount = applications.filter((a) => (a.status || '').toLowerCase() === 'approved').length;
-
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold animate-in fade-in">
-          {toastMessage}
+        <div className="fixed top-20 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold animate-in fade-in flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
@@ -347,10 +358,15 @@ export const Applications: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Cards Grid (2x2 on mobile, 4 in a row on desktop) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* KPI Cards Grid (2x2 on mobile, 5 in a row on desktop) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Total Dossiers */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+        <div
+          onClick={() => setStatusFilter('all')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all ${
+            statusFilter === 'all' ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-indigo-200'
+          }`}
+        >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Inbox className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
@@ -365,12 +381,17 @@ export const Applications: React.FC = () => {
         </div>
 
         {/* Pending Review */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+        <div
+          onClick={() => setStatusFilter('pending')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all ${
+            statusFilter === 'pending' ? 'border-amber-500 ring-2 ring-amber-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-amber-200'
+          }`}
+        >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+            <div className="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 leading-tight">
               {pendingCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
@@ -380,12 +401,17 @@ export const Applications: React.FC = () => {
         </div>
 
         {/* Under Review */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+        <div
+          onClick={() => setStatusFilter('under_review')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all ${
+            statusFilter === 'under_review' ? 'border-purple-500 ring-2 ring-purple-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-purple-200'
+          }`}
+        >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+            <div className="text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 leading-tight">
               {underReviewCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
@@ -395,16 +421,41 @@ export const Applications: React.FC = () => {
         </div>
 
         {/* Approved */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group">
+        <div
+          onClick={() => setStatusFilter('approved')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all ${
+            statusFilter === 'approved' ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-emerald-200'
+          }`}
+        >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+            <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight">
               {approvedCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
               {t('apps.tabApproved', 'Approved')}
+            </div>
+          </div>
+        </div>
+
+        {/* Rejected / Denied */}
+        <div
+          onClick={() => setStatusFilter('rejected')}
+          className={`cursor-pointer bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group transition-all col-span-2 sm:col-span-1 ${
+            statusFilter === 'rejected' ? 'border-rose-500 ring-2 ring-rose-500/20' : 'border-slate-100 dark:border-slate-800 hover:border-rose-200'
+          }`}
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 leading-tight">
+              {rejectedCount}
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              {t('apps.tabRejected', 'Declined / Denied')}
             </div>
           </div>
         </div>
@@ -424,17 +475,23 @@ export const Applications: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
-          {['all', 'pending', 'under_review', 'approved', 'rejected'].map((st) => (
+          {[
+            { id: 'all', label: t('common.all', 'All') },
+            { id: 'pending', label: `${t('apps.tabPending', 'Pending')} (${pendingCount})` },
+            { id: 'under_review', label: `${t('apps.tabUnderReview', 'Under Review')} (${underReviewCount})` },
+            { id: 'approved', label: `${t('apps.tabApproved', 'Approved')} (${approvedCount})` },
+            { id: 'rejected', label: `${t('apps.tabRejected', 'Declined')} (${rejectedCount})` },
+          ].map((tab) => (
             <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
+              key={tab.id}
+              onClick={() => setStatusFilter(tab.id)}
               className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors ${
-                statusFilter === st
-                  ? 'bg-indigo-600 text-white'
+                statusFilter === tab.id
+                  ? 'bg-indigo-600 text-white shadow-xs'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {translateStatus(st)}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -517,7 +574,7 @@ export const Applications: React.FC = () => {
                       </td>
                       <td className="py-3 px-4 text-right rtl:text-left">
                         <div className="inline-flex items-center gap-1.5 justify-end">
-                          {app.status === 'pending' && (
+                          {(app.status === 'pending' || app.status === 'under_review') && (
                             <>
                               <button
                                 type="button"
@@ -534,12 +591,36 @@ export const Applications: React.FC = () => {
                                 disabled={updateMutation.isPending}
                                 onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
                                 className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors"
-                                title="Decline"
+                                title="Decline / Deny"
                               >
                                 <XCircle className="w-3.5 h-3.5" />
                                 <span>{t('dash.decline', 'Decline')}</span>
                               </button>
                             </>
+                          )}
+                          {app.status === 'approved' && (
+                            <button
+                              type="button"
+                              disabled={updateMutation.isPending}
+                              onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 transition-colors"
+                              title="Revoke / Deny"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                              <span>{t('dash.revoke', 'Revoke')}</span>
+                            </button>
+                          )}
+                          {(app.status === 'rejected' || (app.status as any) === 'declined') && (
+                            <button
+                              type="button"
+                              disabled={updateMutation.isPending}
+                              onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
+                              title="Re-Approve"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>{t('dash.reApprove', 'Re-Approve')}</span>
+                            </button>
                           )}
                           <button
                             onClick={() => {
@@ -608,7 +689,7 @@ export const Applications: React.FC = () => {
                   )}
 
                   <div className="flex items-center gap-2 pt-1">
-                    {app.status === 'pending' && (
+                    {(app.status === 'pending' || app.status === 'under_review') && (
                       <>
                         <button
                           type="button"
@@ -629,6 +710,28 @@ export const Applications: React.FC = () => {
                           <span>{t('dash.decline', 'Decline')}</span>
                         </button>
                       </>
+                    )}
+                    {app.status === 'approved' && (
+                      <button
+                        type="button"
+                        disabled={updateMutation.isPending}
+                        onClick={() => updateMutation.mutate({ id: app.id, status: 'rejected', email: app.email })}
+                        className="flex-1 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>{t('dash.revoke', 'Revoke')}</span>
+                      </button>
+                    )}
+                    {(app.status === 'rejected' || (app.status as any) === 'declined') && (
+                      <button
+                        type="button"
+                        disabled={updateMutation.isPending}
+                        onClick={() => updateMutation.mutate({ id: app.id, status: 'approved', email: app.email })}
+                        className="flex-1 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{t('dash.reApprove', 'Re-Approve')}</span>
+                      </button>
                     )}
                     <button
                       onClick={() => {
@@ -670,6 +773,19 @@ export const Applications: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Status Alert Banner */}
+            {selectedApp.status === 'rejected' || (selectedApp.status as any) === 'declined' ? (
+              <div className="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-lg text-rose-700 dark:text-rose-300 text-xs font-semibold">
+                <XCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                <span>This application dossier is currently <strong>Declined / Denied</strong>. You can update review notes or re-approve below.</span>
+              </div>
+            ) : selectedApp.status === 'approved' ? (
+              <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-lg text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span>This application dossier is currently <strong>Approved & Onboarded</strong>.</span>
+              </div>
+            ) : null}
 
             {/* Experience */}
             <div className="space-y-1">
@@ -747,21 +863,42 @@ export const Applications: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={updateMutation.isPending}
-                  onClick={() =>
-                    updateMutation.mutate({
-                      id: selectedApp.id,
-                      status: 'rejected',
-                      notes: reviewNotes,
-                      email: selectedApp.email,
-                    })
-                  }
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
-                >
-                  {t('apps.rejectApplication', 'Reject Application')}
-                </button>
+                {(selectedApp.status === 'pending' || selectedApp.status === 'under_review' || selectedApp.status === 'approved') && (
+                  <button
+                    type="button"
+                    disabled={updateMutation.isPending}
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: selectedApp.id,
+                        status: 'rejected',
+                        notes: reviewNotes,
+                        email: selectedApp.email,
+                      })
+                    }
+                    className="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-sm flex items-center gap-1.5"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    <span>{selectedApp.status === 'approved' ? t('apps.revokeApp', 'Revoke / Deny') : t('apps.rejectApplication', 'Decline Application')}</span>
+                  </button>
+                )}
+
+                {(selectedApp.status === 'rejected' || (selectedApp.status as any) === 'declined') && (
+                  <button
+                    type="button"
+                    disabled={updateMutation.isPending}
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: selectedApp.id,
+                        status: 'rejected',
+                        notes: reviewNotes,
+                        email: selectedApp.email,
+                      })
+                    }
+                    className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 shadow-sm"
+                  >
+                    {t('apps.saveNotesOnly', 'Save Notes Only')}
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -775,9 +912,16 @@ export const Applications: React.FC = () => {
                       email: selectedApp.email,
                     })
                   }
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5"
                 >
-                  {t('apps.approveApplication', 'Approve & Onboard')}
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>
+                    {selectedApp.status === 'approved'
+                      ? t('apps.updateAccreditation', 'Update Accreditation')
+                      : selectedApp.status === 'rejected'
+                      ? t('apps.reApproveApp', 'Re-Approve & Onboard')
+                      : t('apps.approveApplication', 'Approve & Onboard')}
+                  </span>
                 </button>
               </div>
             </div>

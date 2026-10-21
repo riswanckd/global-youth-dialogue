@@ -210,8 +210,18 @@ export async function reviewApplication(req: Request, res: Response, next: NextF
     }
     application.reviewedAt = new Date();
 
-    if (assignRole === ROLES.PRESENTER || isApprovedPresenter === true) {
-      application.isApprovedPresenter = true;
+    if (status === 'approved') {
+      if (assignRole === ROLES.PRESENTER || isApprovedPresenter === true) {
+        application.isApprovedPresenter = true;
+      }
+      if (application.presenterProposal) {
+        application.presenterProposal.status = 'approved';
+      }
+    } else if (status === 'rejected') {
+      application.isApprovedPresenter = false;
+      if (application.presenterProposal) {
+        application.presenterProposal.status = 'rejected';
+      }
     }
 
     await application.save();

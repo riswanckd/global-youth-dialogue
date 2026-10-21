@@ -106,18 +106,36 @@ export const Topics: React.FC = () => {
     }
   }, [searchParams]);
 
+  const [toastMsg, setToastMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setToastMsg({ text, type });
+    setTimeout(() => setToastMsg(null), 3500);
+  };
+
   const { data: topics = [], isLoading } = useQuery<Topic[]>({
     queryKey: ['admin-topics'],
     queryFn: () => apiRequest<Topic[]>('/admin/topics'),
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
+    mutationFn: ({ id, status, title }: { id: string; status: string; title?: string }) =>
       apiRequest(`/admin/topics/${id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, title }),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-topics'] }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      showToast(
+        variables.status === 'approved'
+          ? (isArabic ? 'تم اعتماد موضوع الحوار بنجاح!' : 'Topic motion approved successfully!')
+          : (isArabic ? 'تم رفض مقترح موضوع الحوار واستبعاده.' : 'Topic suggestion declined/rejected.')
+      );
+    },
+    onError: (err: any) => {
+      showToast(err?.message || 'Failed to update topic status', 'error');
+    },
   });
 
   const createTopicMutation = useMutation({
@@ -196,7 +214,19 @@ export const Topics: React.FC = () => {
   const rejectedCount = topics.filter((t) => t.status === 'rejected').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div
+          className={`fixed top-20 right-6 z-50 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-top-4 ${
+            toastMsg.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
+          }`}
+        >
+          {toastMsg.type === 'error' ? <XCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+          <span>{toastMsg.text}</span>
+        </div>
+      )}
+
       {/* Header with Title and Add Topic Action */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -251,6 +281,7 @@ export const Topics: React.FC = () => {
           onClick={() => {
             setStatusFilter('all');
             setCategoryFilter('all');
+            setActiveTab('submissions');
           }}
           className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors"
         >
@@ -269,7 +300,10 @@ export const Topics: React.FC = () => {
 
         {/* In Review */}
         <div
-          onClick={() => setStatusFilter('proposed')}
+          onClick={() => {
+            setStatusFilter('proposed');
+            setActiveTab('submissions');
+          }}
           className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
             statusFilter === 'proposed'
               ? 'border-amber-400 dark:border-amber-600 ring-2 ring-amber-500/20'
@@ -291,7 +325,10 @@ export const Topics: React.FC = () => {
 
         {/* Approved Motions */}
         <div
-          onClick={() => setStatusFilter('approved')}
+          onClick={() => {
+            setStatusFilter('approved');
+            setActiveTab('submissions');
+          }}
           className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
             statusFilter === 'approved'
               ? 'border-emerald-400 dark:border-emerald-600 ring-2 ring-emerald-500/20'
@@ -313,7 +350,10 @@ export const Topics: React.FC = () => {
 
         {/* Rejected Motions */}
         <div
-          onClick={() => setStatusFilter('rejected')}
+          onClick={() => {
+            setStatusFilter('rejected');
+            setActiveTab('submissions');
+          }}
           className={`bg-white dark:bg-slate-900 rounded-2xl border p-3.5 sm:p-4 shadow-sm flex flex-col justify-between sm:flex-row sm:items-center gap-2 sm:gap-3 group cursor-pointer transition-colors ${
             statusFilter === 'rejected'
               ? 'border-rose-400 dark:border-rose-600 ring-2 ring-rose-500/20'

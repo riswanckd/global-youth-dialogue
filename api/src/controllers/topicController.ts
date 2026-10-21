@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { Topic } from '../models/Topic';
 import { sendSuccess } from '../utils/response';
 import { NotFoundError, BadRequestError, ForbiddenError } from '../utils/errors';
@@ -282,7 +283,17 @@ export async function updateTopicStatus(req: Request, res: Response, next: NextF
       subtopic,
     } = req.body;
 
-    const topic = await Topic.findById(req.params.id);
+    const rawId = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
+    let topic = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      topic = await Topic.findById(rawId);
+    }
+    if (!topic) {
+      topic = await Topic.findOne({ slug: rawId });
+    }
+    if (!topic && req.body.title) {
+      topic = await Topic.findOne({ title: req.body.title });
+    }
     if (!topic) throw new NotFoundError('Topic not found');
 
     const userRole = (req.user?.role || '').toLowerCase();
