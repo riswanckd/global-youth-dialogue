@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useAdminLanguage } from '../../context/AdminLanguageContext';
 import { apiRequest } from '../../utils/api';
+import { Application, Topic, Publication, DialogueSession } from '../../types';
 import {
   LayoutDashboard,
   Users,
@@ -27,6 +28,10 @@ import {
   X,
   AlertTriangle,
   Lock,
+  Sparkles,
+  Clock,
+  CheckCircle2,
+  Lightbulb,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -42,6 +47,62 @@ export const AdminLayout: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationsRead, setNotificationsRead] = useState(false);
+
+  // Real-time Queries for Dynamic Notifications & Telemetry
+  const { data: applications = [] } = useQuery<Application[]>({
+    queryKey: ['admin-notifications-apps'],
+    queryFn: () => apiRequest<Application[]>('/admin/applications').catch(() => []),
+    refetchInterval: 15000,
+  });
+
+  const { data: topics = [] } = useQuery<Topic[]>({
+    queryKey: ['admin-notifications-topics'],
+    queryFn: () => apiRequest<Topic[]>('/topics').catch(() => []),
+    refetchInterval: 15000,
+  });
+
+  const { data: publications = [] } = useQuery<Publication[]>({
+    queryKey: ['admin-notifications-pubs'],
+    queryFn: () => apiRequest<Publication[]>('/publications').catch(() => []),
+    refetchInterval: 15000,
+  });
+
+  const { data: sessions = [] } = useQuery<DialogueSession[]>({
+    queryKey: ['admin-notifications-sessions'],
+    queryFn: () => apiRequest<DialogueSession[]>('/sessions').catch(() => []),
+    refetchInterval: 15000,
+  });
+
+  // Calculate live dynamic notification categories
+  // 1. Pending Member Applications
+  const pendingMemberApps = applications.filter(
+    (a) => a.status === 'pending' && !(a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter
+  );
+
+  // 2. Pending Presenter Applications (Accreditation proposals)
+  const pendingPresenterApps = applications.filter(
+    (a) =>
+      (a as any).presenterProposal?.status === 'pending' ||
+      ((a as any).presenterProposal?.proposedTopic && !a.isApprovedPresenter) ||
+      (a.status === 'pending' && a.isApprovedPresenter)
+  );
+
+  // 3. Proposed Topic Suggestions from delegates
+  const proposedTopics = topics.filter(
+    (t) => t.status === 'proposed' || t.status === 'reviewing' || (t as any).isCustom || (t as any).proposedBy?.name
+  );
+
+  // 4. Academic Writing Applications & Drafts awaiting review
+  const pendingPublications = publications.filter(
+    (p) => p.status === 'under_review' || p.status === 'draft' || (p as any).status === 'review'
+  );
+
+  // 5. Total pending items for live red badge
+  const totalPendingNotifications =
+    pendingMemberApps.length +
+    pendingPresenterApps.length +
+    proposedTopics.length +
+    pendingPublications.length;
 
   useEffect(() => {
     if (location.search.includes('notifications=open') || location.pathname === '/notifications') {
@@ -224,14 +285,19 @@ export const AdminLayout: React.FC = () => {
 
             {/* Notification Bell */}
             <button
-              onClick={() => setNotificationsOpen(true)}
+              onClick={() => {
+                setNotificationsOpen(true);
+                setNotificationsRead(true);
+              }}
               title={t('nav.notifications', 'Notifications')}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 relative transition-colors shrink-0 cursor-pointer"
             >
               <Bell className="w-4 h-4" />
-              {!notificationsRead && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
-              )}
+              {totalPendingNotifications > 0 && !notificationsRead ? (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-xs animate-pulse">
+                  {totalPendingNotifications > 9 ? '9+' : totalPendingNotifications}
+                </span>
+              ) : null}
             </button>
 
             {/* Language Switcher */}
@@ -462,11 +528,16 @@ export const AdminLayout: React.FC = () => {
                   <Bell className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                    {isArabic ? 'إشعارات الأمانة العامة' : 'Secretariat Notifications'}
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-2">
+                    <span>{isArabic ? 'إشعارات الأمانة العامة' : 'Secretariat Notifications'}</span>
+                    {totalPendingNotifications > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300">
+                        {totalPendingNotifications} {isArabic ? 'جديد' : 'New'}
+                      </span>
+                    )}
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    {isArabic ? 'القياسات التشغيلية المباشرة وحركة الوفود' : 'Live operational & delegate telemetry'}
+                    {isArabic ? 'متابعة مباشرة للطلبات والمقترحات والأوراق الواردة' : 'Live delegate proposals, papers & admissions'}
                   </p>
                 </div>
               </div>
@@ -486,7 +557,7 @@ export const AdminLayout: React.FC = () => {
                       navigate(location.pathname, { replace: true });
                     }
                   }}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -494,117 +565,201 @@ export const AdminLayout: React.FC = () => {
             </div>
 
             <div className="space-y-2 max-h-[60vh] overflow-y-auto no-scrollbar py-1">
-              {/* Item 1: Applications */}
-              <button
-                type="button"
-                onClick={() => {
-                  setNotificationsOpen(false);
-                  navigate('/applications');
-                }}
-                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                  <UserCheck className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    {isArabic ? 'طلبات انضمام الوفود المعلقة' : 'Delegate Admissions Pending'}
+              {/* Dynamic Notification 1: Proposed Topic Suggestions */}
+              {proposedTopics.map((t) => (
+                <button
+                  key={`topic-${t.id || t.slug}`}
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    navigate('/topics');
+                  }}
+                  className="w-full text-left rtl:text-right p-3 rounded-xl border border-purple-100 dark:border-purple-900/50 hover:border-purple-300 dark:hover:border-purple-700 bg-purple-50/40 dark:bg-purple-950/20 hover:bg-purple-50/80 transition-all flex items-start gap-3 group cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                    <Lightbulb className="w-4 h-4" />
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    {isArabic
-                      ? 'مراجعة وتدقيق طلبات انضمام الوفود الشبابية الدولية والمتحدثين الرئيسيين الجدد.'
-                      : 'Review and verify incoming international youth delegate and keynote speaker applications.'}
-                  </p>
-                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">
-                    {isArabic ? 'المراجعة في قائمة الطلبات ←' : 'Review in Applications →'}
-                  </span>
-                </div>
-              </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 uppercase tracking-wider">
+                        {isArabic ? 'مقترح موضوع جديد' : 'New Topic Suggestion'}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {t.category}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 line-clamp-1 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                      "{t.title}"
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                      {isArabic
+                        ? `مقترح مقدم بواسطة: ${(t as any).proposedBy?.name || 'مندوب أكاديمي'} (${(t as any).proposedBy?.country || 'دولي'}) • بانتظار الاعتماد الأكاديمي`
+                        : `Proposed by ${(t as any).proposedBy?.name || 'Academic Delegate'} (${(t as any).proposedBy?.country || 'International'}) • Awaiting review`}
+                    </p>
+                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold mt-1 inline-block">
+                      {isArabic ? 'مراجعة واعتماد المحور ←' : 'Review & Curate Topic →'}
+                    </span>
+                  </div>
+                </button>
+              ))}
 
-              {/* Item 2: Topic Pipeline */}
-              <button
-                type="button"
-                onClick={() => {
-                  setNotificationsOpen(false);
-                  navigate('/topics/pipeline');
-                }}
-                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
-                  <GitBranch className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    {isArabic ? 'قضايا ومحاور الحوار قيد التدقيق' : 'Topic Lifecycle Motions'}
+              {/* Dynamic Notification 2: Presenter Applications */}
+              {pendingPresenterApps.map((a) => (
+                <button
+                  key={`pres-${a.id || a.email}`}
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    navigate('/applications');
+                  }}
+                  className="w-full text-left rtl:text-right p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 bg-indigo-50/40 dark:bg-indigo-950/20 hover:bg-indigo-50/80 transition-all flex items-start gap-3 group cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Mic className="w-4 h-4" />
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    {isArabic
-                      ? 'قضايا حوارية مقدمة عبر المجالات المعرفية الـ 16 بانتظار الاعتماد التحريري.'
-                      : 'Academic debate motions submitted across the 16 core knowledge disciplines awaiting editorial clearance.'}
-                  </p>
-                  <span className="text-[10px] text-purple-500 font-semibold mt-1 inline-block">
-                    {isArabic ? 'متابعة مسار المواضيع ←' : 'Review Pipeline →'}
-                  </span>
-                </div>
-              </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 uppercase tracking-wider">
+                        {isArabic ? 'طلب اعتماد متحدث' : 'Presenter Proposal'}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {a.country || 'INT'}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                      {a.applicantName}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                      {isArabic
+                        ? `الموضوع المقترح: "${(a as any).presenterProposal?.proposedTopic || (a as any).presenterProposal?.sphere || 'كلمة افتتاحية'}"`
+                        : `Proposed: "${(a as any).presenterProposal?.proposedTopic || (a as any).presenterProposal?.sphere || 'Keynote Presentation'}"`}
+                    </p>
+                    <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold mt-1 inline-block">
+                      {isArabic ? 'مراجعة ملف المتحدث والاعتماد ←' : 'Review Presenter Application →'}
+                    </span>
+                  </div>
+                </button>
+              ))}
 
-              {/* Item 3: Academic Writing Studio */}
-              <button
-                type="button"
-                onClick={() => {
-                  setNotificationsOpen(false);
-                  navigate('/publications');
-                }}
-                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    {isArabic ? 'طلبات استوديو الكتابة الأكاديمية' : 'Academic Writing Studio Requests'}
+              {/* Dynamic Notification 3: Member Applications */}
+              {pendingMemberApps.map((a) => (
+                <button
+                  key={`mem-${a.id || a.email}`}
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    navigate('/applications');
+                  }}
+                  className="w-full text-left rtl:text-right p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/50 hover:border-emerald-300 dark:hover:border-emerald-700 bg-emerald-50/40 dark:bg-emerald-950/20 hover:bg-emerald-50/80 transition-all flex items-start gap-3 group cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <UserCheck className="w-4 h-4" />
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    {isArabic
-                      ? 'قدّم المتحدثون أوراقاً ومقالات أكاديمية لمراجعة الأمانة العامة والنشر العام.'
-                      : 'Presenters have submitted academic articles & essays for secretariat review and public publishing.'}
-                  </p>
-                  <span className="text-[10px] text-amber-500 font-semibold mt-1 inline-block">
-                    {isArabic ? 'فتح استوديو الكتابة ←' : 'Open Writing Studio →'}
-                  </span>
-                </div>
-              </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
+                        {isArabic ? 'طلب عضوية جديد' : 'New Member Application'}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {a.country || 'INT'}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                      {a.applicantName} ({a.email})
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                      {isArabic
+                        ? `الاهتمامات: ${(a.areasOfInterest || []).slice(0, 2).join('، ') || 'الحوار الدولي'} • المؤسسة: ${a.organization || 'مستقل'}`
+                        : `Interests: ${(a.areasOfInterest || []).slice(0, 2).join(', ') || 'International Dialogue'} • Org: ${a.organization || 'Independent'}`}
+                    </p>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1 inline-block">
+                      {isArabic ? 'مراجعة وتفعيل الحساب ←' : 'Review & Approve Member →'}
+                    </span>
+                  </div>
+                </button>
+              ))}
 
-              {/* Item 4: Scheduled Sessions */}
-              <button
-                type="button"
-                onClick={() => {
-                  setNotificationsOpen(false);
-                  navigate('/sessions');
-                }}
-                className="w-full text-left rtl:text-right p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-800/60 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-indigo-50/30 transition-all flex items-start gap-3 group cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                  <Mic className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                    {isArabic ? 'غرف وجلسات الحوار' : 'Chambers & Dialogue Sessions'}
+              {/* Dynamic Notification 4: Academic Writing Applications */}
+              {pendingPublications.map((p) => (
+                <button
+                  key={`pub-${p.id || p.slug}`}
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    navigate('/publications');
+                  }}
+                  className="w-full text-left rtl:text-right p-3 rounded-xl border border-amber-100 dark:border-amber-900/50 hover:border-amber-300 dark:hover:border-amber-700 bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/80 transition-all flex items-start gap-3 group cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <FileText className="w-4 h-4" />
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                    {isArabic
-                      ? 'إدارة غرف الحوار الافتراضية، والمتحدثين الضيوف، والملخصات التنفيذية للجلسات.'
-                      : 'Manage upcoming virtual dialogue chambers, guest speakers, and executive session summaries.'}
-                  </p>
-                  <span className="text-[10px] text-indigo-500 font-semibold mt-1 inline-block">
-                    {isArabic ? 'إدارة الجلسات ←' : 'Manage Sessions →'}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 uppercase tracking-wider">
+                        {isArabic ? 'ورقة بحثية مقدمة' : 'Academic Writing Submission'}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {p.status === 'under_review' ? (isArabic ? 'قيد التحكيم' : 'Under Review') : (isArabic ? 'مسودة' : 'Draft')}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                      "{p.title}"
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                      {isArabic
+                        ? `الباحث: ${(p.authors || []).map((a: any) => a.name).join('، ') || 'باحث أكاديمي'} • التصنيف: ${p.category}`
+                        : `Author: ${(p.authors || []).map((a: any) => a.name).join(', ') || 'Researcher'} • Category: ${p.category}`}
+                    </p>
+                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1 inline-block">
+                      {isArabic ? 'تحكيم واعتماد النشر ←' : 'Peer Review & Publish Article →'}
+                    </span>
+                  </div>
+                </button>
+              ))}
+
+              {/* Standard Platform Pipelines Status */}
+              <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+                  {isArabic ? 'مؤشرات الأمانة العامة المباشرة' : 'Secretariat Pipeline Shortcuts'}
                 </div>
-              </button>
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen(false);
+                      navigate('/applications');
+                    }}
+                    className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-slate-300 bg-slate-50/60 dark:bg-slate-800/40 text-left rtl:text-right transition-all cursor-pointer"
+                  >
+                    <div className="text-[10px] text-slate-500 font-semibold">{isArabic ? 'الطلبات المعلقة' : 'Pending Apps'}</div>
+                    <div className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">
+                      {pendingMemberApps.length + pendingPresenterApps.length}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen(false);
+                      navigate('/topics');
+                    }}
+                    className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-slate-300 bg-slate-50/60 dark:bg-slate-800/40 text-left rtl:text-right transition-all cursor-pointer"
+                  >
+                    <div className="text-[10px] text-slate-500 font-semibold">{isArabic ? 'مقترحات المواضيع' : 'Proposed Topics'}</div>
+                    <div className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">
+                      {proposedTopics.length}
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
-              <span>{isArabic ? 'حالة المنصة: تعمل بكفاءة تامة' : 'Platform telemetry: Operational'}</span>
+              <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {isArabic ? 'الأمانة العامة: متصل ومباشر' : 'Secretariat Node: Live Sync'}
+              </span>
               <button
                 type="button"
                 onClick={() => {
