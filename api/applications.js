@@ -756,6 +756,10 @@ module.exports = async function handler(req, res) {
         experience: body.experience || body.debateExperience || '',
         motivation: body.motivation || '',
         status: body.status || 'Pending',
+        role: 'member',
+        type: 'membership',
+        isApprovedPresenter: false,
+        presenterProposal: undefined,
         emailVerified: body.emailVerified !== undefined ? body.emailVerified : true,
         date: body.date || new Date().toISOString().split('T')[0]
       };

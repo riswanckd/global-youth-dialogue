@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 
 function mapRawToApp(item: any): Application {
+  const hasValidPresenterTopic = Boolean(item.presenterProposal?.proposedTopic);
   return {
     id: item.id || item._id?.toString() || `app-${Date.now()}`,
     applicantName: item.applicantName || item.name || 'Applicant',
@@ -35,8 +36,8 @@ function mapRawToApp(item: any): Application {
     areasOfInterest: item.areasOfInterest || item.interests || ['Global Affairs'],
     preferredLanguages: item.preferredLanguages || ['English'],
     status: (item.status || 'pending').toLowerCase() as any,
-    isApprovedPresenter: item.isApprovedPresenter !== undefined ? item.isApprovedPresenter : Boolean(item.presenterProposal?.status === 'approved'),
-    presenterProposal: item.presenterProposal,
+    isApprovedPresenter: item.isApprovedPresenter !== undefined ? item.isApprovedPresenter : Boolean(hasValidPresenterTopic && item.presenterProposal?.status === 'approved'),
+    presenterProposal: hasValidPresenterTopic ? item.presenterProposal : undefined,
     reviewNotes: item.reviewNotes || '',
     emailVerified: item.emailVerified !== undefined ? item.emailVerified : true,
     createdAt: item.createdAt || item.date || new Date().toISOString(),
@@ -189,7 +190,7 @@ export const Applications: React.FC = () => {
       if (target) {
         setSelectedApp(target);
         setReviewNotes(target.reviewNotes || '');
-        setIsPresenter(target.isApprovedPresenter || Boolean(target.presenterProposal));
+        setIsPresenter(target.isApprovedPresenter || Boolean(target.presenterProposal?.proposedTopic));
       }
     }
   }, [urlFilter, urlId, applications]);

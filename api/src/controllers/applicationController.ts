@@ -57,6 +57,7 @@ export async function submitApplication(req: Request, res: Response, next: NextF
         status: 'pending',
         emailVerified: true,
         isApprovedPresenter: false,
+        presenterProposal: undefined,
       });
     }
 
@@ -138,15 +139,14 @@ export async function listApplications(req: Request, res: Response, next: NextFu
     if (type === 'presenter') {
       query.$or = [
         { isApprovedPresenter: true },
-        { 'presenterProposal.status': { $in: ['pending', 'approved', 'rejected'] } },
-        { 'presenterProposal.proposedTopic': { $exists: true, $ne: '' } },
+        {
+          'presenterProposal.proposedTopic': { $exists: true, $ne: '' },
+          'presenterProposal.status': { $in: ['pending', 'approved', 'rejected'] },
+        },
       ];
     } else if (status && status !== 'all') {
       if (status.toLowerCase() === 'pending') {
-        query.$or = [
-          { status: { $regex: /^pending$/i } },
-          { 'presenterProposal.status': 'pending' },
-        ];
+        query.status = { $regex: /^pending$/i };
       } else {
         query.status = { $regex: new RegExp(`^${status}$`, 'i') };
       }
