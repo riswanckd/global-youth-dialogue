@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Publication } from '../models/Publication';
 import { sendSuccess } from '../utils/response';
-import { NotFoundError, BadRequestError } from '../utils/errors';
+import { NotFoundError, BadRequestError, ForbiddenError } from '../utils/errors';
 import { ROLES } from '../constants/roles';
 import { logAuditEvent } from '../utils/audit';
 
@@ -93,6 +93,10 @@ export async function createPublication(req: Request, res: Response, next: NextF
     while (await Publication.findOne({ slug })) {
       slug = `${baseSlug}-${counter}`;
       counter++;
+    }
+
+    if (req.user?.role === ROLES.MEMBER) {
+      throw new ForbiddenError('Members have read-only access to published articles. Only accredited Presenters can draft and submit articles for admin approval.');
     }
 
     const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;

@@ -102,7 +102,9 @@ export const PortalLayout: React.FC = () => {
       icon: Mic,
     },
     {
-      label: isArabic ? 'الأوراق البحثية' : 'Academic Writings',
+      label: isPresenter
+        ? (isArabic ? 'استوديو الأوراق البحثية' : 'Academic Writing Studio')
+        : (isArabic ? 'مكتبة الأوراق البحثية' : 'Academic Papers Library'),
       path: '/portal/publications',
       icon: FileText,
     },
