@@ -334,9 +334,6 @@ function sendViaPureTLS(toEmail, code, name, conf, actionType = 'otp') {
         const boundary = '----=_Part_' + Date.now() + '_' + Math.random().toString(36).slice(2);
         const msgId = `<gyde-${Date.now()}-${Math.random().toString(36).slice(2)}@gmail.com>`;
         const dateStr = new Date().toUTCString();
-        const subject = isApproval 
-          ? `Your GYDE Community Membership Application is Approved!` 
-          : `${code} is your GYDE Verification Code`;
 
         const mimeMessage = [
           `Date: ${dateStr}`,

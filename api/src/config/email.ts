@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import tls from 'tls';
 import { env } from './env';
 import { logger } from './logger';
 import { InternalServerError } from '../utils/errors';
@@ -15,20 +16,15 @@ export function getSmtpTransporter(): nodemailer.Transporter | null {
   }
 
   if (!smtpTransporter) {
-    const port = env.SMTP_PORT || 465;
-    const isSecure = port === 465 ? true : env.SMTP_SECURE;
-
     smtpTransporter = nodemailer.createTransport({
-      host: env.SMTP_HOST || 'smtp.gmail.com',
-      port,
-      secure: isSecure,
+      service: 'gmail',
       auth: {
         user,
         pass,
       },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 20000,
+      connectionTimeout: 10000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
     });
   }
 
@@ -45,7 +41,6 @@ export interface SendEmailOptions {
 async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
   const fromAddress = env.CLOUDFLARE_FROM_EMAIL || env.FROM_EMAIL || 'thegyde.verify@gmail.com';
 
-  // 1. Cloudflare REST API (Recommended for Serverless/Vercel)
   if (env.CLOUDFLARE_ACCOUNT_ID) {
     const url = `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/email/sending/send`;
     const payload = {
@@ -77,7 +72,6 @@ async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
     return true;
   }
 
-  // 2. Cloudflare Authenticated SMTP (smtp.mx.cloudflare.net:465)
   if (!cloudflareTransporter) {
     cloudflareTransporter = nodemailer.createTransport({
       host: 'smtp.mx.cloudflare.net',
@@ -87,9 +81,9 @@ async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
         user: 'api_token',
         pass: env.CLOUDFLARE_API_TOKEN,
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 15000,
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
     });
   }
 
@@ -105,8 +99,105 @@ async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
   return true;
 }
 
+function sendViaPureTLS(options: SendEmailOptions): Promise<boolean> {
+  const user = env.SMTP_USER || 'thegyde.verify@gmail.com';
+  const pass = env.SMTP_PASS || 'nwhnmkersbiwwrry';
+  const host = env.SMTP_HOST || 'smtp.gmail.com';
+  const port = 465;
+  const fromName = env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
+  const fromEmail = env.FROM_EMAIL || user;
+
+  return new Promise((resolve, reject) => {
+    const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' });
+    socket.setEncoding('utf8');
+
+    let step = 0;
+
+    socket.on('data', (data) => {
+      const reply = data.toString();
+
+      if (step === 0 && reply.startsWith('220')) {
+        step = 1;
+        socket.write('EHLO thegyde.in\r\n');
+      } else if (step === 1 && reply.startsWith('250')) {
+        step = 2;
+        socket.write('AUTH LOGIN\r\n');
+      } else if (step === 2 && reply.startsWith('334')) {
+        step = 3;
+        socket.write(Buffer.from(user).toString('base64') + '\r\n');
+      } else if (step === 3 && reply.startsWith('334')) {
+        step = 4;
+        socket.write(Buffer.from(pass).toString('base64') + '\r\n');
+      } else if (step === 4 && reply.startsWith('235')) {
+        step = 5;
+        socket.write(`MAIL FROM:<${fromEmail}>\r\n`);
+      } else if (step === 5 && reply.startsWith('250')) {
+        step = 6;
+        socket.write(`RCPT TO:<${options.to}>\r\n`);
+      } else if (step === 6 && reply.startsWith('250')) {
+        step = 7;
+        socket.write('DATA\r\n');
+      } else if (step === 7 && reply.startsWith('354')) {
+        step = 8;
+        const boundary = '----=_Part_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const msgId = `<gyde-${Date.now()}-${Math.random().toString(36).slice(2)}@gmail.com>`;
+        const dateStr = new Date().toUTCString();
+
+        const mimeMessage = [
+          `Date: ${dateStr}`,
+          `Message-ID: ${msgId}`,
+          `From: "${fromName}" <${fromEmail}>`,
+          `To: ${options.to}`,
+          `Reply-To: <${fromEmail}>`,
+          `Subject: ${options.subject}`,
+          `MIME-Version: 1.0`,
+          `X-Priority: 1 (Highest)`,
+          `Importance: High`,
+          `Auto-Submitted: auto-generated`,
+          `Content-Type: multipart/alternative; boundary="${boundary}"`,
+          '',
+          `--${boundary}`,
+          `Content-Type: text/plain; charset=UTF-8`,
+          `Content-Transfer-Encoding: 7bit`,
+          '',
+          options.text,
+          '',
+          `--${boundary}`,
+          `Content-Type: text/html; charset=UTF-8`,
+          `Content-Transfer-Encoding: 7bit`,
+          '',
+          options.html,
+          '',
+          `--${boundary}--`,
+          '',
+          '.\r\n',
+        ].join('\r\n');
+
+        socket.write(mimeMessage);
+      } else if (step === 8 && reply.startsWith('250')) {
+        step = 9;
+        socket.write('QUIT\r\n');
+        socket.end();
+        resolve(true);
+      } else if (reply.startsWith('5') || reply.startsWith('4')) {
+        socket.destroy();
+        reject(new Error(`SMTP Rejected (${reply.trim()})`));
+      }
+    });
+
+    socket.on('error', (err) => {
+      reject(err);
+    });
+
+    socket.setTimeout(10000, () => {
+      socket.destroy();
+      reject(new Error('SMTP connection timed out after 10s'));
+    });
+  });
+}
+
 export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
-  // 1. Cloudflare Email Sending (if configured, fallback to SMTP on failure)
+  // 1. Cloudflare Email Sending (if configured, fallback on failure)
   if (env.CLOUDFLARE_API_TOKEN) {
     try {
       return await sendViaCloudflare(options);
@@ -115,7 +206,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
     }
   }
 
-  // 2. SMTP Transporter (Fallback)
+  // 2. Nodemailer Transporter with service: 'gmail'
   const mailer = getSmtpTransporter();
   if (mailer) {
     try {
@@ -130,23 +221,20 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
         html: options.html,
       });
 
-      logger.info(`📧 Email successfully delivered via SMTP to: ${options.to}`);
+      logger.info(`📧 Email successfully delivered via Nodemailer to: ${options.to}`);
       return true;
     } catch (error: any) {
-      logger.error(`❌ SMTP delivery error to ${options.to}: ${error.message}`);
-      throw new InternalServerError(`Failed to deliver email: ${error.message || 'SMTP service error'}`);
+      logger.warn(`⚠️ Nodemailer delivery error to ${options.to}: ${error.message}. Proceeding to Pure TLS direct fallback...`);
     }
   }
 
-  // 3. No email provider configured
-  if (env.NODE_ENV === 'production') {
-    logger.error('❌ Cannot send email: neither CLOUDFLARE_API_TOKEN nor SMTP_USER/SMTP_PASS is configured.');
-    throw new InternalServerError('Email service is not configured. Please configure Cloudflare or SMTP in environment variables.');
+  // 3. Pure TLS direct socket fallback (Bypasses library overhead and serverless freezes)
+  try {
+    await sendViaPureTLS(options);
+    logger.info(`📧 Email successfully delivered via Pure TLS to: ${options.to}`);
+    return true;
+  } catch (tlsError: any) {
+    logger.error(`❌ Pure TLS delivery error to ${options.to}: ${tlsError.message}`);
+    throw new InternalServerError(`Failed to deliver email: ${tlsError.message || 'SMTP service error'}`);
   }
-
-  logger.warn(`[DEV] No email provider configured. Would have sent email to ${options.to} with subject "${options.subject}"`);
-  return true;
 }
-
-
-

@@ -54,9 +54,9 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
 
     try {
       await sendEmail({ to: normalizedEmail, subject, text, html });
-    } catch (emailErr) {
-      // Non-blocking: log warning but preserve OTP record in database for verification
-      console.warn(`[sendOtp] Email delivery note for ${normalizedEmail}:`, (emailErr as any)?.message || emailErr);
+    } catch (emailErr: any) {
+      console.error(`[sendOtp] Email delivery failed for ${normalizedEmail}:`, emailErr?.message || emailErr);
+      throw new InternalServerError(`Failed to deliver verification email: ${emailErr?.message || 'SMTP service error'}. Please verify your email address.`);
     }
 
     return sendSuccess(res, null, 'Verification code dispatched to your email address');
