@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { apiRequest } from '../../utils/api';
 import { Lock, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -7,6 +7,11 @@ export const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
   const navigate = useNavigate();
+
+  // If no token is provided, redirect to the interactive 3-step ForgotPassword wizard
+  if (!token) {
+    return <Navigate to="/forgot-password" replace />;
+  }
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

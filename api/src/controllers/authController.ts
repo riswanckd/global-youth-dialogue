@@ -302,36 +302,103 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
   try {
     const normalizedEmail = req.body.email.toLowerCase().trim();
     const user = await User.findOne({ email: normalizedEmail });
-    if (user) {
-      const rawToken = generateTokenString();
-      const tokenHash = hashOtp(rawToken);
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-      await PasswordReset.create({
-        userId: user._id,
-        tokenHash,
-        expiresAt,
-      });
-
-      const frontendOrigin = env.WEB_ORIGIN || 'https://global-youth-dialogue-web.vercel.app';
-      const resetUrl = `${frontendOrigin.replace(/\/+$/, '')}/reset-password?token=${rawToken}`;
-      const subject = 'GYDE Password Reset Request';
-      const text = `Hello ${user.name},\n\nYou requested a password reset for your GYDE account. Use this token: ${rawToken}\n\nOr click: ${resetUrl}\n\nValid for 1 hour.`;
-      const html = `
-        <div style="font-family: Arial, sans-serif; padding: 24px;">
-          <h2>Password Reset</h2>
-          <p>Hello ${user.name},</p>
-          <p>You requested a password reset. Click the button below to choose a new password:</p>
-          <a href="${resetUrl}" style="background: #0E4D3C; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 16px 0;">Reset Password</a>
-          <p>Or use token: <code>${rawToken}</code></p>
-          <p style="color: #64748b; font-size: 13px;">This link will expire in 60 minutes.</p>
-        </div>
-      `;
-
-      await sendEmail({ to: normalizedEmail, subject, text, html });
+    if (!user) {
+      throw new NotFoundError('No registered account was found with this email address. Please verify your spelling or apply for membership.');
     }
 
-    return sendSuccess(res, null, 'If that email exists in our records, a password reset link has been dispatched.');
+    if (user.status === 'disabled' || user.status === 'suspended') {
+      throw new BadRequestError('This account is currently inactive. Please contact support.');
+    }
+
+    // Invalidate any previously issued pending reset codes for this user
+    await PasswordReset.updateMany(
+      { userId: user._id, used: false },
+      { used: true }
+    );
+
+    // Generate secure 6-digit numeric verification code
+    const rawCode = generateOtp();
+    const tokenHash = hashOtp(rawCode);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes TTL
+
+    await PasswordReset.create({
+      userId: user._id,
+      email: normalizedEmail,
+      tokenHash,
+      expiresAt,
+      used: false,
+      attempts: 0,
+    });
+
+    const subject = `${rawCode} is your GYDE Password Reset Code`;
+    const text = `Hello ${user.name},\n\nYour GYDE password reset verification code is: ${rawCode}\n\nPlease enter this 6-digit code on the platform to set a new password. This code will expire in 15 minutes.\n\nIf you did not request a password reset, please ignore this email.\n\nGlobal Youth Dialogue & Exchange (GYDE)`;
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GYDE Password Reset</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+  <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div style="background: linear-gradient(135deg, #0E4D3C, #063126); color: #ffffff; padding: 26px 20px; text-align: center;">
+      <h2 style="margin: 0 0 6px 0; font-size: 1.25rem; letter-spacing: 0.05em; font-weight: 700;">Global Youth Dialogue & Exchange</h2>
+      <p style="margin: 0; font-size: 0.85rem; color: #a7f3d0;">Security & Account Recovery</p>
+    </div>
+    <div style="padding: 30px 24px; text-align: center;">
+      <div style="font-size: 1rem; color: #334155; margin-bottom: 12px; text-align: left; font-weight: 600;">Dear ${user.name},</div>
+      <div style="font-size: 0.94rem; color: #64748b; line-height: 1.55; margin-bottom: 22px; text-align: left;">
+        We received a request to reset the password for your GYDE account. Please use the 6-digit verification code below to authorize this request:
+      </div>
+      <div style="background: #f0fdf4; border: 2px dashed #0E4D3C; border-radius: 10px; padding: 18px 28px; display: inline-block; margin: 10px auto 20px;">
+        <div style="font-family: 'Courier New', Courier, monospace; font-size: 2.3rem; font-weight: 800; letter-spacing: 0.35em; color: #0E4D3C; margin: 0;">${rawCode}</div>
+      </div>
+      <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 14px; line-height: 1.45; text-align: center;">
+        This verification code is valid for <strong>15 minutes</strong> and can only be used once.<br>
+        If you did not request this, please disregard this email. Your credentials remain safe.
+      </div>
+    </div>
+    <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; font-size: 0.78rem; color: #94a3b8; text-align: center;">
+      &copy; Global Youth Dialogue & Exchange (GYDE) &bull; International Community of Youth Debaters<br>
+      <a href="https://www.thegyde.in" style="color: #0E4D3C; text-decoration: none; font-weight: 600;">thegyde.in</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    // Send email directly to the user's registered inbox
+    await sendEmail({ to: normalizedEmail, subject, text, html });
+
+    // CRITICAL SECURITY: Never return rawCode in the response body (protecting F12 inspect/memory)
+    return sendSuccess(res, null, 'A 6-digit verification code has been dispatched to your email address.');
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function verifyResetCode(req: Request, res: Response, next: NextFunction) {
+  try {
+    const normalizedEmail = req.body.email.toLowerCase().trim();
+    const cleanCode = String(req.body.code || '').trim();
+
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      throw new NotFoundError('No user found with this email address.');
+    }
+
+    const tokenHash = hashOtp(cleanCode);
+    const resetRecord = await PasswordReset.findOne({
+      userId: user._id,
+      tokenHash,
+      used: false,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!resetRecord) {
+      throw new BadRequestError('Invalid or expired verification code. Please check your inbox or request a new one.');
+    }
+
+    return sendSuccess(res, { verified: true }, 'Verification code verified successfully.');
   } catch (err) {
     next(err);
   }
@@ -339,24 +406,42 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
 
 export async function resetPassword(req: Request, res: Response, next: NextFunction) {
   try {
-    const { token, newPassword } = req.body;
-    const tokenHash = hashOtp(token);
-    const resetRecord = await PasswordReset.findOne({
-      tokenHash,
-      used: false,
-      expiresAt: { $gt: new Date() },
-    });
+    const { email, code, token, newPassword } = req.body;
+    let resetRecord: any = null;
+    let user: any = null;
 
-    if (!resetRecord) {
-      throw new BadRequestError('Invalid or expired password reset token');
+    if (email && code) {
+      const normalizedEmail = email.toLowerCase().trim();
+      user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        throw new NotFoundError('User not found.');
+      }
+
+      const tokenHash = hashOtp(String(code).trim());
+      resetRecord = await PasswordReset.findOne({
+        userId: user._id,
+        tokenHash,
+        used: false,
+        expiresAt: { $gt: new Date() },
+      });
+    } else if (token) {
+      const tokenHash = hashOtp(token);
+      resetRecord = await PasswordReset.findOne({
+        tokenHash,
+        used: false,
+        expiresAt: { $gt: new Date() },
+      });
+      if (resetRecord) {
+        user = await User.findById(resetRecord.userId);
+      }
     }
 
-    const user = await User.findById(resetRecord.userId);
-    if (!user) {
-      throw new NotFoundError('User not found');
+    if (!resetRecord || !user) {
+      throw new BadRequestError('Invalid or expired verification code. Please request a new code.');
     }
 
     user.passwordHash = await hashPassword(newPassword);
+    user.emailVerified = true;
     await user.save();
 
     resetRecord.used = true;

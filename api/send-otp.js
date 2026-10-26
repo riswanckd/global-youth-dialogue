@@ -168,9 +168,92 @@ Official Platform: https://www.thegyde.in`;
   return { plainText, htmlBody };
 }
 
+function getPasswordResetEmailContent(code, name) {
+  const plainText = `Hello ${name || 'Member'},
+
+Your GYDE password reset verification code is: ${code}
+
+Please enter this 6-digit code on the GYDE platform to reset your password.
+This code will expire in 15 minutes. If you did not request this, please disregard this email. Your credentials remain safe.
+
+---
+Global Youth Dialogue & Exchange (GYDE)
+International Community of Youth Debaters
+Official Platform: https://www.thegyde.in`;
+
+  const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GYDE Password Reset Code</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; }
+    .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { background: linear-gradient(135deg, #0E4D3C, #063126); color: #ffffff; padding: 26px 20px; text-align: center; }
+    .header h2 { margin: 0 0 6px 0; font-size: 1.25rem; letter-spacing: 0.05em; font-weight: 700; }
+    .header p { margin: 0; font-size: 0.85rem; color: #a7f3d0; }
+    .content { padding: 30px 24px; text-align: center; }
+    .greeting { font-size: 1rem; color: #334155; margin-bottom: 12px; text-align: left; font-weight: 600; }
+    .text { font-size: 0.94rem; color: #64748b; line-height: 1.55; margin-bottom: 22px; text-align: left; }
+    .otp-box { background: #f0fdf4; border: 2px dashed #0E4D3C; border-radius: 10px; padding: 18px 28px; display: inline-block; margin: 10px auto 20px; }
+    .otp-code { font-family: 'Courier New', Courier, monospace; font-size: 2.3rem; font-weight: 800; letter-spacing: 0.35em; color: #0E4D3C; margin: 0; }
+    .notice { font-size: 0.82rem; color: #94a3b8; margin-top: 14px; line-height: 1.45; text-align: center; }
+    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; font-size: 0.78rem; color: #94a3b8; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h2>Global Youth Dialogue & Exchange</h2>
+      <p>Security & Account Recovery</p>
+    </div>
+    <div class="content">
+      <div class="greeting">Dear ${name || 'Member'},</div>
+      <div class="text">
+        We received a request to reset the password for your GYDE account. Please use the 6-digit verification code below to authorize this request:
+      </div>
+      <div class="otp-box">
+        <div class="otp-code">${code}</div>
+      </div>
+      <div class="notice">
+        This verification code is valid for <strong>15 minutes</strong> and can only be used once.<br>
+        If you did not request a password reset, please ignore this email. Your credentials remain safe.
+      </div>
+    </div>
+    <div class="footer">
+      &copy; Global Youth Dialogue & Exchange (GYDE) &bull; International Community of Youth Debaters<br>
+      <a href="https://www.thegyde.in" style="color: #0E4D3C; text-decoration: none; font-weight: 600;">thegyde.in</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  return { plainText, htmlBody };
+}
+
+function resolveEmailContent(toEmail, code, name, actionType) {
+  if (actionType === 'approval') {
+    return {
+      ...getApprovalEmailContent(name),
+      subject: 'Your GYDE Community Membership Application is Approved!'
+    };
+  }
+  if (actionType === 'reset_password') {
+    return {
+      ...getPasswordResetEmailContent(code, name),
+      subject: `${code} is your GYDE Password Reset Code`
+    };
+  }
+  return {
+    ...getEmailContent(code, name),
+    subject: `${code} is your GYDE Verification Code`
+  };
+}
+
 // 1. Send via nodemailer (Standard RFC 5322 MIME engine)
-async function sendViaNodemailer(toEmail, code, name, conf, isApproval = false) {
-  const { plainText, htmlBody } = isApproval ? getApprovalEmailContent(name) : getEmailContent(code, name);
+async function sendViaNodemailer(toEmail, code, name, conf, actionType = 'otp') {
+  const { plainText, htmlBody, subject } = resolveEmailContent(toEmail, code, name, actionType);
   const fromName = conf.from_name || 'Global Youth Dialogue & Exchange (GYDE)';
   const fromEmail = conf.from_email || conf.smtp_user;
 
@@ -191,9 +274,7 @@ async function sendViaNodemailer(toEmail, code, name, conf, isApproval = false) 
     from: `"${fromName}" <${fromEmail}>`,
     to: toEmail,
     replyTo: `"${fromName}" <${fromEmail}>`,
-    subject: isApproval 
-      ? `Your GYDE Community Membership Application is Approved!` 
-      : `${code} is your GYDE Verification Code`,
+    subject,
     text: plainText,
     html: htmlBody,
     headers: {
@@ -209,14 +290,14 @@ async function sendViaNodemailer(toEmail, code, name, conf, isApproval = false) 
 }
 
 // 2. Pure Node.js TLS fallback with full RFC 5322 headers
-function sendViaPureTLS(toEmail, code, name, conf, isApproval = false) {
+function sendViaPureTLS(toEmail, code, name, conf, actionType = 'otp') {
   const user = conf.smtp_user;
   const pass = conf.smtp_pass;
   const host = conf.smtp_host || 'smtp.gmail.com';
   const port = 465;
   const fromName = conf.from_name || 'Global Youth Dialogue & Exchange (GYDE)';
   const fromEmail = conf.from_email || user;
-  const { plainText, htmlBody } = isApproval ? getApprovalEmailContent(name) : getEmailContent(code, name);
+  const { plainText, htmlBody, subject } = resolveEmailContent(toEmail, code, name, actionType);
 
   return new Promise((resolve, reject) => {
     const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' });
@@ -308,19 +389,19 @@ function sendViaPureTLS(toEmail, code, name, conf, isApproval = false) {
   });
 }
 
-async function sendEmail(toEmail, code, name, isApproval = false) {
+async function sendEmail(toEmail, code, name, actionType = 'otp') {
   const conf = getConfig();
   const cleanEmail = (toEmail || '').trim();
 
   if (nodemailer) {
     try {
-      return await sendViaNodemailer(cleanEmail, code, name, conf, isApproval);
+      return await sendViaNodemailer(cleanEmail, code, name, conf, actionType);
     } catch (err) {
       console.warn('Nodemailer failed, falling back to pure TLS:', err.message);
     }
   }
 
-  return await sendViaPureTLS(cleanEmail, code, name, conf, isApproval);
+  return await sendViaPureTLS(cleanEmail, code, name, conf, actionType);
 }
 
 module.exports = async function handler(req, res) {
@@ -345,19 +426,25 @@ module.exports = async function handler(req, res) {
     body = body || {};
 
     const email = (body.email || '').trim();
-    const isApproval = (body.action === 'approval' || body.type === 'approval');
-    const code = (body.code || '').trim();
-    const name = (body.name || (isApproval ? 'Member' : 'Applicant')).trim();
+    let actionType = 'otp';
+    if (body.action === 'approval' || body.type === 'approval') {
+      actionType = 'approval';
+    } else if (body.action === 'reset_password' || body.type === 'reset_password' || body.action === 'forgot_password') {
+      actionType = 'reset_password';
+    }
 
-    if (!email || (!isApproval && !code)) {
+    const code = (body.code || '').trim();
+    const name = (body.name || (actionType === 'approval' ? 'Member' : (actionType === 'reset_password' ? 'User' : 'Applicant'))).trim();
+
+    if (!email || (actionType !== 'approval' && !code)) {
       return res.status(400).json({ error: 'Missing email or code parameter.' });
     }
 
-    const result = await sendEmail(email, code, name, isApproval);
+    const result = await sendEmail(email, code, name, actionType);
     return res.status(200).json({
       success: true,
       sent: true,
-      message: result.message || (isApproval ? 'Approval notification email delivered.' : 'Verification email delivered successfully.')
+      message: result.message || (actionType === 'approval' ? 'Approval notification email delivered.' : (actionType === 'reset_password' ? 'Password reset verification code delivered.' : 'Verification email delivered successfully.'))
     });
   } catch (err) {
     console.error('Error sending email:', err);

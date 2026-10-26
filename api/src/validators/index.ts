@@ -30,10 +30,21 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email('Valid email address is required').toLowerCase().trim(),
 });
 
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1, 'Reset token is required'),
-  newPassword: z.string().min(6, 'Password must be at least 6 characters').max(100),
+export const verifyResetCodeSchema = z.object({
+  email: z.string().email('Valid email address is required').toLowerCase().trim(),
+  code: z.string().min(6, 'Verification code must be 6 digits').max(6, 'Verification code must be 6 digits'),
 });
+
+export const resetPasswordSchema = z
+  .object({
+    email: z.string().email('Valid email address is required').toLowerCase().trim().optional(),
+    code: z.string().optional(),
+    token: z.string().optional(),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters').max(100),
+  })
+  .refine((data) => data.token || (data.email && data.code), {
+    message: 'Either reset token or email with 6-digit verification code is required',
+  });
 
 // Application Validators
 export const createApplicationSchema = z.object({

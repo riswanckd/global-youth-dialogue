@@ -9,6 +9,7 @@ import {
   sendOtpSchema,
   verifyOtpSchema,
   forgotPasswordSchema,
+  verifyResetCodeSchema,
   resetPasswordSchema,
 } from '../validators';
 
@@ -21,6 +22,7 @@ router.post('/login', authRateLimiter, validate(loginSchema), authController.log
 router.post('/logout', authController.logout);
 router.get('/me', authenticate, authController.getMe);
 router.post('/forgot-password', authRateLimiter, validate(forgotPasswordSchema), authController.forgotPassword);
+router.post('/verify-reset-code', authRateLimiter, validate(verifyResetCodeSchema), authController.verifyResetCode);
 router.post('/reset-password', authRateLimiter, validate(resetPasswordSchema), authController.resetPassword);
 
 export default router;
