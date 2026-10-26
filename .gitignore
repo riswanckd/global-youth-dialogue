@@ -19,3 +19,8 @@ dist/
 build/
 .turbo/
 coverage/
+
+# Data exports
+*.csv
+view_database.html
+
