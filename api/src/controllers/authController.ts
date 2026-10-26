@@ -5,7 +5,7 @@ import { EmailVerification } from '../models/EmailVerification';
 import { PasswordReset } from '../models/PasswordReset';
 import { hashPassword, verifyPassword, hashOtp, generateOtp, generateTokenString } from '../utils/password';
 import { signToken } from '../utils/jwt';
-import { BadRequestError, UnauthorizedError, NotFoundError, ForbiddenError } from '../utils/errors';
+import { BadRequestError, UnauthorizedError, NotFoundError, ForbiddenError, InternalServerError } from '../utils/errors';
 import { sendEmail } from '../config/email';
 import { ROLES, UserRole } from '../constants/roles';
 import { sendSuccess } from '../utils/response';
