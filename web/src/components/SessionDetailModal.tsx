@@ -80,7 +80,21 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
   const { isDark } = useTheme();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [authPromptOpen, setAuthPromptOpen] = useState(false);
+
+  const handleWatchRecordingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      onClose();
+      navigate('/login?reason=recording');
+      return;
+    }
+
+    if (session?.recordingUrl) {
+      window.open(session.recordingUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -622,7 +636,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                   )}
                 </div>
               ) : (
-                /* Unauthenticated / Public Home View: Redirect "Watch Recorded Session" to Apply for Membership */
+                /* Unauthenticated / Public Home View: Redirect "Watch Recorded Session" to Login / Membership Application */
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 700, color: isDark ? '#94a3b8' : '#334155' }}>
@@ -631,15 +645,15 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                     </div>
                     <div style={{ fontSize: '0.75rem', color: textMuted, marginTop: '0.2rem' }}>
                       {isArabic
-                        ? 'تسجيل الجلسة متاح حصرياً للأعضاء المسجلين والمقدمين. قدّم طلب العضوية لمشاهدة التسجيلات والأوراق البحثية.'
-                        : 'Full recorded session is reserved for registered members & presenters. Apply for membership to access full recordings.'}
+                        ? 'تسجيل الجلسة متاح حصرياً للزملاء المسجلين. اضغط للانتقال إلى خيارات تسجيل الدخول أو التقديم للعضوية.'
+                        : 'Full recorded session is reserved for registered GYDE fellows. Click to sign in or apply for membership.'}
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                     <button
                       type="button"
-                      onClick={() => setAuthPromptOpen(true)}
+                      onClick={handleWatchRecordingClick}
                       className="btn"
                       style={{
                         display: 'inline-flex',
@@ -661,7 +675,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                       <Lock size={14} />
                     </button>
                     <Link
-                      to="/login"
+                      to="/login?reason=recording"
                       onClick={onClose}
                       className="btn btn-outline"
                       style={{
@@ -835,28 +849,15 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {session.recordingUrl && (
-              isAuthenticated ? (
-                <a
-                  href={session.recordingUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-outline"
-                  style={{ padding: '0.45rem 0.9rem', fontSize: '0.75rem', fontWeight: 600 }}
-                >
-                  <span>{isArabic ? 'مشاهدة التسجيل' : 'Watch Recording'}</span>
-                  <ExternalLink size={12} style={{ marginInlineStart: '0.35rem' }} />
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setAuthPromptOpen(true)}
-                  className="btn btn-outline"
-                  style={{ padding: '0.45rem 0.9rem', fontSize: '0.75rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                >
-                  <span>{isArabic ? 'مشاهدة التسجيل' : 'Watch Recording'}</span>
-                  <Lock size={12} />
-                </button>
-              )
+              <button
+                type="button"
+                onClick={handleWatchRecordingClick}
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.9rem', fontSize: '0.75rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                <span>{isArabic ? 'مشاهدة التسجيل' : 'Watch Recording'}</span>
+                {isAuthenticated ? <ExternalLink size={12} /> : <Lock size={12} />}
+              </button>
             )}
             <button
               onClick={onClose}
@@ -868,180 +869,6 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Session Recording Access Gate Modal (Sign in or Apply for Membership) */}
-      {authPromptOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 100000,
-            background: 'rgba(9, 13, 22, 0.75)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-          }}
-          onClick={() => setAuthPromptOpen(false)}
-        >
-          <div
-            style={{
-              maxWidth: '460px',
-              width: '100%',
-              background: bgCard,
-              color: textHeading,
-              borderRadius: '24px',
-              padding: '2.25rem 2rem',
-              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45)',
-              position: 'relative',
-              border: `1px solid ${borderSubtle}`,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setAuthPromptOpen(false)}
-              style={{
-                position: 'absolute',
-                top: '1.25rem',
-                insetInlineEnd: '1.25rem',
-                background: 'transparent',
-                border: 'none',
-                color: textMuted,
-                cursor: 'pointer',
-                padding: '4px',
-              }}
-              aria-label="Close"
-            >
-              <X size={20} />
-            </button>
-
-            {/* Lock / Video Icon */}
-            <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-              <div
-                style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '50%',
-                  background: 'rgba(220, 38, 38, 0.12)',
-                  color: '#dc2626',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '1rem',
-                }}
-              >
-                <Lock size={26} />
-              </div>
-
-              <span
-                style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.8px',
-                  color: '#dc2626',
-                  background: 'rgba(220, 38, 38, 0.08)',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '999px',
-                  display: 'inline-block',
-                }}
-              >
-                {isArabic ? 'تسجيل الجلسة مخصص للأعضاء' : 'Members-Only Recording'}
-              </span>
-
-              <h3
-                className="serif-text"
-                style={{
-                  fontSize: '1.35rem',
-                  fontWeight: 700,
-                  marginTop: '0.75rem',
-                  marginBottom: '0.5rem',
-                  lineHeight: '1.3',
-                  color: textHeading,
-                }}
-              >
-                {isArabic ? 'يرجى تسجيل الدخول أو التقديم للعضوية' : 'Sign In or Apply for Membership'}
-              </h3>
-
-              <p style={{ fontSize: '0.86rem', color: textMuted, lineHeight: '1.55', margin: 0 }}>
-                {isArabic
-                  ? 'تسجيلات جلسات الحوار البرلماني الكاملة ومذكرات النقاش محفوظة حصرياً للمندوبين والأعضاء المسجلين.'
-                  : 'Full dialogue chamber video recordings and policy monographs are reserved for registered community delegates and presenters.'}
-              </p>
-            </div>
-
-            {/* Target Session Box */}
-            <div
-              style={{
-                padding: '0.85rem 1rem',
-                borderRadius: '12px',
-                background: sectionBg,
-                border: `1px solid ${borderSubtle}`,
-                marginBottom: '1.5rem',
-              }}
-            >
-              <div style={{ fontSize: '0.72rem', color: 'var(--color-primary-1)', fontWeight: 700, marginBottom: '3px' }}>
-                {sessionCategory}
-              </div>
-              <div style={{ fontSize: '0.86rem', fontWeight: 600, color: textHeading, lineHeight: '1.35' }}>
-                "{sessionTitle}"
-              </div>
-            </div>
-
-            {/* Dual Options: Sign In OR Apply for Membership */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  setAuthPromptOpen(false);
-                  onClose();
-                  navigate('/login');
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  width: '100%',
-                  padding: '0.8rem',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                }}
-              >
-                <span>{isArabic ? 'عضو مسجل؟ تسجيل الدخول' : 'Registered Member? Sign In'}</span> &rarr;
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => {
-                  setAuthPromptOpen(false);
-                  onClose();
-                  navigate('/apply');
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  width: '100%',
-                  padding: '0.8rem',
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                }}
-              >
-                <span>{isArabic ? 'مستخدم جديد؟ تقديم طلب العضوية' : 'New User? Apply for Membership'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

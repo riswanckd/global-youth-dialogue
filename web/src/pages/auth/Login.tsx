@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -8,6 +8,8 @@ export const Login: React.FC = () => {
   const { isArabic } = useLanguage();
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isRecordingGate = searchParams.get('reason') === 'recording';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,6 +53,38 @@ export const Login: React.FC = () => {
               <span>GYDE Secure Access</span>
             </div>
           </div>
+
+          {isRecordingGate && (
+            <div
+              style={{
+                padding: '1rem',
+                borderRadius: '16px',
+                background: 'rgba(220, 38, 38, 0.08)',
+                border: '1.5px solid rgba(220, 38, 38, 0.25)',
+                marginBottom: '1.5rem',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', color: '#dc2626', fontWeight: 700, fontSize: '0.88rem', marginBottom: '0.35rem' }}>
+                <Lock size={16} />
+                <span>{isArabic ? 'تسجيل الجلسة مخصص للزملاء المعتمدين' : 'Members-Only Dialogue Recording'}</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                {isArabic
+                  ? 'تسجيلات جلسات الحوار البرلماني الكاملة ومذكرات النقاش محفوظة حصرياً للزملاء المسجلين. يرجى تسجيل الدخول أدناه، أو تقديم طلب العضوية إذا كنت مستخدماً جديداً.'
+                  : 'Full dialogue session recordings are reserved exclusively for registered GYDE fellows. Sign in below, or apply for membership if you are a new user.'}
+              </p>
+              <div style={{ marginTop: '0.85rem' }}>
+                <Link
+                  to="/apply"
+                  className="btn btn-outline btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  <span>{isArabic ? 'مستخدم جديد؟ تقديم طلب العضوية' : 'New User? Apply for Membership'}</span> &rarr;
+                </Link>
+              </div>
+            </div>
+          )}
 
           <h2 className="serif-text auth-page-title">{isArabic ? 'تسجيل الدخول إلى حسابك' : 'Sign In to Your Account'}</h2>
           <div className="auth-page-arabic">
