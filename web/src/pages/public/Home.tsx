@@ -7,29 +7,7 @@ import { apiRequest } from '../../utils/api';
 import { DialogueSession } from '../../types';
 import { isDemoSession } from './Sessions';
 import { SessionDetailModal } from '../../components/SessionDetailModal';
-import { Layers } from 'lucide-react';
-
-const DEFAULT_UPCOMING_SESSION: DialogueSession = {
-  id: '6ad8ca177942951d48be2b6f',
-  title: 'Youth representation in policy making',
-  titleAr: 'تمثيل الشباب في صنع السياسات العامة',
-  description: 'Evaluating youth representation, intergenerational equity, and institutional advisory mechanisms in national and international policy architecture.',
-  descriptionAr: 'تقييم تمثيل الشباب، والعدالة بين الأجيال، والآليات الاستشارية المؤسسية في هيكل صنع السياسات الوطنية والدولية.',
-  category: 'Geopolitics & International Relations',
-  categoryNameAr: 'الجيوسياسة والعلاقات الدولية',
-  format: 'Structural Debate',
-  formatAr: 'مناظرة هيكلية',
-  motion: 'This House believes institutional youth quotas should be mandated across national and multilateral policymaking councils.',
-  scheduledAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
-  durationMinutes: 90,
-  timezone: 'UTC',
-  status: 'scheduled',
-  recordingVisibility: 'members_only',
-  presenters: [
-    { name: 'Global Youth Delegation', role: 'Presenters & Fellows', country: 'International' },
-  ],
-  moderator: 'GYDE Academic Secretariat',
-};
+import { Layers, Calendar, PlayCircle } from 'lucide-react';
 
 export const Home: React.FC = () => {
   const { isArabic } = useLanguage();
@@ -139,7 +117,7 @@ export const Home: React.FC = () => {
       return ta - tb;
     });
 
-    return futureSessions.length > 0 ? futureSessions[0] : DEFAULT_UPCOMING_SESSION;
+    return futureSessions.length > 0 ? futureSessions[0] : null;
   }, [apiSessions, cachedSessions]);
 
   // Auto-center the middle highlight card on mobile view
@@ -171,27 +149,17 @@ export const Home: React.FC = () => {
   });
 
   useEffect(() => {
+    if (!nextUpcomingSession?.scheduledAt) {
+      try {
+        localStorage.removeItem('gyde_next_dialogue_time');
+      } catch {}
+      setTimeLeft({ days: '00', hours: '00', minutes: '00', seconds: '00' });
+      return;
+    }
+
     const updateTimer = () => {
       const now = Date.now();
-      let target: number;
-
-      if (nextUpcomingSession?.scheduledAt) {
-        target = new Date(nextUpcomingSession.scheduledAt).getTime();
-        try {
-          localStorage.removeItem('gyde_next_dialogue_time');
-        } catch {}
-      } else {
-        const stored = localStorage.getItem('gyde_next_dialogue_time');
-        if (stored && parseInt(stored, 10) > now) {
-          target = parseInt(stored, 10);
-        } else {
-          target = now + 3 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 28 * 60 * 1000;
-          try {
-            localStorage.setItem('gyde_next_dialogue_time', String(target));
-          } catch {}
-        }
-      }
-
+      const target = new Date(nextUpcomingSession.scheduledAt).getTime();
       let diff = target - now;
       if (diff <= 0) {
         diff = 0;
@@ -206,7 +174,7 @@ export const Home: React.FC = () => {
         days: String(days).padStart(2, '0'),
         hours: String(hours).padStart(2, '0'),
         minutes: String(minutes).padStart(2, '0'),
-        seconds: String(seconds).padStart(2, '0')
+        seconds: String(seconds).padStart(2, '0'),
       });
     };
 
@@ -617,56 +585,97 @@ export const Home: React.FC = () => {
 
       {/* Floating Live Session Countdown Strip (Overlapping Hero Bottom) */}
       <div className="container floating-countdown-strip" id="heroCountdownStrip">
-        <div className="floating-countdown-card">
+        <div
+          className="floating-countdown-card"
+          style={
+            !nextUpcomingSession
+              ? {
+                  background: isDark ? 'rgba(30, 27, 75, 0.95)' : 'linear-gradient(135deg, #ffffff 0%, #f4f6fc 100%)',
+                  border: isDark ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(72, 81, 186, 0.15)',
+                  boxShadow: '0 12px 36px rgba(72, 81, 186, 0.08)',
+                }
+              : undefined
+          }
+        >
           <div className="countdown-label-wrap">
             <div className="countdown-radar-tag" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-              <span className="radar-dot"></span>
-              <span>{isArabic ? 'جلسة الحوار القادمة' : 'Next Global Dialogue Forum'}</span>
-              <span style={{ padding: '0.12rem 0.5rem', borderRadius: '999px', background: 'rgba(255, 255, 255, 0.16)', fontSize: '0.7rem', fontWeight: 700 }}>
-                {nextUpcomingSession?.format || (isArabic ? 'مناظرة برلمانية' : 'Youth Chamber Debate')}
-              </span>
+              <span
+                className="radar-dot"
+                style={!nextUpcomingSession ? { background: '#6366f1', boxShadow: '0 0 8px rgba(99, 102, 241, 0.5)' } : undefined}
+              ></span>
+              <span>{nextUpcomingSession ? (isArabic ? 'جلسة الحوار القادمة' : 'Next Global Dialogue Forum') : (isArabic ? 'حالة جدول الحوارات' : 'Dialogue Schedule Status')}</span>
+              {nextUpcomingSession ? (
+                <span style={{ padding: '0.12rem 0.5rem', borderRadius: '999px', background: 'rgba(255, 255, 255, 0.16)', fontSize: '0.7rem', fontWeight: 700 }}>
+                  {nextUpcomingSession.format || (isArabic ? 'مناظرة برلمانية' : 'Youth Chamber Debate')}
+                </span>
+              ) : (
+                <span style={{ padding: '0.12rem 0.5rem', borderRadius: '999px', background: 'rgba(99, 102, 241, 0.14)', color: 'var(--color-primary-1)', fontSize: '0.7rem', fontWeight: 700 }}>
+                  {isArabic ? 'استراحة بين الجلسات' : 'Inter-Session Recess'}
+                </span>
+              )}
             </div>
             <h4
               className="countdown-topic-title"
-              style={{ cursor: 'pointer' }}
-              onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+              style={nextUpcomingSession ? { cursor: 'pointer' } : undefined}
+              onClick={() => {
+                if (nextUpcomingSession) setSelectedHomeSession(nextUpcomingSession);
+              }}
             >
               {nextUpcomingSession
                 ? (isArabic && nextUpcomingSession.titleAr ? nextUpcomingSession.titleAr : nextUpcomingSession.title)
-                : (isArabic ? 'تمثيل الشباب في صنع السياسات العامة' : 'Youth representation in policy making')}
+                : (isArabic ? 'لا توجد جلسات حوارية قادمة مجدولة حالياً' : 'No upcoming session scheduled right now')}
             </h4>
           </div>
 
-          {/* Digital Countdown Boxes Group */}
-          <div className="countdown-boxes-group">
-            <div className="countdown-box">
-              <span className="countdown-digit" id="timerDays">{timeLeft.days}</span>
-              <span className="countdown-unit">{isArabic ? 'أيام' : 'Days'}</span>
+          {nextUpcomingSession ? (
+            /* Digital Countdown Boxes Group */
+            <div className="countdown-boxes-group">
+              <div className="countdown-box">
+                <span className="countdown-digit" id="timerDays">{timeLeft.days}</span>
+                <span className="countdown-unit">{isArabic ? 'أيام' : 'Days'}</span>
+              </div>
+              <span className="countdown-separator">:</span>
+              <div className="countdown-box">
+                <span className="countdown-digit" id="timerHours">{timeLeft.hours}</span>
+                <span className="countdown-unit">{isArabic ? 'ساعات' : 'Hours'}</span>
+              </div>
+              <span className="countdown-separator">:</span>
+              <div className="countdown-box">
+                <span className="countdown-digit" id="timerMinutes">{timeLeft.minutes}</span>
+                <span className="countdown-unit">{isArabic ? 'دقائق' : 'Mins'}</span>
+              </div>
+              <span className="countdown-separator">:</span>
+              <div className="countdown-box">
+                <span className="countdown-digit" id="timerSeconds">{timeLeft.seconds}</span>
+                <span className="countdown-unit">{isArabic ? 'ثوانٍ' : 'Secs'}</span>
+              </div>
             </div>
-            <span className="countdown-separator">:</span>
-            <div className="countdown-box">
-              <span className="countdown-digit" id="timerHours">{timeLeft.hours}</span>
-              <span className="countdown-unit">{isArabic ? 'ساعات' : 'Hours'}</span>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
+              <span>{isArabic ? 'تسجيلات الجلسات السابقة وأوراق السياسات متاحة' : 'Recordings & session papers available'}</span>
             </div>
-            <span className="countdown-separator">:</span>
-            <div className="countdown-box">
-              <span className="countdown-digit" id="timerMinutes">{timeLeft.minutes}</span>
-              <span className="countdown-unit">{isArabic ? 'دقائق' : 'Mins'}</span>
-            </div>
-            <span className="countdown-separator">:</span>
-            <div className="countdown-box">
-              <span className="countdown-digit" id="timerSeconds">{timeLeft.seconds}</span>
-              <span className="countdown-unit">{isArabic ? 'ثوانٍ' : 'Secs'}</span>
-            </div>
-          </div>
+          )}
 
-          {/* Action Button: Routes directly to all sessions tab with session query */}
+          {/* Action Button: Routes directly to all sessions tab with session query OR completed sessions */}
           <Link
-            to={nextUpcomingSession ? `/sessions?session=${nextUpcomingSession.id || (nextUpcomingSession as any)._id || encodeURIComponent(nextUpcomingSession.title)}` : '/sessions'}
+            to={
+              nextUpcomingSession
+                ? `/sessions?session=${nextUpcomingSession.id || (nextUpcomingSession as any)._id || encodeURIComponent(nextUpcomingSession.title)}`
+                : '/sessions?filter=Completed'
+            }
             className="btn btn-primary"
             style={{ whiteSpace: 'nowrap' }}
           >
-            <span>{isArabic ? 'التسجيل للحضور' : 'Register to Attend'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
+            {nextUpcomingSession ? (
+              <>
+                <span>{isArabic ? 'التسجيل للحضور' : 'Register to Attend'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
+              </>
+            ) : (
+              <>
+                <span>{isArabic ? 'مشاهدة الجلسات المكتملة' : 'View Completed Sessions'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
+              </>
+            )}
           </Link>
         </div>
       </div>
@@ -770,17 +779,27 @@ export const Home: React.FC = () => {
         <div className="container">
           <div className="home-upcoming-header">
             <div className="home-upcoming-title-wrap">
-              <span className="section-tag">{isArabic ? 'الجلسة القادمة المجدولة' : 'Next Scheduled Dialogue'}</span>
+              <span className="section-tag">
+                {nextUpcomingSession
+                  ? (isArabic ? 'الجلسة القادمة المجدولة' : 'Next Scheduled Dialogue')
+                  : (isArabic ? 'جدول الحوارات الدولية' : 'Global Dialogue Schedule')}
+              </span>
               <h2 className="serif-text home-upcoming-main-title">
-                {isArabic ? 'جلسة الحوار القادمة' : 'Upcoming Dialogue Session'}
+                {nextUpcomingSession
+                  ? (isArabic ? 'جلسة الحوار القادمة' : 'Upcoming Dialogue Session')
+                  : (isArabic ? 'جلسات الحوار والمناظرات' : 'Dialogue Sessions & Forums')}
               </h2>
               <p className="home-upcoming-sub">
-                {isArabic
-                  ? 'انضم إلى حوارنا الدولي الأسبوعي المنظم مع مشاركين يمثلون أكثر من 14 دولة.'
-                  : 'Join our weekly structured international dialogue with participants representing over 14 countries.'}
+                {nextUpcomingSession
+                  ? (isArabic
+                      ? 'انضم إلى حوارنا الدولي الأسبوعي المنظم مع مشاركين يمثلون أكثر من 14 دولة.'
+                      : 'Join our weekly structured international dialogue with participants representing over 14 countries.')
+                  : (isArabic
+                      ? 'جلسات الحوار الأسبوعية المنظمة والأرشيف الأكاديمي لمشاركين يمثلون أكثر من 14 دولة.'
+                      : 'Weekly structured international dialogues and recorded academic archives representing participants across 14+ countries.')}
               </p>
             </div>
-            <Link to="/sessions" className="btn btn-outline btn-sm home-upcoming-all-btn">
+            <Link to="/sessions?filter=Completed" className="btn btn-outline btn-sm home-upcoming-all-btn">
               <span>{isArabic ? 'عرض جميع الجلسات والأرشيف' : 'View All Sessions & Archives'}</span> &rarr;
             </Link>
           </div>
@@ -799,86 +818,126 @@ export const Home: React.FC = () => {
               style={{
                 position: 'relative',
                 zIndex: 1,
-                padding: '2.25rem 2.5rem',
+                padding: '2.5rem',
                 borderRadius: '24px',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
-                <div style={{ flex: '1 1 400px' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', background: 'rgba(72, 81, 186, 0.1)', color: 'var(--color-primary-1)', fontWeight: 700, fontSize: '0.78rem' }}>
-                      {nextUpcomingSession
-                        ? ((isArabic && nextUpcomingSession.categoryNameAr ? nextUpcomingSession.categoryNameAr : nextUpcomingSession.category) || (isArabic ? 'حوار دولي' : 'International Dialogue'))
-                        : (isArabic ? 'الجيوسياسة والعلاقات الدولية' : 'Geopolitics & International Relations')}
-                    </span>
-                    {/* FORMAT BADGE DISPLAYED EVERYWHERE UPCOMING SESSION IS PUBLISHED */}
-                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', background: 'rgba(16, 185, 129, 0.12)', color: '#059669', fontWeight: 700, fontSize: '0.78rem', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <Layers size={12} />
-                      <span>{nextUpcomingSession?.format || (isArabic ? 'مناظرة برلمانية' : 'Youth Chamber Debate')}</span>
-                    </span>
+              {nextUpcomingSession ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
+                  <div style={{ flex: '1 1 400px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', background: 'rgba(72, 81, 186, 0.1)', color: 'var(--color-primary-1)', fontWeight: 700, fontSize: '0.78rem' }}>
+                        {(isArabic && nextUpcomingSession.categoryNameAr ? nextUpcomingSession.categoryNameAr : nextUpcomingSession.category) || (isArabic ? 'حوار دولي' : 'International Dialogue')}
+                      </span>
+                      {/* FORMAT BADGE DISPLAYED EVERYWHERE UPCOMING SESSION IS PUBLISHED */}
+                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', background: 'rgba(16, 185, 129, 0.12)', color: '#059669', fontWeight: 700, fontSize: '0.78rem', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <Layers size={12} />
+                        <span>{nextUpcomingSession.format || (isArabic ? 'مناظرة برلمانية' : 'Youth Chamber Debate')}</span>
+                      </span>
+                    </div>
+                    <h3
+                      className="serif-text"
+                      style={{ fontSize: '1.65rem', marginBottom: '0.75rem', color: 'var(--text-main)', cursor: 'pointer' }}
+                      onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+                    >
+                      {isArabic && nextUpcomingSession.titleAr ? nextUpcomingSession.titleAr : nextUpcomingSession.title}
+                    </h3>
+                    {nextUpcomingSession.motion && (
+                      <div style={{ padding: '0.5rem 0.85rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.08)', borderInlineStart: '3px solid #f59e0b', fontSize: '0.82rem', fontStyle: 'italic', color: 'var(--text-body)', marginBottom: '0.75rem' }}>
+                        &ldquo;{nextUpcomingSession.motion}&rdquo;
+                      </div>
+                    )}
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
+                      {isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description}
+                    </p>
+                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
+                      <div>
+                        <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}
+                        {nextUpcomingSession.scheduledAt
+                          ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })
+                          : (isArabic ? 'تحدد لاحقاً' : 'TBD')}
+                      </div>
+                      <div>
+                        <strong>{isArabic ? 'الوقت:' : 'Time:'}</strong>{' '}
+                        {nextUpcomingSession.scheduledAt
+                          ? `${String(new Date(nextUpcomingSession.scheduledAt).getUTCHours()).padStart(2, '0')}:${String(new Date(nextUpcomingSession.scheduledAt).getUTCMinutes()).padStart(2, '0')} UTC`
+                          : '14:00 UTC'}
+                      </div>
+                      <div>
+                        <strong>{isArabic ? 'مدير الجلسة:' : 'Moderator:'}</strong>{' '}
+                        {nextUpcomingSession.moderator || (isArabic ? 'الأمانة الأكاديمية' : 'GYDE Secretariat')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="home-upcoming-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <Link
+                      to={`/sessions?session=${nextUpcomingSession.id || (nextUpcomingSession as any)._id || encodeURIComponent(nextUpcomingSession.title)}`}
+                      className="btn btn-outline"
+                      style={{ textAlign: 'center', whiteSpace: 'nowrap' }}
+                    >
+                      <span>{isArabic ? 'تفاصيل الجلسة' : 'Session Details'}</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+                      className="btn btn-outline"
+                      style={{ textAlign: 'center', whiteSpace: 'nowrap', fontSize: '0.78rem' }}
+                    >
+                      <span>{isArabic ? 'معاينة سريعة' : 'Quick Preview'}</span>
+                    </button>
+                    <Link to="/apply" className="btn btn-primary" id="upcomingApplyBtn" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2.5rem 1rem', maxWidth: '640px', margin: '0 auto' }}>
+                  <div
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '20px',
+                      background: 'rgba(72, 81, 186, 0.08)',
+                      color: 'var(--color-primary-1)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '1.25rem',
+                      border: '1px solid rgba(72, 81, 186, 0.15)',
+                    }}
+                  >
+                    <Calendar size={32} />
                   </div>
                   <h3
                     className="serif-text"
-                    style={{ fontSize: '1.65rem', marginBottom: '0.75rem', color: 'var(--text-main)', cursor: 'pointer' }}
-                    onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+                    style={{ fontSize: '1.75rem', marginBottom: '0.75rem', color: 'var(--text-main)', fontWeight: 700 }}
                   >
-                    {nextUpcomingSession
-                      ? (isArabic && nextUpcomingSession.titleAr ? nextUpcomingSession.titleAr : nextUpcomingSession.title)
-                      : (isArabic ? 'تمثيل الشباب في صنع السياسات العامة' : 'Youth representation in policy making')}
+                    {isArabic ? 'لا توجد جلسات قادمة مجدولة حالياً' : 'No upcoming session scheduled right now'}
                   </h3>
-                  {nextUpcomingSession?.motion && (
-                    <div style={{ padding: '0.5rem 0.85rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.08)', borderInlineStart: '3px solid #f59e0b', fontSize: '0.82rem', fontStyle: 'italic', color: 'var(--text-body)', marginBottom: '0.75rem' }}>
-                      &ldquo;{nextUpcomingSession.motion}&rdquo;
-                    </div>
-                  )}
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                    {nextUpcomingSession
-                      ? (isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description)
-                      : (isArabic
-                          ? 'تقييم تمثيل الشباب، والعدالة بين الأجيال، والآليات الاستشارية المؤسسية في هيكل صنع السياسات الوطنية والدولية.'
-                          : 'Evaluating youth representation, intergenerational equity, and institutional advisory mechanisms in national and international policy architecture.')}
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.96rem', lineHeight: '1.65', marginBottom: '1.85rem' }}>
+                    {isArabic
+                      ? 'سيتم الإعلان عن موعد منتدى الحوار والمناظرات البرلمانية القادمة هنا قريباً. في هذه الأثناء، يمكنك تصفح أرشيف الجلسات المنعقدة، ومشاهدة التسجيلات وقراءة الأوراق البحثية.'
+                      : 'Upcoming parliamentary chambers, international debate forums, and keynote sessions will be announced here soon. In the meantime, explore recordings and briefs from our completed sessions.'}
                   </p>
-                  <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
-                    <div>
-                      <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}
-                      {nextUpcomingSession?.scheduledAt
-                        ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })
-                        : (isArabic ? 'الجمعة، ٣٠ أكتوبر ٢٠٢٦' : 'Friday, Oct 30, 2026')}
-                    </div>
-                    <div>
-                      <strong>{isArabic ? 'الوقت:' : 'Time:'}</strong>{' '}
-                      {nextUpcomingSession?.scheduledAt
-                        ? `${String(new Date(nextUpcomingSession.scheduledAt).getUTCHours()).padStart(2, '0')}:${String(new Date(nextUpcomingSession.scheduledAt).getUTCMinutes()).padStart(2, '0')} UTC`
-                        : '14:00 UTC'}
-                    </div>
-                    <div>
-                      <strong>{isArabic ? 'مدير الجلسة:' : 'Moderator:'}</strong>{' '}
-                      {nextUpcomingSession?.moderator || (isArabic ? 'الأمانة الأكاديمية' : 'GYDE Secretariat')}
-                    </div>
+                  <div style={{ display: 'flex', gap: '0.85rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <Link
+                      to="/sessions?filter=Completed"
+                      className="btn btn-primary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}
+                    >
+                      <PlayCircle size={16} />
+                      <span>{isArabic ? 'مشاهدة الجلسات المكتملة' : 'View Completed Sessions'}</span>
+                      <span className="rtl-flip-arrow inline-block">&rarr;</span>
+                    </Link>
+                    <Link to="/apply" className="btn btn-outline" style={{ whiteSpace: 'nowrap' }}>
+                      <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span>
+                    </Link>
+                    <Link to="/publications" className="btn btn-outline" style={{ whiteSpace: 'nowrap' }}>
+                      <span>{isArabic ? 'الأبحاث والمنشورات' : 'Research Publications'}</span>
+                    </Link>
                   </div>
                 </div>
-                <div className="home-upcoming-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {/* SESSION DETAILS BUTTON: REDIRECTS TO ALL SESSIONS TAB WITH SESSION ID */}
-                  <Link
-                    to={nextUpcomingSession ? `/sessions?session=${nextUpcomingSession.id || (nextUpcomingSession as any)._id || encodeURIComponent(nextUpcomingSession.title)}` : '/sessions'}
-                    className="btn btn-outline"
-                    style={{ textAlign: 'center', whiteSpace: 'nowrap' }}
-                  >
-                    <span>{isArabic ? 'تفاصيل الجلسة' : 'Session Details'}</span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedHomeSession(nextUpcomingSession)}
-                    className="btn btn-outline"
-                    style={{ textAlign: 'center', whiteSpace: 'nowrap', fontSize: '0.78rem' }}
-                  >
-                    <span>{isArabic ? 'معاينة سريعة' : 'Quick Preview'}</span>
-                  </button>
-                  <Link to="/apply" className="btn btn-primary" id="upcomingApplyBtn" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
-                  </Link>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -46,11 +46,11 @@ const FALLBACK_SESSIONS: SessionItem[] = [
     category: 'Geopolitics & International Relations',
     format: 'Structural Debate',
     motion: 'This House believes institutional youth quotas should be mandated across national and multilateral policymaking councils.',
-    date: 'Oct 30, 2026',
+    date: 'Oct 26, 2026',
     time: '14:00 UTC',
     durationMinutes: 90,
     timezone: 'UTC',
-    status: 'Upcoming',
+    status: 'Completed',
     presenterName: 'Global Youth Delegation',
     presenterCountry: 'International',
     moderator: 'GYDE Academic Secretariat',
@@ -62,10 +62,27 @@ const FALLBACK_SESSIONS: SessionItem[] = [
 export const Sessions: React.FC = () => {
   const { isArabic } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filter, setFilter] = useState<'all' | 'Upcoming' | 'Completed'>('all');
+  const [filter, setFilter] = useState<'all' | 'Upcoming' | 'Completed'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('filter') || new URLSearchParams(window.location.search).get('tab');
+      if (p && (p.toLowerCase() === 'completed' || p.toLowerCase() === 'past')) return 'Completed';
+      if (p && (p.toLowerCase() === 'upcoming' || p.toLowerCase() === 'future')) return 'Upcoming';
+    }
+    return 'all';
+  });
   const [search, setSearch] = useState('');
   const [sessions, setSessions] = useState<SessionItem[]>(FALLBACK_SESSIONS);
   const [selectedSession, setSelectedSession] = useState<SessionItem | null>(null);
+
+  useEffect(() => {
+    const p = searchParams.get('filter') || searchParams.get('tab');
+    if (p) {
+      const lower = p.toLowerCase();
+      if (lower === 'completed' || lower === 'past') setFilter('Completed');
+      else if (lower === 'upcoming' || lower === 'future') setFilter('Upcoming');
+      else if (lower === 'all') setFilter('all');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const loadSessions = () => {
@@ -283,7 +300,65 @@ export const Sessions: React.FC = () => {
 
           {/* Preview Cards Grid (Open to Everyone) */}
           <div className="public-sessions-grid" id="publicSessionsPreview">
-            {filteredSessions.map((session) => (
+            {filteredSessions.length === 0 ? (
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  textAlign: 'center',
+                  padding: '3.5rem 1.5rem',
+                  background: 'rgba(72, 81, 186, 0.03)',
+                  borderRadius: '20px',
+                  border: '1px dashed rgba(72, 81, 186, 0.2)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    background: 'rgba(72, 81, 186, 0.08)',
+                    color: 'var(--color-primary-1)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1rem',
+                  }}
+                >
+                  <Calendar size={28} />
+                </div>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-main)' }}>
+                  {filter === 'Upcoming'
+                    ? (isArabic ? 'لا توجد جلسات قادمة مجدولة حالياً' : 'No upcoming session scheduled right now')
+                    : (isArabic ? 'لم يتم العثور على جلسات مطابقة' : 'No dialogue sessions found')}
+                </h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '480px', margin: '0 auto 1.5rem auto' }}>
+                  {filter === 'Upcoming'
+                    ? (isArabic
+                        ? 'لم يتم تحديد مواعيد جديدة بعد. يمكنك الاطلاع على أرشيف الجلسات المكتملة وتسجيلاتها.'
+                        : 'No upcoming sessions are scheduled at this time. Browse our completed dialogue archives and recorded sessions below.')
+                    : (isArabic
+                        ? 'جرب البحث بكلمات مختلفة أو قم بإلغاء الفلتر لعرض جميع الجلسات.'
+                        : 'Try searching with different keywords or clear your active filters to explore all available sessions.')}
+                </p>
+                {filter === 'Upcoming' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilter('Completed');
+                      const next = new URLSearchParams(searchParams);
+                      next.set('filter', 'Completed');
+                      setSearchParams(next);
+                    }}
+                    className="btn btn-primary btn-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+                  >
+                    <span>{isArabic ? 'الانتقال إلى الجلسات المكتملة' : 'View Completed Sessions Archive'}</span>
+                    <span className="rtl-flip-arrow inline-block">&rarr;</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              filteredSessions.map((session) => (
               <div
                 key={session.id}
                 className="session-card-preview"
@@ -441,7 +516,7 @@ export const Sessions: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       </section>
