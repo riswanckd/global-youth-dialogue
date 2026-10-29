@@ -60,10 +60,24 @@ export const PortalSessions: React.FC = () => {
     return () => window.removeEventListener('storage', readCache);
   }, []);
 
+  // Sync fresh server data to local cache
+  useEffect(() => {
+    if (Array.isArray(apiSessions) && apiSessions.length > 0) {
+      const valid = apiSessions.filter((s: any) => !isDemoSession(s?.title));
+      if (valid.length > 0) {
+        try {
+          localStorage.setItem('gyde_cached_sessions', JSON.stringify(valid));
+        } catch {}
+        setCachedSessions(valid);
+      }
+    }
+  }, [apiSessions]);
+
   const allSessions = React.useMemo(() => {
     const list = Array.isArray(apiSessions) ? apiSessions : [];
     const validApi = list.filter((s: any) => !isDemoSession(s?.title));
-    const combined = [...cachedSessions, ...validApi];
+    // Server API data takes priority over cached sessions
+    const combined = [...validApi, ...cachedSessions];
     const seen = new Set<string>();
     const unique: DialogueSession[] = [];
     for (const s of combined) {
@@ -301,7 +315,8 @@ export const PortalSessions: React.FC = () => {
                     {isArabic ? 'استعراض ملف الجلسة' : 'View Briefing Dossier'}
                   </Link>
 
-                  {session.meetingUrl && (session.status === 'scheduled' || session.status === 'live') && (
+                  {/* Google Meet link: explicitly blocked if status is completed */}
+                  {session.meetingUrl && session.status !== 'completed' && (session.status === 'scheduled' || session.status === 'live' || (session.status as any) === 'approved' || (session.status as any) === 'published') && (
                     <a
                       href={session.meetingUrl}
                       target="_blank"
@@ -314,16 +329,24 @@ export const PortalSessions: React.FC = () => {
                     </a>
                   )}
 
-                  {session.recordingUrl && session.status === 'completed' && (
-                    <a
-                      href={session.recordingUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-slate-800 text-xs font-bold"
-                    >
-                      <Video className="w-3.5 h-3.5 text-red-500" />
-                      <span>{isArabic ? 'مشاهدة التسجيل' : 'Watch Recording'}</span>
-                    </a>
+                  {/* YouTube Recorded Session: swapped in when session is completed */}
+                  {session.status === 'completed' && (
+                    session.recordingUrl ? (
+                      <a
+                        href={session.recordingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-sm transition-all"
+                      >
+                        <Video className="w-3.5 h-3.5 text-white" />
+                        <span>{isArabic ? 'مشاهدة الجلسة المسجلة' : 'Watch Recorded Session'}</span>
+                        <ExternalLink className="w-3 h-3 opacity-90" />
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold">
+                        <span>{isArabic ? 'التسجيل قيد المعالجة' : 'Recording Processing'}</span>
+                      </span>
+                    )
                   )}
                 </div>
               </div>

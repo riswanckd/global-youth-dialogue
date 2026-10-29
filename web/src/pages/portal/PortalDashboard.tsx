@@ -96,10 +96,24 @@ export const PortalDashboard: React.FC = () => {
     return () => window.removeEventListener('storage', readCache);
   }, []);
 
+  // Keep local storage cache fresh whenever live API returns updated sessions
+  useEffect(() => {
+    if (Array.isArray(apiSessions) && apiSessions.length > 0) {
+      const valid = apiSessions.filter((s: any) => !isDemoSession(s?.title));
+      if (valid.length > 0) {
+        try {
+          localStorage.setItem('gyde_cached_sessions', JSON.stringify(valid));
+        } catch {}
+        setCachedSessions(valid);
+      }
+    }
+  }, [apiSessions]);
+
   const sessions = useMemo(() => {
     const list = Array.isArray(apiSessions) ? apiSessions : [];
     const validApi = list.filter((s: any) => !isDemoSession(s?.title));
-    const combined = [...cachedSessions, ...validApi];
+    // Server API data takes priority over cached sessions
+    const combined = [...validApi, ...cachedSessions];
     const seen = new Set<string>();
     const unique: DialogueSession[] = [];
     for (const s of combined) {
@@ -129,8 +143,16 @@ export const PortalDashboard: React.FC = () => {
     t.interestedToPresent || (t.proposedBy?.userId && user?.id && String(t.proposedBy.userId) === String(user.id))
   );
 
-  const nextSession = sessions.find((s: DialogueSession) => ['scheduled', 'approved', 'published', 'live'].includes(s.status));
-  const upcomingSessionsCount = sessions.filter((s: DialogueSession) => ['scheduled', 'approved', 'published', 'live'].includes(s.status)).length || 1;
+  // Active / Upcoming next session excludes completed sessions
+  const nextSession = sessions.find((s: DialogueSession) =>
+    s.status !== 'completed' && ['scheduled', 'approved', 'published', 'live'].includes(s.status)
+  );
+  const completedSessions = sessions.filter((s: DialogueSession) => s.status === 'completed');
+  const recentCompletedSession = completedSessions.find((s: DialogueSession) => !!s.recordingUrl) || completedSessions[0];
+
+  const upcomingSessionsCount = sessions.filter((s: DialogueSession) =>
+    s.status !== 'completed' && ['scheduled', 'approved', 'published', 'live'].includes(s.status)
+  ).length || 0;
   const activeEvaluationsCount = 4;
   const topicLibraryCount = topics.length || 16;
   const academicPapersCount = publications.length || 8;
@@ -519,6 +541,72 @@ export const PortalDashboard: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Card: Completed Sessions & Recorded Dialogue Chambers */}
+          {recentCompletedSession && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
+                    <span>{isArabic ? 'تسجيلات الجلسات المنعقدة' : 'Completed Sessions & Recordings'}</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {isArabic ? 'مشاهدة المناظرات والجلسات الحوارية المنتهية عبر يوتيوب' : 'Replay recorded debates and keynote presentations on YouTube'}
+                  </p>
+                </div>
+                <Link
+                  to="/portal/sessions"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+                >
+                  {isArabic ? 'أرشيف الجلسات' : 'Browse Archive'}
+                </Link>
+              </div>
+
+              <div className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-white dark:bg-slate-700 uppercase tracking-wide">
+                      {isArabic ? 'مكتملة ومؤرشفة' : 'Concluded'}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium">
+                      {new Date(recentCompletedSession.scheduledAt).toLocaleDateString()}
+                    </span>
+                    <span className="text-[11px] font-semibold text-gyde-gold">
+                      {recentCompletedSession.category}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                    {isArabic && recentCompletedSession.titleAr ? recentCompletedSession.titleAr : recentCompletedSession.title}
+                  </h3>
+                  {recentCompletedSession.motion && (
+                    <p className="text-xs text-slate-500 italic line-clamp-1">
+                      &quot;{recentCompletedSession.motion}&quot;
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {recentCompletedSession.recordingUrl ? (
+                    <a
+                      href={recentCompletedSession.recordingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+                    >
+                      <Video className="w-4 h-4 text-white" />
+                      <span>{isArabic ? 'مشاهدة الجلسة المسجلة' : 'Watch Recorded Session'}</span>
+                      <ExternalLink className="w-3 h-3 opacity-90" />
+                    </a>
+                  ) : (
+                    <span className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold">
+                      {isArabic ? 'التسجيل قيد المعالجة' : 'Recording Processing'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Card 2: Academic Research Papers & Syntheses */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">

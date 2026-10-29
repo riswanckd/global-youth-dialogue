@@ -107,8 +107,8 @@ export const createSessionSchema = z.object({
   }),
   durationMinutes: z.number().int().positive().default(90),
   timezone: z.string().default('UTC'),
-  meetingUrl: z.string().url().optional().or(z.literal('')),
-  recordingUrl: z.string().url().optional().or(z.literal('')),
+  meetingUrl: z.string().optional().or(z.literal('')),
+  recordingUrl: z.string().optional().or(z.literal('')),
   recordingVisibility: z.enum(['public', 'members_only', 'private']).default('members_only'),
   presenters: z
     .array(

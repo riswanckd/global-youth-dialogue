@@ -36,4 +36,11 @@ router.delete(
   sessionController.deleteSession
 );
 
+router.post(
+  '/revalidate',
+  authenticate,
+  requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.COORDINATOR),
+  sessionController.revalidateSessions
+);
+
 export default router;

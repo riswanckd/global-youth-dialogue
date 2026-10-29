@@ -89,9 +89,9 @@ export const PortalSessionDetail: React.FC = () => {
           {isArabic && session.descriptionAr ? session.descriptionAr : session.description}
         </p>
 
-        {session.meetingUrl && (
+        {session.status !== 'completed' && session.meetingUrl && (
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-xs text-slate-500">Chamber Meeting Link:</span>
+            <span className="text-xs text-slate-500">{isArabic ? 'رابط قاعة الحوار:' : 'Chamber Meeting Link:'}</span>
             <a
               href={session.meetingUrl}
               target="_blank"
@@ -99,9 +99,31 @@ export const PortalSessionDetail: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow"
             >
               <Video className="w-4 h-4" />
-              <span>Launch Google Meet</span>
+              <span>{isArabic ? 'دخول القاعة عبر Google Meet' : 'Launch Google Meet'}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
+          </div>
+        )}
+
+        {session.status === 'completed' && (
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-xs text-slate-500 font-semibold">{isArabic ? 'حالة الجلسة: انعقدت واكتملت' : 'Session Lifecycle: Concluded'}</span>
+            {session.recordingUrl ? (
+              <a
+                href={session.recordingUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow"
+              >
+                <Video className="w-4 h-4" />
+                <span>{isArabic ? 'مشاهدة الجلسة المسجلة (يوتيوب)' : 'Watch Recorded Session (YouTube)'}</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            ) : (
+              <span className="text-xs text-slate-400 font-medium px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">
+                {isArabic ? 'التسجيل قيد المعالجة' : 'Recording Processing'}
+              </span>
+            )}
           </div>
         )}
       </div>

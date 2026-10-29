@@ -156,6 +156,8 @@ export async function createSession(req: Request, res: Response, next: NextFunct
       userAgent: req.get('user-agent'),
     });
 
+    await triggerCacheRevalidation(['/', '/sessions']);
+
     return sendSuccess(res, session, 'Session scheduled successfully', 201);
   } catch (err) {
     next(err);
@@ -237,6 +239,8 @@ export async function updateSession(req: Request, res: Response, next: NextFunct
       userAgent: req.get('user-agent'),
     });
 
+    await triggerCacheRevalidation(['/', '/sessions']);
+
     return sendSuccess(res, session, 'Session updated successfully');
   } catch (err) {
     next(err);
@@ -274,7 +278,34 @@ export async function deleteSession(req: Request, res: Response, next: NextFunct
       userAgent: req.get('user-agent'),
     });
 
+    await triggerCacheRevalidation(['/', '/sessions']);
+
     return sendSuccess(res, null, 'Session deleted successfully');
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function triggerCacheRevalidation(paths: string[] = ['/', '/sessions']) {
+  const revalidateUrl = process.env.VERCEL_REVALIDATE_URL || process.env.REVALIDATE_URL;
+  const secret = process.env.REVALIDATE_SECRET || 'gyde_revalidate_secret';
+  if (revalidateUrl) {
+    try {
+      await fetch(revalidateUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-revalidate-secret': secret },
+        body: JSON.stringify({ paths, timestamp: Date.now() }),
+      });
+    } catch {
+      // Non-blocking
+    }
+  }
+}
+
+export async function revalidateSessions(req: Request, res: Response, next: NextFunction) {
+  try {
+    await triggerCacheRevalidation(['/', '/sessions']);
+    return sendSuccess(res, { revalidated: true, timestamp: Date.now() }, 'Cache revalidated successfully');
   } catch (err) {
     next(err);
   }

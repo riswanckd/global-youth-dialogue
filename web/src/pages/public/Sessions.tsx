@@ -90,7 +90,12 @@ export const Sessions: React.FC = () => {
           const rawItems = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
           // Filter out demo sessions from API response as well
           const validApiItems = rawItems.filter((s: any) => !isDemoSession(s?.title));
-          const combinedRaw = [...cachedSessions, ...validApiItems];
+          if (validApiItems.length > 0) {
+            try {
+              localStorage.setItem('gyde_cached_sessions', JSON.stringify(validApiItems));
+            } catch {}
+          }
+          const combinedRaw = [...validApiItems, ...cachedSessions];
 
           if (combinedRaw.length > 0) {
             const mapped: SessionItem[] = combinedRaw.map((s: any, idx: number) => {

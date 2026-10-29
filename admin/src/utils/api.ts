@@ -85,17 +85,23 @@ export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const isGet = !options.method || options.method.toUpperCase() === 'GET';
+  const separator = endpoint.includes('?') ? '&' : '?';
+  const cacheBuster = isGet ? `${separator}_t=${Date.now()}` : '';
+  const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}${cacheBuster}`;
 
   const token = getAdminTokenForRequest();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-client-app': 'admin',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((options.headers as Record<string, string>) || {}),
   };
 
   const config: RequestInit = {
+    cache: 'no-store',
     ...options,
     headers,
     credentials: 'include',

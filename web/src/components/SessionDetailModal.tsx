@@ -563,7 +563,61 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                 : isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #e2e8f0',
             }}
           >
-            {isAuthenticated ? (
+            {isCompleted ? (
+              /* Concluded Session: Explicitly block Google Meet and show YouTube Recording */
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 700, color: isDark ? '#94a3b8' : '#334155' }}>
+                    <CheckCircle2 size={16} />
+                    <span>{isArabic ? 'هذه الجلسة منعقدة ومكتملة' : 'Dialogue Chamber Concluded'}</span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: textMuted, marginTop: '0.2rem' }}>
+                    {session.recordingUrl
+                      ? (isArabic ? 'تسجيل الجلسة متاح للمشاهدة الكاملة عبر يوتيوب' : 'Full recorded session is available on YouTube')
+                      : (isArabic ? 'التسجيل قيد المعالجة والأرشفة وسيتوفر قريباً' : 'Recording is being processed and will be available shortly')}
+                  </div>
+                </div>
+
+                {session.recordingUrl ? (
+                  <a
+                    href={session.recordingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.65rem 1.25rem',
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap',
+                      backgroundColor: '#dc2626',
+                      color: '#ffffff',
+                    }}
+                  >
+                    <Video size={16} />
+                    <span>{isArabic ? 'مشاهدة الجلسة المسجلة' : 'Watch Recorded Session'}</span>
+                    <ExternalLink size={14} />
+                  </a>
+                ) : (
+                  <span
+                    style={{
+                      padding: '0.5rem 1rem',
+                      borderRadius: '10px',
+                      background: isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0',
+                      color: textMuted,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {isArabic ? 'التسجيل قيد المعالجة' : 'Recording Processing'}
+                  </span>
+                )}
+              </div>
+            ) : isAuthenticated ? (
               /* Signed-in View: Allowed to access the live chamber link */
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>

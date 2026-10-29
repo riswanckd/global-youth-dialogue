@@ -38,9 +38,13 @@ export const Home: React.FC = () => {
   const [selectedHomeSession, setSelectedHomeSession] = useState<DialogueSession | null>(null);
 
   // Fetch approved & scheduled dialogue sessions for live homepage integration
-  const { data: apiSessions = [] } = useQuery<DialogueSession[]>({
+  const { data: apiSessions = [], refetch } = useQuery<DialogueSession[]>({
     queryKey: ['public-home-sessions'],
     queryFn: () => apiRequest<DialogueSession[]>('/sessions').catch(() => []),
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    refetchInterval: 15000,
   });
 
   const [cachedSessions, setCachedSessions] = useState<DialogueSession[]>([]);
@@ -63,20 +67,57 @@ export const Home: React.FC = () => {
       } catch {}
     };
     readCache();
-    window.addEventListener('storage', readCache);
-    return () => window.removeEventListener('storage', readCache);
-  }, []);
+
+    const handleSync = () => {
+      readCache();
+      refetch();
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('gyde_sessions_updated', handleSync);
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('gyde_channel');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'SESSIONS_UPDATED') {
+          handleSync();
+        }
+      };
+    } catch {}
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('gyde_sessions_updated', handleSync);
+      channel?.close();
+    };
+  }, [refetch]);
+
+  // Keep local storage cache fresh whenever live API returns updated sessions
+  useEffect(() => {
+    if (Array.isArray(apiSessions) && apiSessions.length > 0) {
+      const valid = apiSessions.filter((s: any) => !isDemoSession(s?.title));
+      if (valid.length > 0) {
+        try {
+          localStorage.setItem('gyde_cached_sessions', JSON.stringify(valid));
+        } catch {}
+        setCachedSessions(valid);
+      }
+    }
+  }, [apiSessions]);
 
   const nextUpcomingSession = useMemo(() => {
     const list = Array.isArray(apiSessions) ? apiSessions : [];
     const validApi = list.filter((s: any) => !isDemoSession(s?.title));
-    const combined = [...cachedSessions, ...validApi];
+    // CRITICAL FIX: Server API data comes FIRST so admin updates instantly override stale cache
+    const combined = [...validApi, ...cachedSessions];
     const now = Date.now();
     const seen = new Set<string>();
     const futureSessions: DialogueSession[] = [];
 
     for (const s of combined) {
       if (isDemoSession(s?.title)) continue;
+      // Do not consider completed or cancelled sessions as upcoming
+      if (s.status === 'completed' || s.status === 'cancelled' || s.status === 'rejected') continue;
       const key = (s.id || (s as any)._id || s.title || '').toString();
       if (!key || seen.has(key)) continue;
       seen.add(key);
@@ -121,7 +162,7 @@ export const Home: React.FC = () => {
     };
   }, []);
 
-  // Live countdown timer matching upcoming session or falling back gracefully
+  // Live countdown timer reactively listening to upcoming session date
   const [timeLeft, setTimeLeft] = useState({
     days: '03',
     hours: '14',
@@ -130,24 +171,28 @@ export const Home: React.FC = () => {
   });
 
   useEffect(() => {
-    const now = new Date().getTime();
-    let target = nextUpcomingSession?.scheduledAt
-      ? new Date(nextUpcomingSession.scheduledAt).getTime()
-      : null;
-
-    if (!target || target <= now) {
-      const stored = localStorage.getItem('gyde_next_dialogue_time');
-      if (stored && parseInt(stored) > now) {
-        target = parseInt(stored);
-      } else {
-        target = now + 3 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 28 * 60 * 1000;
-        localStorage.setItem('gyde_next_dialogue_time', String(target));
-      }
-    }
-
     const updateTimer = () => {
-      const current = new Date().getTime();
-      let diff = target! - current;
+      const now = Date.now();
+      let target: number;
+
+      if (nextUpcomingSession?.scheduledAt) {
+        target = new Date(nextUpcomingSession.scheduledAt).getTime();
+        try {
+          localStorage.removeItem('gyde_next_dialogue_time');
+        } catch {}
+      } else {
+        const stored = localStorage.getItem('gyde_next_dialogue_time');
+        if (stored && parseInt(stored, 10) > now) {
+          target = parseInt(stored, 10);
+        } else {
+          target = now + 3 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000 + 28 * 60 * 1000;
+          try {
+            localStorage.setItem('gyde_next_dialogue_time', String(target));
+          } catch {}
+        }
+      }
+
+      let diff = target - now;
       if (diff <= 0) {
         diff = 0;
       }
@@ -168,7 +213,7 @@ export const Home: React.FC = () => {
     updateTimer();
     const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
-  }, [nextUpcomingSession]);
+  }, [nextUpcomingSession?.scheduledAt]);
 
   return (
     <div className="public-section active" id="home">
