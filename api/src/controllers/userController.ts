@@ -10,10 +10,14 @@ import { logAuditEvent } from '../utils/audit';
 export async function listUsers(req: Request, res: Response, next: NextFunction) {
   try {
     const page = parseInt(req.query.page as string, 10) || 1;
-    const limit = parseInt(req.query.limit as string, 10) || 25;
+    const requestedLimit = req.query.limit !== undefined ? parseInt(req.query.limit as string, 10) : undefined;
+
+    const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;
+    // Default to fetching all directory members (up to 2000) for staff, unless an explicit page limit is specified
+    const limit = requestedLimit !== undefined ? (requestedLimit <= 0 ? 0 : requestedLimit) : (isStaff ? 2000 : 25);
     const role = req.query.role as string;
     const search = req.query.search as string;
-    const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;
+
 
     const query: any = { status: { $ne: 'disabled' } };
     if (role && role !== 'all') {
@@ -31,10 +35,15 @@ export async function listUsers(req: Request, res: Response, next: NextFunction)
     }
 
     const total = await User.countDocuments(query);
-    const users = await User.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    let usersQuery = User.find(query).sort({ createdAt: -1 });
+    if (limit > 0) {
+      usersQuery = usersQuery.skip((page - 1) * limit).limit(limit);
+    }
+    const users = await usersQuery;
+
+
+
+
 
     // If staff, merge application details (experience, motivation, areasOfInterest)
     let appMap = new Map();

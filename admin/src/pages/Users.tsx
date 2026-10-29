@@ -49,14 +49,12 @@ export const Users: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null);
 
-  const { data: users = [], isLoading } = useQuery<User[]>({
-    queryKey: ['admin-users', roleFilter],
+  const { data: allUsers = [], isLoading } = useQuery<User[]>({
+    queryKey: ['admin-users'],
     queryFn: async () => {
       let remoteUsers: User[] = [];
       try {
-        const res = await apiRequest<User[]>(
-          `/admin/users${roleFilter !== 'all' ? `?role=${roleFilter}` : ''}`
-        );
+        const res = await apiRequest<User[]>('/admin/users?limit=2000');
         if (Array.isArray(res)) remoteUsers = res;
       } catch (err) {
         console.warn('Could not query /admin/users:', err);
@@ -87,9 +85,6 @@ export const Users: React.FC = () => {
         }
       } catch {}
 
-      if (roleFilter !== 'all') {
-        return remoteUsers.filter((u) => u.role === roleFilter);
-      }
       return remoteUsers;
     },
   });
@@ -108,7 +103,7 @@ export const Users: React.FC = () => {
     onMutate: ({ id, role, allowedMenus, email }: { id: string; role: UserRole; allowedMenus?: string[]; email?: string }) => {
       const targetEmail = (email || '').toLowerCase();
       // Instant 0ms optimistic cache update
-      queryClient.setQueryData<User[]>(['admin-users', roleFilter], (old = []) =>
+      queryClient.setQueryData<User[]>(['admin-users'], (old = []) =>
         old.map((u) => {
           if (u.id === id || (targetEmail && u.email?.toLowerCase() === targetEmail)) {
             return { ...u, role, allowedMenus: allowedMenus || u.allowedMenus };
@@ -227,7 +222,7 @@ export const Users: React.FC = () => {
   const deleteUserMutation = useMutation({
     onMutate: (targetUser: User) => {
       // Optimistic cache update
-      queryClient.setQueryData<User[]>(['admin-users', roleFilter], (old = []) =>
+      queryClient.setQueryData<User[]>(['admin-users'], (old = []) =>
         old.filter((u) => u.id !== targetUser.id && u.email?.toLowerCase() !== targetUser.email?.toLowerCase())
       );
       // Clean up localStorage cached applications so user does not re-appear on query refetch
@@ -275,20 +270,30 @@ export const Users: React.FC = () => {
     },
   });
 
-  const filtered = users.filter((u) => {
-    const q = search.toLowerCase();
-    return (
-      u.name.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q) ||
-      (u.country && u.country.toLowerCase().includes(q))
-    );
-  });
-
-  const totalMembersCount = users.filter((u) => u.role === 'MEMBER').length;
-  const presentersCount = users.filter((u) => u.role === 'PRESENTER').length;
-  const coordinatorsCount = users.filter(
+  const totalCommunityCount = allUsers.length;
+  const totalMembersCount = allUsers.filter((u) => u.role === 'MEMBER').length;
+  const presentersCount = allUsers.filter((u) => u.role === 'PRESENTER').length;
+  const coordinatorsCount = allUsers.filter(
     (u) => u.role === 'COORDINATOR' || u.role === 'ADMIN' || u.role === 'SUPER_ADMIN'
   ).length;
+
+  const filtered = allUsers.filter((u) => {
+    // Role filter tab
+    if (roleFilter === 'MEMBER' && u.role !== 'MEMBER') return false;
+    if (roleFilter === 'PRESENTER' && u.role !== 'PRESENTER') return false;
+    if (roleFilter === 'ADMIN' && !['ADMIN', 'COORDINATOR', 'SUPER_ADMIN'].includes(u.role)) return false;
+
+    // Search input query
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      const matchName = u.name?.toLowerCase().includes(q);
+      const matchEmail = u.email?.toLowerCase().includes(q);
+      const matchCountry = u.country?.toLowerCase().includes(q);
+      const matchOrg = u.organization?.toLowerCase().includes(q);
+      return Boolean(matchName || matchEmail || matchCountry || matchOrg);
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -319,7 +324,7 @@ export const Users: React.FC = () => {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              {users.length}
+              {totalCommunityCount}
             </div>
             <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
               {t('users.title', 'Community')}
@@ -387,21 +392,31 @@ export const Users: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
-          {['all', 'MEMBER', 'PRESENTER', 'ADMIN'].map((r) => (
+          {[
+            { id: 'all', label: t('users.filterAllRoles', 'All Roles'), count: totalCommunityCount },
+            { id: 'MEMBER', label: translateRole('MEMBER'), count: totalMembersCount },
+            { id: 'PRESENTER', label: translateRole('PRESENTER'), count: presentersCount },
+            { id: 'ADMIN', label: isArabic ? 'مشرفون معاونون' : 'Co-Admins', count: coordinatorsCount },
+          ].map((tab) => (
             <button
-              key={r}
-              onClick={() => setRoleFilter(r)}
-              className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors ${
-                roleFilter === r
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              key={tab.id}
+              onClick={() => setRoleFilter(tab.id)}
+              className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors flex items-center gap-1.5 ${
+                roleFilter === tab.id
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {r === 'all'
-                ? t('users.filterAllRoles', 'All')
-                : r === 'ADMIN'
-                ? (isArabic ? 'مشرفون معاونون' : 'Co-Admins')
-                : translateRole(r)}
+              <span>{tab.label}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  roleFilter === tab.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                }`}
+              >
+                {tab.count}
+              </span>
             </button>
           ))}
         </div>
