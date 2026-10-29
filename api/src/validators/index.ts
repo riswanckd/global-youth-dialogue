@@ -46,6 +46,11 @@ export const resetPasswordSchema = z
     message: 'Either reset token or email with 6-digit verification code is required',
   });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(6, 'New password must be at least 6 characters').max(100),
+});
+
 // Application Validators
 export const createApplicationSchema = z.object({
   applicantName: z.string().optional(),

@@ -452,3 +452,64 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     next(err);
   }
 }
+
+export async function changePassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      throw new UnauthorizedError('Authentication required to change password');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User account not found');
+    }
+
+    const cleanCurrent = (currentPassword || '').trim();
+    const cleanNew = (newPassword || '').trim();
+
+    if (!cleanCurrent) {
+      throw new BadRequestError('Current password is required');
+    }
+
+    if (cleanNew.length < 6) {
+      throw new BadRequestError('New password must be at least 6 characters long');
+    }
+
+    // STRICT CROSS-CHECK OF CURRENT PASSWORD
+    const isCurrentValid = await verifyPassword(cleanCurrent, user.passwordHash);
+    if (!isCurrentValid) {
+      throw new BadRequestError('Current password is incorrect. Please verify and try again.');
+    }
+
+    // Prevent using the identical current password as the new password
+    const isSamePassword = await verifyPassword(cleanNew, user.passwordHash);
+    if (isSamePassword) {
+      throw new BadRequestError('New password cannot be the same as your current password.');
+    }
+
+    // Hash and save new password
+    user.passwordHash = await hashPassword(cleanNew);
+    await user.save();
+
+    await logAuditEvent({
+      action: 'PASSWORD_CHANGED',
+      performedBy: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      targetType: 'user',
+      targetId: user._id.toString(),
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent'),
+    });
+
+    return sendSuccess(res, null, 'Password updated successfully');
+  } catch (err) {
+    next(err);
+  }
+}

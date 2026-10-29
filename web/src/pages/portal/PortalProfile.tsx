@@ -81,7 +81,19 @@ export const PortalProfile: React.FC = () => {
     e.preventDefault();
     setPwError(null);
 
-    if (newPassword.length < 6) {
+    const cleanCurrent = currentPassword.trim();
+    const cleanNew = newPassword.trim();
+
+    if (!cleanCurrent) {
+      setPwError(
+        isArabic
+          ? 'يرجى إدخال كلمة المرور الحالية للتحقق من هويتك.'
+          : 'Please enter your current password to verify your identity.'
+      );
+      return;
+    }
+
+    if (cleanNew.length < 6) {
       setPwError(
         isArabic
           ? 'يجب أن تتكون كلمة المرور الجديدة من 6 أحرف على الأقل.'
@@ -99,27 +111,50 @@ export const PortalProfile: React.FC = () => {
       return;
     }
 
+    if (cleanNew === cleanCurrent) {
+      setPwError(
+        isArabic
+          ? 'لا يمكن أن تكون كلمة المرور الجديدة هي نفس كلمة المرور الحالية.'
+          : 'New password cannot be the same as your current password.'
+      );
+      return;
+    }
+
     setPwLoading(true);
     try {
       await apiRequest('/auth/change-password', {
         method: 'POST',
         body: JSON.stringify({
-          currentPassword,
-          newPassword,
+          currentPassword: cleanCurrent,
+          newPassword: cleanNew,
         }),
       });
       setPwSuccess(true);
+      setPwError(null);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setPwSuccess(false), 4000);
     } catch (err: any) {
-      // Graceful success for demo sessions
-      setPwSuccess(true);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setTimeout(() => setPwSuccess(false), 4000);
+      const serverMessage = err?.message || err?.error || '';
+      let displayError = isArabic
+        ? 'فشل في تغيير كلمة المرور. يرجى التحقق من صحة كلمة المرور الحالية.'
+        : 'Failed to update password. Please check your current password.';
+
+      if (serverMessage.toLowerCase().includes('current password')) {
+        displayError = isArabic
+          ? 'كلمة المرور الحالية غير صحيحة. يرجى التحقق والمحاولة مرة أخرى.'
+          : 'Current password entered is incorrect. Please verify and try again.';
+      } else if (serverMessage.toLowerCase().includes('same')) {
+        displayError = isArabic
+          ? 'لا يمكن أن تكون كلمة المرور الجديدة هي نفس كلمة المرور الحالية.'
+          : 'New password cannot be the same as your current password.';
+      } else if (serverMessage) {
+        displayError = serverMessage;
+      }
+
+      setPwError(displayError);
+      setPwSuccess(false);
     } finally {
       setPwLoading(false);
     }

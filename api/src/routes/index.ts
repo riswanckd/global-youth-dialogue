@@ -16,7 +16,7 @@ router.get('/health', (_req: Request, res: Response) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'GYDE API',
-    version: '1.0.8',
+    version: '1.0.9',
   });
 });
 

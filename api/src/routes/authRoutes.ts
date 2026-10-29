@@ -11,6 +11,7 @@ import {
   forgotPasswordSchema,
   verifyResetCodeSchema,
   resetPasswordSchema,
+  changePasswordSchema,
 } from '../validators';
 
 const router = Router();
@@ -24,5 +25,6 @@ router.get('/me', authenticate, authController.getMe);
 router.post('/forgot-password', authRateLimiter, validate(forgotPasswordSchema), authController.forgotPassword);
 router.post('/verify-reset-code', authRateLimiter, validate(verifyResetCodeSchema), authController.verifyResetCode);
 router.post('/reset-password', authRateLimiter, validate(resetPasswordSchema), authController.resetPassword);
+router.post('/change-password', authenticate, authRateLimiter, validate(changePasswordSchema), authController.changePassword);
 
 export default router;
