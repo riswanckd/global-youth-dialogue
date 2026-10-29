@@ -93,6 +93,9 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
 
     if (session?.recordingUrl) {
       window.open(session.recordingUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      onClose();
+      navigate('/portal/recordings');
     }
   };
 
@@ -621,18 +624,26 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                       <ExternalLink size={14} />
                     </a>
                   ) : (
-                    <span
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        navigate('/portal/recordings');
+                      }}
+                      className="btn btn-outline"
                       style={{
-                        padding: '0.5rem 1rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.45rem',
+                        padding: '0.55rem 1.15rem',
                         borderRadius: '10px',
-                        background: isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0',
-                        color: textMuted,
-                        fontSize: '0.75rem',
+                        fontSize: '0.78rem',
                         fontWeight: 600,
                       }}
                     >
-                      {isArabic ? 'التسجيل قيد المعالجة' : 'Recording Processing'}
-                    </span>
+                      <Video size={14} />
+                      <span>{isArabic ? 'أرشيف تسجيلات البوابة' : 'Fellow Portal Recordings'}</span>
+                    </button>
                   )}
                 </div>
               ) : (
@@ -848,15 +859,16 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {session.recordingUrl && (
+            {isCompleted && (
               <button
                 type="button"
                 onClick={handleWatchRecordingClick}
                 className="btn btn-outline"
                 style={{ padding: '0.45rem 0.9rem', fontSize: '0.75rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
               >
+                <Video size={13} />
                 <span>{isArabic ? 'مشاهدة التسجيل' : 'Watch Recording'}</span>
-                {isAuthenticated ? <ExternalLink size={12} /> : <Lock size={12} />}
+                {isAuthenticated ? (session.recordingUrl ? <ExternalLink size={12} /> : null) : <Lock size={12} />}
               </button>
             )}
             <button
