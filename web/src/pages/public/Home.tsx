@@ -653,7 +653,7 @@ export const Home: React.FC = () => {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
-              <span>{isArabic ? 'تسجيلات الجلسات السابقة وأوراق السياسات متاحة' : 'Recordings & session papers available'}</span>
+              <span>{isArabic ? 'أرشيف جلسات الحوار الدولي والملخصات الأكاديمية' : 'Dialogue session archives & academic briefs'}</span>
             </div>
           )}
 
@@ -673,7 +673,7 @@ export const Home: React.FC = () => {
               </>
             ) : (
               <>
-                <span>{isArabic ? 'مشاهدة الجلسات المكتملة' : 'View Completed Sessions'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
+                <span>{isArabic ? 'استعراض أرشيف الجلسات' : 'Browse Completed Archive'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
               </>
             )}
           </Link>
@@ -916,8 +916,8 @@ export const Home: React.FC = () => {
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.96rem', lineHeight: '1.65', marginBottom: '1.85rem' }}>
                     {isArabic
-                      ? 'سيتم الإعلان عن موعد منتدى الحوار والمناظرات البرلمانية القادمة هنا قريباً. في هذه الأثناء، يمكنك تصفح أرشيف الجلسات المنعقدة، ومشاهدة التسجيلات وقراءة الأوراق البحثية.'
-                      : 'Upcoming parliamentary chambers, international debate forums, and keynote sessions will be announced here soon. In the meantime, explore recordings and briefs from our completed sessions.'}
+                      ? 'سيتم الإعلان عن موعد منتدى الحوار والمناظرات البرلمانية القادمة هنا قريباً. في هذه الأثناء، يمكنك تصفح أرشيف الجلسات المنعقدة والتقديم للعضوية.'
+                      : 'Upcoming parliamentary chambers, international debate forums, and keynote sessions will be announced here soon. In the meantime, explore our dialogue archives and apply for membership.'}
                   </p>
                   <div style={{ display: 'flex', gap: '0.85rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                     <Link
@@ -926,7 +926,7 @@ export const Home: React.FC = () => {
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}
                     >
                       <PlayCircle size={16} />
-                      <span>{isArabic ? 'مشاهدة الجلسات المكتملة' : 'View Completed Sessions'}</span>
+                      <span>{isArabic ? 'استعراض أرشيف الجلسات المكتملة' : 'Browse Completed Sessions'}</span>
                       <span className="rtl-flip-arrow inline-block">&rarr;</span>
                     </Link>
                     <Link to="/apply" className="btn btn-outline" style={{ whiteSpace: 'nowrap' }}>

@@ -7,65 +7,9 @@ import { apiRequest } from '../../utils/api';
 import { Publication } from '../../types';
 import { JoinCommunityModal } from '../../components/auth/JoinCommunityModal';
 
-export const DEMO_PUBLICATIONS: Publication[] = [
-  {
-    id: 'pub-1',
-    slug: 'ai-sovereignty-dilemma',
-    title: 'The AI Sovereignty Dilemma: Algorithmic Jurisdiction & Data Borders',
-    titleAr: 'معضلة السيادة في عصر الذكاء الاصطناعي: الولاية القضائية وحدود البيانات',
-    abstract: 'This paper analyzes the emergence of national AI sovereignty frameworks, the geopolitical battle over semiconductor compute clusters, and international legal mechanisms for cross-border algorithmic accountability.',
-    authors: [
-      {
-        name: 'Mubashir CP',
-        country: 'India',
-        role: 'Coordinator & Fellow'
-      }
-    ],
-    category: 'Technology & AI Ethics',
-    status: 'published',
-    visibility: 'public',
-    publishedAt: '2026-10-10',
-    createdAt: '2026-10-10'
-  },
-  {
-    id: 'pub-2',
-    slug: 'multilateral-sanctions-currencies',
-    title: 'Multilateral Sanctions & The Rise of Alternative Reserve Settlement Currencies',
-    titleAr: 'العقوبات المتعددة وصعود العملات البديلة لتسوية الاحتياطيات الدولية',
-    abstract: 'An academic examination into the weaponization of dollar-clearing mechanisms and the resulting expansion of local-currency settlement pacts across the Global South.',
-    authors: [
-      {
-        name: 'Sarah Al-Kuwari',
-        country: 'Qatar',
-        role: 'Member'
-      }
-    ],
-    category: 'Geopolitics & International Relations',
-    status: 'published',
-    visibility: 'public',
-    publishedAt: '2026-09-28',
-    createdAt: '2026-09-28'
-  },
-  {
-    id: 'pub-3',
-    slug: 'climate-induced-statelessness',
-    title: 'Climate-Induced Statelessness: Re-evaluating the 1951 Refugee Convention',
-    titleAr: 'انعدام الجنسية الناتج عن المناخ: إعادة تقييم اتفاقية اللاجئين لعام 1951',
-    abstract: 'Investigating legal protection voids for island nation populations facing imminent territorial inundation, proposing an updated international multilateral protocol.',
-    authors: [
-      {
-        name: 'Kwame Mensah',
-        country: 'Ghana',
-        role: 'Member'
-      }
-    ],
-    category: 'Environment & Climate Policy',
-    status: 'published',
-    visibility: 'public',
-    publishedAt: '2026-09-14',
-    createdAt: '2026-09-14'
-  }
-];
+import { BookOpen } from 'lucide-react';
+
+export const DEMO_PUBLICATIONS: Publication[] = [];
 
 export const Publications: React.FC = () => {
   const { isArabic } = useLanguage();
@@ -108,13 +52,6 @@ export const Publications: React.FC = () => {
       if (key && !seen.has(key)) {
         seen.add(key);
         unique.push(p);
-      }
-    }
-    for (const demo of DEMO_PUBLICATIONS) {
-      const key = (demo.slug || demo.id || demo.title || '').toLowerCase().trim();
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(demo);
       }
     }
     return unique;
@@ -172,46 +109,102 @@ export const Publications: React.FC = () => {
         </span>
       </div>
 
-      {/* Publications Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.75rem' }}>
-        {filtered.map((pub) => {
-          const author = pub.authors?.[0] || pub.author || { name: 'GYDE Fellow', country: 'Global' };
-          return (
-            <div key={pub.id} className="card-panel" style={{ padding: '2rem', background: 'var(--bg-surface)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span className="category-pill" style={{ color: 'var(--color-primary-1)', fontWeight: 600 }}>{pub.category}</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{pub.publishedAt}</span>
-              </div>
-
-              <h3 className="serif-text" style={{ fontSize: '1.25rem', marginBottom: '0.75rem', lineHeight: '1.4', color: 'var(--text-main)' }}>
-                {isArabic && pub.titleAr ? pub.titleAr : pub.title}
-              </h3>
-
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '1.25rem', flexGrow: 1 }}>
-                {pub.abstract}
-              </p>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-body)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                  <span><strong>{author.name}</strong> ({author.country})</span>
+      {/* Publications Grid or Empty State */}
+      {filtered.length === 0 ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '4rem 1.5rem',
+            background: 'rgba(72, 81, 186, 0.03)',
+            borderRadius: '24px',
+            border: '1px dashed rgba(72, 81, 186, 0.2)',
+            maxWidth: '620px',
+            margin: '0 auto',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'rgba(72, 81, 186, 0.08)',
+              color: 'var(--brand-primary, #4851BA)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1.25rem',
+            }}
+          >
+            <BookOpen size={28} />
+          </div>
+          <h3 className="serif-text" style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '0.65rem', color: 'var(--text-main)' }}>
+            {isArabic ? 'لا توجد أوراق بحثية منشورة حالياً' : 'No research papers published yet'}
+          </h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '1.75rem' }}>
+            {isArabic
+              ? 'يتم إعداد الأوراق البحثية المحكمة بعد انعقاد الجلسات الحوارية واعتمادها من الهيئة الاستشارية. انضم إلينا أو سجل الدخول لتصلك الأبحاث فور نشرها.'
+              : 'Peer-reviewed academic papers synthesized from our dialogue sessions will appear here once officially published. Apply for membership or sign in to access full research monographs.'}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/apply')}
+              className="btn btn-primary"
+              style={{ padding: '0.65rem 1.35rem', borderRadius: '12px', fontWeight: 600, fontSize: '0.88rem' }}
+            >
+              <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> &rarr;
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="btn btn-outline"
+              style={{ padding: '0.65rem 1.25rem', borderRadius: '12px', fontWeight: 600, fontSize: '0.88rem' }}
+            >
+              <span>{isArabic ? 'تسجيل الدخول' : 'Sign In'}</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.75rem' }}>
+          {filtered.map((pub) => {
+            const author = pub.authors?.[0] || pub.author || { name: 'GYDE Fellow', country: 'Global' };
+            return (
+              <div key={pub.id} className="card-panel" style={{ padding: '2rem', background: 'var(--bg-surface)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-xl)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <span className="category-pill" style={{ color: 'var(--color-primary-1)', fontWeight: 600 }}>{pub.category}</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{pub.publishedAt}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleReadPaperClick(pub)}
-                  className="btn btn-outline btn-sm"
-                  style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                >
-                  <span>{isArabic ? 'قراءة الورقة' : 'Read Paper'}</span> &rarr;
-                </button>
+
+                <h3 className="serif-text" style={{ fontSize: '1.25rem', marginBottom: '0.75rem', lineHeight: '1.4', color: 'var(--text-main)' }}>
+                  {isArabic && pub.titleAr ? pub.titleAr : pub.title}
+                </h3>
+
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '1.25rem', flexGrow: 1 }}>
+                  {pub.abstract}
+                </p>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--text-body)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span><strong>{author.name}</strong> ({author.country})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleReadPaperClick(pub)}
+                    className="btn btn-outline btn-sm"
+                    style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                  >
+                    <span>{isArabic ? 'قراءة الورقة' : 'Read Paper'}</span> &rarr;
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Member-Access Restriction Pop-up Modal */}
       {accessModalOpen && selectedPaper && (

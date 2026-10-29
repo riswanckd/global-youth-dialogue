@@ -34,10 +34,6 @@ export const PublicationDetail: React.FC = () => {
         }
       } catch {}
 
-      // Fallback to DEMO_PUBLICATIONS
-      const demoFound = DEMO_PUBLICATIONS.find((p) => p.slug === slug || p.id === slug);
-      if (demoFound) return demoFound;
-
       throw new Error('Publication not found');
     },
     retry: false,
