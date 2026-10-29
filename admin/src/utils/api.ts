@@ -94,8 +94,6 @@ export async function apiRequest<T = any>(
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-client-app': 'admin',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((options.headers as Record<string, string>) || {}),
   };

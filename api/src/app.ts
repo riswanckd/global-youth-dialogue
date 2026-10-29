@@ -57,6 +57,12 @@ app.use(
       'X-Requested-With',
       'X-Client-App',
       'x-client-app',
+      'Cache-Control',
+      'cache-control',
+      'Pragma',
+      'pragma',
+      'Expires',
+      'expires',
     ],
   })
 );

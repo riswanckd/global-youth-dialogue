@@ -1,6 +1,6 @@
 {
   "name": "global-youth-dialogue",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "GYDE — Global Youth Dialogue & Exchange Monorepo Platform",
   "private": true,
   "workspaces": [
