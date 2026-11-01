@@ -14,6 +14,7 @@ import {
   Layers,
   Printer,
   Radio,
+  Lock,
 } from 'lucide-react';
 
 export const MediaStudio: React.FC = () => {
@@ -173,39 +174,52 @@ export const MediaStudio: React.FC = () => {
             </div>
           </div>
 
-          {/* Media Kits Grid */}
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">
-              {isArabic ? 'حقائب الصحافة والمطبوعات الرسمية' : 'Official Press Kits & Institutional Publications'}
-            </h3>
+          {/* Media Kits Grid - Under Maintenance & Disabled */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                {isArabic ? 'حقائب الصحافة والمطبوعات الرسمية' : 'Official Press Kits & Institutional Publications'}
+              </h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700/80">
+                {isArabic ? 'قريباً' : 'SOON'}
+              </span>
+              <span className="text-xs text-slate-400">
+                ({isArabic ? 'قيد التحديث والتجهيز المؤسسي — لا يمكن الوصول حالياً' : 'Under institutional maintenance — No access currently'})
+              </span>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {mediaKits.map((kit) => (
                 <div
                   key={kit.id}
-                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-3 shadow-xs flex flex-col justify-between"
+                  title={isArabic ? 'قيد الصيانة والتحديث - قريباً' : 'Under institutional maintenance - No access'}
+                  className="bg-slate-50/70 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-5 space-y-3 opacity-60 cursor-not-allowed select-none flex flex-col justify-between"
                 >
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
-                      {kit.type}
-                    </span>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-2 leading-snug">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        {kit.type}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700/80">
+                        <Lock className="w-2.5 h-2.5" />
+                        <span>{isArabic ? 'قريباً' : 'SOON'}</span>
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-bold text-slate-600 dark:text-slate-300 mt-2 leading-snug">
                       {kit.title}
                     </h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                       {kit.description}
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-medium">{kit.size}</span>
-                    <a
-                      href={kit.downloadUrl}
-                      download
-                      className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>{isArabic ? 'تحميل الحقيبة' : 'Download Kit'}</span>
-                    </a>
+                  <div className="pt-3 border-t border-slate-200/50 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span className="font-medium">{kit.size}</span>
+                    <span className="inline-flex items-center gap-1 font-bold text-slate-400 cursor-not-allowed select-none pointer-events-none">
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>{isArabic ? 'قيد الصيانة (قريباً)' : 'Under Maintenance (Soon)'}</span>
+                    </span>
                   </div>
                 </div>
               ))}
