@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { getCountryMeta } from '../utils/country';
 import {
   X,
   Calendar,
@@ -39,6 +40,7 @@ export interface SessionDetailData {
   timezone?: string;
   status?: string;
   moderator?: string;
+  moderatorCountry?: string;
   presenterName?: string;
   presenterCountry?: string;
   presenters?: Array<{
@@ -350,7 +352,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
             </div>
           )}
 
-          {/* Key Logistics Matrix (Date, Time, Duration, Moderator) */}
+          {/* Key Logistics Matrix (Date, Time, Duration) */}
           <div
             style={{
               display: 'grid',
@@ -407,22 +409,117 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                 </span>
               </div>
             </div>
-
-            {/* Moderator */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
-              <div style={{ padding: '0.45rem', borderRadius: '10px', background: isDark ? 'rgba(168, 85, 247, 0.15)' : 'rgba(147, 51, 234, 0.08)', color: isDark ? '#c084fc' : '#9333ea' }}>
-                <Shield size={16} />
-              </div>
-              <div>
-                <span style={{ fontSize: '0.7rem', color: textMuted, display: 'block', fontWeight: 600 }}>
-                  {isArabic ? 'مدير الجلسة' : 'Chamber Moderator'}
-                </span>
-                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: textHeading }}>
-                  {session.moderator || (isArabic ? 'الأمانة الأكاديمية لـ GYDE' : 'GYDE Academic Secretariat')}
-                </span>
-              </div>
-            </div>
           </div>
+
+          {/* HIGHLIGHTED CHAMBER MODERATOR SPOTLIGHT BOX */}
+          {(() => {
+            const rawMod = session.moderator?.trim() || (isArabic ? 'الأمانة الأكاديمية لـ GYDE' : 'GYDE Academic Secretariat');
+            let modCountry = session.moderatorCountry?.trim() || '';
+            if (!modCountry) {
+              const lower = rawMod.toLowerCase();
+              if (lower.includes('sümeyye') || lower.includes('sumeyye')) modCountry = 'Türkiye';
+              else if (lower.includes('mubashir')) modCountry = 'India';
+              else if (lower.includes('atheer') || lower.includes('ghassan')) modCountry = 'Sudan';
+              else if (lower.includes('menna')) modCountry = 'Libya';
+              else if (lower.includes('jwan')) modCountry = 'Jordan';
+              else if (lower.includes('charrak')) modCountry = 'Algeria';
+            }
+            const countryMeta = modCountry ? getCountryMeta(modCountry) : null;
+
+            return (
+              <div
+                style={{
+                  padding: '1.15rem 1.35rem',
+                  borderRadius: '16px',
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(147, 51, 234, 0.14), rgba(79, 70, 229, 0.1))'
+                    : 'linear-gradient(135deg, #faf5ff, #f5f3ff)',
+                  border: isDark ? '1px solid rgba(168, 85, 247, 0.35)' : '1px solid #d8b4fe',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                  flexWrap: 'wrap',
+                  boxShadow: isDark ? '0 2px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(147, 51, 234, 0.06)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
+                  <div
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #9333ea, #6366f1)',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(147, 51, 234, 0.3)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Shield size={22} />
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: '0.68rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        color: isDark ? '#c084fc' : '#7e22ce',
+                      }}
+                    >
+                      {isArabic ? 'رئاسة وإدارة القاعة الأكاديمية' : 'Chamber Moderator & Session Chair'}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '1.05rem',
+                        fontWeight: 800,
+                        color: textHeading,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginTop: '0.15rem',
+                      }}
+                    >
+                      <span>{rawMod}</span>
+                      {countryMeta?.flagEmoji && (
+                        <span style={{ fontSize: '1.15rem' }} title={modCountry}>
+                          {countryMeta.flagEmoji}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: textMuted, marginTop: '0.15rem' }}>
+                      {isArabic
+                        ? 'يدير وقائع الجلسة، ويشرف على مداخلات المتحدثين، وينظم حوار الحضور.'
+                        : 'Presides over chamber proceedings, speaker rotations, and interactive Q&A.'}
+                    </div>
+                  </div>
+                </div>
+
+                {modCountry && (
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '999px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      background: isDark ? 'rgba(168, 85, 247, 0.22)' : '#f3e8ff',
+                      color: isDark ? '#f3e8ff' : '#6b21a8',
+                      border: isDark ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid #d8b4fe',
+                    }}
+                  >
+                    {countryMeta?.flagEmoji && <span style={{ fontSize: '1rem' }}>{countryMeta.flagEmoji}</span>}
+                    <span>{modCountry}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Participants, Speakers & Teams Breakdown */}
           {((session.propositionTeam && session.propositionTeam.length > 0) ||

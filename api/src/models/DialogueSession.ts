@@ -29,6 +29,7 @@ export interface IDialogueSession extends Document {
   propositionTeam?: string[];
   oppositionTeam?: string[];
   moderator?: string;
+  moderatorCountry?: string;
   adjudicator?: string;
   discussionQuestions?: string[];
   workingDraftTitle?: string;
@@ -87,6 +88,7 @@ const DialogueSessionSchema = new Schema<IDialogueSession>(
     propositionTeam: [{ type: String }],
     oppositionTeam: [{ type: String }],
     moderator: { type: String, default: '' },
+    moderatorCountry: { type: String, default: '' },
     adjudicator: { type: String, default: '' },
     discussionQuestions: [{ type: String }],
     workingDraftTitle: { type: String, default: '' },

@@ -97,6 +97,7 @@ export const Sessions: React.FC = () => {
     meetingUrl: '',
     recordingUrl: '',
     moderator: '',
+    moderatorCountry: '',
     presenters: [{ name: '', country: '', bio: '' }],
     team1Members: [''],
     team2Members: [''],
@@ -341,6 +342,7 @@ export const Sessions: React.FC = () => {
       meetingUrl: session.meetingUrl || '',
       recordingUrl: session.recordingUrl || '',
       moderator: session.moderator || '',
+      moderatorCountry: (session as any).moderatorCountry || ((session.moderator || '').toLowerCase().includes('sümeyye') ? 'Türkiye' : ''),
       presenters: presentersList,
       team1Members: propTeam.length > 0 ? propTeam : [''],
       team2Members: oppTeam.length > 0 ? oppTeam : [''],
@@ -367,6 +369,7 @@ export const Sessions: React.FC = () => {
         meetingUrl: data.meetingUrl,
         recordingUrl: data.recordingUrl?.trim() || undefined,
         status: data.status || 'scheduled',
+        moderatorCountry: data.moderatorCountry?.trim() || (data.moderator?.toLowerCase().includes('sümeyye') ? 'Türkiye' : ''),
       };
 
       if (data.sessionCategory === 'Topic Presentation') {
@@ -445,6 +448,7 @@ export const Sessions: React.FC = () => {
         meetingUrl: data.meetingUrl,
         recordingUrl: data.recordingUrl?.trim() || '',
         moderator: data.moderator.trim(),
+        moderatorCountry: data.moderatorCountry?.trim() || (data.moderator?.toLowerCase().includes('sümeyye') ? 'Türkiye' : ''),
         status: data.status,
       };
 
@@ -957,7 +961,7 @@ export const Sessions: React.FC = () => {
                           <div className="mt-1.5 text-[11px] text-slate-600 dark:text-slate-400 space-y-0.5">
                             {sessionCat === 'Topic Presentation' && (
                               <div className="flex flex-wrap items-center gap-2">
-                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator} {((s as any).moderatorCountry || (s.moderator.toLowerCase().includes('sümeyye') ? 'Türkiye 🇹🇷' : '')) ? `(${((s as any).moderatorCountry || 'Türkiye 🇹🇷')})` : ''}</span>}
                                 {s.presenters && s.presenters.length > 0 && (
                                   <span><strong className="text-slate-700 dark:text-slate-300">Presenter(s):</strong> {s.presenters.map((p) => p.name).join(', ')}</span>
                                 )}
@@ -966,7 +970,7 @@ export const Sessions: React.FC = () => {
 
                             {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && (
                               <div className="flex flex-wrap items-center gap-2">
-                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator} {((s as any).moderatorCountry || (s.moderator.toLowerCase().includes('sümeyye') ? 'Türkiye 🇹🇷' : '')) ? `(${((s as any).moderatorCountry || 'Türkiye 🇹🇷')})` : ''}</span>}
                                 {s.propositionTeam && s.propositionTeam.length > 0 && (
                                   <span className="text-indigo-600 dark:text-indigo-400 font-medium">
                                     Team 1 ({s.propositionTeam.length}): {s.propositionTeam.join(', ')}
@@ -982,7 +986,7 @@ export const Sessions: React.FC = () => {
 
                             {sessionCat === 'Discussion' && (
                               <div className="flex flex-wrap items-center gap-2">
-                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator} {((s as any).moderatorCountry || (s.moderator.toLowerCase().includes('sümeyye') ? 'Türkiye 🇹🇷' : '')) ? `(${((s as any).moderatorCountry || 'Türkiye 🇹🇷')})` : ''}</span>}
                                 {s.presenters && s.presenters.length > 0 && (
                                   <span><strong className="text-slate-700 dark:text-slate-300">Speakers:</strong> {s.presenters.map((p) => p.name).join(', ')}</span>
                                 )}
@@ -991,7 +995,7 @@ export const Sessions: React.FC = () => {
 
                             {(sessionCat === 'Guest Talks' || sessionCat === 'Guest Talk') && (
                               <div className="flex flex-wrap items-center gap-2">
-                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator}</span>}
+                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator} {((s as any).moderatorCountry || (s.moderator.toLowerCase().includes('sümeyye') ? 'Türkiye 🇹🇷' : '')) ? `(${((s as any).moderatorCountry || 'Türkiye 🇹🇷')})` : ''}</span>}
                                 {s.presenters && s.presenters[0] && (
                                   <div className="flex items-center gap-1.5">
                                     {s.presenters[0].avatar ? (

@@ -84,6 +84,7 @@ export interface DialogueSession {
   propositionTeam?: string[];
   oppositionTeam?: string[];
   moderator?: string;
+  moderatorCountry?: string;
   adjudicator?: string;
   summary?: string;
   summaryAr?: string;
