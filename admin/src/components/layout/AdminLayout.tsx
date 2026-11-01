@@ -206,11 +206,15 @@ export const AdminLayout: React.FC = () => {
     return user.allowedMenus.includes(menuId);
   };
 
-  const currentActiveItem = navItems.find((item) =>
-    item.path === '/dashboard'
-      ? location.pathname === '/dashboard'
-      : location.pathname.startsWith(item.path.split('?')[0])
-  );
+  const currentActiveItem = navItems
+    .filter((item) => {
+      const basePath = item.path.split('?')[0];
+      if (basePath === '/dashboard') {
+        return location.pathname === '/dashboard' || location.pathname === '/';
+      }
+      return location.pathname === basePath || location.pathname.startsWith(basePath + '/');
+    })
+    .sort((a, b) => b.path.length - a.path.length)[0];
   const isCurrentRouteAuthorized = !currentActiveItem || isMenuAuthorized(currentActiveItem.id);
 
   const displayName = user?.name || 'GYDE Super Administrator';
@@ -379,10 +383,7 @@ export const AdminLayout: React.FC = () => {
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isAuthorized = isMenuAuthorized(item.id);
-                const isActive =
-                  location.pathname === item.path ||
-                  (item.path !== '/dashboard' &&
-                    location.pathname.startsWith(item.path.split('?')[0]));
+                const isActive = currentActiveItem?.id === item.id;
 
                 if (!isAuthorized) {
                   return (
