@@ -5699,6 +5699,15 @@ body.rtl-mode .mobile-nav-drawer {
     border: 1.5px solid rgba(72, 81, 186, 0.28) !important;
     box-shadow: 0 6px 20px rgba(72, 81, 186, 0.08) !important;
   }
+
+  /* Upcoming Session Mobile 4-line description clamp with ellipsis */
+  .home-upcoming-desc {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 4 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
   [data-theme="dark"] .home-upcoming-container {
     border: 1.5px solid rgba(158, 89, 172, 0.45) !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;

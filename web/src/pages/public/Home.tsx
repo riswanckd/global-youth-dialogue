@@ -847,9 +847,29 @@ export const Home: React.FC = () => {
                         &ldquo;{nextUpcomingSession.motion}&rdquo;
                       </div>
                     )}
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                      {isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description}
-                    </p>
+                    <div style={{ marginBottom: '1.25rem' }}>
+                      <p
+                        className="home-upcoming-desc line-clamp-4 md:line-clamp-none cursor-pointer"
+                        style={{
+                          color: 'var(--text-muted)',
+                          fontSize: '0.95rem',
+                          lineHeight: '1.6',
+                          marginBottom: '0.35rem',
+                        }}
+                        onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+                        title={isArabic ? 'انقر لقراءة كامل الوصف في تفاصيل الجلسة' : 'Click to view complete description in Session Details'}
+                      >
+                        {isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+                        className="home-upcoming-more-btn md:hidden inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                        style={{ padding: 0, background: 'none', border: 'none' }}
+                      >
+                        <span>{isArabic ? 'عرض كامل الوصف في تفاصيل الجلسة ...' : 'Read full description in Session Details ...'}</span>
+                      </button>
+                    </div>
                     <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
                       <div>
                         <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}
@@ -863,27 +883,22 @@ export const Home: React.FC = () => {
                           ? `${String(new Date(nextUpcomingSession.scheduledAt).getUTCHours()).padStart(2, '0')}:${String(new Date(nextUpcomingSession.scheduledAt).getUTCMinutes()).padStart(2, '0')} UTC`
                           : '14:00 UTC'}
                       </div>
-                      <div>
-                        <strong>{isArabic ? 'مدير الجلسة:' : 'Moderator:'}</strong>{' '}
-                        {nextUpcomingSession.moderator || (isArabic ? 'الأمانة الأكاديمية' : 'GYDE Secretariat')}
-                      </div>
+                      {Boolean(nextUpcomingSession.moderator && !nextUpcomingSession.format?.toLowerCase().includes('debate')) && (
+                        <div>
+                          <strong>{isArabic ? 'مدير الجلسة:' : 'Moderator:'}</strong>{' '}
+                          {nextUpcomingSession.moderator}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="home-upcoming-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <Link
-                      to={`/sessions?session=${nextUpcomingSession.id || (nextUpcomingSession as any)._id || encodeURIComponent(nextUpcomingSession.title)}`}
-                      className="btn btn-outline"
-                      style={{ textAlign: 'center', whiteSpace: 'nowrap' }}
-                    >
-                      <span>{isArabic ? 'تفاصيل الجلسة' : 'Session Details'}</span>
-                    </Link>
                     <button
                       type="button"
                       onClick={() => setSelectedHomeSession(nextUpcomingSession)}
                       className="btn btn-outline"
-                      style={{ textAlign: 'center', whiteSpace: 'nowrap', fontSize: '0.78rem' }}
+                      style={{ textAlign: 'center', whiteSpace: 'nowrap' }}
                     >
-                      <span>{isArabic ? 'معاينة سريعة' : 'Quick Preview'}</span>
+                      <span>{isArabic ? 'تفاصيل الجلسة' : 'Session Details'}</span>
                     </button>
                     <Link to="/apply" className="btn btn-primary" id="upcomingApplyBtn" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       <span>{isArabic ? 'تقديم طلب العضوية' : 'Apply for Membership'}</span> <span className="rtl-flip-arrow inline-block">&rarr;</span>
