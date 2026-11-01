@@ -847,29 +847,19 @@ export const Home: React.FC = () => {
                         &ldquo;{nextUpcomingSession.motion}&rdquo;
                       </div>
                     )}
-                    <div style={{ marginBottom: '1.25rem' }}>
-                      <p
-                        className="home-upcoming-desc line-clamp-4 md:line-clamp-none cursor-pointer"
-                        style={{
-                          color: 'var(--text-muted)',
-                          fontSize: '0.95rem',
-                          lineHeight: '1.6',
-                          marginBottom: '0.35rem',
-                        }}
-                        onClick={() => setSelectedHomeSession(nextUpcomingSession)}
-                        title={isArabic ? 'انقر لقراءة كامل الوصف في تفاصيل الجلسة' : 'Click to view complete description in Session Details'}
-                      >
-                        {isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedHomeSession(nextUpcomingSession)}
-                        className="home-upcoming-more-btn md:hidden inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
-                        style={{ padding: 0, background: 'none', border: 'none' }}
-                      >
-                        <span>{isArabic ? 'عرض كامل الوصف في تفاصيل الجلسة ...' : 'Read full description in Session Details ...'}</span>
-                      </button>
-                    </div>
+                    <p
+                      className="home-upcoming-desc line-clamp-4 md:line-clamp-none cursor-pointer"
+                      style={{
+                        color: 'var(--text-muted)',
+                        fontSize: '0.92rem',
+                        lineHeight: '1.42',
+                        marginBottom: '0.85rem',
+                      }}
+                      onClick={() => setSelectedHomeSession(nextUpcomingSession)}
+                      title={isArabic ? 'انقر لعرض تفاصيل الجلسة كاملة' : 'Click to view complete session details'}
+                    >
+                      {isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description}
+                    </p>
                     <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
                       <div>
                         <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}

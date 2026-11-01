@@ -5700,13 +5700,15 @@ body.rtl-mode .mobile-nav-drawer {
     box-shadow: 0 6px 20px rgba(72, 81, 186, 0.08) !important;
   }
 
-  /* Upcoming Session Mobile 4-line description clamp with ellipsis */
+  /* Upcoming Session Mobile 4-line description clamp with ellipsis & compact line spacing */
   .home-upcoming-desc {
     display: -webkit-box !important;
     -webkit-line-clamp: 4 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    line-height: 1.42 !important;
+    margin-bottom: 0.75rem !important;
   }
   [data-theme="dark"] .home-upcoming-container {
     border: 1.5px solid rgba(158, 89, 172, 0.45) !important;
