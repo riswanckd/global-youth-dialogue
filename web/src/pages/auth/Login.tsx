@@ -197,9 +197,7 @@ export const Login: React.FC = () => {
               <span>{isArabic ? 'هل أنت مسؤول نظام؟' : 'Platform administrator?'}</span>
               {' '}
               <a 
-                href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://gyde-admin.vercel.app'} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+                href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://www.thegyde.in/admin'} 
                 style={{ color: 'var(--color-primary-1)', fontWeight: 600 }}
               >
                 {isArabic ? 'الانتقال إلى بوابة الإدارة المستقلة' : 'Sign in via Admin Portal'} &rarr;

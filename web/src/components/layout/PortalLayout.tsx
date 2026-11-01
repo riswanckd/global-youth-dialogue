@@ -294,7 +294,7 @@ export const PortalLayout: React.FC = () => {
 
             {isAdmin && (
               <a
-                href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174/dashboard' : 'https://gyde-admin.vercel.app/dashboard'}
+                href={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5174/dashboard' : 'https://www.thegyde.in/admin'}
                 target={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? undefined : '_blank'}
                 rel={typeof window !== 'undefined' && window.location.hostname === 'localhost' ? undefined : 'noopener noreferrer'}
                 className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50/90 dark:bg-amber-950/60 hover:bg-amber-100/90 transition-colors border-0 border-none outline-none"
