@@ -130,10 +130,6 @@ export async function createPublication(req: Request, res: Response, next: NextF
       counter++;
     }
 
-    if (req.user?.role === ROLES.MEMBER) {
-      throw new ForbiddenError('Members have read-only access to published articles. Only accredited Presenters can draft and submit articles for admin approval.');
-    }
-
     const isStaff = req.user?.role === ROLES.ADMIN || req.user?.role === ROLES.SUPER_ADMIN || req.user?.role === ROLES.COORDINATOR;
     // Non-staff presenters submit academic work for admin review; admins can publish directly or save draft
     const publicationStatus = isStaff ? (status || 'published') : 'under_review';
@@ -142,7 +138,7 @@ export async function createPublication(req: Request, res: Response, next: NextF
       {
         name: req.user!.name,
         country: (req.user as any).country || 'Global',
-        role: req.user!.role === ROLES.PRESENTER ? 'Keynote Presenter' : 'GYDE Scholar',
+        role: req.user!.role === ROLES.PRESENTER ? 'Keynote Presenter' : (req.user!.role === ROLES.MEMBER ? 'Member Scholar' : 'GYDE Scholar'),
         affiliation: (req.user as any).organization || 'Global Youth Dialogue Secretariat',
       }
     ];

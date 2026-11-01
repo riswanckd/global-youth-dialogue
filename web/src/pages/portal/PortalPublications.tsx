@@ -171,126 +171,72 @@ export const PortalPublications: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h1 className="serif-heading text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-              {isPresenter
-                ? (isArabic ? 'استوديو الكتابة والمكتبة الأكاديمية' : 'Academic Writing Studio & Repository')
-                : (isArabic ? 'المكتبة الأكاديمية للأوراق والبحوث' : 'Academic Research Library & Repository')}
+              {isArabic ? 'استوديو الكتابة والمكتبة الأكاديمية' : 'Academic Writing Studio & Repository'}
             </h1>
             <span
-              className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                isPresenter
-                  ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
-                  : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-              }`}
+              className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
             >
               {isPresenter
-                ? (isArabic ? 'صلاحية صياغة ونشر' : 'Presenter Authoring Clearance')
-                : (isArabic ? 'صلاحية قراءة ومطالعة' : 'Verified Reader Access')}
+                ? (isArabic ? 'صلاحية صياغة كمتحدث' : 'Presenter Authoring Clearance')
+                : (isArabic ? 'صلاحية صياغة ونشر للأعضاء' : 'Member Authoring Clearance')}
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            {isPresenter
-              ? (isArabic
-                  ? 'الوصول إلى أوراق الحوار المحكمة، وصياغة وتقديم المقالات والأبحاث للأمانة العامة للمراجعة والنشر العام.'
-                  : 'Access peer-assessed monographs, policy syntheses, and submit presenter research essays for secretariat review and public publishing.')
-              : (isArabic
-                  ? 'قراءة ومطالعة كافة الأوراق البحثية، والمونوغرافات الأكاديمية، والقرارات المحكمة المنشورة في الحوار العالمي.'
-                  : 'Explore and read peer-assessed monographs, academic papers, and published dialogue resolutions from global youth scholars.')}
+            {isArabic
+              ? 'الوصول إلى أوراق الحوار المحكمة، وصياغة وتقديم المقالات والأبحاث الأكاديمية للأمانة العامة للمراجعة والنشر العام.'
+              : 'Access peer-assessed monographs, explore published research, and draft academic pieces to submit for secretariat review and public publishing.'}
           </p>
         </div>
 
-        {/* Action Button: ONLY Presenters can draft/submit papers. Members have reader access */}
-        {isPresenter ? (
-          <button
-            type="button"
-            onClick={() => setIsSubmitModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>
-              {isArabic ? 'كتابة وتقديم ورقة أكاديمية' : 'Submit Academic Work / Piece'}
-            </span>
-          </button>
-        ) : (
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold">
-              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>{isArabic ? 'مكتبة القراءة متاحة بالكامل' : 'Full Reader Access Enabled'}</span>
-            </span>
-            {!hasPresenterAccess && (
-              <button
-                type="button"
-                onClick={() => openPresenterModal?.()}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer border border-indigo-200/60 dark:border-indigo-800/60"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                <span>{isArabic ? 'طلب الاعتماد للنشر كمتحدث' : 'Apply to Publish as Presenter'}</span>
-              </button>
-            )}
-          </div>
-        )}
+        {/* Action Button: Presenters & Members have writing clearance */}
+        <button
+          type="button"
+          onClick={() => setIsSubmitModalOpen(true)}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>
+            {isArabic ? 'كتابة وتقديم ورقة أكاديمية' : 'Submit Academic Work / Piece'}
+          </span>
+        </button>
       </div>
 
-      {/* Presenter Callout Banner (If presenter) */}
-      {isPresenter ? (
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-500/10 border border-indigo-200/80 dark:border-indigo-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                {isArabic ? 'صلاحية النشر الأكاديمي للمتحدثين المعتمدين' : 'Presenter Academic Publishing Clearance'}
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 max-w-2xl leading-relaxed">
-                {isArabic
-                  ? 'بصفتك متحدثاً رسمياً معتمداً، يمكنك صياغة مقالاتك وأوراقك البحثية وتقديمها كطلب إلى الأمانة العامة. بمجرد مراجعتها واعتمادها، ستُنشر مباشرة على الموقع العام.'
-                  : 'As an accredited presenter, you can author academic pieces, essays, and resolutions. Once reviewed and approved by the Secretariat Admin, your work will be published to the public global repository.'}
-              </p>
-            </div>
+      {/* Authoring & Clearance Callout Banner */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-500/10 border border-indigo-200/80 dark:border-indigo-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+            <Sparkles className="w-5 h-5" />
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsSubmitModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all shrink-0 cursor-pointer"
-          >
-            {isArabic ? 'صياغة ورقة جديدة' : 'Draft New Paper'}
-          </button>
-        </div>
-      ) : (
-        /* Member Reader Mode Callout Banner */
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-200/80 dark:border-emerald-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                {isArabic ? 'المكتبة الأكاديمية العامة — وصول مخصص للمطالعة والقراءة' : 'Digital Research Library — Verified Member Reader Access'}
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 max-w-2xl leading-relaxed">
-                {isArabic
-                  ? 'بصفتك عضواً معتمداً، يمكنك قراءة وتصفح كافة الأوراق البحثية والمونوغرافات الأكاديمية المنشورة. صلاحية صياغة المقالات وتقديمها للاعتماد مخصصة حصرياً للمتحدثين الرسميين المعتمدين.'
-                  : 'As a verified member, you have unrestricted access to read, explore, and cite all published research papers. Drafting new academic essays and submitting them for secretariat approval is reserved for accredited Keynote Presenters.'}
-              </p>
-            </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              {isPresenter
+                ? (isArabic ? 'صلاحية النشر الأكاديمي للمتحدثين المعتمدين' : 'Presenter Academic Publishing Clearance')
+                : (isArabic ? 'استوديو الكتابة الأكاديمية وتقديم الأوراق للأعضاء' : 'Member Academic Writing & Submission Clearance')}
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 max-w-2xl leading-relaxed">
+              {isPresenter
+                ? (isArabic
+                    ? 'بصفتك متحدثاً رسمياً معتمداً، يمكنك صياغة مقالاتك وأوراقك البحثية وتقديمها كطلب إلى الأمانة العامة. بمجرد مراجعتها واعتمادها، ستُنشر مباشرة على الموقع العام.'
+                    : 'As an accredited presenter, you can author academic pieces, essays, and resolutions. Once reviewed and approved by the Secretariat Admin, your work will be published to the public global repository.')
+                : (isArabic
+                    ? 'بصفتك عضواً في المنتدى، يمكنك صياغة مقالاتك وأوراقك البحثية وتقديمها مباشرة إلى الأمانة العامة للمراجعة والاعتماد للنشر في المكتبة العامة.'
+                    : 'As a verified member, you can draft research papers, policy syntheses, and essays and submit them directly for Secretariat review. Once approved, your piece is published in the global library.')}
+            </p>
           </div>
-
-          {!hasPresenterAccess && (
-            <button
-              type="button"
-              onClick={() => openPresenterModal?.()}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>{isArabic ? 'التقديم للاعتماد كمتحدث' : 'Apply for Presenter Clearance'}</span>
-            </button>
-          )}
         </div>
-      )}
+
+        <button
+          type="button"
+          onClick={() => setIsSubmitModalOpen(true)}
+          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+        >
+          <Plus className="w-4 h-4" />
+          <span>{isArabic ? 'صياغة ورقة جديدة' : 'Draft New Paper'}</span>
+        </button>
+      </div>
 
       {/* My Submitted Requests (If presenter has any) */}
-      {isPresenter && mySubmissions.length > 0 && (
+      {mySubmissions.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -422,7 +368,7 @@ export const PortalPublications: React.FC = () => {
       </div>
 
       {/* Presenter Compose / Submit Modal (Only for Presenters/Staff) */}
-      {isPresenter && isSubmitModalOpen && (
+      {isSubmitModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full p-5 sm:p-6 overflow-hidden max-h-[90vh] flex flex-col gap-4">
             <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -530,7 +476,7 @@ export const PortalPublications: React.FC = () => {
                 <span>
                   {isArabic
                     ? 'سيتم إدراج اسمك كمؤلف رئيسي للورقة، وستصلك إشعارات فور اعتماد الإدارة ونشرها على الموقع العام.'
-                    : `Will be submitted under author: ${user?.name || 'Keynote Presenter'}. Once reviewed and approved by Secretariat Admin, it will be accredited and publicly indexed.`}
+                    : `Will be submitted under author: ${user?.name || (isPresenter ? 'Keynote Presenter' : 'Youth Scholar')}. Once reviewed and approved by Secretariat Admin, it will be accredited and publicly indexed.`}
                 </span>
               </div>
 
