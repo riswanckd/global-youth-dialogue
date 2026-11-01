@@ -19,6 +19,7 @@ import {
   MessageSquareQuote,
   Volume2,
   RotateCw,
+  Eye,
 } from 'lucide-react';
 
 interface OutletContextType {
@@ -29,7 +30,9 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { openDeleteTrialModal } = useOutletContext<OutletContextType>() || {};
-  const { t, isArabic } = useAdminLanguage();
+  const { t, isArabic, translateCategory } = useAdminLanguage();
+  const [selectedAppForReview, setSelectedAppForReview] = useState<Application | null>(null);
+  const [reviewNotes, setReviewNotes] = useState('');
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -224,7 +227,7 @@ export const Dashboard: React.FC = () => {
 
   // Approve / Decline mutation with instant optimistic UI update, live backend sync, and cache sync
   const updateAppMutation = useMutation({
-    onMutate: async ({ id, status, email }: { id: string; status: string; email?: string }) => {
+    onMutate: async ({ id, status, email }: { id: string; status: string; email?: string; approvePresenter?: boolean; scope?: string; notes?: string }) => {
       // 0ms Optimistic UI removal from pending queue
       queryClient.setQueryData<Application[]>(['admin-applications', 'pending'], (old = []) =>
         old.filter((a) => a.id !== id && (email ? a.email?.toLowerCase() !== email.toLowerCase() : true))
@@ -235,12 +238,12 @@ export const Dashboard: React.FC = () => {
           : t('dash.appDeclinedToast', 'Application declined.')
       );
     },
-    mutationFn: async ({ id, status, email }: { id: string; status: string; email?: string }) => {
+    mutationFn: async ({ id, status, email, approvePresenter = false, scope = 'membership', notes }: { id: string; status: string; email?: string; approvePresenter?: boolean; scope?: string; notes?: string }) => {
       let remoteSuccess = false;
       try {
         await apiRequest(`/admin/applications/${id}/status`, {
           method: 'PATCH',
-          body: JSON.stringify({ status, email, approvePresenter: false, scope: 'membership' }),
+          body: JSON.stringify({ status, email, approvePresenter, scope, reviewNotes: notes }),
         });
         remoteSuccess = true;
       } catch (err) {
@@ -257,7 +260,7 @@ export const Dashboard: React.FC = () => {
               ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
               'x-client-app': 'admin',
             },
-            body: JSON.stringify({ status, email, approvePresenter: false, scope: 'membership' }),
+            body: JSON.stringify({ status, email, approvePresenter, scope, reviewNotes: notes }),
           });
           if (directRes.ok) remoteSuccess = true;
         } catch {}
@@ -462,17 +465,29 @@ export const Dashboard: React.FC = () => {
               displayApplications.map((app) => (
                 <div
                   key={app.id}
-                  className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="rounded-xl bg-[#f8fafc] dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-colors"
                 >
-                  <div>
-                    <div className="text-sm font-bold text-slate-900 dark:text-white">
-                      {app.applicantName} ({app.country || t('dash.global', 'Global')})
+                  <div
+                    className="cursor-pointer group flex-1 min-w-0"
+                    onClick={() => {
+                      setSelectedAppForReview(app);
+                      setReviewNotes(app.reviewNotes || '');
+                    }}
+                  >
+                    <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
+                      <span className="group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {app.applicantName} ({app.country || t('dash.global', 'Global')})
+                      </span>
+                      <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-0.5">
+                        <Eye className="w-3 h-3" />
+                        <span>{t('dash.review', 'Review')}</span>
+                      </span>
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                       {app.organization || app.experience || t('dash.applicantFallback', 'Applicant')}
                     </div>
                     {app.motivation && (
-                      <div className="text-xs text-slate-600 dark:text-slate-300 italic mt-1 font-serif">
+                      <div className="text-xs text-slate-600 dark:text-slate-300 italic mt-1 font-serif line-clamp-2">
                         &quot;{app.motivation}&quot;
                       </div>
                     )}
@@ -480,9 +495,21 @@ export const Dashboard: React.FC = () => {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAppForReview(app);
+                        setReviewNotes(app.reviewNotes || '');
+                      }}
+                      className="px-3.5 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
+                      title={isArabic ? 'مراجعة ملف وتفاصيل المتقدم الكاملة' : 'Review applicant details, interests, and motivation'}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{t('dash.review', 'Review')}</span>
+                    </button>
+                    <button
                       onClick={() => updateAppMutation.mutate({ id: app.id, status: 'approved', approvePresenter: false, scope: 'membership', email: app.email } as any)}
                       disabled={updateAppMutation.isPending}
-                      className="px-4 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                      className="px-3.5 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
                       title={isArabic ? 'اعتماد العضوية (صلاحيات عضو فقط)' : 'Approve Membership (Member Access Only)'}
                     >
                       <Check className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -491,7 +518,7 @@ export const Dashboard: React.FC = () => {
                     <button
                       onClick={() => updateAppMutation.mutate({ id: app.id, status: 'rejected', scope: 'membership', email: app.email } as any)}
                       disabled={updateAppMutation.isPending}
-                      className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                      className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
                     >
                       <X className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>{t('dash.decline', 'Decline')}</span>
@@ -551,6 +578,215 @@ export const Dashboard: React.FC = () => {
             </button>
           </div>
         </div>
+
+      {/* Review Applicant Details & Dossier Modal */}
+      {selectedAppForReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {selectedAppForReview.applicantName}
+                  </h3>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                    {isArabic ? 'بانتظار المراجعة والاعتماد' : 'Pending Review'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{selectedAppForReview.email}</span>
+                  <span>•</span>
+                  <span>{selectedAppForReview.country || t('dash.global', 'Global')}</span>
+                  <span>•</span>
+                  <span>{selectedAppForReview.organization || t('apps.independent', 'Independent Scholar')}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedAppForReview(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Applicant Profile Details Grid (Except Password) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 text-xs">
+              <div>
+                <span className="text-slate-400 font-semibold block">{isArabic ? 'الاسم الكامل:' : 'Full Applicant Name:'}</span>
+                <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedAppForReview.applicantName}</p>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block">{isArabic ? 'البريد الإلكتروني:' : 'Email Address:'}</span>
+                <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedAppForReview.email}</p>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block">{isArabic ? 'الدولة والوفد:' : 'Country & Delegation:'}</span>
+                <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedAppForReview.country || 'Global'}</p>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block">{isArabic ? 'المؤسسة أو الجامعة:' : 'Institution / Organization:'}</span>
+                <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedAppForReview.organization || t('apps.independent', 'Independent Scholar')}</p>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block">{isArabic ? 'اللغات المفضلة:' : 'Preferred Working Languages:'}</span>
+                <p className="text-slate-700 dark:text-slate-200 mt-0.5 font-medium">
+                  {selectedAppForReview.preferredLanguages?.join(', ') || 'English, Arabic'}
+                </p>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block">{isArabic ? 'تاريخ تقديم الطلب:' : 'Application Submitted:'}</span>
+                <p className="text-slate-700 dark:text-slate-200 mt-0.5 font-medium">
+                  {selectedAppForReview.createdAt ? new Date(selectedAppForReview.createdAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent'}
+                </p>
+              </div>
+            </div>
+
+            {/* Academic Spheres of Interest */}
+            <div className="space-y-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-indigo-500" />
+                <span>{isArabic ? 'المجالات والمحاور المعرفية ذات الاهتمام' : 'Thematic Knowledge Disciplines & Spheres of Interest'}</span>
+              </h4>
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {selectedAppForReview.areasOfInterest && selectedAppForReview.areasOfInterest.length > 0 ? (
+                  selectedAppForReview.areasOfInterest.map((area: string, idx: number) => (
+                    <span
+                      key={idx}
+                      className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                    >
+                      {translateCategory ? translateCategory(area) : area}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-500 italic">{isArabic ? 'عام — كافة مجالات الحوار الدولي' : 'General — International Dialogue & Global Affairs'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Motivation for Joining GYDE (Personal Motive & Statement) */}
+            <div className="space-y-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <MessageSquareQuote className="w-3.5 h-3.5 text-purple-500" />
+                <span>{isArabic ? 'رسالة الاهتمام والدافع للانضمام للمجتمع' : 'Motivation for Joining GYDE (Personal Statement)'}</span>
+              </h4>
+              <div className="text-xs leading-relaxed text-slate-800 dark:text-slate-200 bg-purple-50/40 dark:bg-purple-950/20 p-3.5 rounded-xl border border-purple-100 dark:border-purple-900/50 font-serif italic">
+                {selectedAppForReview.motivation ? (
+                  `"${selectedAppForReview.motivation}"`
+                ) : (
+                  <span className="text-slate-400 not-italic">{isArabic ? 'لم يتم تقديم رسالة دافع مفصلة.' : 'No detailed motivation statement provided.'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Dialogue & Academic Experience */}
+            <div className="space-y-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+                <span>{isArabic ? 'الخبرة الحوارية والأكاديمية السابقة' : 'Dialogue, Research & Academic Experience'}</span>
+              </h4>
+              <div className="text-xs leading-relaxed text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                {selectedAppForReview.experience || (
+                  <span className="text-slate-400 italic">{isArabic ? 'لم تذكر خبرات سابقة.' : 'No prior debate or academic experience listed.'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Keynote Presenter Proposal Dossier (if candidate applied for Presenter role) */}
+            {selectedAppForReview.presenterProposal?.proposedTopic && (
+              <div className="p-4 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/60 dark:bg-purple-950/30 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Mic className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <h4 className="text-xs font-bold text-purple-900 dark:text-purple-200">
+                    {isArabic ? 'طلب اعتماد متحدث رئيسي' : 'Keynote Presenter Accreditation Proposal'}
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-slate-400 font-semibold">{isArabic ? 'الموضوع المقترح:' : 'Proposed Topic:'}</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedAppForReview.presenterProposal.proposedTopic}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold">{isArabic ? 'المجال:' : 'Sphere:'}</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">{selectedAppForReview.presenterProposal.sphere}</p>
+                  </div>
+                </div>
+                {selectedAppForReview.presenterProposal.statementOfIntent && (
+                  <p className="text-xs text-slate-700 dark:text-slate-200 bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900/60">
+                    {selectedAppForReview.presenterProposal.statementOfIntent}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Internal Secretariat Deliberation Notes */}
+            <div className="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                {isArabic ? 'ملاحظات المنسق الداخلية (اختياري للتدقيق)' : 'Secretariat Review Notes (Internal Audit)'}
+              </label>
+              <textarea
+                value={reviewNotes}
+                onChange={(e) => setReviewNotes(e.target.value)}
+                placeholder={isArabic ? 'أدخل ملاحظات التقييم أو معايير القبول...' : 'Enter observations, dialogue suitability, or deliberation rationale...'}
+                rows={2}
+                className="w-full p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800 flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedAppForReview(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                {isArabic ? 'إغلاق' : 'Close'}
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={updateAppMutation.isPending}
+                  onClick={() => {
+                    updateAppMutation.mutate({
+                      id: selectedAppForReview.id,
+                      status: 'rejected',
+                      email: selectedAppForReview.email,
+                      notes: reviewNotes,
+                    } as any);
+                    setSelectedAppForReview(null);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
+                >
+                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>{isArabic ? 'رفض الطلب' : 'Reject / Decline'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={updateAppMutation.isPending}
+                  onClick={() => {
+                    updateAppMutation.mutate({
+                      id: selectedAppForReview.id,
+                      status: 'approved',
+                      email: selectedAppForReview.email,
+                      approvePresenter: false,
+                      scope: 'membership',
+                      notes: reviewNotes,
+                    } as any);
+                    setSelectedAppForReview(null);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>{isArabic ? 'الموافقة واعتماد العضوية' : 'Approve Membership'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

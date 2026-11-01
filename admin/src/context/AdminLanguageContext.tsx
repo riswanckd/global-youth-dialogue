@@ -122,7 +122,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'apps.colExperience': { en: 'Dialogue Track', ar: 'المسار الحواري' },
   'apps.colStatus': { en: 'Status', ar: 'الحالة' },
   'apps.colActions': { en: 'Actions', ar: 'الإجراءات' },
-  'apps.reviewBtn': { en: 'Review Dossier', ar: 'مراجعة الملف' },
+  'dash.review': { en: 'Review', ar: 'مراجعة' },
+  'apps.reviewBtn': { en: 'Review', ar: 'مراجعة' },
   'apps.modalTitle': { en: 'Applicant Dossier & Deliberation', ar: 'ملف المتقدم ومداولة المنسقين' },
   'apps.modalSubtitle': {
     en: 'Review full background, academic accolades, and candidate motivation statement.',

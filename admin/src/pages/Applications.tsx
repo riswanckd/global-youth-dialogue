@@ -809,7 +809,7 @@ export const Applications: React.FC = () => {
                             className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" />
-                            <span>{t('apps.reviewBtn', 'Inspect')}</span>
+                            <span>{t('apps.reviewBtn', 'Review')}</span>
                           </button>
                           <button
                             type="button"
@@ -971,7 +971,7 @@ export const Applications: React.FC = () => {
                       className="flex-1 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 text-xs font-bold flex items-center justify-center gap-1 transition-colors shadow-xs"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>{t('apps.reviewBtn', 'Inspect')}</span>
+                      <span>{t('apps.reviewBtn', 'Review')}</span>
                     </button>
                     <button
                       type="button"
