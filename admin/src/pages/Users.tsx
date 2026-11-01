@@ -39,7 +39,8 @@ export const ADMIN_MODULES = [
   { id: 'feedback', name: 'Delegate Feedback Analysis', nameAr: 'تحليل تقييمات الوفود', description: 'Participant ratings, feedback analytics, and sentiment', descriptionAr: 'تقييمات المشاركين وتحليل مؤشرات الأداء الحواري' },
   { id: 'applications', name: 'Pending Applications', nameAr: 'طلبات الانضمام المعلقة', description: 'Applicant screening, verification, and admission approval', descriptionAr: 'تدقيق وتدقيق ملفات المتقدمين والبت في العضوية' },
   { id: 'analytics', name: 'Country Chapters', nameAr: 'الفروع والوفود الدولية', description: 'Geographic delegate distribution and chapter analytics', descriptionAr: 'التوزيع الجغرافي للمشاركين ومؤشرات الفروع الوطنية' },
-  { id: 'settings', name: 'Media & PR Studio', nameAr: 'استوديو الإعلام والعلاقات العامة', description: 'Press materials, public relations assets, and broadcast kits', descriptionAr: 'المواد الصحفية وأصول العلاقات العامة وحقائب البث' },
+  { id: 'media', name: 'Media & PR Studio', nameAr: 'استوديو الإعلام والعلاقات العامة', description: 'Press materials, public relations assets, and broadcast kits', descriptionAr: 'المواد الصحفية وأصول العلاقات العامة وحقائب البث' },
+  { id: 'profile', name: 'Coordinator Profile', nameAr: 'ملف المنسق والاعتمادات', description: 'Coordinator credentials, profile settings, and access control', descriptionAr: 'بيانات المنسق وإعدادات الملف الشخصي وصلاحيات الدخول' },
 ];
 
 export const Users: React.FC = () => {

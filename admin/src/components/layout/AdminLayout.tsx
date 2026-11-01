@@ -191,8 +191,8 @@ export const AdminLayout: React.FC = () => {
     { id: 'feedback', label: t('menu.feedbackAnalysis', 'Delegate Feedback Analysis'), path: '/feedback', icon: MessageSquareQuote },
     { id: 'applications', label: t('menu.pendingApps', 'Pending Applications'), path: '/applications', icon: UserCheck },
     { id: 'analytics', label: t('menu.countryChapters', 'Country Chapters'), path: '/analytics', icon: Globe },
-    { id: 'settings', label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/settings', icon: Share2 },
-    { id: 'profile', label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/settings', icon: User },
+    { id: 'media', label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/media', icon: Share2 },
+    { id: 'profile', label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/profile', icon: User },
   ];
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === 'admin@thegyde.in';

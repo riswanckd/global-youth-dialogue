@@ -269,6 +269,7 @@ export const Sessions: React.FC = () => {
       meetingUrl: '',
       recordingUrl: '',
       moderator: '',
+      moderatorCountry: '',
       presenters: [{ name: '', country: '', bio: '' }],
       team1Members: [''],
       team2Members: [''],

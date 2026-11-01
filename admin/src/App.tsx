@@ -18,6 +18,8 @@ import { SessionSummaries } from './pages/SessionSummaries';
 import { Analytics } from './pages/Analytics';
 import { AuditLogs } from './pages/AuditLogs';
 import { Settings } from './pages/Settings';
+import { MediaStudio } from './pages/MediaStudio';
+import { CoordinatorProfile } from './pages/CoordinatorProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +60,8 @@ export const App: React.FC = () => {
                 <Route path="publications" element={<Publications />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="audit-logs" element={<AuditLogs />} />
+                <Route path="media" element={<MediaStudio />} />
+                <Route path="profile" element={<CoordinatorProfile />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
 
