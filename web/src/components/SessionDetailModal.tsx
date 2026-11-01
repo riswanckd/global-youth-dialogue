@@ -103,28 +103,42 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
   };
 
   const scrollBodyRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const lastOpenedSessionKey = useRef<string | null>(null);
 
   // Close on Escape key & lock scroll cleanly
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
       const prevOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
 
-      // Always scroll modal to very top when opened
-      if (scrollBodyRef.current) {
-        scrollBodyRef.current.scrollTop = 0;
-      }
-
       return () => {
         window.removeEventListener('keydown', handleKeyDown);
         document.body.style.overflow = prevOverflow || '';
       };
     }
-  }, [isOpen, onClose, session]);
+  }, [isOpen]);
+
+  // Only scroll modal to top ONCE when a new session modal opens (never on background timer re-renders)
+  useEffect(() => {
+    if (!isOpen) {
+      lastOpenedSessionKey.current = null;
+      return;
+    }
+
+    const sessionKey = session ? ((session as any).id || (session as any)._id || session.title) : null;
+    if (sessionKey && lastOpenedSessionKey.current !== sessionKey) {
+      lastOpenedSessionKey.current = sessionKey;
+      if (scrollBodyRef.current) {
+        scrollBodyRef.current.scrollTop = 0;
+      }
+    }
+  }, [isOpen, session ? ((session as any).id || (session as any)._id || session.title) : null]);
 
   if (!isOpen || !session) return null;
 
