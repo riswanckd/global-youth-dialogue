@@ -96,6 +96,7 @@ export const AdminLayout: React.FC = () => {
     (p) => p.status === 'under_review' || p.status === 'draft' || (p as any).status === 'review'
   );
 
+
   // 5. Total pending items for live red badge
   const totalPendingNotifications =
     pendingMemberApps.length +
@@ -215,6 +216,10 @@ export const AdminLayout: React.FC = () => {
       return location.pathname === basePath || location.pathname.startsWith(basePath + '/');
     })
     .sort((a, b) => b.path.length - a.path.length)[0];
+
+
+
+
   const isCurrentRouteAuthorized = !currentActiveItem || isMenuAuthorized(currentActiveItem.id);
 
   const displayName = user?.name || 'GYDE Super Administrator';
@@ -384,6 +389,9 @@ export const AdminLayout: React.FC = () => {
                 const Icon = item.icon;
                 const isAuthorized = isMenuAuthorized(item.id);
                 const isActive = currentActiveItem?.id === item.id;
+
+
+
 
                 if (!isAuthorized) {
                   return (

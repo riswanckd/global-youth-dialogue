@@ -384,7 +384,8 @@ export const Sessions: React.FC = () => {
             bio: p.bio?.trim() || '',
           }));
       } else if (data.sessionCategory === 'Structural Debate' || (data.sessionCategory as any) === 'Structured Dialogue') {
-        payload.moderator = data.moderator.trim();
+        payload.moderator = '';
+        payload.moderatorCountry = '';
         payload.propositionTeam = data.team1Members.map((m) => m.trim()).filter(Boolean);
         payload.oppositionTeam = data.team2Members.map((m) => m.trim()).filter(Boolean);
         payload.presenters = [
@@ -971,7 +972,6 @@ export const Sessions: React.FC = () => {
 
                             {(sessionCat === 'Structured Dialogue' || sessionCat === 'Structural Debate') && (
                               <div className="flex flex-wrap items-center gap-2">
-                                {s.moderator && <span><strong className="text-slate-700 dark:text-slate-300">Mod:</strong> {s.moderator} {((s as any).moderatorCountry || (s.moderator.toLowerCase().includes('sümeyye') ? 'Türkiye 🇹🇷' : '')) ? `(${((s as any).moderatorCountry || 'Türkiye 🇹🇷')})` : ''}</span>}
                                 {s.propositionTeam && s.propositionTeam.length > 0 && (
                                   <span className="text-indigo-600 dark:text-indigo-400 font-medium">
                                     Team 1 ({s.propositionTeam.length}): {s.propositionTeam.join(', ')}
@@ -1719,7 +1719,7 @@ export const Sessions: React.FC = () => {
                   <option value="Structural Debate">
                     {isArabic
                       ? 'مناظرة هيكلية (مدير الجلسة - اختياري، فريقان وأسماء أعضائهما)'
-                      : 'Structural Debate (moderator - optional, two teams and their members names)'}
+                      : 'Structural Debate (no moderator, two teams and their members names)'}
                   </option>
                   <option value="Discussion">
                     {isArabic
@@ -1965,20 +1965,11 @@ export const Sessions: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs border-b border-slate-200 dark:border-slate-700 pb-1.5">
                       <Users className="w-4 h-4" />
-                      <span>Structural Debate Configuration (Moderator - optional, Two teams and their members names)</span>
+                      <span>Structural Debate Configuration (No moderator - Two teams and their members names)</span>
                     </div>
 
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Chamber President / Moderator <span className="text-slate-400 text-[10px] font-normal">(Optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Session Speaker / Adjudicator Name (Optional)"
-                        value={formData.moderator}
-                        onChange={(e) => setFormData({ ...formData, moderator: e.target.value })}
-                        className="w-full p-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
-                      />
+                    <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs">
+                      <strong>Parliamentary Structure:</strong> Debates feature proposition & opposition debate teams with no chamber moderator.
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

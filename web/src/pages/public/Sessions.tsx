@@ -53,7 +53,7 @@ const FALLBACK_SESSIONS: SessionItem[] = [
     status: 'Completed',
     presenterName: 'Global Youth Delegation',
     presenterCountry: 'International',
-    moderator: 'GYDE Academic Secretariat',
+
     countries: ['IN', 'QA', 'UK', 'GH', 'LB', 'SD'],
     summary: 'Evaluating youth representation, intergenerational equity, and institutional advisory mechanisms in national and international policy architecture.',
   },

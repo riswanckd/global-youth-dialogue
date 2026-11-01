@@ -90,9 +90,11 @@ export const PortalSessionDetail: React.FC = () => {
     }
   }
 
-  const moderatorName = session.moderator?.trim() || (isArabic ? 'الأمانة الأكاديمية لـ GYDE' : 'GYDE Academic Secretariat');
+  const rawMod = session.moderator?.trim();
+  const hasModerator = !isStructuralDebate && Boolean(rawMod);
+  const moderatorName = rawMod || '';
   let moderatorCountry = session.moderatorCountry?.trim() || '';
-  if (!moderatorCountry) {
+  if (hasModerator && !moderatorCountry && moderatorName) {
     const lower = moderatorName.toLowerCase();
     if (lower.includes('sümeyye') || lower.includes('sumeyye')) moderatorCountry = 'Türkiye';
     else if (lower.includes('mubashir')) moderatorCountry = 'India';
@@ -284,52 +286,54 @@ export const PortalSessionDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* HIGHLIGHTED CHAMBER MODERATOR SPOTLIGHT BOX */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/5 dark:from-purple-950/40 dark:via-indigo-950/30 dark:to-transparent border border-purple-200/90 dark:border-purple-800/60 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-md shrink-0">
-            <Shield className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] uppercase font-extrabold tracking-wider text-purple-700 dark:text-purple-300">
-                {isArabic ? 'رئاسة وإدارة القاعة الأكاديمية' : 'Chamber Moderator & Session Chair'}
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200 text-[9px] font-extrabold uppercase">
-                {isArabic ? 'رئيس الجلسة' : 'Presiding Chair'}
-              </span>
+      {/* HIGHLIGHTED CHAMBER MODERATOR SPOTLIGHT BOX (Only if format permits and moderator is assigned - Debates have no moderator) */}
+      {hasModerator && (
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/5 dark:from-purple-950/40 dark:via-indigo-950/30 dark:to-transparent border border-purple-200/90 dark:border-purple-800/60 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-md shrink-0">
+              <Shield className="w-6 h-6" />
             </div>
-
-            <div className="flex items-center gap-2.5 mt-1 flex-wrap">
-              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
-                {moderatorName}
-              </h3>
-              {moderatorCountry && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/80 text-purple-800 dark:text-purple-200 text-xs font-bold border border-purple-200 dark:border-purple-800">
-                  {moderatorCountryMeta?.flagEmoji && <span className="text-sm">{moderatorCountryMeta.flagEmoji}</span>}
-                  <span>{moderatorCountry}</span>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] uppercase font-extrabold tracking-wider text-purple-700 dark:text-purple-300">
+                  {isArabic ? 'رئاسة وإدارة القاعة الأكاديمية' : 'Chamber Moderator & Session Chair'}
                 </span>
-              )}
+                <span className="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200 text-[9px] font-extrabold uppercase">
+                  {isArabic ? 'رئيس الجلسة' : 'Presiding Chair'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5 mt-1 flex-wrap">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
+                  {moderatorName}
+                </h3>
+                {moderatorCountry && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/80 text-purple-800 dark:text-purple-200 text-xs font-bold border border-purple-200 dark:border-purple-800">
+                    {moderatorCountryMeta?.flagEmoji && <span className="text-sm">{moderatorCountryMeta.flagEmoji}</span>}
+                    <span>{moderatorCountry}</span>
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed max-w-2xl">
+                {isArabic
+                  ? 'يدير وقائع الجلسة، ويشرف على مداخلات المتحدثين الرئيسيين، وينظم طرح أسئلة الوفود والحضور في قاعة الحوار.'
+                  : 'Presides over chamber proceedings, speaker rotations, and moderates delegate interventions and Q&A.'}
+              </p>
             </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed max-w-2xl">
-              {isArabic
-                ? 'يدير وقائع الجلسة، ويشرف على مداخلات المتحدثين الرئيسيين، وينظم طرح أسئلة الوفود والحضور في قاعة الحوار.'
-                : 'Presides over chamber proceedings, speaker rotations, and moderates delegate interventions and Q&A.'}
-            </p>
           </div>
+
+          {moderatorCountry && (
+            <div className="hidden lg:flex flex-col items-end shrink-0">
+              <span className="text-[10px] uppercase font-bold text-slate-400">{isArabic ? 'الدولة' : 'Delegation'}</span>
+              <span className="text-xs font-extrabold text-purple-700 dark:text-purple-300 flex items-center gap-1.5 mt-0.5">
+                {moderatorCountryMeta?.flagEmoji && <span className="text-base">{moderatorCountryMeta.flagEmoji}</span>}
+                <span>{moderatorCountry}</span>
+              </span>
+            </div>
+          )}
         </div>
-
-        {moderatorCountry && (
-          <div className="hidden lg:flex flex-col items-end shrink-0">
-            <span className="text-[10px] uppercase font-bold text-slate-400">{isArabic ? 'الدولة' : 'Delegation'}</span>
-            <span className="text-xs font-extrabold text-purple-700 dark:text-purple-300 flex items-center gap-1.5 mt-0.5">
-              {moderatorCountryMeta?.flagEmoji && <span className="text-base">{moderatorCountryMeta.flagEmoji}</span>}
-              <span>{moderatorCountry}</span>
-            </span>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* FORMAT-SPECIFIC SECTION: TOPIC PRESENTATION */}
       {isTopicPresentation && (

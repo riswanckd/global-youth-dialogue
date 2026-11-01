@@ -411,9 +411,16 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
             </div>
           </div>
 
-          {/* HIGHLIGHTED CHAMBER MODERATOR SPOTLIGHT BOX */}
+          {/* HIGHLIGHTED CHAMBER MODERATOR SPOTLIGHT BOX (Only if format permits and moderator is assigned - Debates have no moderator) */}
           {(() => {
-            const rawMod = session.moderator?.trim() || (isArabic ? 'الأمانة الأكاديمية لـ GYDE' : 'GYDE Academic Secretariat');
+            const rawFormat = (session.format || (session as any).sessionCategory || '').toLowerCase();
+            const isDebate = rawFormat.includes('debate') || rawFormat.includes('parliamentary') || ((session.propositionTeam && session.propositionTeam.length > 0) || (session.oppositionTeam && session.oppositionTeam.length > 0));
+            const rawMod = session.moderator?.trim();
+
+            if (isDebate || !rawMod) {
+              return null;
+            }
+
             let modCountry = session.moderatorCountry?.trim() || '';
             if (!modCountry) {
               const lower = rawMod.toLowerCase();
