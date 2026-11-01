@@ -5710,6 +5710,15 @@ body.rtl-mode .mobile-nav-drawer {
     line-height: 1.42 !important;
     margin-bottom: 0.75rem !important;
   }
+
+  /* Upcoming Session Mobile Meta Line Spacing Tightening */
+  .home-upcoming-meta {
+    row-gap: 0.35rem !important;
+    column-gap: 0.85rem !important;
+  }
+  .home-upcoming-meta .home-meta-item {
+    line-height: 1.35 !important;
+  }
   [data-theme="dark"] .home-upcoming-container {
     border: 1.5px solid rgba(158, 89, 172, 0.45) !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;

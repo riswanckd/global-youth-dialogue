@@ -860,23 +860,38 @@ export const Home: React.FC = () => {
                     >
                       {isArabic && nextUpcomingSession.descriptionAr ? nextUpcomingSession.descriptionAr : nextUpcomingSession.description}
                     </p>
-                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.88rem', color: 'var(--text-body)', fontWeight: 500 }}>
-                      <div>
+                    <div
+                      className="home-upcoming-meta"
+                      style={{
+                        display: 'flex',
+                        columnGap: '1.5rem',
+                        rowGap: '0.35rem',
+                        flexWrap: 'wrap',
+                        fontSize: '0.88rem',
+                        color: 'var(--text-body)',
+                        fontWeight: 500,
+                      }}
+                    >
+                      <div className="home-meta-item">
                         <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}
-                        {nextUpcomingSession.scheduledAt
-                          ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })
-                          : (isArabic ? 'تحدد لاحقاً' : 'TBD')}
+                        <span>
+                          {nextUpcomingSession.scheduledAt
+                            ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })
+                            : (isArabic ? 'تحدد لاحقاً' : 'TBD')}
+                        </span>
                       </div>
-                      <div>
+                      <div className="home-meta-item">
                         <strong>{isArabic ? 'الوقت:' : 'Time:'}</strong>{' '}
-                        {nextUpcomingSession.scheduledAt
-                          ? `${String(new Date(nextUpcomingSession.scheduledAt).getUTCHours()).padStart(2, '0')}:${String(new Date(nextUpcomingSession.scheduledAt).getUTCMinutes()).padStart(2, '0')} UTC`
-                          : '14:00 UTC'}
+                        <span>
+                          {nextUpcomingSession.scheduledAt
+                            ? `${String(new Date(nextUpcomingSession.scheduledAt).getUTCHours()).padStart(2, '0')}:${String(new Date(nextUpcomingSession.scheduledAt).getUTCMinutes()).padStart(2, '0')} UTC`
+                            : '14:00 UTC'}
+                        </span>
                       </div>
                       {Boolean(nextUpcomingSession.moderator && !nextUpcomingSession.format?.toLowerCase().includes('debate')) && (
-                        <div>
+                        <div className="home-meta-item">
                           <strong>{isArabic ? 'مدير الجلسة:' : 'Moderator:'}</strong>{' '}
-                          {nextUpcomingSession.moderator}
+                          <span>{nextUpcomingSession.moderator}</span>
                         </div>
                       )}
                     </div>
