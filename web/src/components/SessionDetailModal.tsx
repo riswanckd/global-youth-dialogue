@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -101,20 +102,29 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
     }
   };
 
-  // Close on Escape key
+  const scrollBodyRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape key & lock scroll cleanly
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
+      const prevOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
+
+      // Always scroll modal to very top when opened
+      if (scrollBodyRef.current) {
+        scrollBodyRef.current.scrollTop = 0;
+      }
+
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = prevOverflow || '';
+      };
     }
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, session]);
 
   if (!isOpen || !session) return null;
 
@@ -156,18 +166,27 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
   const borderSubtle = isDark ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0';
   const sectionBg = isDark ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc';
 
-  return (
+  const modalContent = (
     <div
+      className="session-modal-overlay"
       style={{
         position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: isDark ? 'rgba(5, 7, 15, 0.85)' : 'rgba(15, 23, 42, 0.65)',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100dvh',
+        zIndex: 99999,
+        background: isDark ? 'rgba(5, 7, 15, 0.88)' : 'rgba(15, 23, 42, 0.72)',
         backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1rem',
+        padding: '0.65rem',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehavior: 'contain',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -181,28 +200,30 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
           maxWidth: '720px',
           background: bgCard,
           color: textHeading,
-          borderRadius: '24px',
+          borderRadius: '20px',
           border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid #e2e8f0',
           boxShadow: isDark
             ? '0 25px 60px -15px rgba(0, 0, 0, 0.9)'
             : '0 25px 60px -15px rgba(15, 23, 42, 0.25)',
-          maxHeight: '90vh',
+          maxHeight: 'min(94dvh, 94vh)',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
+          margin: 'auto',
           overflow: 'hidden',
           direction: isArabic ? 'rtl' : 'ltr',
         }}
       >
         {/* Modal Header Strip */}
         <div
+          className="session-modal-header"
           style={{
-            padding: '1.25rem 1.75rem',
+            padding: '1rem 1.25rem',
             borderBottom: `1px solid ${borderSubtle}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '1rem',
+            gap: '0.75rem',
             background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(248, 250, 252, 0.8)',
           }}
         >
@@ -307,13 +328,16 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
 
         {/* Modal Scrollable Body */}
         <div
+          ref={scrollBodyRef}
+          className="session-modal-body"
           style={{
-            padding: '1.75rem',
+            padding: '1.25rem',
             overflowY: 'auto',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            gap: '1.25rem',
+            gap: '1rem',
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           {/* Session Title */}
@@ -947,14 +971,15 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
 
         {/* Modal Footer */}
         <div
+          className="session-modal-footer"
           style={{
-            padding: '1rem 1.75rem',
+            padding: '0.85rem 1.25rem',
             borderTop: `1px solid ${borderSubtle}`,
             background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(248, 250, 252, 0.8)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '1rem',
+            gap: '0.75rem',
             flexWrap: 'wrap',
           }}
         >
@@ -987,4 +1012,8 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 };
