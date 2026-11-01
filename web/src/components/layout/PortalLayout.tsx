@@ -123,7 +123,7 @@ export const PortalLayout: React.FC = () => {
     ? pendingMemberApps.length + pendingPresenterApps.length + proposedTopics.length + pendingPublications.length
     : (proposedTopics.filter((t) => (t as any).proposedBy?.email === user?.email || (t as any).proposedBy?.userId === user?.id).length +
        pendingPublications.filter((p) => (p as any).createdBy === user?.id).length +
-       scheduledSessions.length || 1);
+       scheduledSessions.length);
 
   // Toggle state between Member View and Presenter View (stored in localStorage for seamless experience)
   const [activeDashboardMode, setActiveDashboardMode] = useState<'member' | 'presenter'>(() => {

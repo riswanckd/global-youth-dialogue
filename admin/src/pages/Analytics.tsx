@@ -35,7 +35,7 @@ export const Analytics: React.FC = () => {
 
   const totalMembers = stats?.totalMembers ?? 0;
   const totalSessions = sessionTrendData.reduce((acc, s) => acc + s.count, 0) || 0;
-  const totalCountries = countryData.length || 14;
+  const totalCountries = countryData.length;
   const publishedPapers = stats?.publishedPapers ?? 0;
 
   return (

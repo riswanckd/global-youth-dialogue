@@ -139,6 +139,12 @@ export const PortalDashboard: React.FC = () => {
     queryFn: () => apiRequest<Publication[]>('/publications').catch(() => []),
   });
 
+  // Fetch real peer evaluations / feedback from database
+  const { data: myFeedback = [] } = useQuery<any[]>({
+    queryKey: ['portal-feedback-me'],
+    queryFn: () => apiRequest<any[]>('/feedback/me').catch(() => []),
+  });
+
   const myPresentationApplications = topics.filter((t: any) =>
     t.interestedToPresent || (t.proposedBy?.userId && user?.id && String(t.proposedBy.userId) === String(user.id))
   );
@@ -150,12 +156,13 @@ export const PortalDashboard: React.FC = () => {
   const completedSessions = sessions.filter((s: DialogueSession) => s.status === 'completed');
   const recentCompletedSession = completedSessions.find((s: DialogueSession) => !!s.recordingUrl) || completedSessions[0];
 
+  // Strictly dynamic real database counts with zero fake fallbacks
   const upcomingSessionsCount = sessions.filter((s: DialogueSession) =>
     s.status !== 'completed' && ['scheduled', 'approved', 'published', 'live'].includes(s.status)
-  ).length || 0;
-  const activeEvaluationsCount = 4;
-  const topicLibraryCount = topics.length || 16;
-  const academicPapersCount = publications.length || 8;
+  ).length;
+  const activeEvaluationsCount = myFeedback.length;
+  const topicLibraryCount = topics.length;
+  const academicPapersCount = publications.length;
 
   const handleOpenPresenterModal = () => {
     if (openPresenterModal) {
