@@ -197,15 +197,25 @@ export const AdminLayout: React.FC = () => {
   ];
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === 'admin@thegyde.in';
-  const isCoAdmin = !isSuperAdmin && (user?.role === 'ADMIN' || user?.role === 'COORDINATOR');
 
+  // Server-enforced RBAC clearance checker
   const isMenuAuthorized = (menuId: string) => {
     if (isSuperAdmin) return true;
-    if (!isCoAdmin) return true;
     if (menuId === 'profile') return true;
-    if (!user?.allowedMenus || user.allowedMenus.length === 0) return true;
-    return user.allowedMenus.includes(menuId);
+    if (Array.isArray(authorizedMenuIds) && authorizedMenuIds.length > 0) {
+      return authorizedMenuIds.includes(menuId);
+    }
+    if (Array.isArray(user?.allowedMenus) && user.allowedMenus.length > 0) {
+      return user.allowedMenus.includes(menuId);
+    }
+    // Strictly deny access if not granted
+    return false;
   };
+
+  // Physically render ONLY authorized navigation menus for Co-Admin
+  const visibleNavItems = isSuperAdmin
+    ? navItems
+    : navItems.filter((item) => isMenuAuthorized(item.id));
 
   const currentActiveItem = navItems
     .filter((item) => {
@@ -383,9 +393,9 @@ export const AdminLayout: React.FC = () => {
               </div>
             </div>
 
-            {/* Navigation Menu List */}
+            {/* Navigation Menu List (Physically filtered by Server-Side RBAC) */}
             <nav className="space-y-0.5">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const Icon = item.icon;
                 const isAuthorized = isMenuAuthorized(item.id);
                 const isActive = currentActiveItem?.id === item.id;

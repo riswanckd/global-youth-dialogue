@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/adminController';
 import { authenticate } from '../middleware/auth';
-import { requireRole } from '../middleware/rbac';
+import { requireRole, requireMenuAccess } from '../middleware/rbac';
 import { ROLES } from '../constants/roles';
 import userRoutes from './userRoutes';
 import applicationRoutes from './applicationRoutes';
@@ -15,18 +15,21 @@ const router = Router();
 router.use(authenticate);
 router.use(requireRole(ROLES.ADMIN, ROLES.SUPER_ADMIN));
 
-router.get('/dashboard/stats', adminController.getDashboardStats);
-router.get('/audit-logs', adminController.getAuditLogs);
-router.delete('/trial-data', adminController.purgeTrialData);
-router.post('/trial-data', adminController.purgeTrialData);
+// Dynamic Navigation & Clearance Verification Endpoint (Server-Side RBAC)
+router.get('/navigation', adminController.getNavigationMenu);
 
-// Mount resource routers under /admin to serve admin web client
-router.use('/users', userRoutes);
-router.use('/applications', applicationRoutes);
-router.use('/topics', topicRoutes);
-router.use('/sessions', sessionRoutes);
-router.use('/publications', publicationRoutes);
-router.use('/feedback', feedbackRoutes);
+router.get('/dashboard/stats', requireMenuAccess('dashboard'), adminController.getDashboardStats);
+router.get('/audit-logs', requireRole(ROLES.SUPER_ADMIN), adminController.getAuditLogs);
+router.delete('/trial-data', requireRole(ROLES.SUPER_ADMIN), adminController.purgeTrialData);
+router.post('/trial-data', requireRole(ROLES.SUPER_ADMIN), adminController.purgeTrialData);
+
+// Mount resource routers under /admin with granular server-side RBAC
+router.use('/users', requireMenuAccess('users'), userRoutes);
+router.use('/applications', requireMenuAccess('applications'), applicationRoutes);
+router.use('/topics', requireMenuAccess('topics', 'pipeline'), topicRoutes);
+router.use('/sessions', requireMenuAccess('sessions', 'session-summaries'), sessionRoutes);
+router.use('/publications', requireMenuAccess('publications'), publicationRoutes);
+router.use('/feedback', requireMenuAccess('feedback'), feedbackRoutes);
 
 export default router;
 

@@ -188,8 +188,6 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
 
     const isAuthorizedAdmin =
       req.user?.role === ROLES.SUPER_ADMIN ||
-      req.user?.role === ROLES.ADMIN ||
-      req.headers['x-client-app'] === 'admin' ||
       req.user?.email === 'admin@thegyde.in';
 
     if ((role === ROLES.ADMIN || allowedMenus !== undefined) && !isAuthorizedAdmin) {

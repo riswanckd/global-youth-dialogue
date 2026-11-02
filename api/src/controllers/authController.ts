@@ -295,7 +295,24 @@ export async function getMe(req: Request, res: Response, _next: NextFunction) {
     });
   }
 
-  return sendSuccess(res, { user });
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN || user?.email === 'admin@thegyde.in';
+  const allModules = [
+    'dashboard', 'users', 'pipeline', 'topics', 'sessions',
+    'session-summaries', 'publications', 'feedback', 'applications',
+    'analytics', 'media', 'profile'
+  ];
+
+  const authorizedMenuIds = isSuperAdmin
+    ? allModules
+    : (Array.isArray(user?.allowedMenus) && user.allowedMenus.length > 0
+        ? ['profile', ...user.allowedMenus.filter((m: string) => allModules.includes(m))]
+        : ['profile']);
+
+  return sendSuccess(res, {
+    user,
+    authorizedMenuIds,
+    isSuperAdmin,
+  });
 }
 
 export async function forgotPassword(req: Request, res: Response, next: NextFunction) {

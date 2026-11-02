@@ -16,9 +16,13 @@ app.use(helmet());
 
 // Strict Cache Control: bypass edge/CDN caches and isolate browser sessions
 app.use((_req, res, next) => {
-  res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
+  res.setHeader('Surrogate-Control', 'no-store');
+  res.setHeader('CDN-Cache-Control', 'no-store');
+  res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
+  res.setHeader('Vary', 'Authorization, Cookie, X-Client-App, Origin');
   next();
 });
 

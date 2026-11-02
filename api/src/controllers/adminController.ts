@@ -132,3 +132,46 @@ export async function purgeTrialData(_req: Request, res: Response, next: NextFun
     next(err);
   }
 }
+
+export const ADMIN_MODULES_SERVER = [
+  { id: 'dashboard', path: '/dashboard', label: 'Programme Overview' },
+  { id: 'users', path: '/users', label: 'The Community' },
+  { id: 'pipeline', path: '/topics/pipeline', label: 'Topic Lifecycle Pipeline' },
+  { id: 'topics', path: '/topics', label: 'Topic Bank' },
+  { id: 'sessions', path: '/sessions', label: 'Session Management' },
+  { id: 'session-summaries', path: '/session-summaries', label: 'Session Summaries' },
+  { id: 'publications', path: '/publications', label: 'Academic Writing Studio' },
+  { id: 'feedback', path: '/feedback', label: 'Delegate Feedback Analysis' },
+  { id: 'applications', path: '/applications', label: 'Pending Applications' },
+  { id: 'analytics', path: '/analytics', label: 'Country Chapters' },
+  { id: 'media', path: '/media', label: 'Media & PR Studio' },
+  { id: 'profile', path: '/profile', label: 'Coordinator Profile' },
+];
+
+export async function getNavigationMenu(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const isSuperAdmin = user.role === ROLES.SUPER_ADMIN || user.email === 'admin@thegyde.in';
+    const allowed = Array.isArray(user.allowedMenus) ? user.allowedMenus : [];
+
+    const authorizedMenuIds = isSuperAdmin
+      ? ADMIN_MODULES_SERVER.map((m) => m.id)
+      : ADMIN_MODULES_SERVER.filter((m) => m.id === 'profile' || allowed.includes(m.id)).map((m) => m.id);
+
+    const authorizedMenus = ADMIN_MODULES_SERVER.filter((m) => authorizedMenuIds.includes(m.id));
+
+    return sendSuccess(res, {
+      userId: user._id.toString(),
+      role: user.role,
+      isSuperAdmin,
+      authorizedMenuIds,
+      menus: authorizedMenus,
+    });
+  } catch (err) {
+    next(err);
+  }
+}

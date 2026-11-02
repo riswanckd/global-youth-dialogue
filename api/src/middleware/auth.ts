@@ -12,8 +12,17 @@ declare global {
   }
 }
 
-export async function authenticate(req: Request, _res: Response, next: NextFunction) {
+export async function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
+    // Explicitly enforce anti-caching headers on all authenticated API responses
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('CDN-Cache-Control', 'no-store');
+    res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Vary', 'Authorization, Cookie, X-Client-App, Origin');
+
     let token: string | undefined;
 
     if (req.headers.authorization?.startsWith('Bearer ')) {

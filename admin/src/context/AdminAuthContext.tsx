@@ -19,6 +19,7 @@ const DEFAULT_ADMIN_USER: User = {
 
 interface AdminAuthContextType {
   user: User | null;
+  authorizedMenuIds: string[];
   loading: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
@@ -33,6 +34,7 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefin
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [authorizedMenuIds, setAuthorizedMenuIds] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const refreshUser = async () => {
@@ -45,6 +47,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         removeStoredAdminToken();
         localStorage.removeItem(ADMIN_SESSION_KEY);
         setUser(null);
+        setAuthorizedMenuIds([]);
         setLoading(false);
         return;
       }
@@ -75,22 +78,29 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
 
       // Verify session with backend using this browser's credentials
-      const res = await apiRequest<{ user: User }>('/auth/me');
+      const res = await apiRequest<{ user: User; authorizedMenuIds?: string[]; isSuperAdmin?: boolean }>('/auth/me');
       const u = res?.user;
       const roleUpper = u?.role?.toUpperCase();
       if (roleUpper === 'ADMIN' || roleUpper === 'SUPER_ADMIN' || roleUpper === 'COORDINATOR') {
         setUser(u);
         localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
+        const isSuper = roleUpper === 'SUPER_ADMIN' || u.email === 'admin@thegyde.in';
+        const serverMenuIds = res?.authorizedMenuIds || (isSuper
+          ? ['dashboard', 'users', 'pipeline', 'topics', 'sessions', 'session-summaries', 'publications', 'feedback', 'applications', 'analytics', 'media', 'profile']
+          : (Array.isArray(u.allowedMenus) && u.allowedMenus.length > 0 ? ['profile', ...u.allowedMenus] : ['profile']));
+        setAuthorizedMenuIds(serverMenuIds);
       } else {
         removeStoredAdminToken();
         localStorage.removeItem(ADMIN_SESSION_KEY);
         setUser(null);
+        setAuthorizedMenuIds([]);
       }
     } catch {
       // If server explicitly rejects token (401/403), invalidate session
       removeStoredAdminToken();
       localStorage.removeItem(ADMIN_SESSION_KEY);
       setUser(null);
+      setAuthorizedMenuIds([]);
     } finally {
       setLoading(false);
     }
@@ -124,6 +134,13 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (u) {
       setUser(u);
       localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
+      const isSuper = roleUpper === 'SUPER_ADMIN' || u.email === 'admin@thegyde.in';
+      const initialMenuIds = isSuper
+        ? ['dashboard', 'users', 'pipeline', 'topics', 'sessions', 'session-summaries', 'publications', 'feedback', 'applications', 'analytics', 'media', 'profile']
+        : (Array.isArray(u.allowedMenus) && u.allowedMenus.length > 0 ? ['profile', ...u.allowedMenus] : ['profile']);
+      setAuthorizedMenuIds(initialMenuIds);
+      // Immediately refresh against server to get canonical RBAC clearance
+      refreshUser().catch(() => {});
     }
   };
 
@@ -138,6 +155,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       removeStoredAdminToken();
       localStorage.removeItem(ADMIN_SESSION_KEY);
       setUser(null);
+      setAuthorizedMenuIds([]);
     }
   };
 
@@ -150,6 +168,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     <AdminAuthContext.Provider
       value={{
         user,
+        authorizedMenuIds,
         loading,
         isAdmin,
         isSuperAdmin,
