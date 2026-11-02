@@ -170,7 +170,7 @@ export const PresentTopicModal: React.FC<PresentTopicModalProps> = ({
             descriptionAr: isCustom ? '' : (activeBankItem?.descriptionAr || ''),
             motion: motion || title,
             format,
-            scheduledAt: new Date(preferredDate).toISOString(),
+            scheduledAt: preferredDate ? new Date(`${preferredDate}T12:00:00.000Z`).toISOString() : undefined,
             preferredTimeSlot: finalTimeSlot,
             presentationLanguage,
             proposalNotes: presentationNotes,

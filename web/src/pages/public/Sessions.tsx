@@ -144,7 +144,7 @@ export const Sessions: React.FC = () => {
                 category: s.category || 'Global Affairs',
                 format: s.format || 'Youth Chamber Debate',
                 motion: s.motion,
-                date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }),
                 time: formattedTime,
                 scheduledAt: s.scheduledAt,
                 durationMinutes: s.durationMinutes || 90,

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
+import { formatUtcDate, formatUtcDateTime } from '../../utils/date';
 import { DialogueSession, Topic, Publication } from '../../types';
 import {
   Mic,
@@ -466,7 +467,7 @@ export const PortalDashboard: React.FC = () => {
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    {new Date(nextSession.scheduledAt).toLocaleString()} ({nextSession.timezone || 'Doha Time GMT+3'})
+                    {formatUtcDateTime(nextSession.scheduledAt)}
                   </div>
                 </div>
 
@@ -577,7 +578,7 @@ export const PortalDashboard: React.FC = () => {
                       {isArabic ? 'مكتملة ومؤرشفة' : 'Concluded'}
                     </span>
                     <span className="text-xs text-slate-400 font-medium">
-                      {new Date(recentCompletedSession.scheduledAt).toLocaleDateString()}
+                      {formatUtcDate(recentCompletedSession.scheduledAt)}
                     </span>
                     <span className="text-[11px] font-semibold text-gyde-gold">
                       {recentCompletedSession.category}

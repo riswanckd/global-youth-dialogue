@@ -153,6 +153,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+        timeZone: 'UTC',
       });
       const utcHours = String(d.getUTCHours()).padStart(2, '0');
       const utcMins = String(d.getUTCMinutes()).padStart(2, '0');
@@ -428,7 +429,7 @@ export const SessionDetailModal: React.FC<SessionDetailModalProps> = ({
                 </span>
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, color: textHeading }}>
                   {displayTime || '14:00 UTC'}
-                  {session.timezone && ` (${session.timezone})`}
+
                 </span>
               </div>
             </div>

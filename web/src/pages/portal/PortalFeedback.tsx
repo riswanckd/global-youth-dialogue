@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest, ApiError } from '../../utils/api';
+import { formatUtcDate } from '../../utils/date';
 import { DialogueSession } from '../../types';
 import { MessageSquareQuote, Star, CheckCircle2, AlertCircle, Send } from 'lucide-react';
 
@@ -122,7 +123,7 @@ export const PortalFeedback: React.FC = () => {
             <option value="">{isArabic ? '-- اختر جلسة حوارية --' : '-- Choose a session --'}</option>
             {sessions.map((s) => (
               <option key={s.id} value={s.id}>
-                {isArabic && (s as any).titleAr ? (s as any).titleAr : s.title} ({new Date(s.scheduledAt).toLocaleDateString()})
+                {isArabic && (s as any).titleAr ? (s as any).titleAr : s.title} ({formatUtcDate(s.scheduledAt)})
               </option>
             ))}
           </select>

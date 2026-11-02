@@ -82,11 +82,12 @@ export const PortalSessionDetail: React.FC = () => {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+        timeZone: 'UTC',
       });
       const utcHours = String(d.getUTCHours()).padStart(2, '0');
       const utcMins = String(d.getUTCMinutes()).padStart(2, '0');
       displayUtcTime = `${utcHours}:${utcMins} UTC`;
-      displayLocalTime = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      displayLocalTime = '';
     }
   }
 
@@ -262,10 +263,10 @@ export const PortalSessionDetail: React.FC = () => {
           </div>
           <div className="min-w-0">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              {isArabic ? 'التوقيت الدولي والمحلي' : 'Chamber Time'}
+              {isArabic ? 'توقيت الجلسة (UTC)' : 'Chamber Time (UTC)'}
             </div>
             <div className="text-xs font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">
-              {displayUtcTime} {displayLocalTime && <span className="text-[10px] text-slate-400 font-normal">({displayLocalTime} local)</span>}
+              {displayUtcTime}
             </div>
           </div>
         </div>

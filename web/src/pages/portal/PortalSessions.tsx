@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
+import { formatUtcDateTime } from '../../utils/date';
 import { DialogueSession } from '../../types';
 import { EditSessionModal } from '../../components/portal/EditSessionModal';
 import { SessionDetailModal } from '../../components/SessionDetailModal';
@@ -253,7 +254,7 @@ export const PortalSessions: React.FC = () => {
                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
                   <Clock className="w-3.5 h-3.5" />
                   <span>
-                    {new Date(session.scheduledAt).toLocaleString()} ({session.durationMinutes}{' '}
+                    {formatUtcDateTime(session.scheduledAt)} ({session.durationMinutes}{' '}
                     {isArabic ? 'دقيقة' : 'mins'})
                   </span>
                 </div>

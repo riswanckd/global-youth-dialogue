@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
+import { toUtcDatetimeLocalString, fromUtcDatetimeLocalToIso } from '../../utils/date';
 import { DialogueSession } from '../../types';
 
 interface EditSessionModalProps {
@@ -48,9 +49,9 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
           : ''
       );
       if (session.scheduledAt) {
-        const d = new Date(session.scheduledAt);
-        const iso = d.toISOString().slice(0, 16);
-        setScheduledAt(iso);
+
+
+        setScheduledAt(toUtcDatetimeLocalString(session.scheduledAt));
       }
     }
   }, [session]);
@@ -79,7 +80,7 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
           recordingUrl: recordingUrl.trim() || '',
           durationMinutes: Number(durationMinutes) || 90,
           status,
-          scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : session.scheduledAt,
+          scheduledAt: scheduledAt ? fromUtcDatetimeLocalToIso(scheduledAt) : session.scheduledAt,
           discussionQuestions: questionsList,
         }),
       });
@@ -245,7 +246,7 @@ export const EditSessionModal: React.FC<EditSessionModalProps> = ({
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '0.85rem', marginBottom: '0.85rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#1e293b', marginBottom: '0.3rem' }}>
-                {isArabic ? 'توقيت الجلسة' : 'Scheduled Date & Time'}
+                {isArabic ? 'توقيت وتاريخ الجلسة (UTC)' : 'Scheduled Date & Time (UTC)'}
               </label>
               <input
                 type="datetime-local"

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
+import { formatUtcDate, formatUtcTime, toUtcDatetimeLocalString, fromUtcDatetimeLocalToIso } from '../utils/date';
 import { DialogueSession, Topic } from '../types';
 import {
   Calendar,
@@ -287,16 +288,7 @@ export const Sessions: React.FC = () => {
     setTopicCreateSuccess('');
     setTopicCreateError('');
 
-    let formattedDate = '';
-    if (session.scheduledAt) {
-      try {
-        const d = new Date(session.scheduledAt);
-        const pad = (n: number) => String(n).padStart(2, '0');
-        formattedDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-      } catch {
-        formattedDate = '';
-      }
-    }
+    const formattedDate = toUtcDatetimeLocalString(session.scheduledAt);
 
     const rawFormat = (session.format || (session as any).sessionCategory || '').toLowerCase();
     let cat: any = 'Topic Presentation';
@@ -365,7 +357,7 @@ export const Sessions: React.FC = () => {
         category: data.academicSphere,
         format: data.sessionCategory,
         description: data.description,
-        scheduledAt: data.scheduledAt,
+        scheduledAt: data.scheduledAt ? fromUtcDatetimeLocalToIso(data.scheduledAt) : undefined,
         durationMinutes: Number(data.durationMinutes) || 90,
         meetingUrl: data.meetingUrl,
         recordingUrl: data.recordingUrl?.trim() || undefined,
@@ -445,7 +437,7 @@ export const Sessions: React.FC = () => {
         category: data.academicSphere,
         format: data.sessionCategory,
         description: data.description,
-        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt).toISOString() : editingSession.scheduledAt,
+        scheduledAt: data.scheduledAt ? fromUtcDatetimeLocalToIso(data.scheduledAt) : editingSession.scheduledAt,
         durationMinutes: Number(data.durationMinutes) || 90,
         meetingUrl: data.meetingUrl,
         recordingUrl: data.recordingUrl?.trim() || '',
@@ -629,19 +621,7 @@ export const Sessions: React.FC = () => {
   const openProposalReview = (session: DialogueSession) => {
     setSelectedProposal(session);
     setProposalMeetingUrl(session.meetingUrl || '');
-    if (session.scheduledAt) {
-      try {
-        const d = new Date(session.scheduledAt);
-        const pad = (n: number) => String(n).padStart(2, '0');
-        setProposalScheduleDate(
-          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-        );
-      } catch {
-        setProposalScheduleDate('');
-      }
-    } else {
-      setProposalScheduleDate('');
-    }
+    setProposalScheduleDate(toUtcDatetimeLocalString(session.scheduledAt));
   };
 
   return (
@@ -1017,9 +997,9 @@ export const Sessions: React.FC = () => {
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <div>{new Date(s.scheduledAt).toLocaleDateString()}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({s.durationMinutes}m)
+                          <div className="font-medium text-slate-900 dark:text-slate-100">{formatUtcDate(s.scheduledAt)}</div>
+                          <div className="text-[11px] text-slate-500 font-semibold">
+                            {formatUtcTime(s.scheduledAt)} ({s.durationMinutes}m)
                           </div>
                           {(s.preferredTimeSlot || (s as any).preferredTimeSlot) && (
                             <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
@@ -1383,8 +1363,7 @@ export const Sessions: React.FC = () => {
 
                     <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
                       <span>
-                        {new Date(s.scheduledAt).toLocaleDateString()} at{' '}
-                        {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {formatUtcDate(s.scheduledAt)} at {formatUtcTime(s.scheduledAt)}
                       </span>
                       <span>{s.durationMinutes}m</span>
                     </div>
@@ -2281,6 +2260,9 @@ export const Sessions: React.FC = () => {
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     {t('sessions.dateLabel', 'Scheduled Date & Time (UTC)')} *
                   </label>
+                  <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium mb-1">
+                    {isArabic ? 'يُرجى إدخال التوقيت بتوقيت غرينتش العالمي الموحد (UTC)' : 'Enter time strictly in Universal Coordinated Time (UTC)'}
+                  </div>
                   <input
                     type="datetime-local"
                     required
@@ -2775,7 +2757,7 @@ export const Sessions: React.FC = () => {
                   disabled={updateSessionStatusMutation.isPending}
                   onClick={() => {
                     const scheduledAt = proposalScheduleDate
-                      ? new Date(proposalScheduleDate).toISOString()
+                      ? fromUtcDatetimeLocalToIso(proposalScheduleDate)
                       : selectedProposal.scheduledAt;
                     updateSessionStatusMutation.mutate({
                       id: selectedProposal.id || (selectedProposal as any)._id,
@@ -2829,7 +2811,7 @@ export const Sessions: React.FC = () => {
                   {completeModalSession.title}
                 </span>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  {new Date(completeModalSession.scheduledAt).toLocaleDateString()} • {completeModalSession.category}
+                  {formatUtcDate(completeModalSession.scheduledAt)} at {formatUtcTime(completeModalSession.scheduledAt)} • {completeModalSession.category}
                 </div>
               </div>
 

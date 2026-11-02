@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
+import { formatUtcDate } from '../../utils/date';
 import { DialogueSession } from '../../types';
 import { Video, Shield, Calendar, ExternalLink, Play } from 'lucide-react';
 
@@ -61,7 +62,7 @@ export const PortalRecordings: React.FC = () => {
               <div className="p-6 space-y-3">
                 <div className="text-xs text-slate-400 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>{new Date(session.scheduledAt).toLocaleDateString()}</span>
+                  <span>{formatUtcDate(session.scheduledAt)}</span>
                 </div>
                 <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-white line-clamp-1">
                   {isArabic && session.titleAr ? session.titleAr : session.title}

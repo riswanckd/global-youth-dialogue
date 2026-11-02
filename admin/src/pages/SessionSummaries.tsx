@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
 import { apiRequest } from '../utils/api';
+import { formatUtcDate, formatUtcDateTime } from '../utils/date';
 import { DialogueSession } from '../types';
 import {
   FileText,
@@ -286,7 +287,7 @@ export const SessionSummaries: React.FC = () => {
             </option>
             {sessions.map((s) => {
               const id = (s as any).id || (s as any)._id;
-              const dateStr = s.scheduledAt ? new Date(s.scheduledAt).toLocaleDateString() : '';
+              const dateStr = s.scheduledAt ? formatUtcDate(s.scheduledAt) : '';
               const isCompleted = s.status === 'completed';
               const hasSummary = Boolean(s.summary && s.summary.trim());
 
@@ -336,7 +337,7 @@ export const SessionSummaries: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-600 dark:text-slate-400">
               <div>
                 <strong className="text-slate-800 dark:text-slate-200">Date:</strong>{' '}
-                {new Date(selectedSession.scheduledAt).toLocaleString()}
+                {selectedSession.scheduledAt ? formatUtcDateTime(selectedSession.scheduledAt) : 'Unscheduled'}
               </div>
               <div>
                 <strong className="text-slate-800 dark:text-slate-200">Moderator:</strong>{' '}
@@ -687,7 +688,7 @@ export const SessionSummaries: React.FC = () => {
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800/60 text-[11px] text-slate-500">
-                    <span>{new Date(s.scheduledAt).toLocaleDateString()}</span>
+                    <span>{s.scheduledAt ? formatUtcDate(s.scheduledAt) : ''}</span>
                     <button
                       type="button"
                       onClick={(e) => {

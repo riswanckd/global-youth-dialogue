@@ -876,7 +876,7 @@ export const Home: React.FC = () => {
                         <strong>{isArabic ? 'التاريخ:' : 'Date:'}</strong>{' '}
                         <span>
                           {nextUpcomingSession.scheduledAt
-                            ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })
+                            ? new Date(nextUpcomingSession.scheduledAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })
                             : (isArabic ? 'تحدد لاحقاً' : 'TBD')}
                         </span>
                       </div>
