@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
-  const { user, logout } = useAdminAuth();
+  const { user, logout, authorizedMenuIds } = useAdminAuth();
   const { isArabic, toggleLanguage, t, translateRole } = useAdminLanguage();
   const location = useLocation();
   const navigate = useNavigate();
