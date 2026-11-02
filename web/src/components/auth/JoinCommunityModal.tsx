@@ -141,6 +141,24 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
       return;
     }
 
+    if (!experience.trim()) {
+      setError(
+        isArabic
+          ? 'يرجى إدخال خبرتك السابقة في الحوار أو الخطابة أو البحث.'
+          : 'Please enter your past dialogue, public speaking, or research experience.'
+      );
+      return;
+    }
+
+    if (!motivation.trim()) {
+      setError(
+        isArabic
+          ? 'يرجى إدخال دافع الانضمام إلى الحوار الدولي.'
+          : 'Please enter your statement of motivation.'
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`;
@@ -218,6 +236,16 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
       return;
     }
 
+    if (!experience.trim() || !motivation.trim()) {
+      setError(
+        isArabic
+          ? 'يرجى إدخال خبرتك السابقة ودافع الانضمام.'
+          : 'Please enter both your past experience and statement of motivation.'
+      );
+      setStep(2);
+      return;
+    }
+
     setLoading(true);
     try {
       const normalizedEmail = email.trim().toLowerCase();
@@ -248,9 +276,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
             password,
             country,
             organization: organization.trim() || 'Independent Scholar',
-            experience: experience.trim() || 'Youth fellow applicant',
-            debateExperience: experience.trim() || 'Youth fellow applicant',
-            motivation: motivation.trim() || 'Desire to contribute to international youth dialogue & academic exchange.',
+            experience: experience.trim(),
+            debateExperience: experience.trim(),
+            motivation: motivation.trim(),
             areasOfInterest,
             interests: areasOfInterest,
             preferredLanguages: ['English'],
@@ -272,9 +300,9 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
           email: normalizedEmail,
           country,
           organization: organization.trim() || 'Independent Scholar',
-          experience: experience.trim() || 'Youth fellow applicant',
-          debateExperience: experience.trim() || 'Youth fellow applicant',
-          motivation: motivation.trim() || 'Desire to contribute to international youth dialogue & academic exchange.',
+          experience: experience.trim(),
+          debateExperience: experience.trim(),
+          motivation: motivation.trim(),
           areasOfInterest,
           interests: areasOfInterest,
           status: 'pending',
@@ -1149,11 +1177,17 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem' }}>
-                    {isArabic ? 'الخبرة السابقة في الحوار أو الخطابة أو البحث' : 'Past Dialogue, Public Speaking, or Research Experience'}
+                    {isArabic ? 'الخبرة السابقة في الحوار أو الخطابة أو البحث' : 'Past Dialogue, Public Speaking, or Research Experience'}{' '}
+                    <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <textarea
+                    required
                     rows={2}
-                    placeholder="e.g. Participated in international youth conferences, Model UN, academic research symposiums..."
+                    placeholder={
+                      isArabic
+                        ? 'مثال: المشاركة في مؤتمرات الشباب الدولية، نموذج الأمم المتحدة، الندوات البحثية الأكاديمية...'
+                        : 'e.g. Participated in international youth conferences, Model UN, academic research symposiums...'
+                    }
                     value={experience}
                     onChange={(e) => setExperience(e.target.value)}
                     style={{
@@ -1174,11 +1208,17 @@ export const JoinCommunityModal: React.FC<JoinCommunityModalProps> = ({
 
                 <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: textLabel, marginBottom: '0.35rem' }}>
-                    {isArabic ? 'دافع الانضمام إلى الحوار الدولي' : 'Statement of Motivation'}
+                    {isArabic ? 'دافع الانضمام إلى الحوار الدولي' : 'Statement of Motivation'}{' '}
+                    <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <textarea
+                    required
                     rows={2}
-                    placeholder="Why do you wish to join the GYDE international alumni chamber?"
+                    placeholder={
+                      isArabic
+                        ? 'لماذا ترغب في الانضمام إلى قاعة خريجي وأعضاء GYDE الدولية؟'
+                        : 'Why do you wish to join the GYDE international alumni chamber?'
+                    }
                     value={motivation}
                     onChange={(e) => setMotivation(e.target.value)}
                     style={{
