@@ -48,6 +48,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
   const [isOpen, setIsOpen] = useState(false);
   const [showSpotlight, setShowSpotlight] = useState(true);
   const spotlightDismissedRef = useRef(false);
+  const onSpotlightCompleteRef = useRef(onSpotlightComplete);
+
+  useEffect(() => {
+    onSpotlightCompleteRef.current = onSpotlightComplete;
+  }, [onSpotlightComplete]);
 
   // Messages & interaction state (Strictly kept in memory / React state - ZERO browser storage)
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -82,7 +87,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
   };
 
   // Dismiss spotlight, update database, and notify sequence listener
-  const handleDismissSpotlight = useCallback(async () => {
+  const handleDismissSpotlight = useCallback(() => {
     if (spotlightDismissedRef.current) return;
     spotlightDismissedRef.current = true;
     setShowSpotlight(false);
@@ -92,24 +97,27 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
     }
 
     // Step 2 trigger callback (invokes Push Notification modal immediately after spotlight)
-    onSpotlightComplete?.();
+    onSpotlightCompleteRef.current?.();
 
-    try {
-      await apiRequest('/chat/spotlight-seen', { method: 'PATCH' });
-    } catch (err) {
+    apiRequest('/chat/spotlight-seen', { method: 'PATCH' }).catch((err) => {
       console.error('Failed to update spotlight status:', err);
-    }
-  }, [user, onSpotlightComplete]);
+    });
+  }, [user]);
 
-  // Spotlight runs for 5 seconds when opening member or presenter portal
+  // Spotlight runs for strictly 5 seconds on initial entry, then permanently stops
   useEffect(() => {
-    setShowSpotlight(true);
     const timer = setTimeout(() => {
-      handleDismissSpotlight();
-    }, 5000); // exactly 5 seconds
+      spotlightDismissedRef.current = true;
+      setShowSpotlight(false);
+      if (user) {
+        user.hasSeenChatSpotlight = true;
+      }
+      onSpotlightCompleteRef.current?.();
+      apiRequest('/chat/spotlight-seen', { method: 'PATCH' }).catch(() => {});
+    }, 5000); // exactly 5 seconds, not forever
 
     return () => clearTimeout(timer);
-  }, [handleDismissSpotlight]);
+  }, []);
 
   // Fetch messages from backend
   const fetchMessages = useCallback(async () => {
@@ -126,22 +134,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
           setMessages(res.messages);
           setUnreadCount(res.unreadCount || 0);
         }
-        if (res.hasSeenChatSpotlight !== undefined) {
-          if (res.hasSeenChatSpotlight === true) {
-            user.hasSeenChatSpotlight = true;
-            if (showSpotlight) {
-              handleDismissSpotlight();
-            } else {
-              onSpotlightComplete?.();
-            }
-          } else if (res.hasSeenChatSpotlight === false && !spotlightDismissedRef.current) {
-            user.hasSeenChatSpotlight = false;
-            setShowSpotlight(true);
-          }
+        if (res.hasSeenChatSpotlight === true) {
+          user.hasSeenChatSpotlight = true;
         }
       }
-    } catch {}
-  }, [user, showSpotlight, handleDismissSpotlight, onSpotlightComplete]);
+    } catch { }
+  }, [user]);
 
   // Polling mechanism (3.5s when open, 15s when closed)
   useEffect(() => {
@@ -417,11 +415,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
             : '0 10px 25px -5px rgba(72, 81, 186, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',
           border: '2.5px solid rgba(158, 89, 172, 0.8)',
         }}
-        className={`gyde-fab-circle fixed bottom-6 right-6 sm:bottom-7 sm:right-7 ${
-          showSpotlight
+        className={`gyde-fab-circle fixed bottom-6 right-6 sm:bottom-7 sm:right-7 ${showSpotlight
             ? 'z-[80] animate-gyde-chat-jump ring-4 ring-[#4851BA]/80 ring-offset-4 ring-offset-black'
             : 'z-40'
-        } rounded-full text-white flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer`}
+          } rounded-full text-white flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer`}
         aria-label="Chat with Admin"
       >
         {isOpen ? (
@@ -497,11 +494,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
                     className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                   >
                     <div
-                      className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow-sm text-xs leading-relaxed ${
-                        isMe
+                      className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow-sm text-xs leading-relaxed ${isMe
                           ? 'bg-[#4851BA] text-white rounded-tr-sm'
                           : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/60 rounded-tl-sm'
-                      }`}
+                        }`}
                     >
                       {/* Media Renderers */}
                       {msg.hasMedia && msg.mediaUrl && (
@@ -543,9 +539,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
                       {/* Timestamp & read status */}
                       <div
-                        className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${
-                          isMe ? 'text-indigo-100/75' : 'text-slate-400'
-                        }`}
+                        className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isMe ? 'text-indigo-100/75' : 'text-slate-400'
+                          }`}
                       >
                         <span>
                           {new Date(msg.createdAt).toLocaleTimeString([], {
@@ -772,9 +767,8 @@ const AudioPlayerBubble: React.FC<{
 
   return (
     <div
-      className={`flex items-center gap-2 py-1 px-1 rounded-xl w-48 ${
-        isMe ? 'text-white' : 'text-slate-800 dark:text-slate-200'
-      }`}
+      className={`flex items-center gap-2 py-1 px-1 rounded-xl w-48 ${isMe ? 'text-white' : 'text-slate-800 dark:text-slate-200'
+        }`}
     >
       <audio
         ref={audioRef}
@@ -786,11 +780,10 @@ const AudioPlayerBubble: React.FC<{
       <button
         type="button"
         onClick={togglePlay}
-        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer ${
-          isMe
+        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer ${isMe
             ? 'bg-[#3B43A1] text-white hover:bg-[#1e1b4b]'
             : 'bg-[#4851BA] text-white hover:bg-[#3B43A1]'
-        }`}
+          }`}
       >
         {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
       </button>
@@ -798,9 +791,8 @@ const AudioPlayerBubble: React.FC<{
       <div className="flex-1">
         <div className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-100 ${
-              isMe ? 'bg-indigo-200' : 'bg-[#4851BA]'
-            }`}
+            className={`h-full rounded-full transition-all duration-100 ${isMe ? 'bg-indigo-200' : 'bg-[#4851BA]'
+              }`}
             style={{ width: `${progress}%` }}
           />
         </div>
