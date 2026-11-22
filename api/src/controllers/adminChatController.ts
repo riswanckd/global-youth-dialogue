@@ -62,7 +62,7 @@ export async function getAdminConversations(req: Request, res: Response) {
         // Count unread messages sent by this user to the admin
         const unreadCount = await Message.countDocuments({
           conversationUserId: cUserId,
-          receiverId: adminUser._id,
+          senderId: { $ne: adminUser._id },
           isRead: false,
         });
 
@@ -135,7 +135,7 @@ export async function getAdminConversationMessages(req: Request, res: Response) 
 
     // Mark messages sent by this user as read
     await Message.updateMany(
-      { conversationUserId: userId, receiverId: adminUser._id, isRead: false },
+      { conversationUserId: userId, senderId: { $ne: adminUser._id }, isRead: false },
       { $set: { isRead: true } }
     );
 

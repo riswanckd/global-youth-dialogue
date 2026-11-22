@@ -109,12 +109,21 @@ export const BroadcastMessage: React.FC = () => {
   const loadData = async () => {
     try {
       const [countsRes, historyRes] = await Promise.all([
-        apiRequest<{ data: AudienceCounts }>('/admin/broadcast/audience-counts'),
-        apiRequest<{ data: BroadcastRecord[] }>('/admin/broadcast/history'),
+        apiRequest<any>('/admin/broadcast/audience-counts'),
+        apiRequest<any>('/admin/broadcast/history'),
       ]);
 
-      if (countsRes?.data) setAudienceCounts(countsRes.data);
-      if (historyRes?.data) setHistory(historyRes.data);
+      const counts = countsRes?.data !== undefined ? countsRes.data : countsRes;
+      if (counts && typeof counts === 'object' && 'ALL' in counts) {
+        setAudienceCounts(counts);
+      }
+
+      const hist = Array.isArray(historyRes)
+        ? historyRes
+        : Array.isArray(historyRes?.data)
+        ? historyRes.data
+        : [];
+      setHistory(hist);
     } catch {} finally {
       setIsLoadingHistory(false);
     }
@@ -123,10 +132,13 @@ export const BroadcastMessage: React.FC = () => {
   const loadUsers = async () => {
     setIsLoadingUsers(true);
     try {
-      const res = await apiRequest<{ data: BroadcastUser[] }>('/admin/broadcast/users');
-      if (res?.data) {
-        setUserList(res.data);
-      }
+      const res = await apiRequest<any>('/admin/broadcast/users');
+      const list = Array.isArray(res)
+        ? res
+        : Array.isArray(res?.data)
+        ? res.data
+        : [];
+      setUserList(list);
     } catch (err) {
       console.error('Failed to load broadcast users:', err);
     } finally {
@@ -156,13 +168,18 @@ export const BroadcastMessage: React.FC = () => {
 
     const timer = setTimeout(async () => {
       try {
-        const res = await apiRequest<{ data: BroadcastUser[] }>(
+        const res = await apiRequest<any>(
           `/admin/broadcast/users?search=${encodeURIComponent(userSearchQuery.trim())}`
         );
-        if (res?.data && res.data.length > 0) {
+        const list = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.data)
+          ? res.data
+          : [];
+        if (list.length > 0) {
           setUserList((prev) => {
             const existingIds = new Set(prev.map((u) => u.id));
-            const newUsers = res.data.filter((u) => !existingIds.has(u.id));
+            const newUsers = list.filter((u: any) => !existingIds.has(u.id));
             return [...prev, ...newUsers];
           });
         }
@@ -228,7 +245,7 @@ export const BroadcastMessage: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const res = await apiRequest<{ data: any }>('/admin/broadcast/send', {
+      const res = await apiRequest<any>('/admin/broadcast/send', {
         method: 'POST',
         body: JSON.stringify({
           subject: subject.trim(),
@@ -238,10 +255,11 @@ export const BroadcastMessage: React.FC = () => {
         }),
       });
 
-      if (res?.data) {
+      const payload = res?.data !== undefined ? res.data : res;
+      if (payload) {
         setLastDispatched({
-          subject: res.data.subject,
-          totalRecipients: res.data.totalRecipients,
+          subject: payload.subject || subject.trim(),
+          totalRecipients: payload.totalRecipients || (targetAudience === 'SPECIFIC_USERS' ? selectedUserIds.length : 0),
         });
         setSubject('');
         setMessage('');
@@ -478,21 +496,30 @@ export const BroadcastMessage: React.FC = () => {
                   <div className="relative">
                     <Search className="w-3.5 h-3.5 absolute top-3 start-3 text-slate-400 pointer-events-none" />
                     <input
-                      type="search"
-                      name="delegate_search_query_prevent_autofill"
-                      id="delegate_search_query_prevent_autofill"
-                      autoComplete="off"
+                      type="text"
+                      name="admin_broadcast_recipient_filter"
+                      id="admin_broadcast_recipient_filter"
+                      autoComplete="new-password"
                       autoCorrect="off"
                       autoCapitalize="none"
                       spellCheck={false}
+                      aria-autocomplete="none"
                       data-lpignore="true"
+                      data-1p-ignore="true"
                       data-form-type="other"
+                      role="combobox"
+                      aria-expanded={isDropdownOpen}
                       value={userSearchQuery}
                       onChange={(e) => {
                         setUserSearchQuery(e.target.value);
                         setIsDropdownOpen(true);
                       }}
-                      onFocus={() => setIsDropdownOpen(true)}
+                      onFocus={() => {
+                        setIsDropdownOpen(true);
+                        if (userList.length === 0) {
+                          loadUsers();
+                        }
+                      }}
                       placeholder={t(
                         'broadcast.searchUsersPlaceholder',
                         'Type letters to search delegates by name, email, country, or role...'

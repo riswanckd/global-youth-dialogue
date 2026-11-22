@@ -421,23 +421,51 @@ export const CommunityChat: React.FC = () => {
 
             {/* Role Filter Tabs */}
             <div className="flex items-center gap-1.5 pt-1">
-              {(['ALL', 'MEMBER', 'PRESENTER'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setRoleFilter(tab)}
-                  className={`flex-1 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
-                    roleFilter === tab
-                      ? 'bg-[#4851BA] text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {tab === 'ALL'
-                    ? t('chat.tabAll', 'All')
-                    : tab === 'MEMBER'
-                    ? t('chat.tabMembers', 'Members')
-                    : t('chat.tabPresenters', 'Presenters')}
-                </button>
-              ))}
+              {(['ALL', 'MEMBER', 'PRESENTER'] as const).map((tab) => {
+                const count =
+                  tab === 'ALL'
+                    ? conversations.length
+                    : conversations.filter((c) => c.user.role?.toUpperCase() === tab).length;
+                const tabUnread =
+                  tab === 'ALL'
+                    ? conversations.reduce((acc, curr) => acc + curr.unreadCount, 0)
+                    : conversations
+                        .filter((c) => c.user.role?.toUpperCase() === tab)
+                        .reduce((acc, curr) => acc + curr.unreadCount, 0);
+
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setRoleFilter(tab)}
+                    className={`flex-1 py-1.5 px-1.5 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                      roleFilter === tab
+                        ? 'bg-[#4851BA] text-white shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>
+                      {tab === 'ALL'
+                        ? t('chat.tabAll', 'All')
+                        : tab === 'MEMBER'
+                        ? t('chat.tabMembers', 'Members')
+                        : t('chat.tabPresenters', 'Presenters')}
+                    </span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        roleFilter === tab
+                          ? 'bg-white/20 text-white'
+                          : 'bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                    {tabUnread > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -452,8 +480,19 @@ export const CommunityChat: React.FC = () => {
                   {t('chat.noConversations', 'No active conversations found')}
                 </p>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  {isArabic ? 'عندما يراسل الأعضاء المشرف العام، ستظهر محادثاتهم هنا.' : 'When members message the Admin, they will appear here.'}
+                  {isArabic
+                    ? 'عندما يراسل الأعضاء أو المتحدثون المشرف العام، ستظهر محادثاتهم هنا.'
+                    : 'When members or presenters message the Admin, they will appear here.'}
                 </p>
+                {roleFilter !== 'ALL' && conversations.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setRoleFilter('ALL')}
+                    className="mt-3 text-xs font-semibold text-[#4851BA] dark:text-indigo-400 hover:underline cursor-pointer"
+                  >
+                    {isArabic ? `عرض كافة المحادثات (${conversations.length})` : `View All Conversations (${conversations.length})`}
+                  </button>
+                )}
               </div>
             ) : (
               filteredConversations.map((conv) => {
