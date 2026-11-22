@@ -86,7 +86,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
         const isSuper = roleUpper === 'SUPER_ADMIN' || u.email === 'admin@thegyde.in';
         const serverMenuIds = res?.authorizedMenuIds || (isSuper
-          ? ['dashboard', 'users', 'pipeline', 'topics', 'sessions', 'session-summaries', 'publications', 'feedback', 'applications', 'analytics', 'media', 'profile']
+          ? ['dashboard', 'users', 'pipeline', 'topics', 'sessions', 'session-summaries', 'publications', 'feedback', 'applications', 'analytics', 'media', 'broadcast', 'chat', 'notices', 'profile']
           : (Array.isArray(u.allowedMenus) && u.allowedMenus.length > 0 ? ['profile', ...u.allowedMenus] : ['profile']));
         setAuthorizedMenuIds(serverMenuIds);
       } else {
@@ -136,7 +136,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(u));
       const isSuper = roleUpper === 'SUPER_ADMIN' || u.email === 'admin@thegyde.in';
       const initialMenuIds = isSuper
-        ? ['dashboard', 'users', 'pipeline', 'topics', 'sessions', 'session-summaries', 'publications', 'feedback', 'applications', 'analytics', 'media', 'profile']
+        ? ['dashboard', 'users', 'pipeline', 'topics', 'sessions', 'session-summaries', 'publications', 'feedback', 'applications', 'analytics', 'media', 'broadcast', 'chat', 'notices', 'profile']
         : (Array.isArray(u.allowedMenus) && u.allowedMenus.length > 0 ? ['profile', ...u.allowedMenus] : ['profile']);
       setAuthorizedMenuIds(initialMenuIds);
       // Immediately refresh against server to get canonical RBAC clearance
