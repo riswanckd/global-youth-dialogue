@@ -36,10 +36,15 @@ export interface SendEmailOptions {
   subject: string;
   text: string;
   html: string;
+  from?: string;
+  fromName?: string;
+  replyTo?: string;
 }
 
 async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
-  const fromAddress = env.CLOUDFLARE_FROM_EMAIL || env.FROM_EMAIL || 'thegyde.verify@gmail.com';
+  const fromAddress = options.from || env.CLOUDFLARE_FROM_EMAIL || env.FROM_EMAIL || 'thegyde.verify@gmail.com';
+  const fromName = options.fromName || env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
+  const replyTo = options.replyTo || env.BROADCAST_REPLY_TO || 'admin@thegyde.in';
 
   if (env.CLOUDFLARE_ACCOUNT_ID) {
     const url = `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/email/sending/send`;
@@ -104,8 +109,9 @@ function sendViaPureTLS(options: SendEmailOptions): Promise<boolean> {
   const pass = env.SMTP_PASS || 'nwhnmkersbiwwrry';
   const host = env.SMTP_HOST || 'smtp.gmail.com';
   const port = 465;
-  const fromName = env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
-  const fromEmail = env.FROM_EMAIL || user;
+  const fromName = options.fromName || env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
+  const fromEmail = options.from || env.FROM_EMAIL || user;
+  const replyTo = options.replyTo || env.BROADCAST_REPLY_TO || 'admin@thegyde.in';
 
   return new Promise((resolve, reject) => {
     const socket = tls.connect(port, host, { minVersion: 'TLSv1.2' });
@@ -148,12 +154,12 @@ function sendViaPureTLS(options: SendEmailOptions): Promise<boolean> {
           `Message-ID: ${msgId}`,
           `From: "${fromName}" <${fromEmail}>`,
           `To: ${options.to}`,
-          `Reply-To: <${fromEmail}>`,
+          `Reply-To: "${fromName}" <${replyTo}>`,
           `Subject: ${options.subject}`,
           `MIME-Version: 1.0`,
-          `X-Priority: 1 (Highest)`,
-          `Importance: High`,
-          `Auto-Submitted: auto-generated`,
+          `List-Unsubscribe: <https://thegyde.in/portal/notices>`,
+          `List-Unsubscribe-Post: List-Unsubscribe=One-Click`,
+          `Feedback-ID: broadcast:thegyde.in`,
           `Content-Type: multipart/alternative; boundary="${boundary}"`,
           '',
           `--${boundary}`,
@@ -210,15 +216,22 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   const mailer = getSmtpTransporter();
   if (mailer) {
     try {
-      const fromAddress = env.FROM_EMAIL || env.SMTP_USER || 'thegyde.verify@gmail.com';
-      const fromName = env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
+      const fromAddress = options.from || env.FROM_EMAIL || env.SMTP_USER || 'thegyde.verify@gmail.com';
+      const fromName = options.fromName || env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
+      const replyTo = options.replyTo || env.BROADCAST_REPLY_TO || 'admin@thegyde.in';
 
       await mailer.sendMail({
         from: `"${fromName}" <${fromAddress}>`,
         to: options.to,
+        replyTo: `"${fromName}" <${replyTo}>`,
         subject: options.subject,
         text: options.text,
         html: options.html,
+        headers: {
+          'List-Unsubscribe': '<https://thegyde.in/portal/notices>',
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'Feedback-ID': 'broadcast:thegyde.in',
+        },
       });
 
       logger.info(`📧 Email successfully delivered via Nodemailer to: ${options.to}`);

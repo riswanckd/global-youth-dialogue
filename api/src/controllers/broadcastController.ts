@@ -5,6 +5,7 @@ import { NoticeReadReceipt } from '../models/NoticeReadReceipt';
 import { PushSubscription } from '../models/PushSubscription';
 import { User } from '../models/User';
 import { sendEmail } from '../config/email';
+import { env } from '../config/env';
 import { sendPushNotificationToUsers, getVapidPublicKey } from '../utils/pushService';
 import { ROLES } from '../constants/roles';
 
@@ -42,17 +43,17 @@ function buildBroadcastEmailHtml(firstName: string, subject: string, message: st
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 32px 16px;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-          <!-- Header -->
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+          <!-- Header in Official GYDE Brand Palette -->
           <tr>
-            <td style="background-color: #0E4D3C; padding: 32px 36px; text-align: left;">
-              <span style="display: inline-block; padding: 4px 12px; background-color: rgba(230, 200, 117, 0.2); color: #E6C875; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">
-                Official Announcement
+            <td style="background-color: #0B0D1B; padding: 32px 36px; text-align: left;">
+              <span style="display: inline-block; padding: 4px 12px; background-color: rgba(158, 89, 172, 0.25); color: #c084fc; border: 1px solid rgba(158, 89, 172, 0.4); border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">
+                Official Secretariat Communiqué
               </span>
               <h1 style="margin: 0; color: #ffffff; font-size: 20px; font-weight: 700; line-height: 1.3;">
                 ${subject}
               </h1>
-              <p style="margin: 6px 0 0; color: #a7f3d0; font-size: 12px;">
+              <p style="margin: 6px 0 0; color: #c7d2fe; font-size: 12px;">
                 Global Youth Dialogue & Exchange (GYDE) Secretariat
               </p>
             </td>
@@ -60,26 +61,33 @@ function buildBroadcastEmailHtml(firstName: string, subject: string, message: st
 
           <!-- Content -->
           <tr>
-            <td style="padding: 36px; color: #1e293b;">
-              <p style="margin: 0 0 20px; font-size: 16px; font-weight: 600; color: #0E4D3C;">
-                Hi ${firstName},
+            <td style="padding: 36px 36px 28px; color: #1e293b;">
+              <p style="margin: 0 0 20px; font-size: 15px; font-weight: 700; color: #4851BA;">
+                Dear ${firstName},
               </p>
               ${paragraphs}
 
               <div style="margin: 32px 0 16px; text-align: center;">
-                <a href="https://thegyde.in/portal/notices" style="display: inline-block; background-color: #0E4D3C; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; font-size: 13px;">
-                  View on In-App Notice Board &rarr;
+                <a href="https://thegyde.in/portal/notices" style="display: inline-block; background-color: #4851BA; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-weight: 700; font-size: 13px; box-shadow: 0 4px 14px rgba(72, 81, 186, 0.35);">
+                  Open on Official Notice Board &rarr;
                 </a>
               </div>
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Institutional Deliverability Footer -->
           <tr>
-            <td style="background-color: #f1f5f9; padding: 24px 36px; text-align: center; border-top: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #64748b; font-size: 11px; line-height: 1.5;">
-                This is a confidential, direct communication dispatched to your official GYDE account.<br/>
-                &copy; 2026 Global Youth Dialogue & Exchange (thegyde.in). All rights reserved.
+            <td style="background-color: #f8fafc; padding: 24px 36px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 6px; color: #475569; font-size: 12px; font-weight: 600;">
+                Global Youth Dialogue & Exchange (GYDE) Secretariat
+              </p>
+              <p style="margin: 0 0 10px; color: #64748b; font-size: 11px; line-height: 1.5;">
+                You received this official dispatch as an accredited member, keynote presenter, or registered fellow of GYDE.<br/>
+                Direct inquiries: <a href="mailto:admin@thegyde.in" style="color: #4851BA; text-decoration: underline;">admin@thegyde.in</a> &bull; Official Portal: <a href="https://thegyde.in" style="color: #4851BA; text-decoration: none;">thegyde.in</a>
+              </p>
+              <p style="margin: 0; color: #94a3b8; font-size: 10px; line-height: 1.4;">
+                Manage notice settings and plenary updates in your <a href="https://thegyde.in/portal/notices" style="color: #64748b; text-decoration: underline;">Notice Board</a>.<br/>
+                &copy; 2026 Global Youth Dialogue & Exchange. All rights reserved.
               </p>
             </td>
           </tr>
@@ -201,10 +209,16 @@ export async function sendBroadcast(req: Request, res: Response) {
             const firstName = recipient.name ? recipient.name.trim().split(' ')[0] : 'Member';
             const html = buildBroadcastEmailHtml(firstName, sanitizedSubject, sanitizedMessage);
 
+            const broadcastFrom = env.BROADCAST_FROM_EMAIL || env.FROM_EMAIL || 'thegyde.verify@gmail.com';
+            const broadcastReplyTo = env.BROADCAST_REPLY_TO || 'admin@thegyde.in';
+
             const sent = await sendEmail({
               to: recipient.email,
+              from: broadcastFrom,
+              fromName: 'GYDE Secretariat',
+              replyTo: broadcastReplyTo,
               subject: `GYDE: ${sanitizedSubject}`,
-              text: `Hi ${firstName},\n\n${sanitizedMessage}\n\nView online: https://thegyde.in/portal/notices`,
+              text: `Dear ${firstName},\n\n${sanitizedMessage}\n\nView online on Notice Board: https://thegyde.in/portal/notices\n\nGlobal Youth Dialogue & Exchange (GYDE) Secretariat\nDirect Inquiries: admin@thegyde.in\nOfficial Portal: https://thegyde.in`,
               html,
             });
 
