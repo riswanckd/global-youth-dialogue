@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { apiRequest } from '../utils/api';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { useAdminLanguage } from '../context/AdminLanguageContext';
@@ -72,6 +72,21 @@ export const BroadcastMessage: React.FC = () => {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Confirmation Modal
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -124,10 +139,40 @@ export const BroadcastMessage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (targetAudience === 'SPECIFIC_USERS' && userList.length === 0) {
-      loadUsers();
+    if (targetAudience === 'SPECIFIC_USERS') {
+      setIsDropdownOpen(true);
+      if (userList.length === 0) {
+        loadUsers();
+      }
+    } else {
+      setIsDropdownOpen(false);
     }
   }, [targetAudience]);
+
+  // Debounced backend user search when typing
+  useEffect(() => {
+    if (targetAudience !== 'SPECIFIC_USERS') return;
+    if (!userSearchQuery.trim()) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await apiRequest<{ data: BroadcastUser[] }>(
+          `/admin/broadcast/users?search=${encodeURIComponent(userSearchQuery.trim())}`
+        );
+        if (res?.data && res.data.length > 0) {
+          setUserList((prev) => {
+            const existingIds = new Set(prev.map((u) => u.id));
+            const newUsers = res.data.filter((u) => !existingIds.has(u.id));
+            return [...prev, ...newUsers];
+          });
+        }
+      } catch (err) {
+        console.error('Debounced user search error:', err);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [userSearchQuery, targetAudience]);
 
   // Filtered users for specific user selection
   const filteredUsers = useMemo(() => {
@@ -428,84 +473,128 @@ export const BroadcastMessage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Search Bar for Users */}
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute top-3 start-3 text-slate-400" />
-                  <input
-                    type="text"
-                    value={userSearchQuery}
-                    onChange={(e) => setUserSearchQuery(e.target.value)}
-                    placeholder={t(
-                      'broadcast.searchUsersPlaceholder',
-                      'Search delegates by name, email, country, or role...'
+                {/* Search Bar with Automatic Floating Dropdown for Users */}
+                <div ref={dropdownRef} className="relative">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute top-3 start-3 text-slate-400 pointer-events-none" />
+                    <input
+                      type="search"
+                      name="delegate_search_query_prevent_autofill"
+                      id="delegate_search_query_prevent_autofill"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      data-lpignore="true"
+                      data-form-type="other"
+                      value={userSearchQuery}
+                      onChange={(e) => {
+                        setUserSearchQuery(e.target.value);
+                        setIsDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsDropdownOpen(true)}
+                      placeholder={t(
+                        'broadcast.searchUsersPlaceholder',
+                        'Type letters to search delegates by name, email, country, or role...'
+                      )}
+                      className="w-full ps-9 pe-8 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
+                    />
+                    {userSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserSearchQuery('');
+                          setIsDropdownOpen(true);
+                        }}
+                        className="absolute top-2.5 end-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     )}
-                    className="w-full ps-9 pe-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
-                  />
-                </div>
-
-                {/* Users List with Checkboxes */}
-                {isLoadingUsers ? (
-                  <div className="p-6 text-center text-xs text-slate-400">
-                    {t('common.loading', 'Loading...')}
                   </div>
-                ) : filteredUsers.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-slate-400">
-                    {t('broadcast.noUsersFound', 'No users found matching query.')}
-                  </div>
-                ) : (
-                  <div className="max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-900">
-                    {filteredUsers.map((u) => {
-                      const isChecked = selectedUserIds.includes(u.id);
-                      return (
-                        <div
-                          key={u.id}
-                          onClick={() => toggleUserSelection(u.id)}
-                          className={`p-2.5 flex items-center justify-between gap-3 text-xs cursor-pointer transition-colors ${
-                            isChecked
-                              ? 'bg-[#4851BA]/10 dark:bg-[#4851BA]/20'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <span className="text-[#4851BA] dark:text-indigo-400 shrink-0">
-                              {isChecked ? (
-                                <CheckSquare className="w-4 h-4" />
-                              ) : (
-                                <Square className="w-4 h-4 text-slate-400" />
-                              )}
-                            </span>
-                            <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[11px] text-slate-700 dark:text-slate-300 shrink-0">
-                              {u.avatar ? (
-                                <img src={u.avatar} alt={u.name} className="w-7 h-7 rounded-full object-cover" />
-                              ) : (
-                                u.name.charAt(0).toUpperCase()
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-slate-900 dark:text-white truncate">
-                                {u.name}
-                              </p>
-                              <p className="text-[11px] text-slate-400 truncate">
-                                {u.email}
-                              </p>
-                            </div>
-                          </div>
 
-                          <div className="flex items-center gap-2 shrink-0">
-                            {u.country && (
-                              <span className="text-[10px] text-slate-500 hidden sm:inline">
-                                {u.country}
-                              </span>
-                            )}
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-semibold text-slate-600 dark:text-slate-300">
-                              {translateRole(u.role)}
-                            </span>
-                          </div>
+                  {/* Floating Autocomplete Dropdown List */}
+                  {isDropdownOpen && (
+                    <div className="absolute z-50 left-0 right-0 mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-indigo-200/80 dark:border-indigo-900/60 bg-white dark:bg-slate-900 shadow-2xl divide-y divide-slate-100 dark:divide-slate-800 animate-in fade-in-50 zoom-in-95 duration-150">
+                      <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-300 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800">
+                        <span className="flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-[#4851BA] dark:text-indigo-400" />
+                          <span>
+                            {filteredUsers.length} {t('broadcast.matchingDelegates', 'matching delegates')}
+                          </span>
+                        </span>
+                        {filteredUsers.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleSelectAllFiltered}
+                            className="text-[#4851BA] dark:text-indigo-300 hover:underline cursor-pointer"
+                          >
+                            {t('broadcast.selectAll', 'Select All')}
+                          </button>
+                        )}
+                      </div>
+
+                      {isLoadingUsers && userList.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-slate-400">
+                          {t('common.loading', 'Loading delegates...')}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                      ) : filteredUsers.length === 0 ? (
+                        <div className="p-5 text-center text-xs text-slate-400">
+                          {t('broadcast.noUsersFound', 'No users found matching query.')}
+                        </div>
+                      ) : (
+                        filteredUsers.map((u) => {
+                          const isChecked = selectedUserIds.includes(u.id);
+                          return (
+                            <div
+                              key={u.id}
+                              onClick={() => toggleUserSelection(u.id)}
+                              className={`p-2.5 flex items-center justify-between gap-3 text-xs cursor-pointer transition-colors ${
+                                isChecked
+                                  ? 'bg-indigo-50/80 dark:bg-indigo-950/40 text-slate-900 dark:text-white'
+                                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className="text-[#4851BA] dark:text-indigo-400 shrink-0">
+                                  {isChecked ? (
+                                    <CheckSquare className="w-4 h-4" />
+                                  ) : (
+                                    <Square className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </span>
+                                <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[11px] text-slate-700 dark:text-slate-300 shrink-0 overflow-hidden">
+                                  {u.avatar ? (
+                                    <img src={u.avatar} alt={u.name} className="w-7 h-7 object-cover" />
+                                  ) : (
+                                    u.name.charAt(0).toUpperCase()
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-semibold truncate text-slate-900 dark:text-white">
+                                    {u.name}
+                                  </p>
+                                  <p className="text-[11px] text-slate-400 truncate">{u.email}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 shrink-0">
+                                {u.country && (
+                                  <span className="text-[10px] text-slate-500 hidden sm:inline">
+                                    {u.country}
+                                  </span>
+                                )}
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-semibold text-slate-600 dark:text-slate-300">
+                                  {translateRole(u.role)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

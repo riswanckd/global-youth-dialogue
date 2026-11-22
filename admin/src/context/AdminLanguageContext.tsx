@@ -457,6 +457,8 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'broadcast.clearSelection': { en: 'Clear Selection', ar: 'إلغاء التحديد' },
   'broadcast.selectedRecipients': { en: 'Selected Recipients', ar: 'المستلمون المحددون' },
   'broadcast.usersSelected': { en: 'users selected', ar: 'مستخدمين تم تحديدهم' },
+  'broadcast.matchingDelegates': { en: 'matching delegates', ar: 'أعضاء مطابقون للبحث' },
+  'broadcast.typeToSearch': { en: 'Type letters to search delegates...', ar: 'اكتب أحرفاً للبحث عن الأعضاء...' },
   'broadcast.noUsersFound': { en: 'No users found matching query.', ar: 'لم يتم العثور على أي أعضاء مطابقين للبحث.' },
   'broadcast.subject': { en: 'Broadcast Subject', ar: 'موضوع التعميم' },
   'broadcast.subjectPlaceholder': {

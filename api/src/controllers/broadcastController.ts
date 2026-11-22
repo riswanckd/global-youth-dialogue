@@ -146,7 +146,7 @@ export async function sendBroadcast(req: Request, res: Response) {
 
       recipients = (await User.find({
         _id: { $in: validIds },
-        status: 'active',
+        status: { $ne: 'disabled' },
       })
         .select('_id name email role')
         .lean()) as any;
@@ -313,19 +313,21 @@ export async function getAudienceCounts(_req: Request, res: Response) {
 export async function getBroadcastUsers(req: Request, res: Response) {
   try {
     const search = String(req.query.search || '').trim();
-    const query: any = { status: 'active' };
+    const query: any = { status: { $ne: 'disabled' } };
 
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
+        { country: { $regex: search, $options: 'i' } },
+        { role: { $regex: search, $options: 'i' } },
       ];
     }
 
     const users = await User.find(query)
       .select('_id name email role country avatar flag')
       .sort({ name: 1 })
-      .limit(150)
+      .limit(500)
       .lean();
 
     const formatted = users.map((u) => ({
