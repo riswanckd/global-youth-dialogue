@@ -46,7 +46,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
   // Widget visibility & spotlight state
   const [isOpen, setIsOpen] = useState(false);
-  const [showSpotlight, setShowSpotlight] = useState(false);
+  const [showSpotlight, setShowSpotlight] = useState(true);
   const spotlightDismissedRef = useRef(false);
 
   // Messages & interaction state (Strictly kept in memory / React state - ZERO browser storage)
@@ -101,20 +101,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
     }
   }, [user, onSpotlightComplete]);
 
-  // Determine first-time spotlight visibility and start 5.5-second auto-fadeout timer
+  // Spotlight runs for 5 seconds when opening member or presenter portal
   useEffect(() => {
-    if (user && user.hasSeenChatSpotlight !== true && !spotlightDismissedRef.current) {
-      setShowSpotlight(true);
+    setShowSpotlight(true);
+    const timer = setTimeout(() => {
+      handleDismissSpotlight();
+    }, 5000); // exactly 5 seconds
 
-      const timer = setTimeout(() => {
-        handleDismissSpotlight();
-      }, 5500); // 5 to 6 seconds automatically
-
-      return () => clearTimeout(timer);
-    } else {
-      setShowSpotlight(false);
-    }
-  }, [user, handleDismissSpotlight]);
+    return () => clearTimeout(timer);
+  }, [handleDismissSpotlight]);
 
   // Fetch messages from backend
   const fetchMessages = useCallback(async () => {
@@ -366,63 +361,41 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
   return (
     <>
-      {/* 1. Step 1: First-Time Onboarding Spotlight Overlay (5 to 6 seconds) */}
+      {/* 1. Step 1: 5-Second Backdrop Blur Overlay for site elements */}
       {showSpotlight && !isOpen && (
-        <>
-          {/* Full-screen Dark Translucent Blur Backdrop */}
-          <div
-            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md transition-all duration-300 pointer-events-auto cursor-pointer"
-            onClick={handleDismissSpotlight}
-          />
-
-          {/* Spotlight Callout Card (Firmly anchored at bottom-right, right above the chat button) */}
-          <div
-            className="fixed bottom-24 right-5 sm:bottom-28 sm:right-6 z-[60] w-[calc(100vw-2.5rem)] sm:w-96 max-w-sm rounded-2xl p-4 sm:p-5 text-white backdrop-blur-xl animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-default"
-            style={{
-              background: '#0B0D1B',
-              border: '2px solid rgba(72, 81, 186, 0.7)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(72, 81, 186, 0.45)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Ambient GYDE Purple Glow */}
-            <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#4851BA]/30 rounded-full blur-xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-28 h-28 bg-[#9E59AC]/20 rounded-full blur-xl pointer-events-none" />
-
-            <div className="flex items-center gap-2.5 mb-2 relative z-10">
-              <span className="p-2 rounded-xl bg-gradient-to-tr from-[#3B43A1] to-[#4851BA] text-white shadow-md shadow-[#4851BA]/30">
-                <Sparkles className="w-5 h-5 text-indigo-200" />
-              </span>
-              <h4 className="font-bold text-base text-white">
-                {t('chat.spotlightTitle', 'New Option Arrived!')}
-              </h4>
-            </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed mb-4 relative z-10">
-              {t(
-                'chat.spotlightText',
-                'You got a new option: Chat with Admin. Have suggestions or need help? Message the Super Admin directly from here.'
-              )}
-            </p>
-
-            <div className="flex items-center justify-between relative z-10">
-              <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#4851BA] to-[#9E59AC] rounded-full animate-pulse w-full" />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleDismissSpotlight}
-                className="px-4 py-1.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#3B43A1] to-[#4851BA] hover:from-[#4851BA] hover:to-[#9E59AC] text-white shadow-md shadow-[#4851BA]/30 transition-all cursor-pointer"
-              >
-                {t('chat.gotIt', 'Got it')}
-              </button>
-            </div>
-          </div>
-        </>
+        <div
+          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-md transition-opacity duration-300 pointer-events-auto cursor-pointer"
+          onClick={handleDismissSpotlight}
+        />
       )}
 
-      {/* 2. Floating Action Button (FAB) - Elevated & Bobbing during Spotlight */}
+      {/* 2. Callout text badge on/above the chat icon: (Now, you can chat with the GYDE team) */}
+      {showSpotlight && !isOpen && (
+        <div
+          className="fixed bottom-24 right-5 sm:bottom-28 sm:right-7 z-[85] animate-gyde-chat-jump flex flex-col items-end pointer-events-none select-none"
+          style={{ filter: 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.7))' }}
+        >
+          <div
+            className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white shadow-2xl flex items-center gap-2 border border-purple-400/40"
+            style={{
+              background: 'linear-gradient(135deg, #0B0D1B 0%, #1e1b4b 50%, #4851BA 100%)',
+              boxShadow: '0 8px 30px rgba(72, 81, 186, 0.6), 0 4px 15px rgba(0, 0, 0, 0.7)',
+            }}
+          >
+            <Sparkles className="w-4 h-4 text-purple-300 animate-pulse shrink-0" />
+            <span className="tracking-wide">
+              {isArabic
+                ? 'الآن، يمكنك التحدث مباشرة مع فريق GYDE'
+                : 'Now, you can chat with the GYDE team'}
+            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+          </div>
+          {/* Pointer arrow directly down to the chat icon */}
+          <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-[#4851BA] mr-6 sm:mr-7 -mt-0.5" />
+        </div>
+      )}
+
+      {/* 3. Floating Action Button (FAB) - Elevated Circular Button with Light Jumping Animation */}
       <button
         type="button"
         onClick={() => {
@@ -432,22 +405,29 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
           setIsOpen((prev) => !prev);
         }}
         style={{
+          width: '58px',
+          height: '58px',
+          minWidth: '58px',
+          minHeight: '58px',
+          borderRadius: '9999px',
           background: 'linear-gradient(135deg, #000000 0%, #1e1b4b 45%, #4851BA 100%)',
           backgroundColor: '#4851BA',
-          borderRadius: '9999px',
-          boxShadow: '0 10px 25px -5px rgba(72, 81, 186, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',
+          boxShadow: showSpotlight
+            ? '0 0 35px rgba(72, 81, 186, 0.9), 0 10px 25px -5px rgba(0, 0, 0, 0.8)'
+            : '0 10px 25px -5px rgba(72, 81, 186, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',
+          border: '2.5px solid rgba(158, 89, 172, 0.8)',
         }}
-        className={`gyde-fab-circle fixed bottom-5 right-5 sm:bottom-6 sm:right-6 ${
+        className={`gyde-fab-circle fixed bottom-6 right-6 sm:bottom-7 sm:right-7 ${
           showSpotlight
-            ? 'z-[60] animate-gyde-bob ring-4 ring-[#4851BA] ring-offset-4 ring-offset-black'
+            ? 'z-[80] animate-gyde-chat-jump ring-4 ring-[#4851BA]/80 ring-offset-4 ring-offset-black'
             : 'z-40'
-        } w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#4851BA] hover:border-indigo-400 text-white flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
+        } rounded-full text-white flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 focus:outline-none cursor-pointer`}
         aria-label="Chat with Admin"
       >
         {isOpen ? (
-          <X className="w-6 h-6 sm:w-7 sm:h-7 text-white stroke-[2.5]" />
+          <X className="w-6 h-6 text-white stroke-[2.5]" />
         ) : (
-          <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-white stroke-[2.2]" />
+          <MessageSquare className="w-6 h-6 text-white stroke-[2.2]" />
         )}
 
         {/* Unread red badge indicator */}

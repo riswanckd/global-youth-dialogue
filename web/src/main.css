@@ -7928,6 +7928,28 @@ body.rtl-mode .topic-bank-card-title-ar {
   animation: gyde-bob 1.8s ease-in-out infinite;
 }
 
+@keyframes gyde-chat-jump {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-16px);
+  }
+  35% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  65% {
+    transform: translateY(0);
+  }
+}
+
+.animate-gyde-chat-jump {
+  animation: gyde-chat-jump 1.6s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+}
+
 .collage-main-card {
   position: relative;
   border-radius: 36px;
