@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { apiRequest } from '../../utils/api';
 import { registerWebPush } from '../../utils/pushManager';
 
@@ -10,6 +11,7 @@ interface PushNotificationPromptProps {
 
 export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ canShow = true }) => {
   const { user } = useAuth();
+  const { t, isArabic, dir } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
 
@@ -76,7 +78,7 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" dir={dir}>
       <div
         className="bg-white dark:bg-slate-900 rounded-3xl max-w-[calc(100vw-1.75rem)] sm:max-w-md w-full p-5 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden animate-in zoom-in-95 duration-200"
         role="dialog"
@@ -97,12 +99,15 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
           id="allow-notifications-heading"
           className="text-xl font-bold text-slate-900 dark:text-white tracking-tight"
         >
-          Allow Notifications
+          {t('push.title', 'Allow Notifications')}
         </h3>
 
         {/* Modal Description */}
         <p className="text-sm text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed max-w-sm mx-auto">
-          Stay updated with instant announcements and important notices from GYDE right in your notification panel.
+          {t(
+            'push.desc',
+            'Stay updated with instant announcements and important notices from GYDE right in your notification panel.'
+          )}
         </p>
 
         {/* Two Action Buttons: Block (Secondary) and Allow (Primary) */}
@@ -113,7 +118,7 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
             disabled={isSubscribing}
             className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition-colors cursor-pointer disabled:opacity-50"
           >
-            Block
+            {t('push.block', 'Block')}
           </button>
 
           <button
@@ -122,7 +127,11 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
             disabled={isSubscribing}
             className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#3B43A1] to-[#4851BA] hover:opacity-95 text-white font-semibold text-sm shadow-md shadow-[#4851BA]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            {isSubscribing ? 'Processing...' : 'Allow'}
+            {isSubscribing
+              ? isArabic
+                ? 'جارٍ التفعيل...'
+                : 'Processing...'
+              : t('push.allow', 'Allow')}
           </button>
         </div>
       </div>

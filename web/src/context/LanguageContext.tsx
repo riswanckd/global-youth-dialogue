@@ -83,6 +83,57 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'common.all': { en: 'All', ar: 'الكل' },
   'common.copyCitation': { en: 'Copy Citation', ar: 'نسخ الاقتباس' },
   'common.citationCopied': { en: 'Citation copied to clipboard!', ar: 'تم نسخ الاقتباس إلى الحافظة!' },
+
+  // Notice Board
+  'notices.title': { en: 'Official Notice Board', ar: 'لوحة الإعلانات الرسمية' },
+  'notices.subtitle': {
+    en: 'Official communiqués, plenaries, and institutional circulars from the GYDE Secretariat.',
+    ar: 'التعاميم والقرارات الرسمية والبلاغات الدورية الصادرة عن الأمانة العامة لـ GYDE.',
+  },
+  'notices.verifiedBadge': { en: 'Verified Secretariat Dispatches', ar: 'بلاغات رسمية موثقة من الأمانة العامة' },
+  'notices.noNotices': { en: 'No Active Notices', ar: 'لا توجد إعلانات نشطة' },
+  'notices.noNoticesDesc': {
+    en: 'The notice board is up to date. New announcements from the Super Administrator will appear here.',
+    ar: 'لوحة الإعلانات محدثة بالكامل. ستظهر هنا أي تعاميم جديدة يصدرها المشرف العام.',
+  },
+  'notices.loading': { en: 'Loading institutional dispatches...', ar: 'جارٍ تحميل البلاغات الرسمية...' },
+  'notices.targetAll': { en: 'All Delegates', ar: 'كافة الوفود' },
+  'notices.targetMembers': { en: 'Members Only', ar: 'الأعضاء فقط' },
+  'notices.targetPresenters': { en: 'Presenters Only', ar: 'المتحدثون فقط' },
+  'notices.targetSpecific': { en: 'Confidential Notice', ar: 'تعميم خاص ومحدد' },
+
+  // Chat with Admin & Spotlight
+  'chat.spotlightTitle': { en: 'New Option Arrived!', ar: 'خيار جديد متوفر الآن!' },
+  'chat.spotlightText': {
+    en: 'You got a new option: Chat with Admin. Have suggestions or need help? Message the Super Admin directly from here.',
+    ar: 'يتوفر لديك خيار جديد: المحادثة مع الإدارة. هل لديك مقترحات أو استفسارات؟ راسل المشرف العام مباشرة من هنا.',
+  },
+  'chat.gotIt': { en: 'Got it', ar: 'فهمت ذلك' },
+  'chat.secretariatTitle': { en: 'GYDE Secretariat', ar: 'الأمانة العامة لـ GYDE' },
+  'chat.encryptedBadge': { en: 'End-to-End Encrypted', ar: 'تشفير كامل للبيانات' },
+  'chat.directLine': { en: 'Direct Line with Super Admin', ar: 'قناة اتصال مباشرة مع المشرف العام' },
+  'chat.confidentialDesc': {
+    en: 'All messages and media are AES-256 encrypted and strictly confidential.',
+    ar: 'جميع الرسائل والوسائط مشفرة بتقنية AES-256 وتخضع للسرية التامة.',
+  },
+  'chat.typePlaceholder': { en: 'Type message to Admin...', ar: 'اكتب رسالتك للمشرف العام...' },
+  'chat.captionPlaceholder': { en: 'Add a caption...', ar: 'أضف تعليقاً توضيحياً...' },
+  'chat.recording': { en: 'Recording:', ar: 'جارٍ التسجيل:' },
+  'chat.cancelRecording': { en: 'Cancel Recording', ar: 'إلغاء التسجيل' },
+  'chat.sendVoice': { en: 'Send Voice Note', ar: 'إرسال الرسالة الصوتية' },
+  'chat.attach': { en: 'Attach Image or Video', ar: 'إرفاق صورة أو فيديو' },
+  'chat.recordVoice': { en: 'Record Voice Note', ar: 'تسجيل رسالة صوتية' },
+  'chat.send': { en: 'Send', ar: 'إرسال' },
+  'chat.close': { en: 'Close Chat', ar: 'إغلاق المحادثة' },
+
+  // Push Notifications Prompt
+  'push.title': { en: 'Allow Notifications', ar: 'تفعيل الإشعارات الفورية' },
+  'push.desc': {
+    en: 'Stay updated with instant announcements and important notices from GYDE right in your notification panel.',
+    ar: 'ابق على اطلاع فوري بالإعلانات الهامة والتعاميم الرسمية من GYDE مباشرة في لوحة إشعارات جهازك.',
+  },
+  'push.allow': { en: 'Allow', ar: 'سماح' },
+  'push.block': { en: 'Block', ar: 'لاحقاً / حظر' },
 };
 
 // Categories Arabic Translations

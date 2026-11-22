@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiRequest, getAdminTokenForRequest, API_BASE } from '../utils/api';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { useAdminLanguage } from '../context/AdminLanguageContext';
 import {
   MessageSquare,
   Search,
@@ -69,6 +70,7 @@ interface ChatMessage {
 
 export const CommunityChat: React.FC = () => {
   const { user: currentAdmin } = useAdminAuth();
+  const { t, isArabic, dir, translateRole } = useAdminLanguage();
 
   // Conversations list & selection
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
@@ -382,7 +384,7 @@ export const CommunityChat: React.FC = () => {
   };
 
   return (
-    <div className="h-[calc(100dvh-5rem)] flex flex-col bg-slate-50 dark:bg-[#05070e] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div className="h-[calc(100dvh-5rem)] flex flex-col bg-slate-50 dark:bg-[#05070e] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" dir={dir}>
       <div className="flex-1 flex overflow-hidden">
         {/* ======================================================== */}
         {/* LEFT PANE: Conversation List */}
@@ -397,22 +399,22 @@ export const CommunityChat: React.FC = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-[#4851BA] dark:text-indigo-400" />
-                Community Chat
+                {t('chat.title', 'Community Chat')}
               </h2>
               <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-[#4851BA]/10 dark:bg-[#4851BA]/20 text-[#4851BA] dark:text-indigo-300 border border-[#4851BA]/20">
-                {conversations.length} Threads
+                {conversations.length} {isArabic ? 'محادثة' : 'Threads'}
               </span>
             </div>
 
             {/* Search Bar */}
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search member or presenter..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
+                placeholder={t('chat.searchPlaceholder', 'Search community members...')}
+                className="w-full ps-9 pe-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
               />
             </div>
 
@@ -428,7 +430,11 @@ export const CommunityChat: React.FC = () => {
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  {tab === 'ALL' ? 'All' : tab === 'MEMBER' ? 'Members' : 'Presenters'}
+                  {tab === 'ALL'
+                    ? t('chat.tabAll', 'All')
+                    : tab === 'MEMBER'
+                    ? t('chat.tabMembers', 'Members')
+                    : t('chat.tabPresenters', 'Presenters')}
                 </button>
               ))}
             </div>
@@ -437,13 +443,15 @@ export const CommunityChat: React.FC = () => {
           {/* Conversations List */}
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
             {isLoadingConversations ? (
-              <div className="p-8 text-center text-xs text-slate-400">Loading community conversations...</div>
+              <div className="p-8 text-center text-xs text-slate-400">{t('common.loading', 'Loading...')}</div>
             ) : filteredConversations.length === 0 ? (
               <div className="p-8 text-center text-slate-400">
                 <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-30 text-[#4851BA]" />
-                <p className="text-xs font-medium text-slate-500">No active conversations found</p>
+                <p className="text-xs font-medium text-slate-500">
+                  {t('chat.noConversations', 'No active conversations found')}
+                </p>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  When members message the Admin, they will appear here.
+                  {isArabic ? 'عندما يراسل الأعضاء المشرف العام، ستظهر محادثاتهم هنا.' : 'When members message the Admin, they will appear here.'}
                 </p>
               </div>
             ) : (
@@ -455,9 +463,9 @@ export const CommunityChat: React.FC = () => {
                   <button
                     key={conv.userId}
                     onClick={() => setSelectedUserId(conv.userId)}
-                    className={`w-full text-left p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
+                    className={`w-full text-start p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border-l-4 border-[#4851BA]'
+                        ? 'bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border-s-4 border-[#4851BA]'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
                   >
@@ -467,7 +475,7 @@ export const CommunityChat: React.FC = () => {
                         {conv.user.name[0]?.toUpperCase() || 'U'}
                       </div>
                       {conv.unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                        <span className="absolute -top-1 -end-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
                           {conv.unreadCount}
                         </span>
                       )}
@@ -495,7 +503,7 @@ export const CommunityChat: React.FC = () => {
                               : 'bg-indigo-100 dark:bg-indigo-950/50 text-[#4851BA] dark:text-indigo-300'
                           }`}
                         >
-                          {conv.user.role}
+                          {translateRole(conv.user.role)}
                         </span>
                         {conv.user.country && (
                           <span className="text-[10px] text-slate-400 truncate">
@@ -553,7 +561,7 @@ export const CommunityChat: React.FC = () => {
                         {activeUser.name}
                       </h3>
                       <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-[#4851BA] dark:text-indigo-300 shrink-0">
-                        {activeUser.role}
+                        {translateRole(activeUser.role)}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400 truncate">
@@ -564,7 +572,7 @@ export const CommunityChat: React.FC = () => {
 
                 <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border border-[#4851BA]/30 text-[#4851BA] dark:text-indigo-300 text-xs font-medium shrink-0">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>AES-256 Encrypted</span>
+                  <span>{t('chat.encryptedBadge', 'AES-256-GCM Encrypted Channel')}</span>
                 </div>
               </div>
 
@@ -572,16 +580,16 @@ export const CommunityChat: React.FC = () => {
               <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
                 {isLoadingMessages ? (
                   <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                    Loading decrypted message thread...
+                    {isArabic ? 'جارٍ تحميل وفك تشفير الرسائل...' : 'Loading decrypted message thread...'}
                   </div>
                 ) : activeMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
                     <MessageSquare className="w-10 h-10 mb-2 opacity-30 text-[#4851BA]" />
                     <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                      Conversation with {activeUser.name}
+                      {isArabic ? `محادثة مع ${activeUser.name}` : `Conversation with ${activeUser.name}`}
                     </p>
                     <p className="text-[11px] text-slate-400 mt-1">
-                      Send a message below to start or reply.
+                      {isArabic ? 'أرسل رسالة بالأسفل للرد أو بدء الحوار.' : 'Send a message below to start or reply.'}
                     </p>
                   </div>
                 ) : (
@@ -704,7 +712,7 @@ export const CommunityChat: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
                       <span className="text-xs font-bold text-red-700 dark:text-red-400">
-                        Recording Voice Reply: {formatSecs(recordingSeconds)}
+                        {t('chat.recording', 'Recording Voice Reply:')} {formatSecs(recordingSeconds)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -712,6 +720,7 @@ export const CommunityChat: React.FC = () => {
                         type="button"
                         onClick={cancelRecording}
                         className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer"
+                        title={t('chat.cancelRecording', 'Cancel Recording')}
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -719,6 +728,7 @@ export const CommunityChat: React.FC = () => {
                         type="button"
                         onClick={stopRecordingAndSend}
                         className="p-1.5 rounded-lg bg-[#4851BA] hover:bg-[#3B43A1] text-white shadow-sm cursor-pointer"
+                        title={t('chat.sendVoice', 'Send Voice Note')}
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -739,7 +749,7 @@ export const CommunityChat: React.FC = () => {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                      title="Attach Image or Video"
+                      title={t('chat.attach', 'Attach Image or Video')}
                     >
                       <Paperclip className="w-4 h-4" />
                     </button>
@@ -749,7 +759,7 @@ export const CommunityChat: React.FC = () => {
                       type="button"
                       onClick={startRecording}
                       className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                      title="Record Voice Note"
+                      title={t('chat.recordVoice', 'Record Voice Note')}
                     >
                       <Mic className="w-4 h-4" />
                     </button>
@@ -761,7 +771,9 @@ export const CommunityChat: React.FC = () => {
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder={
                         selectedFile
-                          ? 'Add a caption...'
+                          ? t('chat.captionPlaceholder', 'Add a caption to media...')
+                          : isArabic
+                          ? `الرد مباشرة على ${activeUser.name}...`
                           : `Reply directly to ${activeUser.name}...`
                       }
                       disabled={isSending}
@@ -773,6 +785,7 @@ export const CommunityChat: React.FC = () => {
                       type="submit"
                       disabled={isSending || (!replyText.trim() && !selectedFile)}
                       className="p-2 sm:p-2.5 rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] disabled:opacity-40 text-white shadow-sm transition-all shrink-0 cursor-pointer"
+                      title={t('chat.send', 'Send')}
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -787,10 +800,13 @@ export const CommunityChat: React.FC = () => {
                 <MessageSquare className="w-8 h-8" />
               </div>
               <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                Community Direct Dialogue
+                {t('chat.selectConversation', 'Select a conversation to start chatting')}
               </h3>
               <p className="text-xs text-slate-400 max-w-sm mt-1">
-                Select a member or presenter from the left list to review their messages and reply in real-time.
+                {t(
+                  'chat.selectConversationDesc',
+                  'Communicate directly with registered fellows, delegates, and keynote speakers.'
+                )}
               </p>
             </div>
           )}

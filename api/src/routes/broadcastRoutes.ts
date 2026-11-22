@@ -7,6 +7,7 @@ import {
   sendBroadcast,
   getBroadcastHistory,
   getAudienceCounts,
+  getBroadcastUsers,
 } from '../controllers/broadcastController';
 
 const router = Router();
@@ -32,5 +33,6 @@ router.use(authenticate, requireSuperAdmin);
 router.post('/send', generalApiLimiter, sendBroadcast);
 router.get('/history', getBroadcastHistory);
 router.get('/audience-counts', getAudienceCounts);
+router.get('/users', getBroadcastUsers);
 
 export default router;

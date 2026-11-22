@@ -116,7 +116,7 @@ function getAudienceFilter(audience: BroadcastAudience) {
 export async function sendBroadcast(req: Request, res: Response) {
   try {
     const adminUser = req.user!;
-    const { subject, message, targetAudience = 'ALL' } = req.body;
+    const { subject, message, targetAudience = 'ALL', targetUserIds } = req.body;
 
     if (!subject || !subject.trim()) {
       return res.status(400).json({ success: false, error: 'Broadcast subject is required' });
@@ -126,7 +126,7 @@ export async function sendBroadcast(req: Request, res: Response) {
     }
 
     const audience = (targetAudience || 'ALL').toUpperCase() as BroadcastAudience;
-    if (!['ALL', 'MEMBERS', 'PRESENTERS', 'CO_ADMINS'].includes(audience)) {
+    if (!['ALL', 'MEMBERS', 'PRESENTERS', 'CO_ADMINS', 'SPECIFIC_USERS'].includes(audience)) {
       return res.status(400).json({ success: false, error: 'Invalid target audience selection' });
     }
 
@@ -134,13 +134,35 @@ export async function sendBroadcast(req: Request, res: Response) {
     const sanitizedMessage = sanitizeText(message);
 
     // 1. Query target users
-    const audienceFilter = getAudienceFilter(audience);
-    const recipients = await User.find({
-      ...audienceFilter,
-      status: 'active',
-    })
-      .select('_id name email role')
-      .lean();
+    let recipients: Array<{ _id: mongoose.Types.ObjectId; name: string; email: string; role: string }> = [];
+
+    if (audience === 'SPECIFIC_USERS') {
+      if (!Array.isArray(targetUserIds) || targetUserIds.length === 0) {
+        return res.status(400).json({ success: false, error: 'Please select at least 1 user to send the broadcast to.' });
+      }
+      const validIds = targetUserIds
+        .filter((id: string) => mongoose.Types.ObjectId.isValid(id))
+        .map((id: string) => new mongoose.Types.ObjectId(id));
+
+      recipients = (await User.find({
+        _id: { $in: validIds },
+        status: 'active',
+      })
+        .select('_id name email role')
+        .lean()) as any;
+
+      if (recipients.length === 0) {
+        return res.status(400).json({ success: false, error: 'No active user accounts found among selected users.' });
+      }
+    } else {
+      const audienceFilter = getAudienceFilter(audience);
+      recipients = (await User.find({
+        ...audienceFilter,
+        status: 'active',
+      })
+        .select('_id name email role')
+        .lean()) as any;
+    }
 
     const totalRecipients = recipients.length;
 
@@ -149,6 +171,7 @@ export async function sendBroadcast(req: Request, res: Response) {
       subject: sanitizedSubject,
       message: sanitizedMessage,
       targetAudience: audience,
+      targetUserIds: audience === 'SPECIFIC_USERS' ? recipients.map((r) => r._id) : [],
       sentBy: adminUser._id,
       deliveryStats: {
         totalRecipients,
@@ -284,8 +307,49 @@ export async function getAudienceCounts(_req: Request, res: Response) {
 }
 
 /**
+ * GET /api/admin/broadcast/users
+ * Strictly Super Admin: Returns list of active delegates/users to select as specific recipients
+ */
+export async function getBroadcastUsers(req: Request, res: Response) {
+  try {
+    const search = String(req.query.search || '').trim();
+    const query: any = { status: 'active' };
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const users = await User.find(query)
+      .select('_id name email role country avatar flag')
+      .sort({ name: 1 })
+      .limit(150)
+      .lean();
+
+    const formatted = users.map((u) => ({
+      id: u._id.toString(),
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      country: u.country || '',
+      avatar: u.avatar || '',
+      flag: (u as any).flag || '',
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: formatted,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Failed to fetch users list' });
+  }
+}
+
+/**
  * GET /api/notices
- * Notice Board: Returns broadcasts applicable to authenticated user's role
+ * Notice Board: Returns broadcasts applicable to authenticated user's role or directly targeted to them
  */
 export async function getNotices(req: Request, res: Response) {
   try {
@@ -307,9 +371,12 @@ export async function getNotices(req: Request, res: Response) {
       applicableAudiences.push('CO_ADMINS', 'MEMBERS', 'PRESENTERS');
     }
 
-    // Query notices matching audience
+    // Query notices matching audience OR specifically addressed to this user
     const notices = await Broadcast.find({
-      targetAudience: { $in: applicableAudiences },
+      $or: [
+        { targetAudience: { $in: applicableAudiences } },
+        { targetAudience: 'SPECIFIC_USERS', targetUserIds: user._id },
+      ],
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -363,7 +430,12 @@ export async function markAllNoticesRead(req: Request, res: Response) {
     else if (roleUpper === ROLES.PRESENTER) applicableAudiences.push('PRESENTERS');
     else applicableAudiences.push('CO_ADMINS', 'MEMBERS', 'PRESENTERS');
 
-    const notices = await Broadcast.find({ targetAudience: { $in: applicableAudiences } })
+    const notices = await Broadcast.find({
+      $or: [
+        { targetAudience: { $in: applicableAudiences } },
+        { targetAudience: 'SPECIFIC_USERS', targetUserIds: user._id },
+      ],
+    })
       .select('_id')
       .lean();
 

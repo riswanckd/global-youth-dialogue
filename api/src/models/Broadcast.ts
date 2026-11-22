@@ -1,11 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export type BroadcastAudience = 'ALL' | 'MEMBERS' | 'PRESENTERS' | 'CO_ADMINS';
+export type BroadcastAudience = 'ALL' | 'MEMBERS' | 'PRESENTERS' | 'CO_ADMINS' | 'SPECIFIC_USERS';
 
 export interface IBroadcast extends Document {
   subject: string;
   message: string;
   targetAudience: BroadcastAudience;
+  targetUserIds?: mongoose.Types.ObjectId[];
   sentBy: mongoose.Types.ObjectId;
   deliveryStats: {
     totalRecipients: number;
@@ -32,10 +33,17 @@ const BroadcastSchema = new Schema<IBroadcast>(
     targetAudience: {
       type: String,
       required: true,
-      enum: ['ALL', 'MEMBERS', 'PRESENTERS', 'CO_ADMINS'],
+      enum: ['ALL', 'MEMBERS', 'PRESENTERS', 'CO_ADMINS', 'SPECIFIC_USERS'],
       default: 'ALL',
       index: true,
     },
+    targetUserIds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        index: true,
+      },
+    ],
     sentBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
