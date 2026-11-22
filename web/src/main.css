@@ -7915,6 +7915,19 @@ body.rtl-mode .topic-bank-card-title-ar {
   100% { transform: translateY(-8px); }
 }
 
+@keyframes gyde-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.animate-gyde-bob {
+  animation: gyde-bob 1.8s ease-in-out infinite;
+}
+
 .collage-main-card {
   position: relative;
   border-radius: 36px;

@@ -91,7 +91,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
       user.hasSeenChatSpotlight = true;
     }
 
-    // Step 2 trigger callback
+    // Step 2 trigger callback (invokes Push Notification modal immediately after spotlight)
     onSpotlightComplete?.();
 
     try {
@@ -103,7 +103,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
   // Determine first-time spotlight visibility and start 5.5-second auto-fadeout timer
   useEffect(() => {
-    if (user && user.hasSeenChatSpotlight === false && !spotlightDismissedRef.current) {
+    if (user && user.hasSeenChatSpotlight !== true && !spotlightDismissedRef.current) {
       setShowSpotlight(true);
 
       const timer = setTimeout(() => {
@@ -126,12 +126,27 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
         unreadCount: number;
       }>('/chat/messages');
 
-      if (res?.messages) {
-        setMessages(res.messages);
-        setUnreadCount(res.unreadCount || 0);
+      if (res) {
+        if (res.messages) {
+          setMessages(res.messages);
+          setUnreadCount(res.unreadCount || 0);
+        }
+        if (res.hasSeenChatSpotlight !== undefined) {
+          if (res.hasSeenChatSpotlight === true) {
+            user.hasSeenChatSpotlight = true;
+            if (showSpotlight) {
+              handleDismissSpotlight();
+            } else {
+              onSpotlightComplete?.();
+            }
+          } else if (res.hasSeenChatSpotlight === false && !spotlightDismissedRef.current) {
+            user.hasSeenChatSpotlight = false;
+            setShowSpotlight(true);
+          }
+        }
       }
     } catch {}
-  }, [user]);
+  }, [user, showSpotlight, handleDismissSpotlight, onSpotlightComplete]);
 
   // Polling mechanism (3.5s when open, 15s when closed)
   useEffect(() => {
@@ -354,27 +369,28 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
       {/* 1. Step 1: First-Time Onboarding Spotlight Overlay (5 to 6 seconds) */}
       {showSpotlight && !isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md transition-all duration-500 flex flex-col justify-end items-end p-6 pointer-events-auto"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md transition-all duration-300 pointer-events-auto cursor-pointer"
           onClick={handleDismissSpotlight}
         >
           {/* Spotlight Callout Card (Right above Chat Icon - Mobile Viewport Protected) */}
           <div
-            className="mb-20 sm:mb-24 mr-0 sm:mr-2 w-[calc(100vw-2.5rem)] sm:max-w-sm bg-white dark:bg-slate-900 border border-[#4851BA]/30 dark:border-indigo-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl text-slate-800 dark:text-slate-100 z-[60] animate-in fade-in slide-in-from-bottom-6 duration-300 relative overflow-hidden"
+            className="fixed bottom-24 right-5 sm:bottom-28 sm:right-6 z-[60] w-[calc(100vw-2.5rem)] sm:max-w-sm bg-[#0B0D1B]/95 border-2 border-[#4851BA]/50 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-indigo-950/80 text-white backdrop-blur-xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-default"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Ambient GYDE Purple Glow */}
-            <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#4851BA]/15 dark:bg-[#4851BA]/25 rounded-full blur-xl pointer-events-none" />
+            <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#4851BA]/30 rounded-full blur-xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-28 h-28 bg-[#9E59AC]/20 rounded-full blur-xl pointer-events-none" />
 
             <div className="flex items-center gap-2.5 mb-2 relative z-10">
-              <span className="p-2 rounded-xl bg-[#4851BA]/10 text-[#4851BA] dark:text-indigo-400">
-                <Sparkles className="w-5 h-5" />
+              <span className="p-2 rounded-xl bg-gradient-to-tr from-[#3B43A1] to-[#4851BA] text-white shadow-md shadow-[#4851BA]/30">
+                <Sparkles className="w-5 h-5 text-indigo-200" />
               </span>
-              <h4 className="font-bold text-base text-slate-900 dark:text-white">
+              <h4 className="font-bold text-base text-white">
                 {t('chat.spotlightTitle', 'New Option Arrived!')}
               </h4>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4 relative z-10">
+            <p className="text-xs text-slate-300 leading-relaxed mb-4 relative z-10">
               {t(
                 'chat.spotlightText',
                 'You got a new option: Chat with Admin. Have suggestions or need help? Message the Super Admin directly from here.'
@@ -382,14 +398,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
             </p>
 
             <div className="flex items-center justify-between relative z-10">
-              <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-[#4851BA] to-[#9E59AC] rounded-full animate-pulse w-full" />
               </div>
 
               <button
                 type="button"
                 onClick={handleDismissSpotlight}
-                className="px-4 py-1.5 text-xs font-semibold rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] text-white shadow-sm transition-all cursor-pointer"
+                className="px-4 py-1.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#3B43A1] to-[#4851BA] hover:from-[#4851BA] hover:to-[#9E59AC] text-white shadow-md shadow-[#4851BA]/30 transition-all cursor-pointer"
               >
                 {t('chat.gotIt', 'Got it')}
               </button>
@@ -409,12 +425,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
         }}
         className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 ${
           showSpotlight
-            ? 'z-[60] animate-bounce ring-4 ring-[#4851BA]/40 ring-offset-2 ring-offset-black/50 shadow-2xl'
+            ? 'z-[60] animate-gyde-bob ring-4 ring-[#4851BA] ring-offset-4 ring-offset-black shadow-2xl shadow-indigo-500/50'
             : 'z-40'
-        } w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#3B43A1] via-[#4851BA] to-[#6366f1] hover:brightness-110 text-white shadow-xl hover:shadow-[#4851BA]/40 flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
+        } w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-[#000000] via-[#1e1b4b] to-[#3B43A1] border-2 border-indigo-400/40 hover:brightness-125 text-white shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
         aria-label="Chat with Admin"
       >
-        {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />}
+        {isOpen ? (
+          <X className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        ) : (
+          <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        )}
 
         {/* Unread red badge indicator */}
         {!isOpen && unreadCount > 0 && (
