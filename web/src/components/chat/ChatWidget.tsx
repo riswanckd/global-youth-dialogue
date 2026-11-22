@@ -368,13 +368,21 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
     <>
       {/* 1. Step 1: First-Time Onboarding Spotlight Overlay (5 to 6 seconds) */}
       {showSpotlight && !isOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md transition-all duration-300 pointer-events-auto cursor-pointer"
-          onClick={handleDismissSpotlight}
-        >
-          {/* Spotlight Callout Card (Right above Chat Icon - Mobile Viewport Protected) */}
+        <>
+          {/* Full-screen Dark Translucent Blur Backdrop */}
           <div
-            className="fixed bottom-24 right-5 sm:bottom-28 sm:right-6 z-[60] w-[calc(100vw-2.5rem)] sm:max-w-sm bg-[#0B0D1B]/95 border-2 border-[#4851BA]/50 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-indigo-950/80 text-white backdrop-blur-xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-default"
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md transition-all duration-300 pointer-events-auto cursor-pointer"
+            onClick={handleDismissSpotlight}
+          />
+
+          {/* Spotlight Callout Card (Firmly anchored at bottom-right, right above the chat button) */}
+          <div
+            className="fixed bottom-24 right-5 sm:bottom-28 sm:right-6 z-[60] w-[calc(100vw-2.5rem)] sm:w-96 max-w-sm rounded-2xl p-4 sm:p-5 text-white backdrop-blur-xl animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-default"
+            style={{
+              background: '#0B0D1B',
+              border: '2px solid rgba(72, 81, 186, 0.7)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(72, 81, 186, 0.45)',
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Ambient GYDE Purple Glow */}
@@ -411,7 +419,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* 2. Floating Action Button (FAB) - Elevated & Bobbing during Spotlight */}
@@ -423,17 +431,23 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
           }
           setIsOpen((prev) => !prev);
         }}
-        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 ${
+        style={{
+          background: 'linear-gradient(135deg, #000000 0%, #1e1b4b 45%, #4851BA 100%)',
+          backgroundColor: '#4851BA',
+          borderRadius: '9999px',
+          boxShadow: '0 10px 25px -5px rgba(72, 81, 186, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',
+        }}
+        className={`gyde-fab-circle fixed bottom-5 right-5 sm:bottom-6 sm:right-6 ${
           showSpotlight
-            ? 'z-[60] animate-gyde-bob ring-4 ring-[#4851BA] ring-offset-4 ring-offset-black shadow-2xl shadow-indigo-500/50'
+            ? 'z-[60] animate-gyde-bob ring-4 ring-[#4851BA] ring-offset-4 ring-offset-black'
             : 'z-40'
-        } w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-[#000000] via-[#1e1b4b] to-[#3B43A1] border-2 border-indigo-400/40 hover:brightness-125 text-white shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
+        } w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#4851BA] hover:border-indigo-400 text-white flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
         aria-label="Chat with Admin"
       >
         {isOpen ? (
-          <X className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <X className="w-6 h-6 sm:w-7 sm:h-7 text-white stroke-[2.5]" />
         ) : (
-          <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-white stroke-[2.2]" />
         )}
 
         {/* Unread red badge indicator */}

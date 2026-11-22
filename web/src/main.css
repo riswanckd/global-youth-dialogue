@@ -10070,3 +10070,20 @@ html[dir="rtl"] .mobile-nav-drawer.open {
     padding: 0.75rem 1rem !important;
   }
 }
+
+/* GYDE Floating Chat Circle Action Button */
+button.gyde-fab-circle {
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #000000 0%, #1e1b4b 45%, #4851BA 100%) !important;
+  background-color: #4851BA !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(72, 81, 186, 0.7) !important;
+  box-shadow: 0 10px 25px -5px rgba(72, 81, 186, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+button.gyde-fab-circle:hover {
+  filter: brightness(1.2) !important;
+}
