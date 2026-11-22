@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
 import { apiRequest, getStoredToken, setStoredToken, removeStoredToken } from '../utils/api';
+import { queryClient } from '../queryClient';
 
 interface AuthContextType {
   user: User | null;
@@ -90,7 +91,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  // Whenever the authenticated user changes or logs out, purge all in-memory query cache immediately
+  useEffect(() => {
+    queryClient.clear();
+  }, [user?.id]);
+
   const login = async (email: string, password: string) => {
+    queryClient.clear();
     const res = await apiRequest<{ user: User; token?: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
@@ -106,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (data: any) => {
+    queryClient.clear();
     const res = await apiRequest<{ user: User; token?: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -125,6 +133,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       removeStoredToken();
       localStorage.removeItem(USER_SESSION_KEY);
+      localStorage.removeItem('gyde_active_view_mode');
+      sessionStorage.clear();
+      queryClient.clear();
       setUser(null);
     }
   };

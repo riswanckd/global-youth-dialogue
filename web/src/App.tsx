@@ -42,15 +42,7 @@ import { PortalJourney } from './pages/portal/PortalJourney';
 import { PortalSuggestTopic } from './pages/portal/PortalSuggestTopic';
 import { PortalTopicBank } from './pages/portal/PortalTopicBank';
 import { PortalNotices } from './pages/portal/PortalNotices';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 mins
-    },
-  },
-});
+import { queryClient } from './queryClient';
 
 const PublicLayout: React.FC = () => {
   return (

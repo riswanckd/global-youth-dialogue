@@ -22,15 +22,7 @@ import { MediaStudio } from './pages/MediaStudio';
 import { CoordinatorProfile } from './pages/CoordinatorProfile';
 import { CommunityChat } from './pages/CommunityChat';
 import { BroadcastMessage } from './pages/BroadcastMessage';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 3,
-    },
-  },
-});
+import { queryClient } from './queryClient';
 
 export const App: React.FC = () => {
   return (

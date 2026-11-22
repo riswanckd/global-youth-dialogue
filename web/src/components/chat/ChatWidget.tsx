@@ -61,6 +61,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Reset all messages and state immediately when user switches or logs out
+  useEffect(() => {
+    setMessages([]);
+    setUnreadCount(0);
+    setInputText('');
+    setIsOpen(false);
+  }, [user?.id]);
+
   // Media attachment state
   const [selectedFile, setSelectedFile] = useState<{
     file: File;

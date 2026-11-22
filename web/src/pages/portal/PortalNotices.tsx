@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Bell, Clock, ShieldCheck, Megaphone, CheckCircle2 } from 'lucide-react';
 
@@ -15,11 +16,16 @@ interface NoticeItem {
 
 export const PortalNotices: React.FC = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const { t, isArabic, dir, language } = useLanguage();
+  const userId = user?.id || 'anon';
 
   const { data, isLoading } = useQuery<{ notices: NoticeItem[]; unreadCount: number }>({
-    queryKey: ['portal-notices-unread-count'],
+    queryKey: ['portal-notices-unread-count', userId],
     queryFn: () => apiRequest<{ notices: NoticeItem[]; unreadCount: number }>('/notices'),
+    enabled: Boolean(user?.id),
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: 5000,
   });
 
@@ -33,16 +39,17 @@ export const PortalNotices: React.FC = () => {
 
   // Mark all eligible notices as read after 4 seconds of reading, so the user can clearly see which notice was new
   useEffect(() => {
+    if (!user?.id) return;
     const timer = setTimeout(() => {
       apiRequest('/notices/mark-all-read', { method: 'POST' })
         .then(() => {
-          queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count'] });
+          queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count', user.id] });
         })
         .catch(() => {});
     }, 4000);
 
     return () => clearTimeout(timer);
-  }, [queryClient]);
+  }, [user?.id, queryClient]);
 
   const getAudienceLabel = (aud: string) => {
     switch (aud) {
@@ -60,7 +67,7 @@ export const PortalNotices: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6" dir={dir}>
+    <div key={userId} className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6" dir={dir}>
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-slate-200 dark:border-slate-800">
         <div>

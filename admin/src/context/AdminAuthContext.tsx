@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
 import { apiRequest, setStoredAdminToken, removeStoredAdminToken } from '../utils/api';
+import { queryClient } from '../queryClient';
 
 const ADMIN_SESSION_KEY = 'gyde_admin_session';
 
@@ -111,6 +112,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const login = async (rawEmail: string, rawPassword: string) => {
+    queryClient.clear();
     const email = (rawEmail || '').trim().toLowerCase();
     const password = (rawPassword || '').trim();
 
@@ -154,6 +156,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       removeStoredAdminToken();
       localStorage.removeItem(ADMIN_SESSION_KEY);
+      sessionStorage.clear();
+      queryClient.clear();
       setUser(null);
       setAuthorizedMenuIds([]);
     }

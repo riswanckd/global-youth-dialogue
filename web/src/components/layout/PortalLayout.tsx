@@ -82,39 +82,55 @@ export const PortalLayout: React.FC = () => {
   const isAdmin = isSuperAdmin || userRoleUpper === 'ADMIN' || userRoleUpper === 'COORDINATOR';
   const hasPresenterAccess = isAdmin || userRoleUpper === 'PRESENTER';
 
-  // Dynamic Real-time Queries for Notifications & Telemetry
+  // Dynamic Real-time Queries for Notifications & Telemetry (Strictly scoped to active authenticated user ID)
+  const userId = user?.id || 'anon';
+
   const { data: topics = [] } = useQuery<Topic[]>({
-    queryKey: ['portal-notifications-topics'],
+    queryKey: ['portal-notifications-topics', userId],
     queryFn: () => apiRequest<Topic[]>('/topics').catch(() => []),
+    enabled: Boolean(user?.id),
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: 15000,
   });
 
   const { data: publications = [] } = useQuery<Publication[]>({
-    queryKey: ['portal-notifications-pubs'],
+    queryKey: ['portal-notifications-pubs', userId],
     queryFn: () => apiRequest<Publication[]>('/publications').catch(() => []),
+    enabled: Boolean(user?.id),
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: 15000,
   });
 
   const { data: sessions = [] } = useQuery<DialogueSession[]>({
-    queryKey: ['portal-notifications-sessions'],
+    queryKey: ['portal-notifications-sessions', userId],
     queryFn: () => apiRequest<DialogueSession[]>('/sessions').catch(() => []),
+    enabled: Boolean(user?.id),
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: 15000,
   });
 
   const { data: applications = [] } = useQuery<Application[]>({
-    queryKey: ['portal-notifications-apps'],
+    queryKey: ['portal-notifications-apps', userId],
     queryFn: () => (isAdmin ? apiRequest<Application[]>('/admin/applications').catch(() => []) : Promise.resolve([])),
-    enabled: isAdmin,
+    enabled: Boolean(isAdmin && user?.id),
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: 15000,
   });
 
   const { data: noticesData } = useQuery<{ notices: any[]; unreadCount: number }>({
-    queryKey: ['portal-notices-unread-count'],
+    queryKey: ['portal-notices-unread-count', userId],
     queryFn: () =>
       apiRequest<{ notices: any[]; unreadCount: number }>('/notices').catch(() => ({
         notices: [],
         unreadCount: 0,
       })),
+    enabled: Boolean(user?.id),
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: 5000,
   });
 
@@ -284,7 +300,7 @@ export const PortalLayout: React.FC = () => {
   }, [mobileMenuOpen]);
 
   return (
-    <div className="min-h-screen min-h-[100dvh] lg:h-screen lg:overflow-hidden bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
+    <div key={user?.id || 'portal_anon'} className="min-h-screen min-h-[100dvh] lg:h-screen lg:overflow-hidden bg-[#fcfdfe] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
       {/* TOP WORKSPACE NAVBAR (Mirroring Admin Portal Design) */}
       <header className="shrink-0 z-40 sticky top-0 w-full h-16 lg:h-[72px] bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="w-full px-3 sm:px-6 h-full flex items-center justify-between gap-2 sm:gap-4">
