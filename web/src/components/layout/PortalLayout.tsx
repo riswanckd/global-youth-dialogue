@@ -115,9 +115,39 @@ export const PortalLayout: React.FC = () => {
         notices: [],
         unreadCount: 0,
       })),
-    refetchInterval: 12000,
+    refetchInterval: 5000,
   });
-  const unreadNoticesCount = noticesData?.unreadCount || 0;
+
+  const noticesList = (Array.isArray(noticesData?.notices)
+    ? noticesData.notices
+    : Array.isArray((noticesData as any)?.data?.notices)
+    ? (noticesData as any).data.notices
+    : Array.isArray(noticesData)
+    ? noticesData
+    : []) as any[];
+
+  const unreadNoticesCount =
+    typeof noticesData?.unreadCount === 'number'
+      ? noticesData.unreadCount
+      : typeof (noticesData as any)?.data?.unreadCount === 'number'
+      ? (noticesData as any).data.unreadCount
+      : noticesList.filter((n) => !n.isRead).length;
+
+  // Real-time toast alert when a new notice arrives while user is on another page
+  const [newNoticeToast, setNewNoticeToast] = useState<{ id: string; subject: string } | null>(null);
+  const lastNoticeIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (noticesList.length > 0) {
+      const latest = noticesList[0];
+      if (lastNoticeIdRef.current && lastNoticeIdRef.current !== latest.id && !latest.isRead) {
+        if (!location.pathname.startsWith('/portal/notices')) {
+          setNewNoticeToast({ id: latest.id, subject: latest.subject });
+        }
+      }
+      lastNoticeIdRef.current = latest.id;
+    }
+  }, [noticesList, location.pathname]);
 
   // 1. Proposed Topics
   const proposedTopics = topics.filter(
@@ -144,11 +174,12 @@ export const PortalLayout: React.FC = () => {
     (s) => s.status === 'scheduled' || s.status === 'approved' || (s.status as any) === 'published' || s.status === 'live'
   );
 
-  const totalPortalNotifications = isAdmin
-    ? pendingMemberApps.length + pendingPresenterApps.length + proposedTopics.length + pendingPublications.length
-    : (proposedTopics.filter((t) => (t as any).proposedBy?.email === user?.email || (t as any).proposedBy?.userId === user?.id).length +
-       pendingPublications.filter((p) => (p as any).createdBy === user?.id).length +
-       scheduledSessions.length);
+  const totalPortalNotifications =
+    (isAdmin
+      ? pendingMemberApps.length + pendingPresenterApps.length + proposedTopics.length + pendingPublications.length
+      : (proposedTopics.filter((t) => (t as any).proposedBy?.email === user?.email || (t as any).proposedBy?.userId === user?.id).length +
+         pendingPublications.filter((p) => (p as any).createdBy === user?.id).length +
+         scheduledSessions.length)) + unreadNoticesCount;
 
   // Toggle state between Member View and Presenter View (stored in localStorage for seamless experience)
   const [activeDashboardMode, setActiveDashboardMode] = useState<'member' | 'presenter'>(() => {
@@ -181,7 +212,7 @@ export const PortalLayout: React.FC = () => {
       label: isArabic ? 'لوحة الإعلانات' : 'Notice Board',
       path: '/portal/notices',
       icon: Megaphone,
-      badge: unreadNoticesCount > 0 ? unreadNoticesCount.toString() : undefined,
+      badge: unreadNoticesCount > 0 ? (unreadNoticesCount > 9 ? '9+' : unreadNoticesCount.toString()) : undefined,
       isRedBadge: true,
     },
     ...(isPresenter
@@ -604,6 +635,7 @@ export const PortalLayout: React.FC = () => {
               openPresenterModal: () => setPresenterModalOpen(true),
               activeDashboardMode,
               toggleDashboardMode,
+              unreadNoticesCount,
             }}
           />
         </main>
@@ -657,6 +689,49 @@ export const PortalLayout: React.FC = () => {
             </div>
 
             <div className="space-y-2 max-h-[65vh] overflow-y-auto no-scrollbar py-1">
+              {/* Category 0: Official Notice Board Communiqués */}
+              {noticesList.length > 0 && noticesList.slice(0, 3).map((notice) => (
+                <button
+                  key={`notice-${notice.id}`}
+                  type="button"
+                  onClick={() => {
+                    setNotificationsOpen(false);
+                    navigate('/portal/notices');
+                  }}
+                  className={`w-full text-left rtl:text-right p-3 rounded-xl border transition-all flex items-start gap-3 group cursor-pointer ${
+                    !notice.isRead
+                      ? 'border-indigo-300 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/40 hover:bg-indigo-100/90'
+                      : 'border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#3B43A1] to-[#4851BA] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <Megaphone className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1">
+                        {!notice.isRead && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                        )}
+                        {isArabic ? 'بلاغ رسمي من الأمانة العامة' : 'Secretariat Dispatch'}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(notice.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate">
+                      {notice.subject}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                      {notice.message}
+                    </p>
+                    <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold mt-1 inline-block">
+                      {isArabic ? 'فتح لوحة الإعلانات ←' : 'Open Notice Board →'}
+                    </span>
+                  </div>
+                </button>
+              ))}
+
               {/* Category 1: Proposed Topic Suggestions */}
               {proposedTopics.length > 0 && proposedTopics.map((topic) => (
                 <button
@@ -934,6 +1009,43 @@ export const PortalLayout: React.FC = () => {
 
       {/* Step 2: "Allow Notifications" Centered Modal Popup (Runs cleanly right after Step 1 spotlight finishes, or immediately on login if already seen) */}
       <PushNotificationPrompt canShow={spotlightFinished} />
+
+      {/* Real-Time Floating Notice Alert Toast */}
+      {newNoticeToast && (
+        <div className="fixed top-20 right-4 rtl:right-auto rtl:left-4 z-50 max-w-sm rounded-2xl bg-gradient-to-tr from-[#0B0D1B] via-[#1e1b4b] to-[#4851BA] text-white p-3.5 shadow-2xl border border-indigo-400/40 flex items-start gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+            <Megaphone className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded bg-rose-600 text-white uppercase tracking-wider animate-pulse flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                {isArabic ? 'بلاغ جديد' : 'NEW NOTICE'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setNewNoticeToast(null)}
+                className="text-white/60 hover:text-white cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <p className="text-xs font-bold text-white mt-1 truncate">
+              {newNoticeToast.subject}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setNewNoticeToast(null);
+                navigate('/portal/notices');
+              }}
+              className="text-[11px] text-indigo-200 hover:text-white font-semibold underline mt-1 cursor-pointer block"
+            >
+              {isArabic ? 'عرض على لوحة الإعلانات ←' : 'Read on Notice Board →'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Step 1: Floating Chat Widget with Super Admin & 5-6s Spotlight Onboarding */}
       <ChatWidget onSpotlightComplete={() => setSpotlightFinished(true)} />

@@ -34,6 +34,7 @@ interface OutletContextType {
   openPresenterModal?: () => void;
   activeDashboardMode?: 'member' | 'presenter';
   toggleDashboardMode?: (mode: 'member' | 'presenter') => void;
+  unreadNoticesCount?: number;
 }
 
 export const PortalDashboard: React.FC = () => {
@@ -41,7 +42,7 @@ export const PortalDashboard: React.FC = () => {
   const { isArabic } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const { openPresenterModal, activeDashboardMode, toggleDashboardMode } = useOutletContext<OutletContextType>() || {};
+  const { openPresenterModal, activeDashboardMode, toggleDashboardMode, unreadNoticesCount } = useOutletContext<OutletContextType>() || {};
 
   const [localModalOpen, setLocalModalOpen] = useState(false);
   const [presentModalOpen, setPresentModalOpen] = useState(false);
@@ -207,10 +208,15 @@ export const PortalDashboard: React.FC = () => {
           {/* Notifications button */}
           <button
             onClick={() => navigate('/portal/dashboard?notifications=open')}
-            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer relative"
           >
             <Bell className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <span className="truncate">{isArabic ? 'الإشعارات' : 'Notifications'}</span>
+            {Boolean(unreadNoticesCount && unreadNoticesCount > 0) && (
+              <span className="min-w-[17px] h-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                {unreadNoticesCount! > 9 ? '9+' : unreadNoticesCount}
+              </span>
+            )}
           </button>
 
           {/* + Suggest / Propose Topic (Light indigo tint, no stroke) */}

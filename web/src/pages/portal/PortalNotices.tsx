@@ -18,21 +18,30 @@ export const PortalNotices: React.FC = () => {
   const { t, isArabic, dir, language } = useLanguage();
 
   const { data, isLoading } = useQuery<{ notices: NoticeItem[]; unreadCount: number }>({
-    queryKey: ['portal-notices'],
+    queryKey: ['portal-notices-unread-count'],
     queryFn: () => apiRequest<{ notices: NoticeItem[]; unreadCount: number }>('/notices'),
-    refetchInterval: 12000,
+    refetchInterval: 5000,
   });
 
-  const notices = data?.notices || [];
+  const notices = (Array.isArray(data?.notices)
+    ? data.notices
+    : Array.isArray((data as any)?.data?.notices)
+    ? (data as any).data.notices
+    : Array.isArray(data)
+    ? data
+    : []) as NoticeItem[];
 
-  // Automatically mark all eligible notices as read on mount to clear the red unread badge immediately
+  // Mark all eligible notices as read after 4 seconds of reading, so the user can clearly see which notice was new
   useEffect(() => {
-    apiRequest('/notices/mark-all-read', { method: 'POST' })
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count'] });
-        queryClient.invalidateQueries({ queryKey: ['portal-notices'] });
-      })
-      .catch(() => {});
+    const timer = setTimeout(() => {
+      apiRequest('/notices/mark-all-read', { method: 'POST' })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count'] });
+        })
+        .catch(() => {});
+    }, 4000);
+
+    return () => clearTimeout(timer);
   }, [queryClient]);
 
   const getAudienceLabel = (aud: string) => {
@@ -108,8 +117,11 @@ export const PortalNotices: React.FC = () => {
                   <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-[#4851BA] dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80">
                     {getAudienceLabel(notice.targetAudience)}
                   </span>
-                  {!notice.isRead && (
-                    <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
+                  {(!notice.isRead || (Date.now() - new Date(notice.createdAt).getTime() < 24 * 60 * 60 * 1000)) && (
+                    <span className="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-xs animate-pulse flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                      {isArabic ? 'جديد' : 'NEW'}
+                    </span>
                   )}
                 </div>
 
