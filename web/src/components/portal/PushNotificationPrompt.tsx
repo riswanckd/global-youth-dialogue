@@ -1,88 +1,130 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, CheckCircle2 } from 'lucide-react';
+import { Bell } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { apiRequest } from '../../utils/api';
 import { registerWebPush } from '../../utils/pushManager';
 
-export const PushNotificationPrompt: React.FC = () => {
-  const [showPrompt, setShowPrompt] = useState(false);
+interface PushNotificationPromptProps {
+  canShow?: boolean;
+}
+
+export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ canShow = true }) => {
+  const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    // Only check and show once the preceding Step 1 (Chat Spotlight) is finished or bypassed
+    if (!canShow) {
+      setIsOpen(false);
+      return;
+    }
+
     if (
       typeof window !== 'undefined' &&
       'Notification' in window &&
       'serviceWorker' in navigator &&
-      Notification.permission === 'default'
+      Notification.permission === 'default' &&
+      user &&
+      user.hasDismissedNotificationPrompt !== true
     ) {
-      setShowPrompt(true);
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
     }
-  }, []);
+  }, [canShow, user]);
 
-  const handleEnableNotifications = async () => {
+  const handleAllow = async () => {
     setIsSubscribing(true);
     try {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        const ok = await registerWebPush();
-        if (ok) {
-          setSuccess(true);
-          setTimeout(() => setShowPrompt(false), 2500);
-        } else {
-          setShowPrompt(false);
-        }
+        await registerWebPush();
       } else {
-        setShowPrompt(false);
+        // User dismissed or denied in browser native prompt
+        await apiRequest('/push/dismiss-prompt', { method: 'PATCH' });
       }
-    } catch {
-      setShowPrompt(false);
+
+      // Persist state in active session memory
+      if (user) {
+        user.hasDismissedNotificationPrompt = true;
+      }
+    } catch (err) {
+      console.error('Failed to register push notifications:', err);
     } finally {
       setIsSubscribing(false);
+      setIsOpen(false);
     }
   };
 
-  if (!showPrompt) return null;
+  const handleBlock = async () => {
+    setIsSubscribing(true);
+    try {
+      // Record preference strictly in backend database (ZERO browser storage)
+      await apiRequest('/push/dismiss-prompt', { method: 'PATCH' });
+      if (user) {
+        user.hasDismissedNotificationPrompt = true;
+      }
+    } catch (err) {
+      console.error('Failed to dismiss notification prompt:', err);
+    } finally {
+      setIsSubscribing(false);
+      setIsOpen(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div className="mb-4 mx-4 sm:mx-6 p-3.5 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm flex items-center justify-between gap-3 text-xs animate-in fade-in slide-in-from-top-2">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
-          <Bell className="w-4 h-4" />
-        </div>
-        <div>
-          <p className="font-semibold text-emerald-950 dark:text-emerald-100">
-            Enable Official GYDE Notifications
-          </p>
-          <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80 mt-0.5">
-            Receive instant announcements and session calls directly on your phone or desktop notification panel.
-          </p>
-        </div>
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div
+        className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden animate-in zoom-in-95 duration-200"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="allow-notifications-heading"
+      >
+        {/* Official GYDE Ambient Glow Background */}
+        <div className="absolute -top-16 -right-16 w-36 h-36 bg-[#4851BA]/15 dark:bg-[#4851BA]/25 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-36 h-36 bg-[#9E59AC]/10 dark:bg-[#9E59AC]/20 rounded-full blur-2xl pointer-events-none" />
 
-      <div className="flex items-center gap-2 shrink-0">
-        {success ? (
-          <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-300 text-xs">
-            <CheckCircle2 className="w-4 h-4" /> Enabled
-          </span>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={handleEnableNotifications}
-              disabled={isSubscribing}
-              className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-medium shadow-xs transition-colors disabled:opacity-50"
-            >
-              {isSubscribing ? 'Enabling...' : 'Allow Notifications'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowPrompt(false)}
-              className="p-1 rounded-lg text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
-              title="Dismiss"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </>
-        )}
+        {/* Vector SVG Bell Icon (Strictly NO Emojis) */}
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#3B43A1] to-[#6366f1] text-white flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#4851BA]/25 relative z-10">
+          <Bell className="w-8 h-8" />
+        </div>
+
+        {/* Modal Heading */}
+        <h3
+          id="allow-notifications-heading"
+          className="text-xl font-bold text-slate-900 dark:text-white tracking-tight"
+        >
+          Allow Notifications
+        </h3>
+
+        {/* Modal Description */}
+        <p className="text-sm text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed max-w-sm mx-auto">
+          Stay updated with instant announcements and important notices from GYDE right in your notification panel.
+        </p>
+
+        {/* Two Action Buttons: Block (Secondary) and Allow (Primary) */}
+        <div className="mt-7 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBlock}
+            disabled={isSubscribing}
+            className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition-colors cursor-pointer disabled:opacity-50"
+          >
+            Block
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAllow}
+            disabled={isSubscribing}
+            className="flex-1 py-2.5 px-4 rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] text-white font-semibold text-sm shadow-md shadow-[#4851BA]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {isSubscribing ? 'Processing...' : 'Allow'}
+          </button>
+        </div>
       </div>
     </div>
   );

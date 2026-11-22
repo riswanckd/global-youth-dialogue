@@ -15,8 +15,6 @@ import {
   CheckCheck,
   Image as ImageIcon,
   Video as VideoIcon,
-  Volume2,
-  AlertCircle,
   Sparkles,
 } from 'lucide-react';
 
@@ -37,12 +35,17 @@ interface ChatMessage {
   createdAt: string;
 }
 
-export const ChatWidget: React.FC = () => {
+interface ChatWidgetProps {
+  onSpotlightComplete?: () => void;
+}
+
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) => {
   const { user } = useAuth();
 
   // Widget visibility & spotlight state
   const [isOpen, setIsOpen] = useState(false);
   const [showSpotlight, setShowSpotlight] = useState(false);
+  const spotlightDismissedRef = useRef(false);
 
   // Messages & interaction state (Strictly kept in memory / React state - ZERO browser storage)
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -76,25 +79,40 @@ export const ChatWidget: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Determine first-time spotlight visibility
-  useEffect(() => {
-    if (user && user.hasSeenChatSpotlight === false) {
-      setShowSpotlight(true);
-    } else {
-      setShowSpotlight(false);
-    }
-  }, [user]);
-
-  // Dismiss spotlight and notify server
-  const handleDismissSpotlight = async () => {
+  // Dismiss spotlight, update database, and notify sequence listener
+  const handleDismissSpotlight = useCallback(async () => {
+    if (spotlightDismissedRef.current) return;
+    spotlightDismissedRef.current = true;
     setShowSpotlight(false);
+
     if (user) {
       user.hasSeenChatSpotlight = true;
     }
+
+    // Step 2 trigger callback
+    onSpotlightComplete?.();
+
     try {
       await apiRequest('/chat/spotlight-seen', { method: 'PATCH' });
-    } catch {}
-  };
+    } catch (err) {
+      console.error('Failed to update spotlight status:', err);
+    }
+  }, [user, onSpotlightComplete]);
+
+  // Determine first-time spotlight visibility and start 5.5-second auto-fadeout timer
+  useEffect(() => {
+    if (user && user.hasSeenChatSpotlight === false && !spotlightDismissedRef.current) {
+      setShowSpotlight(true);
+
+      const timer = setTimeout(() => {
+        handleDismissSpotlight();
+      }, 5500); // 5 to 6 seconds automatically
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowSpotlight(false);
+    }
+  }, [user, handleDismissSpotlight]);
 
   // Fetch messages from backend
   const fetchMessages = useCallback(async () => {
@@ -118,20 +136,17 @@ export const ChatWidget: React.FC = () => {
     if (!user) return;
     fetchMessages();
 
-    const intervalTime = isOpen ? 3500 : 15000;
-    const interval = setInterval(fetchMessages, intervalTime);
-
+    const interval = setInterval(fetchMessages, isOpen ? 3500 : 15000);
     return () => clearInterval(interval);
   }, [user, isOpen, fetchMessages]);
 
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
-      setUnreadCount(0);
     }
-  }, [isOpen, messages.length]);
+  }, [messages, isOpen]);
 
-  // Memory hygiene: clean up object URLs when unmounting or clearing attachments
+  // Clean up object URLs on unmount (Ephemeral memory hygiene)
   useEffect(() => {
     return () => {
       if (selectedFile?.previewUrl) {
@@ -145,35 +160,36 @@ export const ChatWidget: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type.startsWith('image/')) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMsg('Image size cannot exceed 5MB');
-        return;
-      }
-      setSelectedFile({
-        file,
-        previewUrl: URL.createObjectURL(file),
-        type: 'IMAGE',
-      });
-      setErrorMsg(null);
-    } else if (file.type.startsWith('video/')) {
-      if (file.size > 15 * 1024 * 1024) {
-        setErrorMsg('Video size cannot exceed 15MB');
-        return;
-      }
-      setSelectedFile({
-        file,
-        previewUrl: URL.createObjectURL(file),
-        type: 'VIDEO',
-      });
-      setErrorMsg(null);
-    } else {
-      setErrorMsg('Please select a valid image or video file.');
+    const mime = file.type.toLowerCase();
+    const isImage = mime.startsWith('image/');
+    const isVideo = mime.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      setErrorMsg('Invalid file format. Only images and videos are permitted.');
+      return;
     }
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    // Size limit check (Images: max 5MB, Video: max 15MB)
+    if (isImage && file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Images must be smaller than 5 MB.');
+      return;
     }
+    if (isVideo && file.size > 15 * 1024 * 1024) {
+      setErrorMsg('Videos must be smaller than 15 MB.');
+      return;
+    }
+
+    if (selectedFile?.previewUrl) {
+      URL.revokeObjectURL(selectedFile.previewUrl);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setSelectedFile({
+      file,
+      previewUrl,
+      type: isImage ? 'IMAGE' : 'VIDEO',
+    });
+    setErrorMsg(null);
   };
 
   const removeSelectedFile = () => {
@@ -181,14 +197,16 @@ export const ChatWidget: React.FC = () => {
       URL.revokeObjectURL(selectedFile.previewUrl);
     }
     setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  // Voice recording handlers using MediaRecorder API
+  // Start voice note recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
-
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
 
@@ -201,78 +219,65 @@ export const ChatWidget: React.FC = () => {
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingSeconds(0);
-      setErrorMsg(null);
 
       recordingTimerRef.current = setInterval(() => {
-        setRecordingSeconds((prev) => {
-          if (prev >= 120) {
-            // Auto-stop at 2 minutes
-            stopRecordingAndSend();
-            return prev;
-          }
-          return prev + 1;
-        });
+        setRecordingSeconds((prev) => prev + 1);
       }, 1000);
     } catch {
-      setErrorMsg('Microphone access was denied or is unavailable.');
+      setErrorMsg('Microphone access denied or unavailable.');
     }
   };
 
-  const cancelRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-    }
-    clearInterval(recordingTimerRef.current);
-    setIsRecording(false);
-    setRecordingSeconds(0);
-    audioChunksRef.current = [];
-  };
-
+  // Stop recording and send audio
   const stopRecordingAndSend = () => {
-    if (!mediaRecorderRef.current || !isRecording) return;
+    if (!mediaRecorderRef.current) return;
+
+    clearInterval(recordingTimerRef.current);
 
     mediaRecorderRef.current.onstop = async () => {
-      clearInterval(recordingTimerRef.current);
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: mediaRecorderRef.current?.mimeType || 'audio/webm',
+      });
+
+      // Stop all tracks to release hardware microphone
       mediaRecorderRef.current?.stream.getTracks().forEach((track) => track.stop());
-      setIsRecording(false);
 
       if (audioBlob.size > 5 * 1024 * 1024) {
-        setErrorMsg('Voice note exceeds 5MB limit');
+        setErrorMsg('Voice notes must be under 5 MB.');
+        setIsRecording(false);
         return;
       }
 
-      await sendMediaMessage(audioBlob, 'VOICE', 'audio/webm', recordingSeconds);
+      await sendMediaMessage(audioBlob, 'VOICE', 'voice_note.webm', recordingSeconds);
+      setIsRecording(false);
       setRecordingSeconds(0);
     };
 
     mediaRecorderRef.current.stop();
   };
 
-  // Convert blob/file to base64
-  const fileToBase64 = (blob: Blob): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+  const cancelRecording = () => {
+    if (!mediaRecorderRef.current) return;
+    clearInterval(recordingTimerRef.current);
+    mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+    setIsRecording(false);
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
   };
 
-  // Send text message
-  const handleSendTextMessage = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (isSending) return;
+  // Submit text message
+  const handleSendTextMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = inputText.trim();
+
+    if (!text && !selectedFile) return;
 
     if (selectedFile) {
-      await sendMediaMessage(selectedFile.file, selectedFile.type, selectedFile.file.type);
+      await sendMediaMessage(selectedFile.file, selectedFile.type, selectedFile.file.name, undefined, text);
       removeSelectedFile();
+      setInputText('');
       return;
     }
-
-    const trimmed = inputText.trim();
-    if (!trimmed) return;
 
     setIsSending(true);
     setErrorMsg(null);
@@ -280,9 +285,10 @@ export const ChatWidget: React.FC = () => {
     try {
       const res = await apiRequest<{ data: ChatMessage }>('/chat/send', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: trimmed,
           messageType: 'TEXT',
+          content: text,
         }),
       });
 
@@ -298,32 +304,31 @@ export const ChatWidget: React.FC = () => {
     }
   };
 
-  // Send media message (Image, Video, Voice)
+  // Upload encrypted media message
   const sendMediaMessage = async (
     blobOrFile: Blob | File,
     type: 'IMAGE' | 'VIDEO' | 'VOICE',
-    mimeType: string,
-    duration?: number
+    fileName: string,
+    duration?: number,
+    caption?: string
   ) => {
     setIsSending(true);
     setErrorMsg(null);
 
     try {
-      const base64Data = await fileToBase64(blobOrFile);
+      const formData = new FormData();
+      formData.append('media', blobOrFile, fileName);
+      formData.append('messageType', type);
+      if (caption) formData.append('content', caption);
+      if (duration) formData.append('mediaDuration', duration.toString());
+
       const res = await apiRequest<{ data: ChatMessage }>('/chat/send', {
         method: 'POST',
-        body: JSON.stringify({
-          content: inputText.trim() || `[${type}]`,
-          messageType: type,
-          mediaBase64: base64Data,
-          mediaMimeType: mimeType,
-          mediaDuration: duration,
-        }),
+        body: formData,
       });
 
       if (res?.data) {
         setMessages((prev) => [...prev, res.data]);
-        setInputText('');
         scrollToBottom();
       }
     } catch (err: any) {
@@ -344,26 +349,42 @@ export const ChatWidget: React.FC = () => {
 
   return (
     <>
-      {/* 1. First-Time Onboarding Spotlight Overlay */}
+      {/* 1. Step 1: First-Time Onboarding Spotlight Overlay (5 to 6 seconds) */}
       {showSpotlight && !isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md transition-all duration-500 flex flex-col justify-end items-end p-6 pointer-events-auto">
-          {/* Spotlight Tooltip Card */}
-          <div className="mb-24 mr-2 max-w-sm w-full bg-white dark:bg-slate-900 border border-emerald-500/30 rounded-2xl p-5 shadow-2xl text-slate-800 dark:text-slate-100 animate-in fade-in slide-in-from-bottom-6 duration-300">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md transition-all duration-500 flex flex-col justify-end items-end p-6 pointer-events-auto"
+          onClick={handleDismissSpotlight}
+        >
+          {/* Spotlight Callout Card (Right above Chat Icon) */}
+          <div
+            className="mb-24 mr-2 max-w-sm w-full bg-white dark:bg-slate-900 border border-[#4851BA]/30 dark:border-indigo-500/30 rounded-2xl p-5 shadow-2xl text-slate-800 dark:text-slate-100 z-[60] animate-in fade-in slide-in-from-bottom-6 duration-300 relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ambient GYDE Purple Glow */}
+            <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#4851BA]/15 dark:bg-[#4851BA]/25 rounded-full blur-xl pointer-events-none" />
+
+            <div className="flex items-center gap-2.5 mb-2 relative z-10">
+              <span className="p-2 rounded-xl bg-[#4851BA]/10 text-[#4851BA] dark:text-indigo-400">
                 <Sparkles className="w-5 h-5" />
               </span>
-              <h4 className="font-semibold text-base text-emerald-950 dark:text-emerald-200">
-                Chat with Admin
+              <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                New Option Arrived!
               </h4>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-              Have suggestions, questions, or need help? You can now directly message the Super Administrator securely from here with text, image, video, and voice notes.
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4 relative z-10">
+              You got a new option: Chat with Admin. Have suggestions or need help? Message the Super Admin directly from here.
             </p>
-            <div className="flex justify-end">
+
+            <div className="flex items-center justify-between relative z-10">
+              <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#4851BA] to-[#9E59AC] rounded-full animate-pulse w-full" />
+              </div>
+
               <button
+                type="button"
                 onClick={handleDismissSpotlight}
-                className="px-4 py-1.5 text-xs font-medium rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-all"
+                className="px-4 py-1.5 text-xs font-semibold rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] text-white shadow-sm transition-all cursor-pointer"
               >
                 Got it
               </button>
@@ -372,8 +393,9 @@ export const ChatWidget: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Floating Action Button (FAB) */}
+      {/* 2. Floating Action Button (FAB) - Elevated & Bobbing during Spotlight */}
       <button
+        type="button"
         onClick={() => {
           if (showSpotlight) {
             handleDismissSpotlight();
@@ -381,15 +403,17 @@ export const ChatWidget: React.FC = () => {
           setIsOpen((prev) => !prev);
         }}
         className={`fixed bottom-6 right-6 ${
-          showSpotlight ? 'z-[60] animate-bounce' : 'z-40'
-        } w-14 h-14 rounded-full bg-emerald-800 hover:bg-emerald-900 text-white shadow-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-600/30`}
+          showSpotlight
+            ? 'z-[60] animate-bounce ring-4 ring-[#4851BA]/40 ring-offset-2 ring-offset-black/50 shadow-2xl'
+            : 'z-40'
+        } w-14 h-14 rounded-full bg-gradient-to-tr from-[#3B43A1] via-[#4851BA] to-[#6366f1] hover:brightness-110 text-white shadow-xl hover:shadow-[#4851BA]/40 flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
         aria-label="Chat with Admin"
       >
         {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
 
-        {/* Unread badge indicator */}
+        {/* Unread red badge indicator */}
         {!isOpen && unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
             {unreadCount}
           </span>
         )}
@@ -398,28 +422,29 @@ export const ChatWidget: React.FC = () => {
       {/* 3. Compact Chat Popup */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[540px] max-h-[82vh] flex flex-col rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
-          {/* Header */}
-          <div className="px-4 py-3 bg-emerald-900 text-white flex items-center justify-between border-b border-emerald-800/50">
+          {/* Header in Official GYDE Palette */}
+          <div className="px-4 py-3 bg-gradient-to-r from-[#000000] via-[#1e1b4b] to-[#3B43A1] text-white flex items-center justify-between border-b border-indigo-900/40">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-sm text-emerald-100 shadow-inner">
+                <div className="w-9 h-9 rounded-full bg-[#4851BA] flex items-center justify-center font-bold text-sm text-white shadow-inner">
                   A
                 </div>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-900" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
               </div>
               <div>
                 <h3 className="text-sm font-semibold leading-tight text-white">
                   GYDE Secretariat
                 </h3>
-                <p className="text-[11px] text-emerald-200/80 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-emerald-300" />
+                <p className="text-[11px] text-indigo-200/80 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-indigo-300" />
                   End-to-End Encrypted
                 </p>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-800/80 transition-colors"
+              className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Close Chat"
             >
               <X className="w-5 h-5" />
@@ -430,13 +455,13 @@ export const ChatWidget: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50 dark:bg-slate-950/40">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 dark:text-slate-500">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center mb-2 text-emerald-600 dark:text-emerald-400">
+                <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mb-2 text-[#4851BA] dark:text-indigo-400">
                   <MessageSquare className="w-6 h-6" />
                 </div>
-                <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                   Direct Line with Super Admin
                 </p>
-                <p className="text-[11px] mt-1 max-w-[200px]">
+                <p className="text-[11px] mt-1 max-w-[200px] leading-relaxed">
                   All messages and media are AES-256 encrypted and strictly confidential.
                 </p>
               </div>
@@ -452,7 +477,7 @@ export const ChatWidget: React.FC = () => {
                     <div
                       className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 shadow-sm text-xs leading-relaxed ${
                         isMe
-                          ? 'bg-[#0E4D3C] text-white rounded-tr-sm'
+                          ? 'bg-[#4851BA] text-white rounded-tr-sm'
                           : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/60 rounded-tl-sm'
                       }`}
                     >
@@ -497,7 +522,7 @@ export const ChatWidget: React.FC = () => {
                       {/* Timestamp & read status */}
                       <div
                         className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${
-                          isMe ? 'text-emerald-100/70' : 'text-slate-400'
+                          isMe ? 'text-indigo-100/75' : 'text-slate-400'
                         }`}
                       >
                         <span>
@@ -509,7 +534,7 @@ export const ChatWidget: React.FC = () => {
                         {isMe && (
                           <span>
                             {msg.isRead ? (
-                              <CheckCheck className="w-3 h-3 text-emerald-300" />
+                              <CheckCheck className="w-3 h-3 text-indigo-200" />
                             ) : (
                               <Check className="w-3 h-3" />
                             )}
@@ -526,12 +551,12 @@ export const ChatWidget: React.FC = () => {
 
           {/* Selected File Preview Banner */}
           {selectedFile && (
-            <div className="px-3 py-2 bg-emerald-50 dark:bg-emerald-950/40 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs">
+            <div className="px-3 py-2 bg-indigo-50 dark:bg-indigo-950/40 border-t border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 truncate">
                 {selectedFile.type === 'IMAGE' ? (
-                  <ImageIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <ImageIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
                 ) : (
-                  <VideoIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <VideoIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
                 )}
                 <span className="truncate text-slate-700 dark:text-slate-200">
                   {selectedFile.file.name}
@@ -543,29 +568,29 @@ export const ChatWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={removeSelectedFile}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           )}
 
-          {/* Error Message Toast */}
+          {/* Error Banner */}
           {errorMsg && (
-            <div className="px-3 py-1.5 bg-red-50 dark:bg-red-950/50 border-t border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">{errorMsg}</span>
+            <div className="px-3 py-1.5 bg-red-50 dark:bg-red-950/40 border-t border-red-200 dark:border-red-900/50 text-[11px] text-red-600 dark:text-red-400 flex items-center justify-between">
+              <span>{errorMsg}</span>
               <button
+                type="button"
                 onClick={() => setErrorMsg(null)}
-                className="ml-auto text-xs font-bold"
+                className="text-red-500 hover:text-red-700"
               >
-                &times;
+                <X className="w-3 h-3" />
               </button>
             </div>
           )}
 
-          {/* Bottom Controls / Input Bar */}
-          <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+          {/* Input & Media Controls Bar */}
+          <div className="p-2.5 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             {isRecording ? (
               /* Voice Recording Bar */
               <div className="flex items-center justify-between bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-xl border border-red-200/60 dark:border-red-900/50 animate-pulse">
@@ -579,7 +604,7 @@ export const ChatWidget: React.FC = () => {
                   <button
                     type="button"
                     onClick={cancelRecording}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer"
                     title="Cancel Recording"
                   >
                     <X className="w-4 h-4" />
@@ -587,7 +612,7 @@ export const ChatWidget: React.FC = () => {
                   <button
                     type="button"
                     onClick={stopRecordingAndSend}
-                    className="p-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors"
+                    className="p-1.5 rounded-lg bg-[#4851BA] hover:bg-[#3B43A1] text-white shadow-sm transition-colors cursor-pointer"
                     title="Send Voice Note"
                   >
                     <Send className="w-4 h-4" />
@@ -609,7 +634,7 @@ export const ChatWidget: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 rounded-xl text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="p-2 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Attach Image or Video"
                 >
                   <Paperclip className="w-4 h-4" />
@@ -619,7 +644,7 @@ export const ChatWidget: React.FC = () => {
                 <button
                   type="button"
                   onClick={startRecording}
-                  className="p-2 rounded-xl text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="p-2 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Record Voice Note"
                 >
                   <Mic className="w-4 h-4" />
@@ -632,14 +657,14 @@ export const ChatWidget: React.FC = () => {
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder={selectedFile ? 'Add a caption...' : 'Type message to Admin...'}
                   disabled={isSending}
-                  className="flex-1 min-w-0 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/40"
+                  className="flex-1 min-w-0 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
                 />
 
                 {/* Send Button */}
                 <button
                   type="submit"
                   disabled={isSending || (!inputText.trim() && !selectedFile)}
-                  className="p-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 disabled:hover:bg-emerald-700 text-white shadow-sm transition-all shrink-0"
+                  className="p-2 rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] disabled:opacity-40 disabled:hover:bg-[#4851BA] text-white shadow-sm transition-all shrink-0 cursor-pointer"
                   title="Send"
                 >
                   <Send className="w-4 h-4" />
@@ -664,7 +689,7 @@ export const ChatWidget: React.FC = () => {
             />
             <button
               onClick={() => setLightboxUrl(null)}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 transition-colors"
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -735,10 +760,10 @@ const AudioPlayerBubble: React.FC<{
       <button
         type="button"
         onClick={togglePlay}
-        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 ${
+        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer ${
           isMe
-            ? 'bg-emerald-800 text-white hover:bg-emerald-900'
-            : 'bg-emerald-600 text-white hover:bg-emerald-700'
+            ? 'bg-[#3B43A1] text-white hover:bg-[#1e1b4b]'
+            : 'bg-[#4851BA] text-white hover:bg-[#3B43A1]'
         }`}
       >
         {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
@@ -748,7 +773,7 @@ const AudioPlayerBubble: React.FC<{
         <div className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-100 ${
-              isMe ? 'bg-emerald-300' : 'bg-emerald-600'
+              isMe ? 'bg-indigo-200' : 'bg-[#4851BA]'
             }`}
             style={{ width: `${progress}%` }}
           />

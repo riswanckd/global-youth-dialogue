@@ -449,8 +449,25 @@ export async function registerPushSubscription(req: Request, res: Response) {
       { upsert: true, new: true }
     );
 
+    // Persist resolution server-side on User model (Zero browser storage)
+    await User.findByIdAndUpdate(user._id, { $set: { hasDismissedNotificationPrompt: true } });
+
     res.status(200).json({ success: true, message: 'Push subscription registered successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to register push subscription' });
+  }
+}
+
+/**
+ * PATCH /api/push/dismiss-prompt
+ * Records user preference to block/dismiss notification prompt server-side
+ */
+export async function dismissNotificationPrompt(req: Request, res: Response) {
+  try {
+    const user = req.user!;
+    await User.findByIdAndUpdate(user._id, { $set: { hasDismissedNotificationPrompt: true } });
+    res.status(200).json({ success: true, message: 'Notification prompt dismissed' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Failed to dismiss notification prompt' });
   }
 }

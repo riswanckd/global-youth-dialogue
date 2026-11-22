@@ -17,6 +17,7 @@ export interface User {
   department?: string;
   allowedMenus?: string[];
   hasSeenChatSpotlight?: boolean;
+  hasDismissedNotificationPrompt?: boolean;
   createdAt: string;
 }
 

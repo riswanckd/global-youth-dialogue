@@ -50,6 +50,17 @@ export const PortalLayout: React.FC = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notificationsRead, setNotificationsRead] = useState(false);
 
+  // Step 1 (Chat Spotlight) & Step 2 (Notification Modal) sequential onboarding coordination
+  const [spotlightFinished, setSpotlightFinished] = useState<boolean>(() => {
+    return user ? user.hasSeenChatSpotlight === true : false;
+  });
+
+  useEffect(() => {
+    if (user?.hasSeenChatSpotlight === true) {
+      setSpotlightFinished(true);
+    }
+  }, [user?.hasSeenChatSpotlight]);
+
   useEffect(() => {
     if (location.search.includes('notifications=open')) {
       setNotificationsOpen(true);
@@ -588,7 +599,6 @@ export const PortalLayout: React.FC = () => {
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-w-0 w-full p-3.5 sm:p-6 lg:p-8 lg:h-full lg:overflow-y-auto overscroll-contain pb-28 lg:pb-8">
-          <PushNotificationPrompt />
           <Outlet
             context={{
               openPresenterModal: () => setPresenterModalOpen(true),
@@ -922,8 +932,11 @@ export const PortalLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Chat Widget with Super Admin */}
-      <ChatWidget />
+      {/* Step 2: "Allow Notifications" Centered Modal Popup (Runs cleanly right after Step 1 spotlight finishes, or immediately on login if already seen) */}
+      <PushNotificationPrompt canShow={spotlightFinished} />
+
+      {/* Step 1: Floating Chat Widget with Super Admin & 5-6s Spotlight Onboarding */}
+      <ChatWidget onSpotlightComplete={() => setSpotlightFinished(true)} />
     </div>
   );
 };
