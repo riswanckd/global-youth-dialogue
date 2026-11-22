@@ -116,10 +116,11 @@ export const CommunityChat: React.FC = () => {
   // 1. Fetch conversations list
   const fetchConversations = useCallback(async () => {
     try {
-      const res = await apiRequest<{ data: ConversationItem[] }>('/admin/chat/conversations');
-      if (res?.data) {
-        setConversations(res.data);
-      }
+      const res = await apiRequest<any>('/admin/chat/conversations');
+      const list = Array.isArray(res)
+        ? res
+        : res?.conversations || res?.data?.conversations || (Array.isArray(res?.data) ? res.data : []);
+      setConversations(list);
     } catch {} finally {
       setIsLoadingConversations(false);
     }
@@ -136,12 +137,11 @@ export const CommunityChat: React.FC = () => {
   const fetchMessages = useCallback(async (userId: string) => {
     setIsLoadingMessages(true);
     try {
-      const res = await apiRequest<{ data: { user: ConversationParticipant; messages: ChatMessage[] } }>(
-        `/admin/chat/messages/${userId}`
-      );
-      if (res?.data) {
-        setActiveUser(res.data.user);
-        setActiveMessages(res.data.messages);
+      const res = await apiRequest<any>(`/admin/chat/messages/${userId}`);
+      const payload = res?.user ? res : res?.data;
+      if (payload?.user) {
+        setActiveUser(payload.user);
+        setActiveMessages(payload.messages || []);
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to load thread');
@@ -161,12 +161,11 @@ export const CommunityChat: React.FC = () => {
 
     // Fast polling active thread (3.5s)
     const timer = setInterval(() => {
-      apiRequest<{ data: { user: ConversationParticipant; messages: ChatMessage[] } }>(
-        `/admin/chat/messages/${selectedUserId}`
-      )
+      apiRequest<any>(`/admin/chat/messages/${selectedUserId}`)
         .then((res) => {
-          if (res?.data?.messages) {
-            setActiveMessages(res.data.messages);
+          const payload = res?.messages ? res : res?.data;
+          if (payload?.messages) {
+            setActiveMessages(payload.messages);
           }
         })
         .catch(() => {});
@@ -304,7 +303,7 @@ export const CommunityChat: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const res = await apiRequest<{ data: ChatMessage }>(`/admin/chat/reply/${selectedUserId}`, {
+      const res = await apiRequest<any>(`/admin/chat/reply/${selectedUserId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -313,8 +312,9 @@ export const CommunityChat: React.FC = () => {
         }),
       });
 
-      if (res?.data) {
-        setActiveMessages((prev) => [...prev, res.data]);
+      const newMsg = res?.id ? res : res?.data;
+      if (newMsg) {
+        setActiveMessages((prev) => [...prev, newMsg]);
         setReplyText('');
         scrollToBottom();
         fetchConversations();
@@ -344,13 +344,14 @@ export const CommunityChat: React.FC = () => {
       if (caption) formData.append('content', caption);
       if (duration) formData.append('mediaDuration', duration.toString());
 
-      const res = await apiRequest<{ data: ChatMessage }>(`/admin/chat/reply/${selectedUserId}`, {
+      const res = await apiRequest<any>(`/admin/chat/reply/${selectedUserId}`, {
         method: 'POST',
         body: formData,
       });
 
-      if (res?.data) {
-        setActiveMessages((prev) => [...prev, res.data]);
+      const newMsg = res?.id ? res : res?.data;
+      if (newMsg) {
+        setActiveMessages((prev) => [...prev, newMsg]);
         scrollToBottom();
         fetchConversations();
       }

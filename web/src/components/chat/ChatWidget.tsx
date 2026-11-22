@@ -438,21 +438,37 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
       {/* 3. Compact Chat Popup (Mobile dvh Viewport Safe) */}
       {isOpen && (
         <div className="fixed bottom-20 sm:bottom-24 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-96 h-[520px] max-h-[calc(100dvh-5.5rem)] flex flex-col rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200" dir={dir}>
-          {/* Header in Official GYDE Palette */}
-          <div className="px-4 py-3 bg-gradient-to-r from-[#000000] via-[#1e1b4b] to-[#3B43A1] text-white flex items-center justify-between border-b border-indigo-900/40">
+          {/* Header in Official GYDE Palette - Guaranteed dark contrast in both light and dark themes */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #0B0D1B 0%, #1e1b4b 50%, #3B43A1 100%)',
+              backgroundColor: '#0B0D1B',
+              color: '#ffffff',
+            }}
+            className="px-4 py-3 text-white flex items-center justify-between border-b border-indigo-900/40 shadow-sm shrink-0"
+          >
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-9 h-9 rounded-full bg-[#4851BA] flex items-center justify-center font-bold text-sm text-white shadow-inner">
+                <div
+                  style={{ backgroundColor: '#4851BA', color: '#ffffff' }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-inner"
+                >
                   A
                 </div>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0B0D1B]" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold leading-tight text-white">
+                <h3
+                  style={{ color: '#ffffff' }}
+                  className="text-sm font-bold leading-tight text-white drop-shadow-sm"
+                >
                   {t('chat.secretariatTitle', 'GYDE Secretariat')}
                 </h3>
-                <p className="text-[11px] text-indigo-200/80 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-indigo-300" />
+                <p
+                  style={{ color: '#c7d2fe' }}
+                  className="text-[11px] text-indigo-200 flex items-center gap-1 font-medium mt-0.5"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-300" />
                   {t('chat.encryptedBadge', 'End-to-End Encrypted')}
                 </p>
               </div>
@@ -460,10 +476,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              style={{ color: '#ffffff' }}
+              className="p-1.5 rounded-lg text-white hover:bg-white/15 transition-colors cursor-pointer"
               aria-label={t('chat.close', 'Close Chat')}
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-white" />
             </button>
           </div>
 
