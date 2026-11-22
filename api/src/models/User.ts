@@ -20,6 +20,7 @@ export interface IUser extends Document {
   experience?: string;
   motivation?: string;
   allowedMenus?: string[];
+  hasSeenChatSpotlight?: boolean;
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -55,6 +56,7 @@ const UserSchema = new Schema<IUser>(
     experience: { type: String, default: '' },
     motivation: { type: String, default: '' },
     allowedMenus: [{ type: String }],
+    hasSeenChatSpotlight: { type: Boolean, default: false },
     lastLoginAt: { type: Date },
   },
   {

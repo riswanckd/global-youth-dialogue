@@ -7,6 +7,11 @@ import topicRoutes from './topicRoutes';
 import feedbackRoutes from './feedbackRoutes';
 import publicationRoutes from './publicationRoutes';
 import adminRoutes from './adminRoutes';
+import chatRoutes from './chatRoutes';
+import adminChatRoutes from './adminChatRoutes';
+import broadcastRoutes from './broadcastRoutes';
+import noticeRoutes from './noticeRoutes';
+import pushRoutes from './pushRoutes';
 
 const router = Router();
 
@@ -27,6 +32,11 @@ router.use('/sessions', sessionRoutes);
 router.use('/topics', topicRoutes);
 router.use('/feedback', feedbackRoutes);
 router.use('/publications', publicationRoutes);
+router.use('/admin/chat', adminChatRoutes);
+router.use('/admin/broadcast', broadcastRoutes);
 router.use('/admin', adminRoutes);
+router.use('/chat', chatRoutes);
+router.use('/notices', noticeRoutes);
+router.use('/push', pushRoutes);
 
 export default router;

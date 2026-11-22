@@ -14,6 +14,8 @@ import {
   FileText,
   FileCheck,
   MessageSquareQuote,
+  MessageSquare,
+  Megaphone,
   UserCheck,
   Globe,
   Share2,
@@ -129,7 +131,7 @@ export const AdminLayout: React.FC = () => {
 
   useEffect(() => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-                   document.documentElement.classList.contains('dark');
+      document.documentElement.classList.contains('dark');
     setIsDarkMode(isDark);
   }, []);
 
@@ -154,12 +156,12 @@ export const AdminLayout: React.FC = () => {
     setIsDeleting(true);
     try {
       // 1. Wipe backend database trial records (users, applications, topics, sessions)
-      await apiRequest('/admin/trial-data', { method: 'DELETE' }).catch(() => {});
+      await apiRequest('/admin/trial-data', { method: 'DELETE' }).catch(() => { });
       // 2. Wipe serverless applications.json store
       await apiRequest('/api/applications', {
         method: 'POST',
         body: JSON.stringify({ action: 'clearTrialData' }),
-      }).catch(() => {});
+      }).catch(() => { });
 
       // 3. Clear local storage caches
       try {
@@ -169,7 +171,7 @@ export const AdminLayout: React.FC = () => {
         localStorage.removeItem('gyd_user_votes');
         localStorage.removeItem('gyd_ballot_votes');
         localStorage.removeItem('gyd_deleted_community_emails');
-      } catch {}
+      } catch { }
 
       // 4. Invalidate all React Query caches to instantly reflect empty state
       await queryClient.invalidateQueries();
@@ -180,6 +182,33 @@ export const AdminLayout: React.FC = () => {
       setTimeout(() => setDeleteSuccessToast(false), 4000);
     }
   };
+
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === 'admin@thegyde.in';
+
+  // Real-time unread chat badge query for Super Admin
+  const { data: chatData } = useQuery<{ conversations: any[]; totalUnread: number }>({
+    queryKey: ['admin-chat-unread-count'],
+    queryFn: () =>
+      apiRequest<{ conversations: any[]; totalUnread: number }>('/admin/chat/conversations').catch(() => ({
+        conversations: [],
+        totalUnread: 0,
+      })),
+    enabled: isSuperAdmin,
+    refetchInterval: 10000,
+  });
+  const totalChatUnread = chatData?.totalUnread || 0;
+
+  // Real-time unread notices count
+  const { data: adminNoticesData } = useQuery<{ notices: any[]; unreadCount: number }>({
+    queryKey: ['admin-notices-unread-count'],
+    queryFn: () =>
+      apiRequest<{ notices: any[]; unreadCount: number }>('/notices').catch(() => ({
+        notices: [],
+        unreadCount: 0,
+      })),
+    refetchInterval: 12000,
+  });
+  const totalNoticeUnread = adminNoticesData?.unreadCount || 0;
 
   const navItems = [
     { id: 'dashboard', label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
@@ -193,14 +222,39 @@ export const AdminLayout: React.FC = () => {
     { id: 'applications', label: t('menu.pendingApps', 'Pending Applications'), path: '/applications', icon: UserCheck },
     { id: 'analytics', label: t('menu.countryChapters', 'Country Chapters'), path: '/analytics', icon: Globe },
     { id: 'media', label: t('menu.mediaStudio', 'Media & PR Studio'), path: '/media', icon: Share2 },
+    ...(isSuperAdmin
+      ? [
+          {
+            id: 'broadcast',
+            label: t('menu.broadcast', 'Broadcast Message'),
+            path: '/broadcast',
+            icon: Megaphone,
+          },
+          {
+            id: 'chat',
+            label: t('menu.communityChat', 'Chat with Community'),
+            path: '/chat',
+            icon: MessageSquare,
+            badge: totalChatUnread > 0 ? totalChatUnread : undefined,
+          },
+        ]
+      : []),
+    {
+      id: 'notices',
+      label: t('menu.notices', 'Notice Board'),
+      path: '/notices',
+      icon: Bell,
+      badge: totalNoticeUnread > 0 ? totalNoticeUnread : undefined,
+    },
     { id: 'profile', label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/profile', icon: User },
   ];
-
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || user?.email === 'admin@thegyde.in';
 
   // Server-enforced RBAC clearance checker
   const isMenuAuthorized = (menuId: string) => {
     if (isSuperAdmin) return true;
+    if (menuId === 'broadcast') return false; // Strictly Super Admin only
+    if (menuId === 'chat') return false; // Strictly Super Admin only
+    if (menuId === 'notices') return true;
     if (menuId === 'profile') return true;
     if (Array.isArray(authorizedMenuIds) && authorizedMenuIds.length > 0) {
       return authorizedMenuIds.includes(menuId);
@@ -427,14 +481,18 @@ export const AdminLayout: React.FC = () => {
                     key={item.label}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-colors ${
-                      isActive
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-colors ${isActive
                         ? 'bg-[#f1f5f9] dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white font-medium'
-                    }`}
+                      }`}
                   >
                     <Icon className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
                     <span className="truncate">{item.label}</span>
+                    {(item as any).badge && (
+                      <span className="ml-auto px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-600 text-white shrink-0 animate-pulse">
+                        {(item as any).badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

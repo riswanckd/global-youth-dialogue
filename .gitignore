@@ -23,4 +23,6 @@ coverage/
 # Data exports
 *.csv
 view_database.html
+*_export.json
+*_emails_*.txt
 

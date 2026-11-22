@@ -41,6 +41,7 @@ import { PortalProfile } from './pages/portal/PortalProfile';
 import { PortalJourney } from './pages/portal/PortalJourney';
 import { PortalSuggestTopic } from './pages/portal/PortalSuggestTopic';
 import { PortalTopicBank } from './pages/portal/PortalTopicBank';
+import { PortalNotices } from './pages/portal/PortalNotices';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,6 +110,7 @@ export const App: React.FC = () => {
                   <Route path="topics" element={<PortalSuggestTopic />} />
                   <Route path="journey" element={<PortalJourney />} />
                   <Route path="publications" element={<PortalPublications />} />
+                  <Route path="notices" element={<PortalNotices />} />
                   <Route path="profile" element={<PortalProfile />} />
                 </Route>
               </Routes>

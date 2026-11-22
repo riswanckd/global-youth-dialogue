@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { ApplyPresenterModal } from '../portal/ApplyPresenterModal';
+import { ChatWidget } from '../chat/ChatWidget';
 import { getCountryMeta } from '../../utils/country';
 import { apiRequest } from '../../utils/api';
 import { Topic, Publication, DialogueSession, Application } from '../../types';
@@ -33,7 +34,9 @@ import {
   Sparkles,
   Clock,
   CheckCircle2,
+  Megaphone,
 } from 'lucide-react';
+import { PushNotificationPrompt } from '../portal/PushNotificationPrompt';
 
 export const PortalLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -94,6 +97,17 @@ export const PortalLayout: React.FC = () => {
     refetchInterval: 15000,
   });
 
+  const { data: noticesData } = useQuery<{ notices: any[]; unreadCount: number }>({
+    queryKey: ['portal-notices-unread-count'],
+    queryFn: () =>
+      apiRequest<{ notices: any[]; unreadCount: number }>('/notices').catch(() => ({
+        notices: [],
+        unreadCount: 0,
+      })),
+    refetchInterval: 12000,
+  });
+  const unreadNoticesCount = noticesData?.unreadCount || 0;
+
   // 1. Proposed Topics
   const proposedTopics = topics.filter(
     (t) => t.status === 'proposed' || t.status === 'reviewing' || (t as any).isCustom || (t as any).proposedBy?.name
@@ -151,6 +165,13 @@ export const PortalLayout: React.FC = () => {
       path: '/portal',
       exact: true,
       icon: LayoutDashboard,
+    },
+    {
+      label: isArabic ? 'لوحة الإعلانات' : 'Notice Board',
+      path: '/portal/notices',
+      icon: Megaphone,
+      badge: unreadNoticesCount > 0 ? unreadNoticesCount.toString() : undefined,
+      isRedBadge: true,
     },
     ...(isPresenter
       ? [
@@ -510,6 +531,11 @@ export const PortalLayout: React.FC = () => {
                   >
                     <Icon className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
                     <span className="truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className="ms-auto shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -562,6 +588,7 @@ export const PortalLayout: React.FC = () => {
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-w-0 w-full p-3.5 sm:p-6 lg:p-8 lg:h-full lg:overflow-y-auto overscroll-contain pb-28 lg:pb-8">
+          <PushNotificationPrompt />
           <Outlet
             context={{
               openPresenterModal: () => setPresenterModalOpen(true),
@@ -894,6 +921,9 @@ export const PortalLayout: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Floating Chat Widget with Super Admin */}
+      <ChatWidget />
     </div>
   );
 };

@@ -20,6 +20,21 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16).default('gyde_dev_secret_key_change_in_production_min_32_chars'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   COOKIE_SECRET: z.string().min(16).default('gyde_cookie_secret_dev_key_32_chars_minimum'),
+  CHAT_ENCRYPTION_KEY: z
+    .string()
+    .min(16)
+    .default('gyde_chat_encryption_secret_key_32bytes_min!'),
+
+  // Web Push VAPID Configuration
+  VAPID_PUBLIC_KEY: z
+    .string()
+    .default('BIv2srQhdcsepDmEN76prgkLFTSe_pjYUVHRALDoMFHMZp7ntyw-aFzpbdWl0KWbP2wk6C0x23e4eF4p_yAgcG8'),
+  VAPID_PRIVATE_KEY: z
+    .string()
+    .default('DHLUuD_jGfXsT2z0TTsDhh6OfNsvFR_FPGw9uY3sm18'),
+  VAPID_SUBJECT: z
+    .string()
+    .default('mailto:admin@thegyde.in'),
 
   // Cloudflare Email Sending Configuration
   CLOUDFLARE_API_TOKEN: z.string().optional().default(''),

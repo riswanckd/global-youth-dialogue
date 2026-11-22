@@ -42,6 +42,9 @@ const DICTIONARY: Record<string, Record<Language, string>> = {
   'menu.coordinatorTeam': { en: 'ISDC7 Coordinator Team', ar: 'فريق منسقي بطولة قطر' },
   'menu.countryChapters': { en: 'Country Chapters', ar: 'الفروع والوفود الدولية' },
   'menu.mediaStudio': { en: 'Media & PR Studio', ar: 'استوديو الإعلام والعلاقات العامة' },
+  'menu.broadcast': { en: 'Broadcast Message', ar: 'إرسال تعميم عام' },
+  'menu.communityChat': { en: 'Chat with Community', ar: 'المحادثة مع المجتمع' },
+  'menu.notices': { en: 'Notice Board', ar: 'لوحة الإعلانات الرسمية' },
   'menu.coordinatorProfile': { en: 'Coordinator Profile', ar: 'ملف المنسق' },
   'menu.deleteTrialData': { en: 'Delete Trial Data', ar: 'حذف البيانات التجريبية' },
 

@@ -32,3 +32,14 @@ export const generalApiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+export const chatMessageLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // 30 messages/minute
+  message: {
+    success: false,
+    error: 'Too many messages sent. Please wait a moment before sending more.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

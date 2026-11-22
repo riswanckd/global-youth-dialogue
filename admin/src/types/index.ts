@@ -13,6 +13,7 @@ export interface User {
   organization?: string;
   interests?: string[];
   allowedMenus?: string[];
+  hasSeenChatSpotlight?: boolean;
   createdAt: string;
   lastLoginAt?: string;
 }
