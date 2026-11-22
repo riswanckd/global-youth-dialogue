@@ -355,9 +355,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md transition-all duration-500 flex flex-col justify-end items-end p-6 pointer-events-auto"
           onClick={handleDismissSpotlight}
         >
-          {/* Spotlight Callout Card (Right above Chat Icon) */}
+          {/* Spotlight Callout Card (Right above Chat Icon - Mobile Viewport Protected) */}
           <div
-            className="mb-24 mr-2 max-w-sm w-full bg-white dark:bg-slate-900 border border-[#4851BA]/30 dark:border-indigo-500/30 rounded-2xl p-5 shadow-2xl text-slate-800 dark:text-slate-100 z-[60] animate-in fade-in slide-in-from-bottom-6 duration-300 relative overflow-hidden"
+            className="mb-20 sm:mb-24 mr-0 sm:mr-2 w-[calc(100vw-2.5rem)] sm:max-w-sm bg-white dark:bg-slate-900 border border-[#4851BA]/30 dark:border-indigo-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl text-slate-800 dark:text-slate-100 z-[60] animate-in fade-in slide-in-from-bottom-6 duration-300 relative overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Ambient GYDE Purple Glow */}
@@ -402,14 +402,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
           }
           setIsOpen((prev) => !prev);
         }}
-        className={`fixed bottom-6 right-6 ${
+        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 ${
           showSpotlight
             ? 'z-[60] animate-bounce ring-4 ring-[#4851BA]/40 ring-offset-2 ring-offset-black/50 shadow-2xl'
             : 'z-40'
-        } w-14 h-14 rounded-full bg-gradient-to-tr from-[#3B43A1] via-[#4851BA] to-[#6366f1] hover:brightness-110 text-white shadow-xl hover:shadow-[#4851BA]/40 flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
+        } w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#3B43A1] via-[#4851BA] to-[#6366f1] hover:brightness-110 text-white shadow-xl hover:shadow-[#4851BA]/40 flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none cursor-pointer`}
         aria-label="Chat with Admin"
       >
-        {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
+        {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />}
 
         {/* Unread red badge indicator */}
         {!isOpen && unreadCount > 0 && (
@@ -419,9 +419,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
         )}
       </button>
 
-      {/* 3. Compact Chat Popup */}
+      {/* 3. Compact Chat Popup (Mobile dvh Viewport Safe) */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[540px] max-h-[82vh] flex flex-col rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-20 sm:bottom-24 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-96 h-[520px] max-h-[calc(100dvh-5.5rem)] flex flex-col rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
           {/* Header in Official GYDE Palette */}
           <div className="px-4 py-3 bg-gradient-to-r from-[#000000] via-[#1e1b4b] to-[#3B43A1] text-white flex items-center justify-between border-b border-indigo-900/40">
             <div className="flex items-center gap-3">

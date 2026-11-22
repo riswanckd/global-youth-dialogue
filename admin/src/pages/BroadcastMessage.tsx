@@ -140,12 +140,12 @@ export const BroadcastMessage: React.FC = () => {
   ] as const;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8 space-y-6 sm:space-y-8">
       {/* Page Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 sm:pb-6 border-b border-slate-200 dark:border-slate-800">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <span className="p-2.5 rounded-xl bg-emerald-800 text-white shadow-sm">
+            <span className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-tr from-[#3B43A1] to-[#4851BA] text-white shadow-sm shadow-[#4851BA]/20">
               <Megaphone className="w-5 h-5" />
             </span>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
@@ -157,7 +157,7 @@ export const BroadcastMessage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold self-start sm:self-auto">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border border-[#4851BA]/30 text-[#4851BA] dark:text-indigo-300 text-xs font-semibold self-start sm:self-auto">
           <ShieldCheck className="w-4 h-4" />
           <span>Super Admin Authority</span>
         </div>
@@ -165,20 +165,20 @@ export const BroadcastMessage: React.FC = () => {
 
       {/* Delivery Summary Banner upon successful send */}
       {lastDispatched && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 flex items-start justify-between gap-4 animate-in fade-in slide-in-from-top-2">
+        <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-slate-900 dark:text-slate-100 flex items-start justify-between gap-4 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-[#4851BA] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 Broadcast Successfully Dispatched!
               </h3>
-              <p className="text-xs text-emerald-800 dark:text-emerald-200 mt-1">
+              <p className="text-xs text-slate-700 dark:text-slate-300 mt-1">
                 "{lastDispatched.subject}" has been queued for triple-channel delivery to{' '}
-                <span className="font-bold underline">{lastDispatched.totalRecipients} targeted delegates</span>.
+                <span className="font-bold text-[#4851BA] dark:text-indigo-300 underline">{lastDispatched.totalRecipients} targeted delegates</span>.
               </p>
-              <div className="flex flex-wrap items-center gap-3 mt-3 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+              <div className="flex flex-wrap items-center gap-3 mt-3 text-[11px] font-semibold text-[#4851BA] dark:text-indigo-300">
                 <span className="flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" /> 1. In-App Notice Created
                 </span>
@@ -193,7 +193,7 @@ export const BroadcastMessage: React.FC = () => {
           </div>
           <button
             onClick={() => setLastDispatched(null)}
-            className="text-xs font-bold text-emerald-600 hover:text-emerald-900 dark:hover:text-white"
+            className="text-xs font-bold text-slate-400 hover:text-slate-700 dark:hover:text-white"
           >
             &times;
           </button>
@@ -211,45 +211,54 @@ export const BroadcastMessage: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         {/* ======================================================== */}
         {/* COMPOSER FORM (7 Columns) */}
         {/* ======================================================== */}
         <div className="lg:col-span-7 space-y-6">
-          <form onSubmit={handleOpenConfirm} className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+          <form onSubmit={handleOpenConfirm} className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
             <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Radio className="w-4 h-4 text-emerald-600" />
+              <Radio className="w-4 h-4 text-[#4851BA] dark:text-indigo-400" />
               Compose Communiqué
             </h2>
 
-            {/* Target Audience Selector */}
+            {/* Target Audience Selector (Clean Responsive Wrap) */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">
                 Select Target Audience
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {audiencePills.map((pill) => (
-                  <button
-                    key={pill.id}
-                    type="button"
-                    onClick={() => setTargetAudience(pill.id)}
-                    className={`p-3 rounded-xl border text-left transition-all ${
-                      targetAudience === pill.id
-                        ? 'border-emerald-700 bg-emerald-50/70 dark:bg-emerald-950/50 text-emerald-900 dark:text-white ring-2 ring-emerald-600/30 font-bold'
-                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span>{pill.label}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold">
-                        {pill.count}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-normal leading-tight">
-                      {pill.desc}
-                    </p>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
+                {audiencePills.map((pill) => {
+                  const isSelected = targetAudience === pill.id;
+                  return (
+                    <button
+                      key={pill.id}
+                      type="button"
+                      onClick={() => setTargetAudience(pill.id)}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-[#4851BA] bg-[#4851BA]/10 dark:bg-[#4851BA]/20 text-slate-900 dark:text-white ring-2 ring-[#4851BA]/30 font-bold'
+                          : 'border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="truncate">{pill.label}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                            isSelected
+                              ? 'bg-[#4851BA] text-white'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                          }`}
+                        >
+                          {pill.count}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-normal leading-tight line-clamp-2">
+                        {pill.desc}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -263,7 +272,7 @@ export const BroadcastMessage: React.FC = () => {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="e.g. Urgent Plenary Convocations & ISDC7 Debate Calendar"
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
               />
             </div>
 
@@ -277,7 +286,7 @@ export const BroadcastMessage: React.FC = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type the full announcement content here. In emails, this will be automatically personalized with 'Hi {FirstName},' for every individual recipient..."
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
               />
             </div>
 
@@ -288,25 +297,25 @@ export const BroadcastMessage: React.FC = () => {
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-600 dark:text-slate-300 text-[11px]">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#4851BA] dark:text-indigo-400" />
                   <span>In-App Notice Board</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#4851BA] dark:text-indigo-400" />
                   <span>Personalized Email</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#4851BA] dark:text-indigo-400" />
                   <span>Web Push Panel</span>
                 </div>
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Primary Submit Button */}
             <button
               type="submit"
               disabled={isSending || !subject.trim() || !message.trim()}
-              className="w-full py-3 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-900 disabled:opacity-40 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#3B43A1] via-[#4851BA] to-[#9E59AC] hover:opacity-95 disabled:opacity-40 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Send className="w-4 h-4" />
               <span>{isSending ? 'Dispatching...' : 'Dispatch Broadcast'}</span>
@@ -319,9 +328,9 @@ export const BroadcastMessage: React.FC = () => {
         {/* ======================================================== */}
         <div className="lg:col-span-5 space-y-6">
           {/* Live Personalization Preview */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <Sparkles className="w-3.5 h-3.5 text-[#4851BA] dark:text-indigo-400" />
               Live Email Personalization Preview
             </h3>
 
@@ -329,7 +338,7 @@ export const BroadcastMessage: React.FC = () => {
               <div className="pb-2 border-b border-slate-200 dark:border-slate-800 text-[11px] text-slate-500">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">To:</span> individual delegate (e.g. amal@thegyde.org)
               </div>
-              <div className="font-bold text-emerald-900 dark:text-emerald-200">
+              <div className="font-bold text-[#4851BA] dark:text-indigo-300">
                 Hi Amal,
               </div>
               <p className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-[11px]">
@@ -339,9 +348,9 @@ export const BroadcastMessage: React.FC = () => {
           </div>
 
           {/* Past Broadcast History */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-emerald-600" />
+              <Clock className="w-3.5 h-3.5 text-[#4851BA] dark:text-indigo-400" />
               Broadcast Dispatch Log
             </h3>
 
@@ -369,7 +378,7 @@ export const BroadcastMessage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                      <span className="font-semibold text-[#4851BA] dark:text-indigo-300">
                         {item.targetAudience}
                       </span>
                       <span>
@@ -389,7 +398,7 @@ export const BroadcastMessage: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#4851BA]/10 text-[#4851BA] dark:text-indigo-400 flex items-center justify-center shrink-0">
                 <Megaphone className="w-5 h-5" />
               </div>
               <div>
@@ -409,7 +418,7 @@ export const BroadcastMessage: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Estimated Recipients:</span>
-                <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                <span className="font-bold text-[#4851BA] dark:text-indigo-300">
                   {audienceCounts[targetAudience]} Users
                 </span>
               </div>
@@ -429,14 +438,14 @@ export const BroadcastMessage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setConfirmModalOpen(false)}
-                className="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmSend}
-                className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white shadow-sm"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] text-white shadow-sm cursor-pointer"
               >
                 Confirm & Dispatch
               </button>

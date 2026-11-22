@@ -22,7 +22,6 @@ import { MediaStudio } from './pages/MediaStudio';
 import { CoordinatorProfile } from './pages/CoordinatorProfile';
 import { CommunityChat } from './pages/CommunityChat';
 import { BroadcastMessage } from './pages/BroadcastMessage';
-import { AdminNotices } from './pages/AdminNotices';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,7 +65,7 @@ export const App: React.FC = () => {
                 <Route path="media" element={<MediaStudio />} />
                 <Route path="chat" element={<CommunityChat />} />
                 <Route path="broadcast" element={<BroadcastMessage />} />
-                <Route path="notices" element={<AdminNotices />} />
+                <Route path="notices" element={<Navigate to="/broadcast" replace />} />
                 <Route path="profile" element={<CoordinatorProfile />} />
                 <Route path="settings" element={<Settings />} />
               </Route>

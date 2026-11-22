@@ -102,111 +102,116 @@ export const CommunityChat: React.FC = () => {
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<any>(null);
 
-  // Lightbox
+  // Lightbox preview for images
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Fetch all conversations
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // 1. Fetch conversations list
   const fetchConversations = useCallback(async () => {
     try {
-      const res = await apiRequest<{
-        conversations: ConversationItem[];
-        totalUnread: number;
-      }>('/admin/chat/conversations');
-
-      if (res?.conversations) {
-        setConversations(res.conversations);
+      const res = await apiRequest<{ data: ConversationItem[] }>('/admin/chat/conversations');
+      if (res?.data) {
+        setConversations(res.data);
       }
     } catch {} finally {
       setIsLoadingConversations(false);
     }
   }, []);
 
-  // Fetch active conversation messages
-  const fetchActiveMessages = useCallback(async (userId: string) => {
-    try {
-      const res = await apiRequest<{
-        user: ConversationParticipant;
-        messages: ChatMessage[];
-      }>(`/admin/chat/messages/${userId}`);
-
-      if (res) {
-        setActiveUser(res.user);
-        setActiveMessages(res.messages || []);
-      }
-    } catch {}
-  }, []);
-
-  // Polling conversations list every 5s
+  // Polling conversations
   useEffect(() => {
     fetchConversations();
-    const interval = setInterval(fetchConversations, 5000);
-    return () => clearInterval(interval);
+    const timer = setInterval(fetchConversations, 10000);
+    return () => clearInterval(timer);
   }, [fetchConversations]);
 
-  // Polling active chat messages every 3s
-  useEffect(() => {
-    if (!selectedUserId) return;
-
+  // 2. Fetch specific user messages
+  const fetchMessages = useCallback(async (userId: string) => {
     setIsLoadingMessages(true);
-    fetchActiveMessages(selectedUserId).finally(() => setIsLoadingMessages(false));
-
-    const msgInterval = setInterval(() => {
-      fetchActiveMessages(selectedUserId);
-    }, 3000);
-
-    return () => clearInterval(msgInterval);
-  }, [selectedUserId, fetchActiveMessages]);
-
-  // Auto-scroll on new messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeMessages.length]);
-
-  // Revoke object URLs on cleanup
-  useEffect(() => {
-    return () => {
-      if (selectedFile?.previewUrl) {
-        URL.revokeObjectURL(selectedFile.previewUrl);
+    try {
+      const res = await apiRequest<{ data: { user: ConversationParticipant; messages: ChatMessage[] } }>(
+        `/admin/chat/messages/${userId}`
+      );
+      if (res?.data) {
+        setActiveUser(res.data.user);
+        setActiveMessages(res.data.messages);
       }
-    };
-  }, [selectedFile]);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to load thread');
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }, []);
 
-  // File handler
+  // When selected user changes, fetch their thread
+  useEffect(() => {
+    if (!selectedUserId) {
+      setActiveUser(null);
+      setActiveMessages([]);
+      return;
+    }
+    fetchMessages(selectedUserId);
+
+    // Fast polling active thread (3.5s)
+    const timer = setInterval(() => {
+      apiRequest<{ data: { user: ConversationParticipant; messages: ChatMessage[] } }>(
+        `/admin/chat/messages/${selectedUserId}`
+      )
+        .then((res) => {
+          if (res?.data?.messages) {
+            setActiveMessages(res.data.messages);
+          }
+        })
+        .catch(() => {});
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [selectedUserId, fetchMessages]);
+
+  useEffect(() => {
+    if (activeMessages.length > 0) {
+      scrollToBottom();
+    }
+  }, [activeMessages]);
+
+  // Handle media selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type.startsWith('image/')) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMsg('Image size cannot exceed 5MB');
-        return;
-      }
-      setSelectedFile({
-        file,
-        previewUrl: URL.createObjectURL(file),
-        type: 'IMAGE',
-      });
-      setErrorMsg(null);
-    } else if (file.type.startsWith('video/')) {
-      if (file.size > 15 * 1024 * 1024) {
-        setErrorMsg('Video size cannot exceed 15MB');
-        return;
-      }
-      setSelectedFile({
-        file,
-        previewUrl: URL.createObjectURL(file),
-        type: 'VIDEO',
-      });
-      setErrorMsg(null);
-    } else {
-      setErrorMsg('Only safe image and video formats are allowed.');
+    const mime = file.type.toLowerCase();
+    const isImage = mime.startsWith('image/');
+    const isVideo = mime.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      setErrorMsg('Only JPEG, PNG, WebP images and MP4, WebM videos are allowed.');
+      return;
     }
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    if (isImage && file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Images must be smaller than 5 MB.');
+      return;
     }
+    if (isVideo && file.size > 15 * 1024 * 1024) {
+      setErrorMsg('Videos must be smaller than 15 MB.');
+      return;
+    }
+
+    if (selectedFile?.previewUrl) {
+      URL.revokeObjectURL(selectedFile.previewUrl);
+    }
+
+    setSelectedFile({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      type: isImage ? 'IMAGE' : 'VIDEO',
+    });
+    setErrorMsg(null);
   };
 
   const removeSelectedFile = () => {
@@ -214,24 +219,16 @@ export const CommunityChat: React.FC = () => {
       URL.revokeObjectURL(selectedFile.previewUrl);
     }
     setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  // Convert blob to base64
-  const fileToBase64 = (blob: Blob): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
-
-  // Audio recording
+  // Voice recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
-
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
 
@@ -244,67 +241,62 @@ export const CommunityChat: React.FC = () => {
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingSeconds(0);
-      setErrorMsg(null);
 
       recordingTimerRef.current = setInterval(() => {
-        setRecordingSeconds((prev) => {
-          if (prev >= 120) {
-            stopRecordingAndSend();
-            return prev;
-          }
-          return prev + 1;
-        });
+        setRecordingSeconds((prev) => prev + 1);
       }, 1000);
     } catch {
-      setErrorMsg('Microphone permission denied.');
+      setErrorMsg('Microphone access is unavailable.');
     }
-  };
-
-  const cancelRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-    }
-    clearInterval(recordingTimerRef.current);
-    setIsRecording(false);
-    setRecordingSeconds(0);
-    audioChunksRef.current = [];
   };
 
   const stopRecordingAndSend = () => {
-    if (!mediaRecorderRef.current || !isRecording || !selectedUserId) return;
+    if (!mediaRecorderRef.current || !selectedUserId) return;
+    clearInterval(recordingTimerRef.current);
 
     mediaRecorderRef.current.onstop = async () => {
-      clearInterval(recordingTimerRef.current);
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: mediaRecorderRef.current?.mimeType || 'audio/webm',
+      });
       mediaRecorderRef.current?.stream.getTracks().forEach((track) => track.stop());
-      setIsRecording(false);
 
       if (audioBlob.size > 5 * 1024 * 1024) {
-        setErrorMsg('Voice note exceeds 5MB limit');
+        setErrorMsg('Voice note exceeds 5 MB limit.');
+        setIsRecording(false);
         return;
       }
 
-      await sendMediaReply(audioBlob, 'VOICE', 'audio/webm', recordingSeconds);
+      await sendMediaReply(audioBlob, 'VOICE', 'voice_reply.webm', recordingSeconds);
+      setIsRecording(false);
       setRecordingSeconds(0);
     };
 
     mediaRecorderRef.current.stop();
   };
 
-  // Send Admin Text Reply
-  const handleSendReply = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!selectedUserId || isSending) return;
+  const cancelRecording = () => {
+    if (!mediaRecorderRef.current) return;
+    clearInterval(recordingTimerRef.current);
+    mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+    setIsRecording(false);
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
+  };
+
+  // Send reply
+  const handleSendReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUserId) return;
+
+    const text = replyText.trim();
+    if (!text && !selectedFile) return;
 
     if (selectedFile) {
-      await sendMediaReply(selectedFile.file, selectedFile.type, selectedFile.file.type);
+      await sendMediaReply(selectedFile.file, selectedFile.type, selectedFile.file.name, undefined, text);
       removeSelectedFile();
+      setReplyText('');
       return;
     }
-
-    const trimmed = replyText.trim();
-    if (!trimmed) return;
 
     setIsSending(true);
     setErrorMsg(null);
@@ -312,15 +304,17 @@ export const CommunityChat: React.FC = () => {
     try {
       const res = await apiRequest<{ data: ChatMessage }>(`/admin/chat/reply/${selectedUserId}`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: trimmed,
           messageType: 'TEXT',
+          content: text,
         }),
       });
 
       if (res?.data) {
         setActiveMessages((prev) => [...prev, res.data]);
         setReplyText('');
+        scrollToBottom();
         fetchConversations();
       }
     } catch (err: any) {
@@ -330,37 +324,36 @@ export const CommunityChat: React.FC = () => {
     }
   };
 
-  // Send Admin Media Reply
   const sendMediaReply = async (
     blobOrFile: Blob | File,
     type: 'IMAGE' | 'VIDEO' | 'VOICE',
-    mimeType: string,
-    duration?: number
+    fileName: string,
+    duration?: number,
+    caption?: string
   ) => {
     if (!selectedUserId) return;
     setIsSending(true);
     setErrorMsg(null);
 
     try {
-      const base64Data = await fileToBase64(blobOrFile);
+      const formData = new FormData();
+      formData.append('media', blobOrFile, fileName);
+      formData.append('messageType', type);
+      if (caption) formData.append('content', caption);
+      if (duration) formData.append('mediaDuration', duration.toString());
+
       const res = await apiRequest<{ data: ChatMessage }>(`/admin/chat/reply/${selectedUserId}`, {
         method: 'POST',
-        body: JSON.stringify({
-          content: replyText.trim() || `[${type}]`,
-          messageType: type,
-          mediaBase64: base64Data,
-          mediaMimeType: mimeType,
-          mediaDuration: duration,
-        }),
+        body: formData,
       });
 
       if (res?.data) {
         setActiveMessages((prev) => [...prev, res.data]);
-        setReplyText('');
+        scrollToBottom();
         fetchConversations();
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to upload media');
+      setErrorMsg(err.message || 'Failed to dispatch media reply');
     } finally {
       setIsSending(false);
     }
@@ -371,7 +364,6 @@ export const CommunityChat: React.FC = () => {
     const matchesSearch =
       c.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.user.email.toLowerCase().includes(searchQuery.toLowerCase());
-
     if (!matchesSearch) return false;
 
     if (roleFilter === 'MEMBER') {
@@ -390,7 +382,7 @@ export const CommunityChat: React.FC = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-5rem)] flex flex-col bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div className="h-[calc(100dvh-5rem)] flex flex-col bg-slate-50 dark:bg-[#05070e] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
         {/* ======================================================== */}
         {/* LEFT PANE: Conversation List */}
@@ -401,13 +393,13 @@ export const CommunityChat: React.FC = () => {
           }`}
         >
           {/* Header & Search */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3">
+          <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-emerald-600" />
+                <MessageSquare className="w-5 h-5 text-[#4851BA] dark:text-indigo-400" />
                 Community Chat
               </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-[#4851BA]/10 dark:bg-[#4851BA]/20 text-[#4851BA] dark:text-indigo-300 border border-[#4851BA]/20">
                 {conversations.length} Threads
               </span>
             </div>
@@ -420,7 +412,7 @@ export const CommunityChat: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search member or presenter..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
               />
             </div>
 
@@ -430,9 +422,9 @@ export const CommunityChat: React.FC = () => {
                 <button
                   key={tab}
                   onClick={() => setRoleFilter(tab)}
-                  className={`flex-1 py-1 text-[11px] font-semibold rounded-lg transition-colors ${
+                  className={`flex-1 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
                     roleFilter === tab
-                      ? 'bg-emerald-800 text-white shadow-sm'
+                      ? 'bg-[#4851BA] text-white shadow-sm'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -448,7 +440,7 @@ export const CommunityChat: React.FC = () => {
               <div className="p-8 text-center text-xs text-slate-400">Loading community conversations...</div>
             ) : filteredConversations.length === 0 ? (
               <div className="p-8 text-center text-slate-400">
-                <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-30 text-[#4851BA]" />
                 <p className="text-xs font-medium text-slate-500">No active conversations found</p>
                 <p className="text-[11px] text-slate-400 mt-1">
                   When members message the Admin, they will appear here.
@@ -463,19 +455,19 @@ export const CommunityChat: React.FC = () => {
                   <button
                     key={conv.userId}
                     onClick={() => setSelectedUserId(conv.userId)}
-                    className={`w-full text-left p-3.5 flex items-start gap-3 transition-colors ${
+                    className={`w-full text-left p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-l-4 border-emerald-600'
+                        ? 'bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border-l-4 border-[#4851BA]'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
                   >
                     {/* Avatar */}
                     <div className="relative shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200 text-sm">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#1e1b4b] to-[#3B43A1] text-white flex items-center justify-center font-bold text-sm shadow-xs">
                         {conv.user.name[0]?.toUpperCase() || 'U'}
                       </div>
                       {conv.unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+                        <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
                           {conv.unreadCount}
                         </span>
                       )}
@@ -499,8 +491,8 @@ export const CommunityChat: React.FC = () => {
                         <span
                           className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
                             isPresenter
-                              ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400'
-                              : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400'
+                              ? 'bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300'
+                              : 'bg-indigo-100 dark:bg-indigo-950/50 text-[#4851BA] dark:text-indigo-300'
                           }`}
                         >
                           {conv.user.role}
@@ -530,60 +522,61 @@ export const CommunityChat: React.FC = () => {
         </div>
 
         {/* ======================================================== */}
-        {/* RIGHT PANE: Active Chat Thread */}
+        {/* RIGHT PANE: Active Chat Thread (Mobile Responsive) */}
         {/* ======================================================== */}
         <div
-          className={`flex-1 flex flex-col bg-slate-100/50 dark:bg-slate-950/80 ${
+          className={`flex-1 flex flex-col bg-slate-100/50 dark:bg-[#05070e] ${
             !selectedUserId ? 'hidden md:flex' : 'flex'
           }`}
         >
           {selectedUserId && activeUser ? (
             <>
               {/* Active Conversation Top Bar */}
-              <div className="px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-xs">
-                <div className="flex items-center gap-3">
-                  {/* Mobile Back Button */}
+              <div className="px-3 sm:px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  {/* Mobile Back Button to Return to Single-Pane Conversation List */}
                   <button
                     onClick={() => setSelectedUserId(null)}
-                    className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                    className="md:hidden p-1.5 -ml-1 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                    aria-label="Back to conversations"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
 
-                  <div className="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold text-sm flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#3B43A1] to-[#4851BA] text-white font-bold text-sm flex items-center justify-center shrink-0">
                     {activeUser.name[0]?.toUpperCase()}
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
                         {activeUser.name}
                       </h3>
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-[#4851BA] dark:text-indigo-300 shrink-0">
                         {activeUser.role}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 truncate">
                       {activeUser.email} {activeUser.country && `• ${activeUser.country}`}
                     </p>
                   </div>
                 </div>
 
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border border-[#4851BA]/30 text-[#4851BA] dark:text-indigo-300 text-xs font-medium shrink-0">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>AES-256 Encrypted</span>
                 </div>
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
                 {isLoadingMessages ? (
                   <div className="h-full flex items-center justify-center text-xs text-slate-400">
                     Loading decrypted message thread...
                   </div>
                 ) : activeMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
-                    <MessageSquare className="w-10 h-10 mb-2 opacity-30 text-emerald-600" />
+                    <MessageSquare className="w-10 h-10 mb-2 opacity-30 text-[#4851BA]" />
                     <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                       Conversation with {activeUser.name}
                     </p>
@@ -602,9 +595,9 @@ export const CommunityChat: React.FC = () => {
                         className={`flex flex-col ${isAdminSender ? 'items-end' : 'items-start'}`}
                       >
                         <div
-                          className={`max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm text-xs leading-relaxed ${
+                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 sm:px-4 py-2.5 shadow-sm text-xs leading-relaxed ${
                             isAdminSender
-                              ? 'bg-emerald-900 text-white rounded-tr-sm'
+                              ? 'bg-[#4851BA] text-white rounded-tr-sm'
                               : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/60 rounded-tl-sm'
                           }`}
                         >
@@ -640,7 +633,7 @@ export const CommunityChat: React.FC = () => {
                           {/* Footer */}
                           <div
                             className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${
-                              isAdminSender ? 'text-emerald-200/70' : 'text-slate-400'
+                              isAdminSender ? 'text-indigo-100/75' : 'text-slate-400'
                             }`}
                           >
                             <span>
@@ -652,7 +645,7 @@ export const CommunityChat: React.FC = () => {
                             {isAdminSender && (
                               <span>
                                 {msg.isRead ? (
-                                  <CheckCheck className="w-3 h-3 text-emerald-300" />
+                                  <CheckCheck className="w-3 h-3 text-indigo-200" />
                                 ) : (
                                   <Check className="w-3 h-3" />
                                 )}
@@ -669,12 +662,12 @@ export const CommunityChat: React.FC = () => {
 
               {/* Selected File Banner */}
               {selectedFile && (
-                <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs">
+                <div className="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/40 border-t border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 truncate">
                     {selectedFile.type === 'IMAGE' ? (
-                      <ImageIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <ImageIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
                     ) : (
-                      <VideoIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <VideoIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
                     )}
                     <span className="truncate text-slate-800 dark:text-slate-200 font-medium">
                       {selectedFile.file.name}
@@ -686,7 +679,7 @@ export const CommunityChat: React.FC = () => {
                   <button
                     type="button"
                     onClick={removeSelectedFile}
-                    className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -705,9 +698,9 @@ export const CommunityChat: React.FC = () => {
               )}
 
               {/* Bottom Reply Bar */}
-              <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+              <div className="p-2.5 sm:p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
                 {isRecording ? (
-                  <div className="flex items-center justify-between bg-red-50 dark:bg-red-950/30 px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 animate-pulse">
+                  <div className="flex items-center justify-between bg-red-50 dark:bg-red-950/30 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-red-200 dark:border-red-900/50 animate-pulse">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
                       <span className="text-xs font-bold text-red-700 dark:text-red-400">
@@ -718,21 +711,21 @@ export const CommunityChat: React.FC = () => {
                       <button
                         type="button"
                         onClick={cancelRecording}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors cursor-pointer"
                       >
                         <X className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
                         onClick={stopRecordingAndSend}
-                        className="p-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm"
+                        className="p-1.5 rounded-lg bg-[#4851BA] hover:bg-[#3B43A1] text-white shadow-sm cursor-pointer"
                       >
                         <Send className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleSendReply} className="flex items-center gap-2">
+                  <form onSubmit={handleSendReply} className="flex items-center gap-1.5 sm:gap-2">
                     <input
                       type="file"
                       ref={fileInputRef}
@@ -745,7 +738,7 @@ export const CommunityChat: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="p-2.5 rounded-xl text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       title="Attach Image or Video"
                     >
                       <Paperclip className="w-4 h-4" />
@@ -755,7 +748,7 @@ export const CommunityChat: React.FC = () => {
                     <button
                       type="button"
                       onClick={startRecording}
-                      className="p-2.5 rounded-xl text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       title="Record Voice Note"
                     >
                       <Mic className="w-4 h-4" />
@@ -772,14 +765,14 @@ export const CommunityChat: React.FC = () => {
                           : `Reply directly to ${activeUser.name}...`
                       }
                       disabled={isSending}
-                      className="flex-1 min-w-0 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/30"
+                      className="flex-1 min-w-0 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4851BA]/40"
                     />
 
                     {/* Send button */}
                     <button
                       type="submit"
                       disabled={isSending || (!replyText.trim() && !selectedFile)}
-                      className="p-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 disabled:opacity-40 text-white shadow-sm transition-all shrink-0"
+                      className="p-2 sm:p-2.5 rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] disabled:opacity-40 text-white shadow-sm transition-all shrink-0 cursor-pointer"
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -790,7 +783,7 @@ export const CommunityChat: React.FC = () => {
           ) : (
             /* Empty State when no conversation selected */
             <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400">
-              <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 shadow-inner">
+              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-[#4851BA] dark:text-indigo-400 flex items-center justify-center mb-3 shadow-inner">
                 <MessageSquare className="w-8 h-8" />
               </div>
               <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -818,7 +811,7 @@ export const CommunityChat: React.FC = () => {
             />
             <button
               onClick={() => setLightboxUrl(null)}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/90"
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -996,10 +989,10 @@ const AdminAudioPlayer: React.FC<{
       <button
         type="button"
         onClick={togglePlay}
-        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 ${
+        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer ${
           isAdminSender
-            ? 'bg-emerald-800 text-white hover:bg-emerald-700'
-            : 'bg-emerald-700 text-white hover:bg-emerald-800'
+            ? 'bg-[#3B43A1] text-white hover:bg-[#1e1b4b]'
+            : 'bg-[#4851BA] text-white hover:bg-[#3B43A1]'
         }`}
       >
         {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
@@ -1009,7 +1002,7 @@ const AdminAudioPlayer: React.FC<{
         <div className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-100 ${
-              isAdminSender ? 'bg-emerald-300' : 'bg-emerald-600'
+              isAdminSender ? 'bg-indigo-200' : 'bg-[#4851BA]'
             }`}
             style={{ width: `${progress}%` }}
           />

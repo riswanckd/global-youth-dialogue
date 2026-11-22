@@ -76,9 +76,9 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-slate-900 rounded-3xl max-w-[calc(100vw-1.75rem)] sm:max-w-md w-full p-5 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
         aria-labelledby="allow-notifications-heading"
@@ -106,7 +106,7 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
         </p>
 
         {/* Two Action Buttons: Block (Secondary) and Allow (Primary) */}
-        <div className="mt-7 flex items-center gap-3">
+        <div className="mt-6 sm:mt-7 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={handleBlock}
@@ -120,7 +120,7 @@ export const PushNotificationPrompt: React.FC<PushNotificationPromptProps> = ({ 
             type="button"
             onClick={handleAllow}
             disabled={isSubscribing}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[#4851BA] hover:bg-[#3B43A1] text-white font-semibold text-sm shadow-md shadow-[#4851BA]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#3B43A1] to-[#4851BA] hover:opacity-95 text-white font-semibold text-sm shadow-md shadow-[#4851BA]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {isSubscribing ? 'Processing...' : 'Allow'}
           </button>

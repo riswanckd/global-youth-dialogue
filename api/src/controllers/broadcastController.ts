@@ -298,7 +298,7 @@ export async function getNotices(req: Request, res: Response) {
     if (roleUpper === ROLES.MEMBER) {
       applicableAudiences.push('MEMBERS');
     } else if (roleUpper === ROLES.PRESENTER) {
-      applicableAudiences.push('PRESENTERS', 'MEMBERS');
+      applicableAudiences.push('PRESENTERS');
     } else if (
       roleUpper === ROLES.COORDINATOR ||
       roleUpper === ROLES.ADMIN ||
@@ -336,6 +336,7 @@ export async function getNotices(req: Request, res: Response) {
 
     const unreadCount = formattedNotices.filter((n) => !n.isRead).length;
 
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     res.status(200).json({
       success: true,
       data: {
@@ -359,7 +360,7 @@ export async function markAllNoticesRead(req: Request, res: Response) {
 
     let applicableAudiences: BroadcastAudience[] = ['ALL'];
     if (roleUpper === ROLES.MEMBER) applicableAudiences.push('MEMBERS');
-    else if (roleUpper === ROLES.PRESENTER) applicableAudiences.push('PRESENTERS', 'MEMBERS');
+    else if (roleUpper === ROLES.PRESENTER) applicableAudiences.push('PRESENTERS');
     else applicableAudiences.push('CO_ADMINS', 'MEMBERS', 'PRESENTERS');
 
     const notices = await Broadcast.find({ targetAudience: { $in: applicableAudiences } })

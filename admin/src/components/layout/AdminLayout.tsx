@@ -198,18 +198,6 @@ export const AdminLayout: React.FC = () => {
   });
   const totalChatUnread = chatData?.totalUnread || 0;
 
-  // Real-time unread notices count
-  const { data: adminNoticesData } = useQuery<{ notices: any[]; unreadCount: number }>({
-    queryKey: ['admin-notices-unread-count'],
-    queryFn: () =>
-      apiRequest<{ notices: any[]; unreadCount: number }>('/notices').catch(() => ({
-        notices: [],
-        unreadCount: 0,
-      })),
-    refetchInterval: 12000,
-  });
-  const totalNoticeUnread = adminNoticesData?.unreadCount || 0;
-
   const navItems = [
     { id: 'dashboard', label: t('menu.overview', 'Programme Overview'), path: '/dashboard', icon: LayoutDashboard },
     { id: 'users', label: t('menu.community', 'The Community'), path: '/users', icon: Users },
@@ -239,13 +227,6 @@ export const AdminLayout: React.FC = () => {
           },
         ]
       : []),
-    {
-      id: 'notices',
-      label: t('menu.notices', 'Notice Board'),
-      path: '/notices',
-      icon: Bell,
-      badge: totalNoticeUnread > 0 ? totalNoticeUnread : undefined,
-    },
     { id: 'profile', label: t('menu.coordinatorProfile', 'Coordinator Profile'), path: '/profile', icon: User },
   ];
 
@@ -254,7 +235,6 @@ export const AdminLayout: React.FC = () => {
     if (isSuperAdmin) return true;
     if (menuId === 'broadcast') return false; // Strictly Super Admin only
     if (menuId === 'chat') return false; // Strictly Super Admin only
-    if (menuId === 'notices') return true;
     if (menuId === 'profile') return true;
     if (Array.isArray(authorizedMenuIds) && authorizedMenuIds.length > 0) {
       return authorizedMenuIds.includes(menuId);
