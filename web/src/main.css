@@ -10104,6 +10104,7 @@ button.gyde-fab-circle {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  overflow: visible !important;
 }
 
 button.gyde-fab-circle:hover {

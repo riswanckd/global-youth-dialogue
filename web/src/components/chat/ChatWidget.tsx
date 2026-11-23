@@ -128,41 +128,47 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
   }, []);
 
   // Fetch messages from backend
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (isChatOpen?: boolean) => {
     if (!user) return;
     try {
+      const activeOpen = typeof isChatOpen === 'boolean' ? isChatOpen : isOpen;
       const res = await apiRequest<{
         messages: ChatMessage[];
         hasSeenChatSpotlight: boolean;
         unreadCount: number;
-      }>('/chat/messages');
+      }>(`/chat/messages${activeOpen ? '?markRead=true' : ''}`);
 
       if (res) {
         if (res.messages) {
           setMessages(res.messages);
-          setUnreadCount(res.unreadCount || 0);
+          setUnreadCount(activeOpen ? 0 : (res.unreadCount || 0));
         }
         if (res.hasSeenChatSpotlight === true) {
           user.hasSeenChatSpotlight = true;
         }
       }
     } catch { }
-  }, [user]);
+  }, [user, isOpen]);
 
-  // Polling mechanism (3.5s when open, 15s when closed)
+  // Polling mechanism (3s when open, 8s when closed for responsive message badge notifications)
   useEffect(() => {
     if (!user) return;
     fetchMessages();
 
-    const interval = setInterval(fetchMessages, isOpen ? 3500 : 15000);
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, isOpen ? 3000 : 8000);
     return () => clearInterval(interval);
   }, [user, isOpen, fetchMessages]);
 
   useEffect(() => {
     if (isOpen) {
+      setUnreadCount(0);
+      fetchMessages(true);
+      apiRequest('/chat/mark-read', { method: 'POST' }).catch(() => {});
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [isOpen]);
 
   // Clean up object URLs on unmount (Ephemeral memory hygiene)
   useEffect(() => {
@@ -435,10 +441,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
           <MessageSquare className="w-6 h-6 text-white stroke-[2.2]" />
         )}
 
-        {/* Unread red badge indicator */}
+        {/* Unread red badge indicator on the floating chat button */}
         {!isOpen && unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
-            {unreadCount}
+          <span className="absolute -top-1.5 -right-1.5 min-w-[22px] h-[22px] px-1.5 rounded-full bg-rose-600 text-white text-[11px] font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-lg animate-pulse z-20 pointer-events-none">
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>

@@ -52,17 +52,20 @@ export async function getMemberMessages(req: Request, res: Response) {
   try {
     const user = req.user!;
     const userId = user._id;
+    const shouldMarkRead = req.query.markRead === 'true' || req.query.isOpen === 'true';
+
+    // If user explicitly has the chat window open, mark unread messages as read
+    if (shouldMarkRead) {
+      await Message.updateMany(
+        { conversationUserId: userId, receiverId: userId, isRead: false },
+        { $set: { isRead: true } }
+      );
+    }
 
     // Fetch all messages in the conversation
     const messages = await Message.find({ conversationUserId: userId })
       .sort({ createdAt: 1 })
       .lean();
-
-    // Mark any unread messages from admin as read
-    await Message.updateMany(
-      { conversationUserId: userId, receiverId: userId, isRead: false },
-      { $set: { isRead: true } }
-    );
 
     // Decrypt messages on the fly right before sending over HTTPS
     const decryptedMessages = messages.map((msg) => ({
@@ -82,8 +85,14 @@ export async function getMemberMessages(req: Request, res: Response) {
       createdAt: msg.createdAt,
     }));
 
-    // Calculate unread count (incoming to user)
-    const unreadCount = 0; // Since we just marked them as read
+    // Calculate unread count (incoming to user from admin)
+    const unreadCount = shouldMarkRead
+      ? 0
+      : await Message.countDocuments({
+          conversationUserId: userId,
+          receiverId: userId,
+          isRead: false,
+        });
 
     res.status(200).json({
       success: true,
@@ -95,6 +104,26 @@ export async function getMemberMessages(req: Request, res: Response) {
     });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to retrieve messages' });
+  }
+}
+
+/**
+ * POST /api/chat/mark-read
+ * Explicitly marks all incoming messages from Admin to this user as read
+ */
+export async function markMemberMessagesRead(req: Request, res: Response) {
+  try {
+    const user = req.user!;
+    const userId = user._id;
+
+    await Message.updateMany(
+      { conversationUserId: userId, receiverId: userId, isRead: false },
+      { $set: { isRead: true } }
+    );
+
+    res.status(200).json({ success: true, message: 'Messages marked as read' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Failed to mark messages as read' });
   }
 }
 
