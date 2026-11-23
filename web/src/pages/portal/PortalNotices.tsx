@@ -37,19 +37,32 @@ export const PortalNotices: React.FC = () => {
     ? data
     : []) as NoticeItem[];
 
-  // Mark all eligible notices as read after 4 seconds of reading, so the user can clearly see which notice was new
-  useEffect(() => {
-    if (!user?.id) return;
-    const timer = setTimeout(() => {
-      apiRequest('/notices/mark-all-read', { method: 'POST' })
-        .then(() => {
-          queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count', user.id] });
-        })
-        .catch(() => {});
-    }, 4000);
+  const unreadCount =
+    typeof data?.unreadCount === 'number'
+      ? data.unreadCount
+      : typeof (data as any)?.data?.unreadCount === 'number'
+      ? (data as any).data.unreadCount
+      : notices.filter((n) => !n.isRead).length;
 
-    return () => clearTimeout(timer);
-  }, [user?.id, queryClient]);
+  const handleMarkAllRead = async () => {
+    if (!user?.id) return;
+    try {
+      await apiRequest('/notices/mark-all-read', { method: 'POST' });
+      queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count'] });
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
+  };
+
+  const handleMarkSingleRead = async (noticeId: string) => {
+    if (!user?.id) return;
+    try {
+      await apiRequest(`/notices/${noticeId}/read`, { method: 'POST' });
+      queryClient.invalidateQueries({ queryKey: ['portal-notices-unread-count'] });
+    } catch (err) {
+      console.error('Failed to mark notice as read:', err);
+    }
+  };
 
   const getAudienceLabel = (aud: string) => {
     switch (aud) {
@@ -87,9 +100,22 @@ export const PortalNotices: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border border-[#4851BA]/30 text-[#4851BA] dark:text-indigo-300 self-start sm:self-auto">
-          <ShieldCheck className="w-4 h-4" />
-          <span>{t('notices.verifiedBadge', 'Verified Secretariat Dispatches')}</span>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              onClick={handleMarkAllRead}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 text-[#4851BA] dark:text-indigo-300 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <CheckCircle2 className="w-4 h-4 text-[#4851BA] dark:text-indigo-400" />
+              <span>{isArabic ? `تحديد الكل كمقروء (${unreadCount})` : `Mark All as Read (${unreadCount})`}</span>
+            </button>
+          )}
+
+          <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#4851BA]/10 dark:bg-[#4851BA]/20 border border-[#4851BA]/30 text-[#4851BA] dark:text-indigo-300">
+            <ShieldCheck className="w-4 h-4" />
+            <span>{t('notices.verifiedBadge', 'Verified Secretariat Dispatches')}</span>
+          </div>
         </div>
       </div>
 
@@ -116,7 +142,11 @@ export const PortalNotices: React.FC = () => {
           {notices.map((notice) => (
             <article
               key={notice.id}
-              className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all hover:border-[#4851BA]/40"
+              className={`p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border shadow-sm transition-all ${
+                !notice.isRead
+                  ? 'border-[#4851BA]/60 ring-2 ring-[#4851BA]/10'
+                  : 'border-slate-200/80 dark:border-slate-800 hover:border-[#4851BA]/40'
+              }`}
             >
               {/* Notice Metadata */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5 sm:mb-3">
@@ -124,25 +154,43 @@ export const PortalNotices: React.FC = () => {
                   <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-[#4851BA] dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80">
                     {getAudienceLabel(notice.targetAudience)}
                   </span>
-                  {(!notice.isRead || (Date.now() - new Date(notice.createdAt).getTime() < 24 * 60 * 60 * 1000)) && (
+                  {!notice.isRead ? (
                     <span className="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-xs animate-pulse flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                       {isArabic ? 'جديد' : 'NEW'}
                     </span>
+                  ) : (
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                      {isArabic ? 'مقروء' : 'Read'}
+                    </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <Clock className="w-3.5 h-3.5" />
-                  <time dateTime={notice.createdAt}>
-                    {new Date(notice.createdAt).toLocaleDateString(language === 'ar' ? 'ar-QA' : 'en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </time>
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    <time dateTime={notice.createdAt}>
+                      {new Date(notice.createdAt).toLocaleDateString(language === 'ar' ? 'ar-QA' : 'en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </time>
+                  </div>
+
+                  {!notice.isRead && (
+                    <button
+                      type="button"
+                      onClick={() => handleMarkSingleRead(notice.id)}
+                      className="ms-1 text-[10px] font-bold text-[#4851BA] hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-800/80 flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                    >
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>{isArabic ? 'تحديد كمقروء' : 'Mark as Read'}</span>
+                    </button>
+                  )}
                 </div>
               </div>
 

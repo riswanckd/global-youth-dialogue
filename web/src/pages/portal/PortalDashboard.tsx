@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   Plus,
   Layers,
+  Megaphone,
 } from 'lucide-react';
 import { isDemoSession } from '../public/Sessions';
 import { SessionDetailModal } from '../../components/SessionDetailModal';
@@ -205,6 +206,20 @@ export const PortalDashboard: React.FC = () => {
 
         {/* Action Buttons: 2x2 grid on mobile, row on desktop (Borderless, light tinted pills) */}
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-2.5 mt-3.5">
+          {/* Notice Board with live unread badge */}
+          <button
+            onClick={() => navigate('/portal/notices')}
+            className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-indigo-50/90 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer relative"
+          >
+            <Megaphone className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <span className="truncate">{isArabic ? 'لوحة الإعلانات' : 'Notice Board'}</span>
+            {Boolean(unreadNoticesCount && unreadNoticesCount > 0) && (
+              <span className="min-w-[17px] h-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                {unreadNoticesCount! > 9 ? '9+' : unreadNoticesCount}
+              </span>
+            )}
+          </button>
+
           {/* Notifications button */}
           <button
             onClick={() => navigate('/portal/dashboard?notifications=open')}
