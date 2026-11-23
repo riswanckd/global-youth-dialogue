@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../utils/api';
-import { Bell, Clock, ShieldCheck, Megaphone, CheckCircle2 } from 'lucide-react';
+import { Bell, Clock, ShieldCheck, Megaphone, CheckCircle2, ExternalLink } from 'lucide-react';
 
 interface NoticeItem {
   id: string;
@@ -10,6 +10,70 @@ interface NoticeItem {
   targetAudience: string;
   createdAt: string;
   isRead: boolean;
+}
+
+function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+}
+
+function renderFormattedMessage(rawText: string) {
+  if (!rawText) return null;
+  const decoded = decodeHtmlEntities(rawText);
+
+  const urlRegex = /((?:https?:\/\/|www\.)[^\s<]+|t\.me\/[^\s<]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/gi;
+  const parts = decoded.split(urlRegex);
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    const isUrl =
+      part.startsWith('http://') ||
+      part.startsWith('https://') ||
+      part.startsWith('www.') ||
+      part.startsWith('t.me/');
+    const isEmail = !isUrl && part.includes('@') && /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(part);
+
+    if (isUrl || isEmail) {
+      let url = part;
+      let trailing = '';
+      while (/[.,;:!?)\]}>]$/.test(url)) {
+        trailing = url.slice(-1) + trailing;
+        url = url.slice(0, -1);
+      }
+
+      let href = url;
+      if (url.startsWith('www.') || url.startsWith('t.me/')) {
+        href = `https://${url}`;
+      } else if (isEmail) {
+        href = `mailto:${url}`;
+      }
+
+      return (
+        <React.Fragment key={index}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold underline underline-offset-2 break-all inline-flex items-center gap-1 transition-colors hover:opacity-90 cursor-pointer"
+            title={href}
+          >
+            <span>{url}</span>
+            <ExternalLink className="w-3 h-3 shrink-0 inline opacity-70" />
+          </a>
+          {trailing}
+        </React.Fragment>
+      );
+    }
+
+    return <span key={index}>{part}</span>;
+  });
 }
 
 export const AdminNotices: React.FC = () => {
@@ -91,11 +155,11 @@ export const AdminNotices: React.FC = () => {
               </div>
 
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
-                {notice.subject}
+                {decodeHtmlEntities(notice.subject)}
               </h2>
 
               <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap break-words">
-                {notice.message}
+                {renderFormattedMessage(notice.message)}
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
