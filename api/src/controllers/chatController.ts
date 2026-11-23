@@ -352,11 +352,37 @@ export async function getMediaStream(req: Request, res: Response) {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Accept-Ranges', 'bytes');
-    res.setHeader('Content-Type', message.mediaMimeType || chatMedia.mimeType || 'application/octet-stream');
-    res.setHeader('Content-Length', decryptedBuffer.length);
+
+    const mimeType = message.mediaMimeType || chatMedia.mimeType || 'application/octet-stream';
     const downloadName = encodeURIComponent(message.fileName || chatMedia.fileName || 'attachment');
     res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
 
+    // HTTP Range request support for media streaming (audio/video seeking and instant playback)
+    const rangeHeader = req.headers.range;
+    if (rangeHeader) {
+      const parts = rangeHeader.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : decryptedBuffer.length - 1;
+
+      if (start >= decryptedBuffer.length || end >= decryptedBuffer.length) {
+        res.status(416).setHeader('Content-Range', `bytes */${decryptedBuffer.length}`);
+        return res.end();
+      }
+
+      const chunkSize = end - start + 1;
+      const chunk = decryptedBuffer.subarray(start, end + 1);
+
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${decryptedBuffer.length}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': mimeType,
+      });
+      return res.end(chunk);
+    }
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', decryptedBuffer.length);
     res.status(200).send(decryptedBuffer);
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to stream media' });

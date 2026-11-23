@@ -455,6 +455,13 @@ export const CommunityChat: React.FC = () => {
     }
   };
 
+  const getFullMediaUrl = (url?: string | null) => {
+    if (!url) return '';
+    const token = getAdminTokenForRequest();
+    const fullUrl = url.startsWith('http') ? url : `https://gyde-api.vercel.app${url}`;
+    return token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
+  };
+
   // Filter conversations
   const filteredConversations = conversations.filter((c) => {
     const matchesSearch =
@@ -748,7 +755,7 @@ export const CommunityChat: React.FC = () => {
                               {msg.messageType === 'IMAGE' && (
                                 <AdminMediaImage
                                   mediaUrl={msg.mediaUrl}
-                                  onClick={() => setLightboxUrl(msg.mediaUrl!)}
+                                  onClick={(url) => setLightboxUrl(url || getFullMediaUrl(msg.mediaUrl))}
                                 />
                               )}
 
@@ -766,7 +773,7 @@ export const CommunityChat: React.FC = () => {
 
                               {msg.messageType === 'DOCUMENT' && (
                                 <a
-                                  href={msg.mediaUrl.startsWith('http') ? msg.mediaUrl : `https://gyde-api.vercel.app${msg.mediaUrl}?token=${encodeURIComponent(getAdminTokenForRequest() || '')}`}
+                                  href={getFullMediaUrl(msg.mediaUrl)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   download={msg.fileName || 'document'}
@@ -1009,7 +1016,7 @@ export const CommunityChat: React.FC = () => {
 /**
  * Media components for authenticated streaming
  */
-const AdminMediaImage: React.FC<{ mediaUrl: string; onClick: () => void }> = ({
+const AdminMediaImage: React.FC<{ mediaUrl: string; onClick: (blobUrl?: string) => void }> = ({
   mediaUrl,
   onClick,
 }) => {
@@ -1024,14 +1031,19 @@ const AdminMediaImage: React.FC<{ mediaUrl: string; onClick: () => void }> = ({
     const urlWithToken = token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
 
     fetch(urlWithToken, { headers, credentials: 'include' })
-      .then((res) => res.blob())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
       .then((blob) => {
         if (active) {
           const url = URL.createObjectURL(blob);
           setBlobUrl(url);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn('Admin image fetch failed:', err);
+      });
 
     return () => {
       active = false;
@@ -1047,7 +1059,7 @@ const AdminMediaImage: React.FC<{ mediaUrl: string; onClick: () => void }> = ({
     <img
       src={blobUrl}
       alt="Chat attachment"
-      onClick={onClick}
+      onClick={() => onClick(blobUrl)}
       className="rounded-xl max-h-56 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
       loading="lazy"
     />

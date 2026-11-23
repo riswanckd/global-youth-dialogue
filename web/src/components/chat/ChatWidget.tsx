@@ -635,12 +635,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
                       {msg.hasMedia && msg.mediaUrl && (
                         <div className="mb-2">
                           {msg.messageType === 'IMAGE' && (
-                            <img
+                            <ChatMediaImage
                               src={getChatMediaUrl(msg.mediaUrl)}
-                              alt="Chat attachment"
-                              onClick={() => setLightboxUrl(getChatMediaUrl(msg.mediaUrl))}
-                              className="rounded-xl max-h-48 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
-                              loading="lazy"
+                              onClick={(url) => setLightboxUrl(url || getChatMediaUrl(msg.mediaUrl))}
                             />
                           )}
 
@@ -889,6 +886,66 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 };
 
 /**
+ * Clean Inline Media Image with In-Memory Decoded Preview
+ */
+const ChatMediaImage: React.FC<{
+  src: string;
+  onClick: (blobUrl?: string) => void;
+}> = ({ src, onClick }) => {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    if (!src) return;
+
+    if (src.startsWith('blob:')) {
+      setBlobUrl(src);
+      return;
+    }
+
+    const token = getStoredToken();
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+    fetch(src, { headers, credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (active) {
+          const url = URL.createObjectURL(blob);
+          setBlobUrl(url);
+        }
+      })
+      .catch((err) => {
+        console.warn('Chat image blob load failed:', err);
+        if (active) setBlobUrl(src);
+      });
+
+    return () => {
+      active = false;
+      if (blobUrl && blobUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [src]);
+
+  if (!blobUrl) {
+    return <div className="h-32 w-48 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />;
+  }
+
+  return (
+    <img
+      src={blobUrl}
+      alt="Chat attachment"
+      onClick={() => onClick(blobUrl)}
+      className="rounded-xl max-h-48 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+      loading="lazy"
+    />
+  );
+};
+
+/**
  * Clean Inline Audio Player for Voice Notes
  */
 const AudioPlayerBubble: React.FC<{
@@ -912,7 +969,10 @@ const AudioPlayerBubble: React.FC<{
       return;
     }
 
-    fetch(src, { credentials: 'include' })
+    const token = getStoredToken();
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+    fetch(src, { headers, credentials: 'include' })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.blob();
