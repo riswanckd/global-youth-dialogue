@@ -39,6 +39,8 @@ export interface SendEmailOptions {
   from?: string;
   fromName?: string;
   replyTo?: string;
+  smtpUser?: string;
+  smtpPass?: string;
 }
 
 async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
@@ -105,8 +107,8 @@ async function sendViaCloudflare(options: SendEmailOptions): Promise<boolean> {
 }
 
 function sendViaPureTLS(options: SendEmailOptions): Promise<boolean> {
-  const user = env.SMTP_USER || 'thegyde.verify@gmail.com';
-  const pass = env.SMTP_PASS || 'nwhnmkersbiwwrry';
+  const user = options.smtpUser || env.SMTP_USER || 'thegyde.verify@gmail.com';
+  const pass = options.smtpPass || env.SMTP_PASS || 'nwhnmkersbiwwrry';
   const host = env.SMTP_HOST || 'smtp.gmail.com';
   const port = 465;
   const fromName = options.fromName || env.FROM_NAME || 'Global Youth Dialogue & Exchange (GYDE)';
@@ -213,7 +215,19 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   }
 
   // 2. Nodemailer Transporter with service: 'gmail'
-  const mailer = getSmtpTransporter();
+  const mailer = (options.smtpUser && options.smtpPass)
+    ? nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: options.smtpUser,
+          pass: options.smtpPass,
+        },
+        connectionTimeout: 10000,
+        greetingTimeout: 8000,
+        socketTimeout: 10000,
+      })
+    : getSmtpTransporter();
+
   if (mailer) {
     try {
       const fromAddress = options.from || env.FROM_EMAIL || env.SMTP_USER || 'thegyde.verify@gmail.com';

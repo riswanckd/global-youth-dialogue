@@ -211,12 +211,16 @@ export async function sendBroadcast(req: Request, res: Response) {
 
             const broadcastFrom = env.BROADCAST_FROM_EMAIL || 'admin@thegyde.in';
             const broadcastReplyTo = env.BROADCAST_REPLY_TO || 'admin@thegyde.in';
+            const broadcastSmtpUser = env.BROADCAST_SMTP_USER || undefined;
+            const broadcastSmtpPass = env.BROADCAST_SMTP_PASS || undefined;
 
             const sent = await sendEmail({
               to: recipient.email,
               from: broadcastFrom,
               fromName: 'GYDE Secretariat',
               replyTo: broadcastReplyTo,
+              smtpUser: broadcastSmtpUser,
+              smtpPass: broadcastSmtpPass,
               subject: `GYDE: ${sanitizedSubject}`,
               text: `Dear ${firstName},\n\n${sanitizedMessage}\n\nView online on Notice Board: https://thegyde.in/portal/notices\n\nGlobal Youth Dialogue & Exchange (GYDE) Secretariat\nDirect Inquiries: admin@thegyde.in\nOfficial Portal: https://thegyde.in`,
               html,

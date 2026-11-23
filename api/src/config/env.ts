@@ -51,6 +51,8 @@ const envSchema = z.object({
   FROM_NAME: z.string().default('Global Youth Dialogue & Exchange (GYDE)'),
   BROADCAST_FROM_EMAIL: z.string().optional().default('admin@thegyde.in'),
   BROADCAST_REPLY_TO: z.string().optional().default('admin@thegyde.in'),
+  BROADCAST_SMTP_USER: z.string().optional().default(''),
+  BROADCAST_SMTP_PASS: z.string().optional().default(''),
   INITIAL_ADMIN_EMAIL: z.string().email().default('admin@thegyde.in'),
   INITIAL_ADMIN_PASSWORD: z.string().default('thegyde@2026'),
   INITIAL_ADMIN_NAME: z.string().default('GYDE Super Administrator'),
