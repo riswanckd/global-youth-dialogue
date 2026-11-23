@@ -22,6 +22,8 @@ import {
   Clock,
   Sparkles,
   User as UserIcon,
+  FileText,
+  Download,
 } from 'lucide-react';
 
 interface ConversationParticipant {
@@ -41,7 +43,7 @@ interface ConversationItem {
   user: ConversationParticipant;
   lastMessage: {
     id: string;
-    messageType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+    messageType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE' | 'DOCUMENT';
     preview: string;
     senderId: string;
     senderRole: string;
@@ -57,12 +59,13 @@ interface ChatMessage {
   senderId: string;
   senderRole: string;
   receiverId: string;
-  messageType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+  messageType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE' | 'DOCUMENT';
   content: string;
   hasMedia: boolean;
   mediaMimeType?: string;
   mediaDuration?: number;
   mediaSize?: number;
+  fileName?: string;
   mediaUrl?: string | null;
   isRead: boolean;
   createdAt: string;
@@ -93,9 +96,25 @@ export const CommunityChat: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<{
     file: File;
     previewUrl: string;
-    type: 'IMAGE' | 'VIDEO';
+    type: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Helper to convert Blob or File to Base64
+  const fileToBase64 = (blobOrFile: Blob | File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Failed to encode file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file from storage'));
+      reader.readAsDataURL(blobOrFile);
+    });
+  };
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -180,7 +199,7 @@ export const CommunityChat: React.FC = () => {
     }
   }, [activeMessages]);
 
-  // Handle media selection
+  // Handle media selection (Image, Video, or Document)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -188,18 +207,26 @@ export const CommunityChat: React.FC = () => {
     const mime = file.type.toLowerCase();
     const isImage = mime.startsWith('image/');
     const isVideo = mime.startsWith('video/');
+    const isDocument =
+      mime.startsWith('application/') ||
+      mime.startsWith('text/') ||
+      file.name.match(/\.(pdf|doc|docx|txt|xls|xlsx|zip)$/i);
 
-    if (!isImage && !isVideo) {
-      setErrorMsg('Only JPEG, PNG, WebP images and MP4, WebM videos are allowed.');
+    if (!isImage && !isVideo && !isDocument) {
+      setErrorMsg('Please attach an image, video, or document.');
       return;
     }
 
-    if (isImage && file.size > 5 * 1024 * 1024) {
-      setErrorMsg('Images must be smaller than 5 MB.');
+    if (isImage && file.size > 10 * 1024 * 1024) {
+      setErrorMsg('Images must be smaller than 10 MB.');
       return;
     }
-    if (isVideo && file.size > 15 * 1024 * 1024) {
-      setErrorMsg('Videos must be smaller than 15 MB.');
+    if (isVideo && file.size > 25 * 1024 * 1024) {
+      setErrorMsg('Videos must be smaller than 25 MB.');
+      return;
+    }
+    if (isDocument && file.size > 20 * 1024 * 1024) {
+      setErrorMsg('Documents must be smaller than 20 MB.');
       return;
     }
 
@@ -209,8 +236,8 @@ export const CommunityChat: React.FC = () => {
 
     setSelectedFile({
       file,
-      previewUrl: URL.createObjectURL(file),
-      type: isImage ? 'IMAGE' : 'VIDEO',
+      previewUrl: isImage ? URL.createObjectURL(file) : '',
+      type: isImage ? 'IMAGE' : isVideo ? 'VIDEO' : 'DOCUMENT',
     });
     setErrorMsg(null);
   };
@@ -328,7 +355,7 @@ export const CommunityChat: React.FC = () => {
 
   const sendMediaReply = async (
     blobOrFile: Blob | File,
-    type: 'IMAGE' | 'VIDEO' | 'VOICE',
+    type: 'IMAGE' | 'VIDEO' | 'VOICE' | 'DOCUMENT',
     fileName: string,
     duration?: number,
     caption?: string
@@ -338,15 +365,26 @@ export const CommunityChat: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const formData = new FormData();
-      formData.append('media', blobOrFile, fileName);
-      formData.append('messageType', type);
-      if (caption) formData.append('content', caption);
-      if (duration) formData.append('mediaDuration', duration.toString());
+      const base64Data = await fileToBase64(blobOrFile);
+      const mime = blobOrFile.type
+        ? blobOrFile.type.split(';')[0].trim().toLowerCase()
+        : type === 'VOICE'
+        ? 'audio/webm'
+        : type === 'DOCUMENT'
+        ? 'application/pdf'
+        : 'application/octet-stream';
 
       const res = await apiRequest<any>(`/admin/chat/reply/${selectedUserId}`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageType: type,
+          content: caption || '',
+          mediaBase64: base64Data,
+          mediaMimeType: mime,
+          mediaDuration: duration,
+          fileName: fileName || (blobOrFile instanceof File ? blobOrFile.name : `${type.toLowerCase()}_reply_${Date.now()}`),
+        }),
       });
 
       const newMsg = res?.id ? res : res?.data;
@@ -670,6 +708,39 @@ export const CommunityChat: React.FC = () => {
                                   isAdminSender={isAdminSender}
                                 />
                               )}
+
+                              {msg.messageType === 'DOCUMENT' && (
+                                <a
+                                  href={msg.mediaUrl.startsWith('http') ? msg.mediaUrl : `https://gyde-api.vercel.app${msg.mediaUrl}?token=${encodeURIComponent(getAdminTokenForRequest() || '')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  download={msg.fileName || 'document'}
+                                  className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all ${
+                                    isAdminSender
+                                      ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
+                                      : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100'
+                                  }`}
+                                >
+                                  <div
+                                    className={`p-2 rounded-lg ${
+                                      isAdminSender ? 'bg-white/20 text-white' : 'bg-[#4851BA]/10 text-[#4851BA] dark:text-indigo-400'
+                                    }`}
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex-1 min-w-0 text-start">
+                                    <p className="font-semibold text-xs truncate max-w-[140px]">
+                                      {msg.fileName || 'Document'}
+                                    </p>
+                                    {msg.mediaSize && (
+                                      <span className="text-[10px] opacity-75">
+                                        {(msg.mediaSize / (1024 * 1024)).toFixed(1)} MB
+                                      </span>
+                                    )}
+                                  </div>
+                                  <Download className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                                </a>
+                              )}
                             </div>
                           )}
 
@@ -714,8 +785,10 @@ export const CommunityChat: React.FC = () => {
                   <div className="flex items-center gap-2 truncate">
                     {selectedFile.type === 'IMAGE' ? (
                       <ImageIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
-                    ) : (
+                    ) : selectedFile.type === 'VIDEO' ? (
                       <VideoIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
+                    ) : (
+                      <FileText className="w-4 h-4 text-[#4851BA] shrink-0" />
                     )}
                     <span className="truncate text-slate-800 dark:text-slate-200 font-medium">
                       {selectedFile.file.name}
@@ -780,7 +853,7 @@ export const CommunityChat: React.FC = () => {
                       type="file"
                       ref={fileInputRef}
                       onChange={handleFileChange}
-                      accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                      accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                       className="hidden"
                     />
 
@@ -789,7 +862,7 @@ export const CommunityChat: React.FC = () => {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                      title={t('chat.attach', 'Attach Image or Video')}
+                      title={t('chat.attach', 'Attach Image, Video, or Document')}
                     >
                       <Paperclip className="w-4 h-4" />
                     </button>
@@ -892,7 +965,10 @@ const AdminMediaImage: React.FC<{ mediaUrl: string; onClick: () => void }> = ({
     const token = getAdminTokenForRequest();
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-    fetch(mediaUrl, { headers, credentials: 'include' })
+    const fullUrl = mediaUrl.startsWith('http') ? mediaUrl : `https://gyde-api.vercel.app${mediaUrl}`;
+    const urlWithToken = token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
+
+    fetch(urlWithToken, { headers, credentials: 'include' })
       .then((res) => res.blob())
       .then((blob) => {
         if (active) {
@@ -931,7 +1007,10 @@ const AdminMediaVideo: React.FC<{ mediaUrl: string }> = ({ mediaUrl }) => {
     const token = getAdminTokenForRequest();
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-    fetch(mediaUrl, { headers, credentials: 'include' })
+    const fullUrl = mediaUrl.startsWith('http') ? mediaUrl : `https://gyde-api.vercel.app${mediaUrl}`;
+    const urlWithToken = token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
+
+    fetch(urlWithToken, { headers, credentials: 'include' })
       .then((res) => res.blob())
       .then((blob) => {
         if (active) {
@@ -978,7 +1057,10 @@ const AdminAudioPlayer: React.FC<{
     const token = getAdminTokenForRequest();
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-    fetch(mediaUrl, { headers, credentials: 'include' })
+    const fullUrl = mediaUrl.startsWith('http') ? mediaUrl : `https://gyde-api.vercel.app${mediaUrl}`;
+    const urlWithToken = token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
+
+    fetch(urlWithToken, { headers, credentials: 'include' })
       .then((res) => res.blob())
       .then((blob) => {
         if (active) {

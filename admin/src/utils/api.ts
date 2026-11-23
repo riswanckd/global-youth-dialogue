@@ -91,8 +91,9 @@ export async function apiRequest<T = any>(
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}${cacheBuster}`;
 
   const token = getAdminTokenForRequest();
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
     'x-client-app': 'admin',
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
@@ -100,6 +101,9 @@ export async function apiRequest<T = any>(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((options.headers as Record<string, string>) || {}),
   };
+  if (isFormData && headers['Content-Type']) {
+    delete headers['Content-Type'];
+  }
 
   const config: RequestInit = {
     cache: 'no-store',

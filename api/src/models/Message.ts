@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export type MessageType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+export type MessageType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE' | 'DOCUMENT';
 
 export interface IMessage extends Document {
   conversationUserId: mongoose.Types.ObjectId;
@@ -13,6 +13,7 @@ export interface IMessage extends Document {
   mediaMimeType?: string;
   mediaDuration?: number;
   mediaSize?: number;
+  fileName?: string;
   iv: string;
   authTag: string;
   isRead: boolean;
@@ -48,7 +49,7 @@ const MessageSchema = new Schema<IMessage>(
     messageType: {
       type: String,
       required: true,
-      enum: ['TEXT', 'IMAGE', 'VIDEO', 'VOICE'],
+      enum: ['TEXT', 'IMAGE', 'VIDEO', 'VOICE', 'DOCUMENT'],
       default: 'TEXT',
     },
     encryptedContent: {
@@ -69,6 +70,10 @@ const MessageSchema = new Schema<IMessage>(
     },
     mediaSize: {
       type: Number,
+      default: null,
+    },
+    fileName: {
+      type: String,
       default: null,
     },
     iv: {

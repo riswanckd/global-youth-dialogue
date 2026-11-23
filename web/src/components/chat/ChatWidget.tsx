@@ -17,7 +17,10 @@ import {
   Image as ImageIcon,
   Video as VideoIcon,
   Sparkles,
+  FileText,
+  Download,
 } from 'lucide-react';
+import { getStoredToken } from '../../utils/api';
 
 interface ChatMessage {
   id: string;
@@ -25,12 +28,13 @@ interface ChatMessage {
   senderId: string;
   senderRole: string;
   receiverId: string;
-  messageType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+  messageType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE' | 'DOCUMENT';
   content: string;
   hasMedia: boolean;
   mediaMimeType?: string;
   mediaDuration?: number;
   mediaSize?: number;
+  fileName?: string;
   mediaUrl?: string | null;
   isRead: boolean;
   createdAt: string;
@@ -73,9 +77,33 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
   const [selectedFile, setSelectedFile] = useState<{
     file: File;
     previewUrl: string;
-    type: 'IMAGE' | 'VIDEO';
+    type: 'IMAGE' | 'VIDEO' | 'DOCUMENT';
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Helper to resolve authenticated media stream URL
+  const getChatMediaUrl = (url?: string | null) => {
+    if (!url) return '';
+    const token = getStoredToken();
+    const fullUrl = url.startsWith('http') ? url : `https://gyde-api.vercel.app${url}`;
+    return token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
+  };
+
+  // Helper to convert Blob or File to Base64 data string
+  const fileToBase64 = (blobOrFile: Blob | File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Failed to encode media.'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file from storage.'));
+      reader.readAsDataURL(blobOrFile);
+    });
+  };
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -179,7 +207,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
     };
   }, [selectedFile]);
 
-  // Handle file selection (Image or Video)
+  // Handle file selection (Image, Video, or Document)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -187,19 +215,27 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
     const mime = file.type.toLowerCase();
     const isImage = mime.startsWith('image/');
     const isVideo = mime.startsWith('video/');
+    const isDocument =
+      mime.startsWith('application/') ||
+      mime.startsWith('text/') ||
+      file.name.match(/\.(pdf|doc|docx|txt|xls|xlsx|zip)$/i);
 
-    if (!isImage && !isVideo) {
-      setErrorMsg('Invalid file format. Only images and videos are permitted.');
+    if (!isImage && !isVideo && !isDocument) {
+      setErrorMsg('Invalid file format. Please attach an image, video, or document.');
       return;
     }
 
-    // Size limit check (Images: max 5MB, Video: max 15MB)
-    if (isImage && file.size > 5 * 1024 * 1024) {
-      setErrorMsg('Images must be smaller than 5 MB.');
+    // Size limit check (Images: max 10MB, Video: max 25MB, Documents: max 20MB)
+    if (isImage && file.size > 10 * 1024 * 1024) {
+      setErrorMsg('Images must be smaller than 10 MB.');
       return;
     }
-    if (isVideo && file.size > 15 * 1024 * 1024) {
-      setErrorMsg('Videos must be smaller than 15 MB.');
+    if (isVideo && file.size > 25 * 1024 * 1024) {
+      setErrorMsg('Videos must be smaller than 25 MB.');
+      return;
+    }
+    if (isDocument && file.size > 20 * 1024 * 1024) {
+      setErrorMsg('Documents must be smaller than 20 MB.');
       return;
     }
 
@@ -207,11 +243,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
       URL.revokeObjectURL(selectedFile.previewUrl);
     }
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = isImage ? URL.createObjectURL(file) : '';
     setSelectedFile({
       file,
       previewUrl,
-      type: isImage ? 'IMAGE' : 'VIDEO',
+      type: isImage ? 'IMAGE' : isVideo ? 'VIDEO' : 'DOCUMENT',
     });
     setErrorMsg(null);
   };
@@ -331,7 +367,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
   // Upload encrypted media message
   const sendMediaMessage = async (
     blobOrFile: Blob | File,
-    type: 'IMAGE' | 'VIDEO' | 'VOICE',
+    type: 'IMAGE' | 'VIDEO' | 'VOICE' | 'DOCUMENT',
     fileName: string,
     duration?: number,
     caption?: string
@@ -340,15 +376,26 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
     setErrorMsg(null);
 
     try {
-      const formData = new FormData();
-      formData.append('media', blobOrFile, fileName);
-      formData.append('messageType', type);
-      if (caption) formData.append('content', caption);
-      if (duration) formData.append('mediaDuration', duration.toString());
+      const base64Data = await fileToBase64(blobOrFile);
+      const mime = blobOrFile.type
+        ? blobOrFile.type.split(';')[0].trim().toLowerCase()
+        : type === 'VOICE'
+        ? 'audio/webm'
+        : type === 'DOCUMENT'
+        ? 'application/pdf'
+        : 'application/octet-stream';
 
       const res = await apiRequest<{ data: ChatMessage }>('/chat/send', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageType: type,
+          content: caption || '',
+          mediaBase64: base64Data,
+          mediaMimeType: mime,
+          mediaDuration: duration,
+          fileName: fileName || (blobOrFile instanceof File ? blobOrFile.name : `${type.toLowerCase()}_${Date.now()}`),
+        }),
       });
 
       if (res?.data) {
@@ -535,9 +582,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
                         <div className="mb-2">
                           {msg.messageType === 'IMAGE' && (
                             <img
-                              src={msg.mediaUrl}
+                              src={getChatMediaUrl(msg.mediaUrl)}
                               alt="Chat attachment"
-                              onClick={() => setLightboxUrl(msg.mediaUrl!)}
+                              onClick={() => setLightboxUrl(getChatMediaUrl(msg.mediaUrl))}
                               className="rounded-xl max-h-48 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
                               loading="lazy"
                             />
@@ -545,7 +592,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
                           {msg.messageType === 'VIDEO' && (
                             <video
-                              src={msg.mediaUrl}
+                              src={getChatMediaUrl(msg.mediaUrl)}
                               controls
                               playsInline
                               preload="metadata"
@@ -555,10 +602,43 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
                           {msg.messageType === 'VOICE' && (
                             <AudioPlayerBubble
-                              src={msg.mediaUrl}
+                              src={getChatMediaUrl(msg.mediaUrl)}
                               duration={msg.mediaDuration}
                               isMe={isMe}
                             />
+                          )}
+
+                          {msg.messageType === 'DOCUMENT' && (
+                            <a
+                              href={getChatMediaUrl(msg.mediaUrl)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download={msg.fileName || 'document'}
+                              className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all ${
+                                isMe
+                                  ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
+                                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100'
+                              }`}
+                            >
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  isMe ? 'bg-white/20 text-white' : 'bg-[#4851BA]/10 text-[#4851BA] dark:text-indigo-400'
+                                }`}
+                              >
+                                <FileText className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1 min-w-0 text-start">
+                                <p className="font-semibold text-xs truncate max-w-[140px]">
+                                  {msg.fileName || 'Document'}
+                                </p>
+                                {msg.mediaSize && (
+                                  <span className="text-[10px] opacity-75">
+                                    {(msg.mediaSize / (1024 * 1024)).toFixed(1)} MB
+                                  </span>
+                                )}
+                              </div>
+                              <Download className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                            </a>
                           )}
                         </div>
                       )}
@@ -603,8 +683,10 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
               <div className="flex items-center gap-2 truncate">
                 {selectedFile.type === 'IMAGE' ? (
                   <ImageIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
-                ) : (
+                ) : selectedFile.type === 'VIDEO' ? (
                   <VideoIcon className="w-4 h-4 text-[#4851BA] shrink-0" />
+                ) : (
+                  <FileText className="w-4 h-4 text-[#4851BA] shrink-0" />
                 )}
                 <span className="truncate text-slate-700 dark:text-slate-200">
                   {selectedFile.file.name}
@@ -674,7 +756,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                  accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                   className="hidden"
                 />
 
@@ -683,7 +765,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="p-2 rounded-xl text-slate-500 hover:text-[#4851BA] dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                  title={t('chat.attach', 'Attach Image or Video')}
+                  title={t('chat.attach', 'Attach Image, Video, or Document')}
                 >
                   <Paperclip className="w-4 h-4" />
                 </button>

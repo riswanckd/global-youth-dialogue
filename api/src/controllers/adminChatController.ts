@@ -6,13 +6,36 @@ import { User } from '../models/User';
 import { encryptText, decryptText, encryptBuffer } from '../utils/chatEncryption';
 import { ROLES } from '../constants/roles';
 
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
-const ALLOWED_AUDIO_TYPES = ['audio/webm', 'audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-m4a', 'audio/m4a'];
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg', 'video/x-m4v'];
+const ALLOWED_AUDIO_TYPES = [
+  'audio/webm',
+  'audio/mp3',
+  'audio/mpeg',
+  'audio/ogg',
+  'audio/wav',
+  'audio/x-m4a',
+  'audio/m4a',
+  'audio/mp4',
+  'audio/aac',
+  'audio/x-wav',
+  'audio/3gpp',
+];
+const ALLOWED_DOCUMENT_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/zip',
+  'application/x-zip-compressed',
+];
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const MAX_AUDIO_SIZE = 5 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 15 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_AUDIO_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_VIDEO_SIZE = 25 * 1024 * 1024; // 25 MB
+const MAX_DOCUMENT_SIZE = 20 * 1024 * 1024; // 20 MB
 
 function sanitizeText(input: string): string {
   if (!input) return '';
@@ -55,6 +78,7 @@ export async function getAdminConversations(req: Request, res: Response) {
         if (lastMsg.messageType === 'IMAGE') preview = '[Image]';
         else if (lastMsg.messageType === 'VIDEO') preview = '[Video]';
         else if (lastMsg.messageType === 'VOICE') preview = '[Voice Note]';
+        else if (lastMsg.messageType === 'DOCUMENT') preview = `[Document: ${lastMsg.fileName || 'File'}]`;
         else {
           preview = decryptText(lastMsg.encryptedContent, lastMsg.iv, lastMsg.authTag);
         }
@@ -156,6 +180,7 @@ export async function getAdminConversationMessages(req: Request, res: Response) 
       mediaMimeType: msg.mediaMimeType,
       mediaDuration: msg.mediaDuration,
       mediaSize: msg.mediaSize,
+      fileName: msg.fileName,
       mediaUrl: msg.encryptedMediaKey ? `/api/chat/media/${msg._id}` : null,
       isRead: msg.isRead,
       createdAt: msg.createdAt,
@@ -203,7 +228,7 @@ export async function sendAdminReply(req: Request, res: Response) {
     }
 
     const type = (messageType || 'TEXT').toUpperCase() as MessageType;
-    if (!['TEXT', 'IMAGE', 'VIDEO', 'VOICE'].includes(type)) {
+    if (!['TEXT', 'IMAGE', 'VIDEO', 'VOICE', 'DOCUMENT'].includes(type)) {
       return res.status(400).json({ success: false, error: 'Invalid message type' });
     }
 
@@ -225,30 +250,40 @@ export async function sendAdminReply(req: Request, res: Response) {
       mediaBuffer = Buffer.from(base64Data, 'base64');
       mediaSize = mediaBuffer.length;
 
+      const rawMime = (mediaMimeType || '').toLowerCase();
+      const cleanMime = rawMime.split(';')[0].trim();
+
       if (type === 'IMAGE') {
-        if (!ALLOWED_IMAGE_TYPES.includes(mediaMimeType)) {
-          return res.status(400).json({ success: false, error: 'Only JPEG, PNG, and WebP images are allowed' });
+        if (!ALLOWED_IMAGE_TYPES.includes(cleanMime)) {
+          return res.status(400).json({ success: false, error: 'Only JPEG, PNG, WebP, and GIF images are allowed' });
         }
         if (mediaSize > MAX_IMAGE_SIZE) {
-          return res.status(400).json({ success: false, error: 'Image size exceeds 5MB' });
+          return res.status(400).json({ success: false, error: 'Image size exceeds 10MB' });
         }
       } else if (type === 'VOICE') {
-        if (!ALLOWED_AUDIO_TYPES.includes(mediaMimeType)) {
+        if (!ALLOWED_AUDIO_TYPES.includes(cleanMime)) {
           return res.status(400).json({ success: false, error: 'Unsupported audio format' });
         }
         if (mediaSize > MAX_AUDIO_SIZE) {
-          return res.status(400).json({ success: false, error: 'Voice file exceeds 5MB' });
+          return res.status(400).json({ success: false, error: 'Voice file exceeds 10MB' });
         }
       } else if (type === 'VIDEO') {
-        if (!ALLOWED_VIDEO_TYPES.includes(mediaMimeType)) {
-          return res.status(400).json({ success: false, error: 'Only MP4 and WebM videos are allowed' });
+        if (!ALLOWED_VIDEO_TYPES.includes(cleanMime)) {
+          return res.status(400).json({ success: false, error: 'Only MP4, WebM, and QuickTime videos are allowed' });
         }
         if (mediaSize > MAX_VIDEO_SIZE) {
-          return res.status(400).json({ success: false, error: 'Video file exceeds 15MB' });
+          return res.status(400).json({ success: false, error: 'Video file exceeds 25MB' });
+        }
+      } else if (type === 'DOCUMENT') {
+        if (!ALLOWED_DOCUMENT_TYPES.includes(cleanMime) && !cleanMime.startsWith('application/') && !cleanMime.startsWith('text/')) {
+          return res.status(400).json({ success: false, error: 'Unsupported document format' });
+        }
+        if (mediaSize > MAX_DOCUMENT_SIZE) {
+          return res.status(400).json({ success: false, error: 'Document exceeds 20MB' });
         }
       }
 
-      savedMediaMime = mediaMimeType;
+      savedMediaMime = cleanMime;
     }
 
     const { ciphertext, iv, authTag } = encryptText(sanitizedContent || `[${type}]`);
@@ -264,6 +299,7 @@ export async function sendAdminReply(req: Request, res: Response) {
       mediaMimeType: savedMediaMime,
       mediaDuration: mediaDuration ? Number(mediaDuration) : null,
       mediaSize,
+      fileName: fileName || `${type.toLowerCase()}_reply_${Date.now()}`,
       iv,
       authTag,
       isRead: false,
@@ -298,6 +334,7 @@ export async function sendAdminReply(req: Request, res: Response) {
       mediaMimeType: savedMediaMime,
       mediaDuration: message.mediaDuration,
       mediaSize,
+      fileName: message.fileName,
       mediaUrl: type !== 'TEXT' ? `/api/chat/media/${message._id}` : null,
       isRead: false,
       createdAt: message.createdAt,
