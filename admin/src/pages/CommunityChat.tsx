@@ -366,6 +366,7 @@ export const CommunityChat: React.FC = () => {
 
     try {
       const base64Data = await fileToBase64(blobOrFile);
+      const rawBase64 = base64Data.includes(';base64,') ? base64Data.split(';base64,')[1] : base64Data;
       const mime = blobOrFile.type
         ? blobOrFile.type.split(';')[0].trim().toLowerCase()
         : type === 'VOICE'
@@ -380,7 +381,7 @@ export const CommunityChat: React.FC = () => {
         body: JSON.stringify({
           messageType: type,
           content: caption || '',
-          mediaBase64: base64Data,
+          mediaBase64: rawBase64,
           mediaMimeType: mime,
           mediaDuration: duration,
           fileName: fileName || (blobOrFile instanceof File ? blobOrFile.name : `${type.toLowerCase()}_reply_${Date.now()}`),
@@ -1078,12 +1079,24 @@ const AdminAudioPlayer: React.FC<{
 
   const togglePlay = () => {
     if (!audioRef.current) return;
+    if (audioRef.current.ended) {
+      audioRef.current.currentTime = 0;
+    }
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play();
-      setIsPlaying(true);
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch((err) => {
+            console.error('Audio playback error:', err);
+            setIsPlaying(false);
+          });
+      } else {
+        setIsPlaying(true);
+      }
     }
   };
 
@@ -1122,6 +1135,8 @@ const AdminAudioPlayer: React.FC<{
         src={blobUrl}
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
         preload="metadata"
       />
       <button

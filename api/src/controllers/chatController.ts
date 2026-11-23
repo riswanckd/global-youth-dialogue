@@ -183,7 +183,9 @@ export async function sendMemberMessage(req: Request, res: Response) {
       }
 
       // Extract raw base64 data if data URI prefix is present
-      const base64Data = mediaBase64.replace(/^data:[a-zA-Z0-9\/\-+.]+;base64,/, '');
+      const base64Data = mediaBase64.includes(';base64,')
+        ? mediaBase64.split(';base64,')[1]
+        : mediaBase64.replace(/^data:[^,]+,/, '');
       mediaBuffer = Buffer.from(base64Data, 'base64');
       mediaSize = mediaBuffer.length;
 
@@ -333,17 +335,54 @@ export async function getMediaStream(req: Request, res: Response) {
     }
 
     // Decrypt binary buffer in memory
-    const decryptedBuffer = decryptBuffer(chatMedia.encryptedData, chatMedia.iv, chatMedia.authTag);
+    let decryptedBuffer = decryptBuffer(chatMedia.encryptedData, chatMedia.iv, chatMedia.authTag);
 
-    // Enforce strict zero-caching security headers
+    // Auto-heal: if decrypted buffer starts with "data:" due to previously unstripped data URI prefix
+    if (
+      decryptedBuffer.subarray(0, 5).toString('utf8') === 'data:' ||
+      decryptedBuffer.subarray(0, 40).toString('utf8').includes(';base64,')
+    ) {
+      const asString = decryptedBuffer.toString('utf8');
+      const base64Part = asString.includes(';base64,') ? asString.split(';base64,')[1] : asString.replace(/^data:[^,]+,/, '');
+      decryptedBuffer = Buffer.from(base64Part, 'base64');
+    }
+
+    // Enforce strict zero-caching security headers & audio streaming support
     res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.setHeader('Content-Type', message.mediaMimeType || chatMedia.mimeType || 'application/octet-stream');
-    res.setHeader('Content-Length', decryptedBuffer.length);
+    res.setHeader('Accept-Ranges', 'bytes');
+
+    const mimeType = message.mediaMimeType || chatMedia.mimeType || 'application/octet-stream';
     const downloadName = encodeURIComponent(message.fileName || chatMedia.fileName || 'attachment');
     res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
 
+    // HTTP Range request support for media streaming (audio/video seeking and instant playback)
+    const rangeHeader = req.headers.range;
+    if (rangeHeader) {
+      const parts = rangeHeader.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : decryptedBuffer.length - 1;
+
+      if (start >= decryptedBuffer.length || end >= decryptedBuffer.length) {
+        res.status(416).setHeader('Content-Range', `bytes */${decryptedBuffer.length}`);
+        return res.end();
+      }
+
+      const chunkSize = end - start + 1;
+      const chunk = decryptedBuffer.subarray(start, end + 1);
+
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${decryptedBuffer.length}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': mimeType,
+      });
+      return res.end(chunk);
+    }
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', decryptedBuffer.length);
     res.status(200).send(decryptedBuffer);
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to stream media' });

@@ -246,7 +246,9 @@ export async function sendAdminReply(req: Request, res: Response) {
         return res.status(400).json({ success: false, error: 'Media payload required' });
       }
 
-      const base64Data = mediaBase64.replace(/^data:[a-zA-Z0-9\/\-+.]+;base64,/, '');
+      const base64Data = mediaBase64.includes(';base64,')
+        ? mediaBase64.split(';base64,')[1]
+        : mediaBase64.replace(/^data:[^,]+,/, '');
       mediaBuffer = Buffer.from(base64Data, 'base64');
       mediaSize = mediaBuffer.length;
 

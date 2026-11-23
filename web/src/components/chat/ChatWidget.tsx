@@ -377,6 +377,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
 
     try {
       const base64Data = await fileToBase64(blobOrFile);
+      const rawBase64 = base64Data.includes(';base64,') ? base64Data.split(';base64,')[1] : base64Data;
       const mime = blobOrFile.type
         ? blobOrFile.type.split(';')[0].trim().toLowerCase()
         : type === 'VOICE'
@@ -391,7 +392,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
         body: JSON.stringify({
           messageType: type,
           content: caption || '',
-          mediaBase64: base64Data,
+          mediaBase64: rawBase64,
           mediaMimeType: mime,
           mediaDuration: duration,
           fileName: fileName || (blobOrFile instanceof File ? blobOrFile.name : `${type.toLowerCase()}_${Date.now()}`),
@@ -845,7 +846,48 @@ const AudioPlayerBubble: React.FC<{
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Preload audio into memory blob for instant, reliable decoding and seeking across browsers
+  useEffect(() => {
+    let active = true;
+    if (!src) return;
+
+    if (src.startsWith('blob:')) {
+      setBlobUrl(src);
+      return;
+    }
+
+    const token = getStoredToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    fetch(src, { headers, credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (active) {
+          const url = URL.createObjectURL(blob);
+          setBlobUrl(url);
+        }
+      })
+      .catch((err) => {
+        console.warn('Direct blob load failed, falling back to direct src:', err);
+        if (active) {
+          setBlobUrl(src);
+        }
+      });
+
+    return () => {
+      active = false;
+      if (blobUrl && blobUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [src]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -853,8 +895,17 @@ const AudioPlayerBubble: React.FC<{
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play();
-      setIsPlaying(true);
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((err) => {
+            console.error('Audio playback error:', err);
+            setIsPlaying(false);
+          });
+      }
     }
   };
 
@@ -873,6 +924,7 @@ const AudioPlayerBubble: React.FC<{
   };
 
   const formatSecs = (s: number) => {
+    if (isNaN(s) || !isFinite(s) || s < 0) return '0:00';
     const mins = Math.floor(s / 60);
     const secs = Math.floor(s % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -880,23 +932,27 @@ const AudioPlayerBubble: React.FC<{
 
   return (
     <div
-      className={`flex items-center gap-2 py-1 px-1 rounded-xl w-48 ${isMe ? 'text-white' : 'text-slate-800 dark:text-slate-200'
-        }`}
+      className={`flex items-center gap-2 py-1 px-1 rounded-xl w-48 ${
+        isMe ? 'text-white' : 'text-slate-800 dark:text-slate-200'
+      }`}
     >
       <audio
         ref={audioRef}
-        src={src}
+        src={blobUrl || src}
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
-        preload="metadata"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        preload="auto"
       />
       <button
         type="button"
         onClick={togglePlay}
-        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer ${isMe
+        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer ${
+          isMe
             ? 'bg-[#3B43A1] text-white hover:bg-[#1e1b4b]'
             : 'bg-[#4851BA] text-white hover:bg-[#3B43A1]'
-          }`}
+        }`}
       >
         {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
       </button>
@@ -904,8 +960,9 @@ const AudioPlayerBubble: React.FC<{
       <div className="flex-1">
         <div className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-100 ${isMe ? 'bg-indigo-200' : 'bg-[#4851BA]'
-              }`}
+            className={`h-full rounded-full transition-all duration-100 ${
+              isMe ? 'bg-indigo-200' : 'bg-[#4851BA]'
+            }`}
             style={{ width: `${progress}%` }}
           />
         </div>
