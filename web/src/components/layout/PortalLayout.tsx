@@ -649,6 +649,7 @@ export const PortalLayout: React.FC = () => {
           <Outlet
             context={{
               openPresenterModal: () => setPresenterModalOpen(true),
+              openNotificationsModal: () => setNotificationsOpen(true),
               activeDashboardMode,
               toggleDashboardMode,
               unreadNoticesCount,

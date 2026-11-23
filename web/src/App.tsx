@@ -93,6 +93,7 @@ export const App: React.FC = () => {
                   }
                 >
                   <Route index element={<PortalDashboard />} />
+                  <Route path="dashboard" element={<PortalDashboard />} />
                   <Route path="sessions" element={<PortalSessions />} />
                   <Route path="sessions/:id" element={<PortalSessionDetail />} />
                   <Route path="recordings" element={<PortalRecordings />} />

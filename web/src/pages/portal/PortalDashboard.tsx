@@ -33,6 +33,7 @@ import { PresentTopicModal } from '../../components/portal/PresentTopicModal';
 
 interface OutletContextType {
   openPresenterModal?: () => void;
+  openNotificationsModal?: () => void;
   activeDashboardMode?: 'member' | 'presenter';
   toggleDashboardMode?: (mode: 'member' | 'presenter') => void;
   unreadNoticesCount?: number;
@@ -43,7 +44,7 @@ export const PortalDashboard: React.FC = () => {
   const { isArabic } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const { openPresenterModal, activeDashboardMode, toggleDashboardMode, unreadNoticesCount } = useOutletContext<OutletContextType>() || {};
+  const { openPresenterModal, openNotificationsModal, activeDashboardMode, toggleDashboardMode, unreadNoticesCount } = useOutletContext<OutletContextType>() || {};
 
   const [localModalOpen, setLocalModalOpen] = useState(false);
   const [presentModalOpen, setPresentModalOpen] = useState(false);
@@ -222,7 +223,13 @@ export const PortalDashboard: React.FC = () => {
 
           {/* Notifications button */}
           <button
-            onClick={() => navigate('/portal/dashboard?notifications=open')}
+            onClick={() => {
+              if (openNotificationsModal) {
+                openNotificationsModal();
+              } else {
+                navigate('/portal?notifications=open');
+              }
+            }}
             className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full border-0 border-none outline-none shadow-none bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer relative"
           >
             <Bell className="w-3.5 h-3.5 text-slate-500 shrink-0" />
