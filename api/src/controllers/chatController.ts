@@ -347,6 +347,14 @@ export async function getMediaStream(req: Request, res: Response) {
       decryptedBuffer = Buffer.from(base64Part, 'base64');
     }
 
+    // Guard against corrupt truncated voice notes from before storage update
+    if (decryptedBuffer.length < 100 && message.messageType === 'VOICE') {
+      return res.status(422).json({
+        success: false,
+        error: 'Voice note was recorded prior to the storage update and cannot be recovered. Please record a new voice message.',
+      });
+    }
+
     // Enforce strict zero-caching security headers & audio streaming support
     res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');

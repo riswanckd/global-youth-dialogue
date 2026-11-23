@@ -316,7 +316,7 @@ export const CommunityChat: React.FC = () => {
         }
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(250);
       setIsRecording(true);
       setRecordingSeconds(0);
 
@@ -338,8 +338,15 @@ export const CommunityChat: React.FC = () => {
       });
       mediaRecorderRef.current?.stream.getTracks().forEach((track) => track.stop());
 
-      if (audioBlob.size > 5 * 1024 * 1024) {
-        setErrorMsg('Voice note exceeds 5 MB limit.');
+      if (audioBlob.size < 100) {
+        setErrorMsg('Voice note was too short or empty. Please record again.');
+        setIsRecording(false);
+        setRecordingSeconds(0);
+        return;
+      }
+
+      if (audioBlob.size > 4 * 1024 * 1024) {
+        setErrorMsg('Voice note exceeds 4 MB limit.');
         setIsRecording(false);
         return;
       }
@@ -1117,6 +1124,7 @@ const AdminAudioPlayer: React.FC<{
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -1128,14 +1136,24 @@ const AdminAudioPlayer: React.FC<{
     const urlWithToken = token ? `${fullUrl}?token=${encodeURIComponent(token)}` : fullUrl;
 
     fetch(urlWithToken, { headers, credentials: 'include' })
-      .then((res) => res.blob())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
       .then((blob) => {
         if (active) {
+          if (blob.size < 100) {
+            setHasError(true);
+            return;
+          }
           const url = URL.createObjectURL(blob);
           setBlobUrl(url);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn('Admin audio load error:', err);
+        if (active) setHasError(true);
+      });
 
     return () => {
       active = false;
@@ -1144,7 +1162,7 @@ const AdminAudioPlayer: React.FC<{
   }, [mediaUrl]);
 
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || hasError) return;
     if (audioRef.current.ended) {
       audioRef.current.currentTime = 0;
     }
@@ -1181,13 +1199,22 @@ const AdminAudioPlayer: React.FC<{
   };
 
   const formatSecs = (s: number) => {
+    if (isNaN(s) || !isFinite(s) || s < 0) return '0:00';
     const mins = Math.floor(s / 60);
     const secs = Math.floor(s % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  if (hasError) {
+    return (
+      <div className={`py-1 px-2 rounded-xl text-[11px] opacity-80 italic ${isAdminSender ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+        Voice message unavailable
+      </div>
+    );
+  }
+
   if (!blobUrl) {
-    return <div className="h-8 w-40 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />;
+    return <div className="h-8 w-44 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />;
   }
 
   return (
@@ -1203,7 +1230,11 @@ const AdminAudioPlayer: React.FC<{
         onEnded={onEnded}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-        preload="metadata"
+        onError={() => {
+          setIsPlaying(false);
+          setHasError(true);
+        }}
+        preload="auto"
       />
       <button
         type="button"
@@ -1218,7 +1249,19 @@ const AdminAudioPlayer: React.FC<{
       </button>
 
       <div className="flex-1">
-        <div className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
+        <div
+          className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden cursor-pointer"
+          onClick={(e) => {
+            if (!audioRef.current) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickPos = (e.clientX - rect.left) / rect.width;
+            const total = audioRef.current.duration || duration || 0;
+            if (total > 0) {
+              audioRef.current.currentTime = clickPos * total;
+              setProgress(clickPos * 100);
+            }
+          }}
+        >
           <div
             className={`h-full rounded-full transition-all duration-100 ${
               isAdminSender ? 'bg-indigo-200' : 'bg-[#4851BA]'

@@ -325,7 +325,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
         }
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(250);
       setIsRecording(true);
       setRecordingSeconds(0);
 
@@ -351,8 +351,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onSpotlightComplete }) =
       // Stop all tracks to release hardware microphone
       mediaRecorderRef.current?.stream.getTracks().forEach((track) => track.stop());
 
-      if (audioBlob.size > 5 * 1024 * 1024) {
-        setErrorMsg('Voice notes must be under 5 MB.');
+      if (audioBlob.size < 100) {
+        setErrorMsg('Voice note was too short or empty. Please try recording again.');
+        setIsRecording(false);
+        setRecordingSeconds(0);
+        return;
+      }
+
+      if (audioBlob.size > 4 * 1024 * 1024) {
+        setErrorMsg('Voice notes must be under 4 MB.');
         setIsRecording(false);
         return;
       }
@@ -957,6 +964,7 @@ const AudioPlayerBubble: React.FC<{
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Preload audio into memory blob for instant, reliable decoding and seeking across browsers
@@ -979,14 +987,18 @@ const AudioPlayerBubble: React.FC<{
       })
       .then((blob) => {
         if (active) {
+          if (blob.size < 100) {
+            setHasError(true);
+            return;
+          }
           const url = URL.createObjectURL(blob);
           setBlobUrl(url);
         }
       })
       .catch((err) => {
-        console.warn('Direct blob load failed, falling back to direct src:', err);
+        console.warn('Audio blob load failed:', err);
         if (active) {
-          setBlobUrl(src);
+          setHasError(true);
         }
       });
 
@@ -999,7 +1011,10 @@ const AudioPlayerBubble: React.FC<{
   }, [src]);
 
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || hasError) return;
+    if (audioRef.current.ended) {
+      audioRef.current.currentTime = 0;
+    }
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -1039,6 +1054,18 @@ const AudioPlayerBubble: React.FC<{
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  if (hasError) {
+    return (
+      <div className={`py-1 px-2 rounded-xl text-[11px] opacity-80 italic ${isMe ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+        Voice message unavailable
+      </div>
+    );
+  }
+
+  if (!blobUrl) {
+    return <div className="h-8 w-44 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />;
+  }
+
   return (
     <div
       className={`flex items-center gap-2 py-1 px-1 rounded-xl w-48 ${
@@ -1047,11 +1074,15 @@ const AudioPlayerBubble: React.FC<{
     >
       <audio
         ref={audioRef}
-        src={blobUrl || src}
+        src={blobUrl}
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onError={() => {
+          setIsPlaying(false);
+          setHasError(true);
+        }}
         preload="auto"
       />
       <button
@@ -1067,7 +1098,19 @@ const AudioPlayerBubble: React.FC<{
       </button>
 
       <div className="flex-1">
-        <div className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
+        <div
+          className="w-full bg-black/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden cursor-pointer"
+          onClick={(e) => {
+            if (!audioRef.current) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickPos = (e.clientX - rect.left) / rect.width;
+            const total = audioRef.current.duration || duration || 0;
+            if (total > 0) {
+              audioRef.current.currentTime = clickPos * total;
+              setProgress(clickPos * 100);
+            }
+          }}
+        >
           <div
             className={`h-full rounded-full transition-all duration-100 ${
               isMe ? 'bg-indigo-200' : 'bg-[#4851BA]'

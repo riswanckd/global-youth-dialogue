@@ -67,6 +67,14 @@ app.use(
       'pragma',
       'Expires',
       'expires',
+      'Range',
+      'range',
+    ],
+    exposedHeaders: [
+      'Content-Range',
+      'Accept-Ranges',
+      'Content-Length',
+      'Content-Type',
     ],
   })
 );
