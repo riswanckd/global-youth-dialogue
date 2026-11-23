@@ -209,7 +209,7 @@ export async function sendBroadcast(req: Request, res: Response) {
             const firstName = recipient.name ? recipient.name.trim().split(' ')[0] : 'Member';
             const html = buildBroadcastEmailHtml(firstName, sanitizedSubject, sanitizedMessage);
 
-            const broadcastFrom = env.BROADCAST_FROM_EMAIL || env.FROM_EMAIL || 'thegyde.verify@gmail.com';
+            const broadcastFrom = env.BROADCAST_FROM_EMAIL || 'admin@thegyde.in';
             const broadcastReplyTo = env.BROADCAST_REPLY_TO || 'admin@thegyde.in';
 
             const sent = await sendEmail({
