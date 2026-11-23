@@ -33,10 +33,10 @@ const ALLOWED_DOCUMENT_TYPES = [
   'application/x-zip-compressed',
 ];
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_AUDIO_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_VIDEO_SIZE = 25 * 1024 * 1024; // 25 MB
-const MAX_DOCUMENT_SIZE = 20 * 1024 * 1024; // 20 MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_AUDIO_SIZE = 4 * 1024 * 1024; // 4 MB
+const MAX_VIDEO_SIZE = 4 * 1024 * 1024; // 4 MB
+const MAX_DOCUMENT_SIZE = 3.5 * 1024 * 1024; // 3.5 MB
 
 /**
  * Basic XSS sanitizer for chat text
@@ -198,28 +198,28 @@ export async function sendMemberMessage(req: Request, res: Response) {
           return res.status(400).json({ success: false, error: 'Only JPEG, PNG, WebP, and GIF images are allowed' });
         }
         if (mediaSize > MAX_IMAGE_SIZE) {
-          return res.status(400).json({ success: false, error: 'Image size exceeds 10MB limit' });
+          return res.status(400).json({ success: false, error: 'Image size exceeds 5MB limit' });
         }
       } else if (type === 'VOICE') {
         if (!ALLOWED_AUDIO_TYPES.includes(cleanMime)) {
           return res.status(400).json({ success: false, error: 'Unsupported voice format' });
         }
         if (mediaSize > MAX_AUDIO_SIZE) {
-          return res.status(400).json({ success: false, error: 'Voice note exceeds 10MB limit' });
+          return res.status(400).json({ success: false, error: 'Voice note exceeds 4MB limit' });
         }
       } else if (type === 'VIDEO') {
         if (!ALLOWED_VIDEO_TYPES.includes(cleanMime)) {
           return res.status(400).json({ success: false, error: 'Only MP4, WebM, and QuickTime videos are allowed' });
         }
         if (mediaSize > MAX_VIDEO_SIZE) {
-          return res.status(400).json({ success: false, error: 'Video exceeds 25MB limit' });
+          return res.status(400).json({ success: false, error: 'Video exceeds 4MB limit' });
         }
       } else if (type === 'DOCUMENT') {
         if (!ALLOWED_DOCUMENT_TYPES.includes(cleanMime) && !cleanMime.startsWith('application/') && !cleanMime.startsWith('text/')) {
           return res.status(400).json({ success: false, error: 'Unsupported document format' });
         }
         if (mediaSize > MAX_DOCUMENT_SIZE) {
-          return res.status(400).json({ success: false, error: 'Document exceeds 20MB limit' });
+          return res.status(400).json({ success: false, error: 'Document exceeds 3.5MB limit' });
         }
       }
 
@@ -352,37 +352,11 @@ export async function getMediaStream(req: Request, res: Response) {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Accept-Ranges', 'bytes');
-
-    const mimeType = message.mediaMimeType || chatMedia.mimeType || 'application/octet-stream';
+    res.setHeader('Content-Type', message.mediaMimeType || chatMedia.mimeType || 'application/octet-stream');
+    res.setHeader('Content-Length', decryptedBuffer.length);
     const downloadName = encodeURIComponent(message.fileName || chatMedia.fileName || 'attachment');
     res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
 
-    // HTTP Range request support for media streaming (audio/video seeking and instant playback)
-    const rangeHeader = req.headers.range;
-    if (rangeHeader) {
-      const parts = rangeHeader.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : decryptedBuffer.length - 1;
-
-      if (start >= decryptedBuffer.length || end >= decryptedBuffer.length) {
-        res.status(416).setHeader('Content-Range', `bytes */${decryptedBuffer.length}`);
-        return res.end();
-      }
-
-      const chunkSize = end - start + 1;
-      const chunk = decryptedBuffer.subarray(start, end + 1);
-
-      res.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${decryptedBuffer.length}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': mimeType,
-      });
-      return res.end(chunk);
-    }
-
-    res.setHeader('Content-Type', mimeType);
-    res.setHeader('Content-Length', decryptedBuffer.length);
     res.status(200).send(decryptedBuffer);
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to stream media' });

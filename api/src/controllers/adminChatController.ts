@@ -32,10 +32,10 @@ const ALLOWED_DOCUMENT_TYPES = [
   'application/x-zip-compressed',
 ];
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_AUDIO_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_VIDEO_SIZE = 25 * 1024 * 1024; // 25 MB
-const MAX_DOCUMENT_SIZE = 20 * 1024 * 1024; // 20 MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_AUDIO_SIZE = 4 * 1024 * 1024; // 4 MB
+const MAX_VIDEO_SIZE = 4 * 1024 * 1024; // 4 MB
+const MAX_DOCUMENT_SIZE = 3.5 * 1024 * 1024; // 3.5 MB
 
 function sanitizeText(input: string): string {
   if (!input) return '';
@@ -260,28 +260,28 @@ export async function sendAdminReply(req: Request, res: Response) {
           return res.status(400).json({ success: false, error: 'Only JPEG, PNG, WebP, and GIF images are allowed' });
         }
         if (mediaSize > MAX_IMAGE_SIZE) {
-          return res.status(400).json({ success: false, error: 'Image size exceeds 10MB' });
+          return res.status(400).json({ success: false, error: 'Image size exceeds 5MB' });
         }
       } else if (type === 'VOICE') {
         if (!ALLOWED_AUDIO_TYPES.includes(cleanMime)) {
           return res.status(400).json({ success: false, error: 'Unsupported audio format' });
         }
         if (mediaSize > MAX_AUDIO_SIZE) {
-          return res.status(400).json({ success: false, error: 'Voice file exceeds 10MB' });
+          return res.status(400).json({ success: false, error: 'Voice file exceeds 4MB' });
         }
       } else if (type === 'VIDEO') {
         if (!ALLOWED_VIDEO_TYPES.includes(cleanMime)) {
           return res.status(400).json({ success: false, error: 'Only MP4, WebM, and QuickTime videos are allowed' });
         }
         if (mediaSize > MAX_VIDEO_SIZE) {
-          return res.status(400).json({ success: false, error: 'Video file exceeds 25MB' });
+          return res.status(400).json({ success: false, error: 'Video file exceeds 4MB' });
         }
       } else if (type === 'DOCUMENT') {
         if (!ALLOWED_DOCUMENT_TYPES.includes(cleanMime) && !cleanMime.startsWith('application/') && !cleanMime.startsWith('text/')) {
           return res.status(400).json({ success: false, error: 'Unsupported document format' });
         }
         if (mediaSize > MAX_DOCUMENT_SIZE) {
-          return res.status(400).json({ success: false, error: 'Document exceeds 20MB' });
+          return res.status(400).json({ success: false, error: 'Document exceeds 3.5MB upload limit' });
         }
       }
 

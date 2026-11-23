@@ -116,6 +116,59 @@ export const CommunityChat: React.FC = () => {
     });
   };
 
+  // Auto-compress large photos on an in-memory canvas to HD (max 1920px) under 1MB
+  const compressImageIfNeeded = (file: File): Promise<Blob | File> => {
+    if (!file.type.startsWith('image/') || file.type.includes('svg')) {
+      return Promise.resolve(file);
+    }
+    if (file.size < 600 * 1024) {
+      return Promise.resolve(file);
+    }
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        const MAX_DIM = 1920;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              resolve(blob);
+            } else {
+              resolve(file);
+            }
+          },
+          'image/jpeg',
+          0.82
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    });
+  };
+
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -217,16 +270,13 @@ export const CommunityChat: React.FC = () => {
       return;
     }
 
-    if (isImage && file.size > 10 * 1024 * 1024) {
-      setErrorMsg('Images must be smaller than 10 MB.');
+    // Size limit check: Images up to 15MB (auto-compressed on canvas), Documents & Media max 3.2MB
+    if (isImage && file.size > 15 * 1024 * 1024) {
+      setErrorMsg('Images must be smaller than 15 MB.');
       return;
     }
-    if (isVideo && file.size > 25 * 1024 * 1024) {
-      setErrorMsg('Videos must be smaller than 25 MB.');
-      return;
-    }
-    if (isDocument && file.size > 20 * 1024 * 1024) {
-      setErrorMsg('Documents must be smaller than 20 MB.');
+    if (!isImage && file.size > 3.2 * 1024 * 1024) {
+      setErrorMsg('Documents and media files must be smaller than 3.2 MB for upload.');
       return;
     }
 
@@ -365,7 +415,11 @@ export const CommunityChat: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const base64Data = await fileToBase64(blobOrFile);
+      let fileToSend = blobOrFile;
+      if (type === 'IMAGE' && blobOrFile instanceof File) {
+        fileToSend = await compressImageIfNeeded(blobOrFile);
+      }
+      const base64Data = await fileToBase64(fileToSend);
       const rawBase64 = base64Data.includes(';base64,') ? base64Data.split(';base64,')[1] : base64Data;
       const mime = blobOrFile.type
         ? blobOrFile.type.split(';')[0].trim().toLowerCase()

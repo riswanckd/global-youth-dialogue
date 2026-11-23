@@ -31,6 +31,18 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
     message = `Invalid ID format: ${err.value}`;
   }
 
+  // Handle JSON parsing errors and payload size limits from serverless gateway
+  if (
+    err instanceof SyntaxError &&
+    ('body' in err || (err as any).type === 'entity.parse.failed' || err.message?.includes('JSON'))
+  ) {
+    statusCode = 400;
+    message = 'File payload was too large or truncated. Please attach a file under 3.2 MB.';
+  } else if (err.status === 413 || err.statusCode === 413 || (err as any).type === 'entity.too.large') {
+    statusCode = 413;
+    message = 'File size exceeds server upload limit. Please attach a file under 3.2 MB.';
+  }
+
   if (statusCode >= 500) {
     logger.error({ err }, `[Unhandled Error] ${message}`);
   }
